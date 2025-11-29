@@ -38,5 +38,6 @@ watch(
     :media="{
       photoUrl: mark.photo ? mark.photo[0] : mark.category.icon,
     }"
+    :color="mark.category.color"
   />
 </template>

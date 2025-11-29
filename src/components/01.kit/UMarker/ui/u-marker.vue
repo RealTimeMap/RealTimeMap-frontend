@@ -11,6 +11,7 @@ interface Props {
   coordinates: LngLat
   draggable?: boolean
   settings?: object
+  color?: string
   media: Media
 }
 
@@ -73,6 +74,7 @@ onMounted(() => {
           <img
             :src="props.media?.photoUrl"
             class="marker-photo"
+            :style="{ borderColor: props.color }"
             alt="photo"
           >
         </div>
@@ -116,7 +118,7 @@ onMounted(() => {
   &::after {
     content: '';
     position: absolute;
-    bottom: -6px;
+    bottom: -8px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
