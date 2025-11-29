@@ -36,7 +36,7 @@ watch(
     :draggable="false"
     :title="mark.mark_name"
     :media="{
-      photoUrl: mark.photo?.[0],
+      photoUrl: mark.photo ? mark.photo[0] : mark.category.icon,
     }"
   />
 </template>

@@ -20,7 +20,12 @@ const propsDialog = defineProps({
 })
 
 const dialogStore = useDialogStore()
-const { show, component, props, title } = storeToRefs(dialogStore)
+const {
+  show,
+  component,
+  props,
+  title,
+} = storeToRefs(dialogStore)
 
 function handleClose() {
   dialogStore.closeDialog()
@@ -89,14 +94,15 @@ function handleOverlayClick() {
   left: 0;
   width: 100%;
   height: 100%;
-  // background-color: rgba(0, 0, 0, 0.6);
+  background-color: rgba(0, 0, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 
   &__container {
-    background: white;
+    // background: white;
+    backdrop-filter: blur(20px);
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     display: flex;

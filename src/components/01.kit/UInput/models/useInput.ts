@@ -1,7 +1,7 @@
 export interface UInputProps {
   modelValue: string | number | null
   label?: string
-  type?: 'text' | 'password' | 'email' | 'tel'
+  type?: 'text' | 'password' | 'email' | 'tel' | 'textarea'
   error?: boolean
   errorMessage?: string
   loading?: boolean

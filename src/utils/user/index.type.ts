@@ -7,8 +7,8 @@ export interface User {
   phone?: string
   username: string
   avatar?: string
-  subscriptions?: UserSubscription[]
-  bans?: UserBans[]
+  subscription?: UserSubscription
+  ban?: UserBan
   gamefication?: UserGemefication
 }
 
@@ -18,7 +18,7 @@ interface UserSubscription {
   ends_at: Date
 }
 
-interface UserBans {
+interface UserBan {
   id: number
   user_id: number
   moderator_id: number

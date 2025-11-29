@@ -11,6 +11,11 @@ import {
   SettingsOutline,
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
+import { useAddMarkStore } from '../../../../shared/stores/add-mark'
+import { useGeolocation } from '../../geolocation/composables/useGeolocation'
+
+const { userPosition } = useGeolocation()
+const addMarkStore = useAddMarkStore()
 
 const activeItemId = defineModel<string>('activeItem', { default: 'Map' })
 
@@ -35,9 +40,13 @@ const navItems: NavItem[] = ([
   },
 ])
 
+function handleAddClick() {
+  if (userPosition.value)
+    addMarkStore.startAddingMark(userPosition.value)
+}
+
 const actionItems: ActionItem[] = ([
-  // eslint-disable-next-line no-console
-  { id: 'add', icon: Add, action: () => console.log('Add clicked') },
+  { id: 'add', icon: Add, action: handleAddClick },
   // eslint-disable-next-line no-console
   { id: 'image', icon: ImageIcon, action: () => console.log('Image clicked') },
   // eslint-disable-next-line no-console
@@ -101,6 +110,7 @@ onMounted(() => {
 
 <template>
   <u-glass-wrapper
+    v-if="!addMarkStore.isAddingMark"
     :scale="40"
     :class="{ 'is-visible': isReadyForAnimation }"
     class="bottom-nav"

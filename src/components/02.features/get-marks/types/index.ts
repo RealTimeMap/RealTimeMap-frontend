@@ -1,5 +1,5 @@
-// import type { User } from 'src/utils/api/user/index.type'
 import type { LngLat } from '@yandex/ymaps3-types'
+import type { User } from '@/utils/user/index.type'
 
 export interface Mark {
   id: string
@@ -15,8 +15,14 @@ export interface Mark {
     coordinates: LngLat
   }
   photo: string[]
+  category: {
+    id: number
+    category_name: string
+    color: string
+    icon: string
+  }
 }
 
-// export interface MarkFull extends Mark {
-//   owner: User
-// }
+export interface MarkFull extends Mark {
+  owner: User
+}

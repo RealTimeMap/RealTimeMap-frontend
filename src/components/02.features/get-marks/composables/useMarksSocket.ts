@@ -25,6 +25,14 @@ export function useMarksSocket() {
     emit(MARKS_NAMESPACE, 'marks_message', params)
   }
 
+  const handleMarkCreated = (newMark: Mark) => {
+    const exists = marks.value.find(m => m.id === newMark.id)
+
+    if (!exists) {
+      marks.value.push(newMark)
+    }
+  }
+
   const handleGetMarks = (receivedMarks: Mark[]) => {
     marks.value = receivedMarks
     isLoading.value = false
@@ -32,6 +40,7 @@ export function useMarksSocket() {
 
   const unsubscribes = [
     on(MARKS_NAMESPACE, 'marks_get', handleGetMarks),
+    on(MARKS_NAMESPACE, 'marks_created', handleMarkCreated),
   ]
 
   onUnmounted(() => {

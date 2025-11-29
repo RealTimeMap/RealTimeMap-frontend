@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import type { YMap } from '@yandex/ymaps3-types'
-import { useAuthStore } from '@/components/02.features/authentication/model/auth'
-import { GeolocationFeedback } from '@/components/02.features/geolocation'
-import { useGeolocation } from '@/components/02.features/geolocation/composables/useGeolocation'
-import MarksLayer from '@/components/02.features/get-marks/ui/marks-layer.vue'
-import { BaseMapView } from '@/components/02.features/map-core'
+import { AddMarkMode } from '../components/02.features/add-mark-mode'
+import { useAuthStore } from '../components/02.features/authentication/model/auth'
+import { GeolocationFeedback } from '../components/02.features/geolocation'
+import { useGeolocation } from '../components/02.features/geolocation/composables/useGeolocation'
+import MarksLayer from '../components/02.features/get-marks/ui/marks-layer.vue'
+import { BaseMapView } from '../components/02.features/map-core'
 
 const {
   userPosition,
@@ -51,6 +52,7 @@ const { user } = storeToRefs(authStore)
           photoUrl: user?.avatar || '',
         }"
       />
+      <add-mark-mode />
     </base-map-view>
   </main>
 </template>

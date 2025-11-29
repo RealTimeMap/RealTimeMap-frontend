@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { LngLat, YMapMarkerEventHandler } from '@yandex/ymaps3-types'
 import { YandexMapMarker } from 'vue-yandex-maps'
 
 interface Media {
@@ -24,21 +24,29 @@ const emit = defineEmits<{
   (e: 'drag', currentCoordinates: LngLat): void
 }>()
 
+const markerRef = shallowRef<any>(null)
 const currentCoordinates = ref<LngLat>([...props.coordinates])
+
+const markerSettings = computed(() => ({
+  coordinates: currentCoordinates.value,
+  draggable: props.draggable,
+  ...props.settings,
+}))
 
 watch(() => props.coordinates, (newCoords) => {
   currentCoordinates.value = [...newCoords]
 }, { deep: true })
 
-function handleDragEnd(event: any) {
-  const newCoords = event.coordinates as LngLat
-  currentCoordinates.value = newCoords
-  emit('dragend', newCoords)
-}
+const onDragMove: YMapMarkerEventHandler = (event) => {
+  const newCoords = event as LngLat
 
-function handleDrag(event: any) {
-  const currentCoords = event.coordinates as LngLat
-  emit('drag', currentCoords)
+  if (newCoords) {
+    currentCoordinates.value = newCoords
+    emit('dragend', newCoords)
+  }
+  else {
+    console.error('Не удалось получить координаты из события:', event)
+  }
 }
 
 onMounted(() => {
@@ -50,12 +58,11 @@ onMounted(() => {
 
 <template>
   <yandex-map-marker
+    ref="markerRef"
     :settings="{
-      coordinates: currentCoordinates,
-      draggable: props.draggable,
+      ...markerSettings,
+      onDragMove,
     }"
-    @dragend="handleDragEnd"
-    @drag="handleDrag"
   >
     <div
       class="custom-map-marker"

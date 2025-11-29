@@ -83,7 +83,6 @@ const {
         </svg>
       </div>
 
-      <!-- Переключатель видимости пароля -->
       <button
         v-else-if="showPasswordToggle"
         type="button"
