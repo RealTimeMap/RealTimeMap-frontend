@@ -12,12 +12,14 @@ import {
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 import { useAddMarkStore } from '../../../../shared/stores/add-mark'
+import { useAuthStore } from '../../authentication/model/auth'
 import { useGeolocation } from '../../geolocation/composables/useGeolocation'
 
 const { userPosition } = useGeolocation()
 const addMarkStore = useAddMarkStore()
 
 const activeItemId = defineModel<string>('activeItem', { default: 'Map' })
+const authStore = useAuthStore()
 
 interface ActionItem {
   id: string
@@ -45,13 +47,20 @@ function handleAddClick() {
     addMarkStore.startAddingMark(userPosition.value)
 }
 
-const actionItems: ActionItem[] = ([
-  { id: 'add', icon: Add, action: handleAddClick },
-  // eslint-disable-next-line no-console
-  { id: 'image', icon: ImageIcon, action: () => console.log('Image clicked') },
-  // eslint-disable-next-line no-console
-  { id: 'close', icon: Close, action: () => console.log('Close clicked') },
-])
+const actionItems = computed<ActionItem[]>(() => {
+  const items: ActionItem[] = [
+    { id: 'add', icon: Add, action: handleAddClick },
+    // eslint-disable-next-line no-console
+    { id: 'image', icon: ImageIcon, action: () => console.log('Image clicked') },
+    // eslint-disable-next-line no-console
+    { id: 'close', icon: Close, action: () => console.log('Close clicked') },
+  ]
+
+  if (!authStore.token)
+    return items.filter(item => item.id !== 'add')
+
+  return items
+})
 
 const isActionsVisible = ref(false)
 let showActionsTimer: ReturnType<typeof setTimeout> | null = null
