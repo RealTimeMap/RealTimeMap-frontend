@@ -7,15 +7,24 @@ const props = defineProps<{
   markId: number
 }>()
 
+const marksCache = new Map<number, MarkFull>()
 const mark = ref<MarkFull | null>(null)
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
 async function fetchData() {
-  isLoading.value = true
   error.value = null
+
+  if (marksCache.has(props.markId)) {
+    mark.value = marksCache.get(props.markId)!
+    isLoading.value = false
+    return
+  }
+
   try {
-    mark.value = await markApi.getMarkFull(props.markId)
+    const data = await markApi.getMarkFull(props.markId)
+    marksCache.set(props.markId, data)
+    mark.value = data
   }
   catch (e) {
     console.error(e)
@@ -43,6 +52,8 @@ function formatDate(dateString?: string) {
 
 const statusText = computed(() => (mark.value?.is_ended ? 'Завершена' : 'Активна'))
 const statusClass = computed(() => (mark.value?.is_ended ? 'status--ended' : 'status--active'))
+
+watch(() => props.markId, fetchData)
 
 onMounted(fetchData)
 </script>
