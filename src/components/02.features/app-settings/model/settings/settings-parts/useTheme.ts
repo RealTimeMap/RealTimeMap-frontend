@@ -17,7 +17,7 @@ export function useTheme() {
   const themeOverrides = computed<GlobalThemeOverrides>(() => {
     return {
       common: {
-        primaryColor: '#4A90E2',
+        primaryColor: '#7aafeb',
         primaryColorHover: '#357ABD',
         primaryColorPressed: '#2A629A',
         primaryColorSuppl: '#4A90E2',
@@ -31,10 +31,10 @@ export function useTheme() {
   const customThemeVars = computed(() => {
     if (currentTheme.value === 'dark') {
       return {
-        '--primary-color': '#4A90E2',
+        '--primary-color': '#7aafeb',
         '--red-color': '#FF5A5F',
-        '--access-color': '#00C851',
-        '--text-color': '#fff',
+        '--access-color': '#82f00d',
+        '--text-color': '#e9ecef',
         '--bg-color-soft': 'rgba(0, 0, 0, 0.55)',
         '--u-modal-wrapper-bg': 'rgba(20, 20, 20, 0.92)',
 
@@ -49,10 +49,10 @@ export function useTheme() {
       }
     }
     return {
-      '--primary-color': '#4A90E2',
+      '--primary-color': '#7aafeb',
       '--red-color': '#FF5A5F',
-      '--access-color': '#00C851',
-      '--text-color': '#000',
+      '--access-color': '#82f00d',
+      '--text-color': '#343a40',
       '--bg-color-soft': 'rgba(255, 255, 255, 0.55)',
       '--u-modal-wrapper-bg': 'rgba(255, 255, 255, 0.92)',
 
