@@ -73,7 +73,7 @@ function handleClose() {
   bottom: 40px;
   right: 20px;
   padding: 12px 24px;
-  background-color: var(--primary-color);
+  background-color: var(--access-color);
   color: white;
   border: none;
   border-radius: 16px;

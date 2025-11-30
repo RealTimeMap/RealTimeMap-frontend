@@ -11,7 +11,7 @@ const propsDialog = defineProps({
   },
   closeable: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   closeOnOverlayClick: {
     type: Boolean,
@@ -39,8 +39,8 @@ function handleOverlayClick() {
 </script>
 
 <template>
-  <teleport to="body">
-    <transition name="modal-fade">
+  <teleport to=".n-config-provider">
+    <transition name="slide-up">
       <div
         v-if="show"
         class="modal-wrapper"
@@ -50,7 +50,10 @@ function handleOverlayClick() {
           class="modal-wrapper__container"
           :style="{ maxWidth: width }"
         >
-          <header class="modal-wrapper__header">
+          <header
+            v-if="$slots"
+            class="modal-wrapper__header"
+          >
             <slot name="header">
               <h3 class="modal-wrapper__title">
                 {{ title }}
@@ -90,19 +93,21 @@ function handleOverlayClick() {
 <style lang="scss" scoped>
 .modal-wrapper {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.2);
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
+
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 2000;
 
   &__container {
-    // background: white;
-    backdrop-filter: blur(20px);
+    background: rgba(255, 255, 255, 0.92);
+
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+
+    will-change: transform;
     border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     display: flex;
@@ -159,23 +164,20 @@ function handleOverlayClick() {
   }
 }
 
-.modal-fade-enter-active,
-.modal-fade-leave-active {
+.slide-up-enter-active,
+.slide-up-leave-active {
   transition: opacity 0.3s ease;
-}
 
-.modal-fade-enter-from,
-.modal-fade-leave-to {
+  .modal-wrapper__container {
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+}
+.slide-up-enter-from,
+.slide-up-leave-to {
   opacity: 0;
-}
 
-.modal-fade-enter-active .modal-wrapper__container,
-.modal-fade-leave-active .modal-wrapper__container {
-  transition: transform 0.3s ease;
-}
-
-.modal-fade-enter-from .modal-wrapper__container,
-.modal-fade-leave-to .modal-wrapper__container {
-  transform: scale(0.95) translateY(10px);
+  .modal-wrapper__container {
+    transform: translateY(100%);
+  }
 }
 </style>

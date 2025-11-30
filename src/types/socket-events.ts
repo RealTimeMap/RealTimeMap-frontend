@@ -3,7 +3,7 @@
 // Описываем основные сущности, которые передаются по сокету.
 // =================================================================
 
-import type { Mark } from '@/components/02.features/get-marks/types'
+import type { Mark } from '@/utils/mark/index.type'
 
 export interface Message {
   id: string
