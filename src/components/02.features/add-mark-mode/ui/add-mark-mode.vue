@@ -6,7 +6,7 @@ import UMarker from '../../../01.kit/UMarker/ui/u-marker.vue'
 import { useAddMarkStore } from '../../../../shared/stores/add-mark'
 
 const addMarkStore = useAddMarkStore()
-const { openDialog } = useDialogStore()
+const { openDialog, closeDialog } = useDialogStore()
 
 function onDragEnd(newCoords: LngLat) {
   addMarkStore.setMarkerCoords(newCoords)
@@ -14,6 +14,11 @@ function onDragEnd(newCoords: LngLat) {
 
 function onNextClick() {
   openDialog(MarkForm, {}, 'Добавить новую метку')
+}
+
+function handleClose() {
+  addMarkStore.stopAddingMark()
+  closeDialog()
 }
 </script>
 
@@ -35,6 +40,19 @@ function onNextClick() {
         @click="onNextClick"
       >
         Далее
+      </button>
+    </teleport>
+
+    <teleport to=".n-config-provider">
+      <button
+        class="close-button"
+        @click="handleClose"
+      >
+        <u-icon
+          icon="line-md:close-circle"
+          width="30"
+          height="30"
+        />
       </button>
     </teleport>
   </div>
@@ -74,6 +92,30 @@ function onNextClick() {
   &:active {
     transform: translateY(0);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.close-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  color: white;
+  transition: all 0.3s ease;
+  pointer-events: auto;
+  background-color: var(--red-color);
+  border-radius: 50%;
+  padding: 5px;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  &:active {
+    transform: scale(1);
   }
 }
 </style>

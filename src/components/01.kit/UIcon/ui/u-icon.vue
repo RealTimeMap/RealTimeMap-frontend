@@ -7,11 +7,17 @@ defineProps<{
    * @example 'mdi:home' or 'lucide:arrow-left'
    */
   icon: string
+  width?: string | number
+  height?: string | number
 }>()
 </script>
 
 <template>
-  <Icon :icon="icon" />
+  <icon
+    :icon="icon"
+    :width="width"
+    :height="height"
+  />
 </template>
 
 <style scoped>

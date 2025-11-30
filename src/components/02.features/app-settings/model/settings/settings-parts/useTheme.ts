@@ -32,6 +32,7 @@ export function useTheme() {
     if (currentTheme.value === 'dark') {
       return {
         '--primary-color': '#4A90E2',
+        '--red-color': '#FF5A5F',
         '--text-color': '#fff',
         '--bg-color-soft': 'rgba(0, 0, 0, 0.55)',
 
@@ -47,6 +48,7 @@ export function useTheme() {
     }
     return {
       '--primary-color': '#4A90E2',
+      '--red-color': '#FF5A5F',
       '--text-color': '#000',
       '--bg-color-soft': 'rgba(255, 255, 255, 0.55)',
 
