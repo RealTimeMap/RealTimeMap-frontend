@@ -102,7 +102,7 @@ function handleOverlayClick() {
   z-index: 2000;
 
   &__container {
-    background: rgba(255, 255, 255, 0.92);
+    background: var(--u-modal-wrapper-bg);
 
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);

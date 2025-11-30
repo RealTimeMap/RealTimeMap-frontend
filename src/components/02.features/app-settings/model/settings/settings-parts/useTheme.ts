@@ -36,6 +36,7 @@ export function useTheme() {
         '--access-color': '#00C851',
         '--text-color': '#fff',
         '--bg-color-soft': 'rgba(0, 0, 0, 0.55)',
+        '--u-modal-wrapper-bg': 'rgba(20, 20, 20, 0.92)',
 
         '--glass-background': 'rgba(40, 40, 40, 0.6)',
         '--glass-border': 'rgba(255, 255, 255, 0.1)',
@@ -53,6 +54,7 @@ export function useTheme() {
       '--access-color': '#00C851',
       '--text-color': '#000',
       '--bg-color-soft': 'rgba(255, 255, 255, 0.55)',
+      '--u-modal-wrapper-bg': 'rgba(255, 255, 255, 0.92)',
 
       '--glass-background': 'rgba(255, 255, 255, 0.25)',
       '--glass-border': 'rgba(255, 255, 255, 0.18)',

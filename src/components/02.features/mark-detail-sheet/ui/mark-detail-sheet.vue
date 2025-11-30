@@ -157,35 +157,14 @@ onMounted(fetchData)
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 24px; /* Отступы между основными блоками */
+  gap: 24px;
   position: relative;
 }
 
-/* Кнопка закрытия */
-.close-btn {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  font-size: 24px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  line-height: 1;
-  color: #999;
-  z-index: 10;
-  padding: 5px;
-
-  &:hover {
-    color: #333;
-  }
-}
-
-/* Общие стили блоков */
 .block {
   width: 100%;
 }
 
-/* Заголовки полей (Label) */
 .label {
   font-size: 12px;
   color: #888;
@@ -194,7 +173,6 @@ onMounted(fetchData)
   letter-spacing: 0.5px;
 }
 
-/* Обычный текст */
 .text {
   font-size: 15px;
   line-height: 1.4;
@@ -202,7 +180,6 @@ onMounted(fetchData)
   color: #333;
 }
 
-/* --- 1. Шапка --- */
 .header-block {
   display: flex;
   align-items: center;
@@ -240,14 +217,12 @@ onMounted(fetchData)
   line-height: 1.2;
 }
 
-/* --- 2. Галерея --- */
 .gallery-block {
   display: flex;
   gap: 10px;
   overflow-x: auto;
-  padding-bottom: 5px; /* место под скроллбар, если нужен */
+  padding-bottom: 5px;
 
-  /* Скрываем скроллбар */
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
@@ -263,7 +238,6 @@ onMounted(fetchData)
   border: 1px solid #eee;
 }
 
-/* --- 4. Время --- */
 .time-row {
   display: flex;
   justify-content: space-between;
@@ -288,13 +262,12 @@ onMounted(fetchData)
   }
 }
 
-/* --- 5. Автор --- */
 .owner-block {
   display: flex;
   align-items: center;
   gap: 12px;
   padding-top: 16px;
-  border-top: 1px solid #eee; /* Отделяем автора чертой */
+  border-top: 1px solid #eee;
 }
 
 .avatar {
@@ -309,7 +282,6 @@ onMounted(fetchData)
   font-size: 14px;
 }
 
-/* Состояния */
 .state-text {
   text-align: center;
   padding: 20px;
