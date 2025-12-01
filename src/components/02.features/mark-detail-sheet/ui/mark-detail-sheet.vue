@@ -125,7 +125,7 @@ onMounted(fetchData)
           Время действия
         </div>
         <div class="time-row">
-          <span>{{ formatDate(mark.start_at) }} — {{ formatDate(mark.end_at) }}</span>
+          <span>{{ formatDate(mark.end_at) }}</span>
           <span
             class="status-badge"
             :class="statusClass"
