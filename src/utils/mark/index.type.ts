@@ -33,6 +33,13 @@ export interface MarkAddPayload {
   category_id: number
 }
 
+export interface MarkCategory {
+  id: number
+  category_name: string
+  color: string
+  icon: string
+}
+
 export interface Mark {
   id: number
   mark_name: string
@@ -47,14 +54,14 @@ export interface Mark {
     coordinates: LngLat
   }
   photo: string[]
-  category: {
-    id: number
-    category_name: string
-    color: string
-    icon: string
-  }
+  category: MarkCategory
 }
 
 export interface MarkFull extends Mark {
   owner: User
+}
+
+export interface MarkCreateResponse {
+  allowed_category: MarkCategory[]
+  allowed_duration: number[]
 }

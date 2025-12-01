@@ -1,6 +1,7 @@
 import type {
   MarkAddPayload,
   MarkAddResponse,
+  MarkCreateResponse,
   MarkFull,
 } from './index.type'
 import { getCookie } from '@/shared/lib/cookie'
@@ -8,6 +9,10 @@ import { getCookie } from '@/shared/lib/cookie'
 export const markApi = {
   getMarkFull(markId: number): Promise<MarkFull> {
     return apiService.get<MarkFull>(`/marks/${markId}`)
+  },
+
+  getMarkCreate(): Promise<MarkCreateResponse> {
+    return apiService.get<MarkCreateResponse>('/marks/create-data')
   },
 
   postMarkAdd(payload: MarkAddPayload): Promise<MarkAddResponse> {
