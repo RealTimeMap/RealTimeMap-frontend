@@ -20,6 +20,7 @@ const error = ref<string | null>(null)
 // --- Comment Form State ---
 const commentText = ref('')
 const isSending = ref(false)
+const scrollContainerRef = ref<HTMLElement | null>(null)
 
 async function fetchData() {
   error.value = null
@@ -38,7 +39,9 @@ async function fetchData() {
     }
 
     const dataComments = await markApi.getMarkComments(props.markId)
-    comments.value = dataComments.items
+    comments.value = dataComments.items.reverse()
+    await nextTick()
+    scrollToBottom()
   }
   catch (e) {
     console.error(e)
@@ -46,6 +49,15 @@ async function fetchData() {
   }
   finally {
     isLoading.value = false
+  }
+}
+
+function scrollToBottom() {
+  if (scrollContainerRef.value) {
+    scrollContainerRef.value.scrollTo({
+      top: scrollContainerRef.value.scrollHeight,
+      behavior: 'smooth',
+    })
   }
 }
 
@@ -67,6 +79,9 @@ async function handlePostComment() {
 
     commentText.value = ''
     message.success('Комментарий отправлен')
+
+    await nextTick()
+    scrollToBottom()
   }
   catch (e) {
     console.error(e)
@@ -195,7 +210,10 @@ onMounted(fetchData)
       <div class="block comments-section">
         <h3>Комментарии ({{ comments.length }})</h3>
 
-        <div class="comments-list">
+        <div
+          ref="scrollContainerRef"
+          class="comments-list"
+        >
           <div
             v-if="comments.length === 0"
             class="no-comments"
@@ -418,6 +436,23 @@ onMounted(fetchData)
   display: flex;
   flex-direction: column;
   gap: 16px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 8px;
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 3px;
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #aaa;
+  }
 }
 
 .no-comments {
