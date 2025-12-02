@@ -26,7 +26,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from, next) => {
-  if (to.path === '/oauth/google' && to.query.token) {
+  const normalizedPath = to.path.replace(/\/$/, '')
+
+  if (normalizedPath === '/oauth/google' && to.query.token) {
     const authStore = useAuthStore()
     const token = to.query.token as string
 
@@ -38,12 +40,11 @@ router.beforeEach(async (to, from, next) => {
       return next({ name: 'home-map' })
     }
     catch (error) {
-      console.error('Ошибка при обработке токена Google:', error)
+      console.error('Router Auth Error:', error)
       return next({ name: 'home-map' })
     }
   }
 
-  // Для всех остальных случаев просто продолжаем навигацию
   next()
 })
 
