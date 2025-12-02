@@ -1,5 +1,6 @@
 import type { LoginPayload, RegistrationPayload } from '@/utils/auth/index.type'
 import type { User } from '@/utils/user/index.type'
+import { useMessage } from 'naive-ui'
 import { defineStore } from 'pinia'
 import { getCookie, setCookie } from '@/shared/lib/cookie'
 import { authApi } from '@/utils/auth'
@@ -9,6 +10,7 @@ interface AuthState {
   user: User | null
   token: string | null
 }
+const message = useMessage()
 
 export const useAuthStore = defineStore('auth', {
   state: (): AuthState => ({
@@ -68,6 +70,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       try {
         await authApi.logout()
+        message.success('Successfully logged out')
       }
       catch (error) {
         console.error('Logout request failed', error)

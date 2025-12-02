@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import {
-  NAvatar,
   NButton,
   NDivider,
   NForm,
@@ -39,12 +38,12 @@ const { t } = useI18n()
 
 <template>
   <div class="auth-form-container">
-    <n-avatar
+    <!-- <n-avatar
       :size="60"
       class="avatar-user"
       round
       src="https://avatars.githubusercontent.com/u/83133043?v=4"
-    />
+    /> -->
     <n-tabs
       :value="authMode"
       class="auth-tabs"

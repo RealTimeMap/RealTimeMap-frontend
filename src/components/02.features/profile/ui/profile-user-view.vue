@@ -59,6 +59,14 @@ const progressPercentage = computed(() => {
         </div>
       </div>
     </div>
+
+    <div class="button-logout">
+      <u-icon
+        icon="material-symbols:logout"
+        height="20"
+        @click="authStore.logout()"
+      />
+    </div>
   </div>
 </template>
 
@@ -71,6 +79,11 @@ const progressPercentage = computed(() => {
     align-items: center;
     gap: 16px;
   }
+}
+
+.button-logout {
+  margin-left: auto;
+  color: var(--red-color);
 }
 
 .user-info {
