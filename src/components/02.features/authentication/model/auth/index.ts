@@ -44,6 +44,16 @@ export const useAuthStore = defineStore('auth', {
       this.user = userData
     },
 
+    async googleAuth() {
+      try {
+        const response = await authApi.googleAuth()
+        window.location.href = response.authorization_url
+      }
+      catch (error) {
+        console.error('Google Auth Error:', error)
+      }
+    },
+
     async login(payload: LoginPayload) {
       const response = await authApi.login(payload)
       this.setToken(response.access_token)

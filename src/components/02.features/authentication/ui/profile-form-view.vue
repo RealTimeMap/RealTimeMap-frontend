@@ -7,7 +7,7 @@ import {
   NTabs,
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { authApi } from '@/utils/auth'
+import { useAuthStore } from '../model/auth'
 import { useAuthForm } from '../models/useAuthForm'
 
 const {
@@ -23,15 +23,7 @@ const {
   clearErrors,
 } = useAuthForm()
 
-async function googleAuth() {
-  try {
-    const response = await authApi.googleAuth()
-    window.location.href = response.authorization_url
-  }
-  catch (error) {
-    console.error('Google Auth Error:', error)
-  }
-}
+const auth = useAuthStore()
 
 const { t } = useI18n()
 </script>
@@ -131,7 +123,7 @@ const { t } = useI18n()
         size="large"
         class="google-btn"
         :disabled="isLoading"
-        @click="googleAuth"
+        @click="auth.googleAuth()"
       >
         <template #icon>
           <u-icon icon="material-icon-theme:google" />
