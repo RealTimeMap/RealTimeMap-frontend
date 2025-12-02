@@ -1,6 +1,9 @@
 import type {
   MarkAddPayload,
   MarkAddResponse,
+  MarkComment,
+  MarkCommentPayload,
+  MarkCommentResponse,
   MarkCreateResponse,
   MarkFull,
 } from './index.type'
@@ -22,5 +25,13 @@ export const markApi = {
         'Authorization': `Bearer ${getCookie('token')}`,
       },
     })
+  },
+
+  getMarkComments(markId: number): Promise<MarkCommentResponse> {
+    return apiService.get<MarkCommentResponse>(`/marks/${markId}/comments`)
+  },
+
+  postMarkComment(markId: number, payload: MarkCommentPayload): Promise<MarkComment> {
+    return apiService.post<MarkComment>(`/marks/${markId}/comments`, payload)
   },
 }

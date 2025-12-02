@@ -65,3 +65,28 @@ export interface MarkCreateResponse {
   allowed_category: MarkCategory[]
   allowed_duration: number[]
 }
+
+export interface MarkComment {
+  content: string
+  id: number
+  owner: User
+  created_at: string
+  replies: any[]
+  stats: {
+    likes_count: number
+    dislikes_count: number
+    total_replies: number
+  }
+}
+
+export interface MarkCommentPayload {
+  content: string
+  parent_id?: number | null
+}
+
+export interface MarkCommentResponse {
+  items: MarkComment[]
+  total: number
+  page: number
+  page_size: number
+}

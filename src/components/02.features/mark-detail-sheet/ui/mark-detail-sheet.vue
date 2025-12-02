@@ -1,37 +1,79 @@
 <script lang="ts" setup>
-import type { MarkFull } from '@/utils/mark/index.type'
-import { computed, onMounted, ref } from 'vue'
+import type { MarkComment, MarkCommentPayload, MarkFull } from '@/utils/mark/index.type'
+import { NButton, NInput, useMessage } from 'naive-ui'
+import { computed, onMounted, ref, watch } from 'vue'
 import { markApi } from '@/utils/mark'
 
 const props = defineProps<{
   markId: number
 }>()
 
+const message = useMessage()
+
+// --- Data State ---
 const marksCache = new Map<number, MarkFull>()
 const mark = ref<MarkFull | null>(null)
+const comments = ref<MarkComment[]>([])
 const isLoading = ref(true)
 const error = ref<string | null>(null)
 
+// --- Comment Form State ---
+const commentText = ref('')
+const isSending = ref(false)
+
 async function fetchData() {
   error.value = null
+  comments.value = []
 
   if (marksCache.has(props.markId)) {
     mark.value = marksCache.get(props.markId)!
-    isLoading.value = false
-    return
   }
 
   try {
-    const data = await markApi.getMarkFull(props.markId)
-    marksCache.set(props.markId, data)
-    mark.value = data
+    if (!mark.value) {
+      isLoading.value = true
+      const data = await markApi.getMarkFull(props.markId)
+      marksCache.set(props.markId, data)
+      mark.value = data
+    }
+
+    const dataComments = await markApi.getMarkComments(props.markId)
+    comments.value = dataComments.items
   }
   catch (e) {
     console.error(e)
-    error.value = 'Ошибка загрузки.'
+    error.value = 'Ошибка загрузки данных.'
   }
   finally {
     isLoading.value = false
+  }
+}
+
+async function handlePostComment() {
+  const content = commentText.value.trim()
+  if (!content)
+    return
+
+  isSending.value = true
+  try {
+    const payload: MarkCommentPayload = {
+      content,
+      parent_id: null,
+    }
+
+    const newComment = await markApi.postMarkComment(props.markId, payload)
+
+    comments.value.push(newComment)
+
+    commentText.value = ''
+    message.success('Комментарий отправлен')
+  }
+  catch (e) {
+    console.error(e)
+    message.error('Не удалось отправить комментарий')
+  }
+  finally {
+    isSending.value = false
   }
 }
 
@@ -61,7 +103,7 @@ onMounted(fetchData)
 <template>
   <div class="mark-container">
     <div
-      v-if="isLoading"
+      v-if="isLoading && !mark"
       class="state-text"
     >
       Загрузка...
@@ -133,9 +175,10 @@ onMounted(fetchData)
         </div>
       </div>
 
+      <!-- OWNER -->
       <div class="block owner-block">
         <img
-          :src="mark.owner.avatar"
+          :src="mark.owner.avatar || '/default-avatar.png'"
           class="avatar"
           alt="Ava"
         >
@@ -146,6 +189,70 @@ onMounted(fetchData)
           <div class="owner-name">
             {{ mark.owner.username }}
           </div>
+        </div>
+      </div>
+
+      <div class="block comments-section">
+        <h3>Комментарии ({{ comments.length }})</h3>
+
+        <div class="comments-list">
+          <div
+            v-if="comments.length === 0"
+            class="no-comments"
+          >
+            Пока нет комментариев. Будьте первым!
+          </div>
+
+          <div
+            v-for="comment in comments"
+            :key="comment.id"
+            class="comment-item"
+          >
+            <img
+              :src="comment.owner.avatar || '/default-avatar.png'"
+              class="comment-avatar"
+              alt="User"
+            >
+            <div class="comment-content">
+              <div class="comment-header">
+                <span class="comment-author">{{ comment.owner?.username || 'Пользователь' }}</span>
+                <span class="comment-date">{{ formatDate(comment.created_at) }}</span>
+              </div>
+              <div class="comment-text">
+                {{ comment.content }}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="comment-form">
+          <n-input
+            v-model:value="commentText"
+            type="textarea"
+            placeholder="Написать комментарий..."
+            :autosize="{ minRows: 1, maxRows: 4 }"
+            :disabled="isSending"
+            class="comment-input"
+          />
+          <n-button
+            type="primary"
+            class="send-btn"
+            :disabled="!commentText.trim() || isSending"
+            :loading="isSending"
+            @click="handlePostComment"
+          >
+            <template #icon>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+              ><path
+                fill="currentColor"
+                d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+              /></svg>
+            </template>
+          </n-button>
         </div>
       </div>
     </template>
@@ -159,6 +266,7 @@ onMounted(fetchData)
   flex-direction: column;
   gap: 24px;
   position: relative;
+  padding-bottom: 20px;
 }
 
 .block {
@@ -266,8 +374,9 @@ onMounted(fetchData)
   display: flex;
   align-items: center;
   gap: 12px;
-  padding-top: 16px;
+  padding: 16px 0;
   border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
 }
 
 .avatar {
@@ -290,5 +399,99 @@ onMounted(fetchData)
   &.error {
     color: red;
   }
+}
+
+/* --- COMMENTS STYLES --- */
+.comments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  h3 {
+    font-size: 18px;
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.no-comments {
+  color: #999;
+  font-size: 14px;
+  font-style: italic;
+  padding: 10px 0;
+}
+
+.comment-item {
+  display: flex;
+  gap: 12px;
+}
+
+.comment-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.comment-content {
+  flex: 1;
+  box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.1);
+  padding: 10px 12px;
+  border-radius: 12px;
+  border-top-left-radius: 2px;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  flex-wrap: wrap;
+}
+
+.comment-author {
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+
+.comment-date {
+  font-size: 11px;
+  color: #999;
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--color-text);
+  word-break: break-word;
+}
+
+.comment-form {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+  margin-top: 8px;
+}
+
+.comment-input {
+  flex: 1;
+}
+
+.send-btn {
+  height: 34px;
+  width: 34px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>
