@@ -3,6 +3,10 @@ export interface AuthResponse {
   token_type: string
 }
 
+export interface AuthGoogleResponse {
+  authorization_url: string
+}
+
 export interface LoginPayload {
   username: string
   password: string

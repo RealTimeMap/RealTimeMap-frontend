@@ -2,11 +2,13 @@
 import {
   NAvatar,
   NButton,
+  NDivider,
   NForm,
   NTabPane,
   NTabs,
 } from 'naive-ui'
 import { useI18n } from 'vue-i18n'
+import { authApi } from '@/utils/auth'
 import { useAuthForm } from '../models/useAuthForm'
 
 const {
@@ -21,6 +23,16 @@ const {
   handleValidateClick,
   clearErrors,
 } = useAuthForm()
+
+async function googleAuth() {
+  try {
+    const response = await authApi.googleAuth()
+    window.location.href = response.authorization_url
+  }
+  catch (error) {
+    console.error('Google Auth Error:', error)
+  }
+}
 
 const { t } = useI18n()
 </script>
@@ -113,6 +125,20 @@ const { t } = useI18n()
       >
         {{ submitButtonText }}
       </n-button>
+
+      <n-divider>Или</n-divider>
+
+      <n-button
+        size="large"
+        class="google-btn"
+        :disabled="isLoading"
+        @click="googleAuth"
+      >
+        <template #icon>
+          <u-icon icon="material-icon-theme:google" />
+        </template>
+        Войти через Google
+      </n-button>
     </n-form>
   </div>
 </template>
@@ -140,9 +166,52 @@ const { t } = useI18n()
   }
 }
 
+.google-btn {
+  width: 100%;
+  font-weight: 500;
+  color: #3c4043;
+  background-color: #fff;
+  border: 1px solid #dadce0;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #f7f8f8;
+    border-color: #d2e3fc;
+    color: #202124;
+  }
+
+  &:focus {
+    background-color: #f7f8f8;
+  }
+}
+
 .auth-tabs {
   :deep(.n-tabs-rail) {
     border-radius: 8px;
+  }
+}
+
+:deep(.n-divider) {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+  margin: 4px 0;
+
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  &::before {
+    margin-right: 0.5em;
+  }
+
+  &::after {
+    margin-left: 0.5em;
   }
 }
 </style>

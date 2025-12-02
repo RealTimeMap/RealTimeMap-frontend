@@ -1,4 +1,9 @@
-import type { AuthResponse, LoginPayload, RegistrationPayload } from './index.type'
+import type {
+  AuthGoogleResponse,
+  AuthResponse,
+  LoginPayload,
+  RegistrationPayload,
+} from './index.type'
 
 export const authApi = {
   login(payload: LoginPayload): Promise<AuthResponse> {
@@ -7,6 +12,10 @@ export const authApi = {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
     })
+  },
+
+  googleAuth(): Promise<AuthGoogleResponse> {
+    return apiService.get<AuthGoogleResponse>('/auth/google/authorize')
   },
 
   registration(payload: RegistrationPayload): Promise<AuthResponse> {
