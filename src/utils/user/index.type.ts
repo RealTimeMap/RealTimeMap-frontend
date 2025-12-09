@@ -35,6 +35,10 @@ interface UserGemefication {
    */
   current_exp: number
   /**
+   * Цвет текущего уровня
+   */
+  current_level_color: string
+  /**
    * Следующий уровень (вычисляется бэком)
    */
   next_level?: {

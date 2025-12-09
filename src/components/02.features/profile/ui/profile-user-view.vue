@@ -9,6 +9,7 @@ const { user } = storeToRefs(authStore)
 const gameStats = computed(() => user.value?.gamefication)
 const currentVal = computed(() => gameStats.value?.current_exp ?? 0)
 const currentLevel = computed(() => gameStats.value?.current_level ?? 0)
+const currentColor = computed(() => user.value?.gamefication?.current_level_color)
 
 const maxVal = computed(() => {
   return gameStats.value?.next_level?.required_exp ?? currentVal.value
@@ -28,6 +29,7 @@ const progressPercentage = computed(() => {
       <u-experience-ring
         :size="60"
         :progress="progressPercentage"
+        :color="currentColor"
         :level="gameStats ? currentLevel : undefined"
       >
         <n-avatar
