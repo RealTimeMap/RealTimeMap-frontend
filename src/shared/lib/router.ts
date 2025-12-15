@@ -1,10 +1,20 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/components/02.features/authentication/model/auth'
+import { useOnboarding } from '@/components/02.features/onboarding/model/useOnboarding'
 
 const AuthProcessingComponent = { template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>' }
 
 const routes = [
+  {
+    path: '/welcome',
+    name: 'Welcome',
+    component: () => import('@/pages/welcome-page.vue'),
+    meta: {
+      requiresAuth: false,
+      layout: 'empty',
+    },
+  },
   {
     path: '/',
     name: 'home-map',
@@ -57,6 +67,25 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(),
   routes,
+})
+
+router.beforeEach((to, from, next) => {
+  const { hasSeenOnboarding } = useOnboarding()
+
+  const isWelcomePage = to.path === '/welcome'
+  const seen = hasSeenOnboarding()
+
+  if (!seen && !isWelcomePage) {
+    next('/welcome')
+    return
+  }
+
+  if (seen && isWelcomePage) {
+    next('/')
+    return
+  }
+
+  next()
 })
 
 export default router
