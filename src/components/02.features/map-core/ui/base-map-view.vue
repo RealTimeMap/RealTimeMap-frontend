@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LngLat, YMap } from '@yandex/ymaps3-types'
+import type { LngLat, LngLatBounds, YMap } from '@yandex/ymaps3-types'
 import {
   YandexMap,
   YandexMapDefaultFeaturesLayer,
@@ -24,6 +24,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<{
   (e: 'mapReady', mapInstance: YMap): void
+  (e: 'update:bounds', bounds: LngLatBounds): void
 }>()
 
 const mapInstance = shallowRef<null | YMap>(null)
@@ -47,6 +48,14 @@ function onMapZoomChange(event: any) {
 
   if (typeof newZoom === 'number') {
     zoom.value = newZoom
+  }
+
+  if (mapInstance.value) {
+    const currentBounds = mapInstance.value.bounds
+
+    if (currentBounds) {
+      emit('update:bounds', currentBounds)
+    }
   }
 }
 
