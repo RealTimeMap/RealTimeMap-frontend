@@ -149,7 +149,7 @@ function openGithub() {
               </n-p>
 
               <div class="features-list">
-                <div class="feature-item glass-inner">
+                <div class="feature-item">
                   <div class="feature-icon">
                     📍
                   </div>
@@ -158,7 +158,7 @@ function openGithub() {
                     <span>Точная привязка событий к карте</span>
                   </div>
                 </div>
-                <div class="feature-item glass-inner">
+                <div class="feature-item">
                   <div class="feature-icon">
                     ⚡
                   </div>
@@ -200,7 +200,6 @@ function openGithub() {
                       type="success"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       Vue 3
                     </n-tag>
@@ -209,7 +208,6 @@ function openGithub() {
                       type="success"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       TypeScript
                     </n-tag>
@@ -218,7 +216,6 @@ function openGithub() {
                       type="success"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       Vite
                     </n-tag>
@@ -233,7 +230,6 @@ function openGithub() {
                       type="info"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       Golang (Gin)
                     </n-tag>
@@ -242,7 +238,6 @@ function openGithub() {
                       type="info"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       Python (FastAPI)
                     </n-tag>
@@ -257,7 +252,6 @@ function openGithub() {
                       type="warning"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       PostgreSQL
                     </n-tag>
@@ -266,7 +260,6 @@ function openGithub() {
                       type="error"
                       size="small"
                       round
-                      class="glass-tag"
                     >
                       Kafka
                     </n-tag>
@@ -302,7 +295,7 @@ function openGithub() {
 
               <n-alert
                 type="warning"
-                class="safety-alert glass-inner"
+                class="safety-alert"
                 :show-icon="false"
               >
                 <div style="font-weight: 600; margin-bottom: 4px;">
@@ -358,7 +351,6 @@ function openGithub() {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background: radial-gradient(circle at center, #f9fbfc 0%, #edf1f5 100%);
   padding: 16px;
   overflow: hidden;
 }
@@ -375,10 +367,10 @@ function openGithub() {
 }
 
 .snake-runner {
-  stroke-dasharray: 150 1800; // Длина змеи и отступ
+  stroke-dasharray: 150 1800;
   stroke-dashoffset: 1950;
   animation: snakeMove linear infinite;
-  filter: drop-shadow(0 0 5px currentColor); // Легкое свечение
+  filter: drop-shadow(0 0 5px currentColor);
 }
 
 @keyframes snakeMove {
@@ -438,7 +430,7 @@ function openGithub() {
   display: flex;
   align-items: center;
   justify-content: center;
-  // Фон задается инлайново для цвета, но можно добавить тень
+
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.03);
 }
 
@@ -457,13 +449,6 @@ function openGithub() {
   line-height: 1.6;
 }
 
-/* --- Внутренние элементы стекла --- */
-.glass-inner {
-  background: rgba(255, 255, 255, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(4px);
-}
-
 .features-list {
   display: flex;
   flex-direction: column;
@@ -479,10 +464,7 @@ function openGithub() {
   padding: 12px 16px;
   border-radius: 16px;
   transition: transform 0.2s;
-
-  &:hover {
-    background: rgba(255, 255, 255, 0.8);
-  }
+  border: 1px solid rgba(255, 255, 255, 0.5);
 
   .feature-icon {
     font-size: 22px;
@@ -492,11 +474,10 @@ function openGithub() {
     flex-direction: column;
     font-size: 13px;
     strong {
-      color: #333;
       margin-bottom: 2px;
     }
     span {
-      color: #888;
+      color: var(--text-color);
     }
   }
 }
@@ -528,10 +509,6 @@ function openGithub() {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-.glass-tag {
-  background: rgba(255, 255, 255, 0.6) !important;
 }
 
 .safety-alert {
@@ -572,13 +549,6 @@ function openGithub() {
   padding: 24px;
   padding-top: 32px;
   z-index: 5;
-
-  background: linear-gradient(
-    to bottom,
-    rgba(255, 255, 255, 0) 0%,
-    rgba(255, 255, 255, 0.6) 20%,
-    rgba(255, 255, 255, 0.8) 100%
-  );
 }
 
 .action-btn {
