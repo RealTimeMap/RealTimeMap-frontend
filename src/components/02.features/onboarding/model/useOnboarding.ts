@@ -1,28 +1,23 @@
 import { useRouter } from 'vue-router'
+import { getCookie, setCookie } from '@/shared/lib/cookie'
 
-const STORAGE_KEY = 'rtm_welcome_seen'
+const STORAGE_COOKIE_NAME = 'rtm_welcome_seen'
 
 export function useOnboarding() {
   const router = useRouter()
 
   const hasSeenOnboarding = () => {
-    return localStorage.getItem(STORAGE_KEY) === 'true'
+    return Boolean(getCookie(STORAGE_COOKIE_NAME)) === true
   }
 
   const completeOnboarding = () => {
-    localStorage.setItem(STORAGE_KEY, 'true')
+    setCookie(STORAGE_COOKIE_NAME, 'true', 30)
 
     router.push('/')
-  }
-
-  const resetOnboarding = () => {
-    localStorage.removeItem(STORAGE_KEY)
-    location.reload()
   }
 
   return {
     hasSeenOnboarding,
     completeOnboarding,
-    resetOnboarding,
   }
 }

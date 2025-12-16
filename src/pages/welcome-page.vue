@@ -2,7 +2,6 @@
 import {
   NAlert,
   NButton,
-  NCard,
   NCarousel,
   NH1,
   NH2,
@@ -40,20 +39,18 @@ onMounted(() => {
   snakes.value = Array.from({ length: count }).map((_, i) => {
     const startY = random(0, height)
     const endY = random(0, height)
-
     const cp1x = width * 0.3
     const cp1y = random(0, height)
     const cp2x = width * 0.7
     const cp2y = random(0, height)
-
     const pathData = `M -100,${startY} C ${cp1x},${cp1y} ${cp2x},${cp2y} ${width + 100},${endY}`
 
     return {
       id: i,
       d: pathData,
       color: colors[Math.floor(random(0, colors.length))],
-      width: random(2, 4), // Толщина змейки
-      duration: random(5, 12), // Скорость ползания
+      width: random(3, 6),
+      duration: random(8, 15),
       delay: random(0, 5),
     }
   })
@@ -87,21 +84,21 @@ function openGithub() {
 
 <template>
   <div class="welcome-container">
+    <!-- Змейки на фоне -->
     <svg class="snake-background">
-      <defs />
-
       <g
         v-for="snake in snakes"
         :key="snake.id"
       >
+        <!-- Полупрозрачный трек -->
         <path
           :d="snake.d"
           fill="none"
           :stroke="snake.color"
           :stroke-width="snake.width"
-          opacity="0.1"
+          opacity="0.05"
         />
-
+        <!-- Светящаяся голова -->
         <path
           class="snake-runner"
           :d="snake.d"
@@ -117,212 +114,240 @@ function openGithub() {
       </g>
     </svg>
 
-    <n-card
-      class="welcome-card"
-      :bordered="false"
+    <u-glass-wrapper
+      class="welcome-card-glass"
+      :scale="40"
     >
-      <n-carousel
-        ref="carouselRef"
-        show-dots
-        :touchable="false"
-        :draggable="false"
-        effect="fade"
-        class="welcome-carousel"
-        @update:current-index="handleUpdateIndex"
-      >
-        <!-- Слайд 1: О приложении -->
-        <div class="slide-wrapper">
-          <div class="slide-scroll-area">
-            <div
-              class="icon-wrapper"
-              :style="{ color: slides[0].color }"
-            >
-              <u-icon
-                :icon="slides[0].icon"
-                size="64"
-              />
-            </div>
-            <n-h1 class="slide-title">
-              RealTimeMap
-            </n-h1>
-            <n-p class="description">
-              Публичная карта, на которой пользователи могут оставлять анонимные или подписанные сообщения.
-            </n-p>
-
-            <div class="features-list">
-              <div class="feature-item">
-                <div class="feature-icon">
-                  📍
-                </div>
-                <div class="feature-text">
-                  <strong>Геолокация</strong>
-                  <span>Все события привязаны к координатам</span>
-                </div>
-              </div>
-              <div class="feature-item">
-                <div class="feature-icon">
-                  ⏱️
-                </div>
-                <div class="feature-text">
-                  <strong>Real-time</strong>
-                  <span>Мгновенное отображение событий</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Слайд 2: Кто мы (Стек) -->
-        <div class="slide-wrapper">
-          <div class="slide-scroll-area">
-            <div
-              class="icon-wrapper"
-              :style="{ color: slides[1].color }"
-            >
-              <u-icon
-                :icon="slides[1].icon"
-                size="64"
-              />
-            </div>
-            <n-h2 class="slide-title">
-              Кто мы?
-            </n-h2>
-            <n-p class="description">
-              Команда из 3 человек, которой было нечего делать, и мы решили запилить это приложение для личного и публичного пользования.
-            </n-p>
-
-            <div class="stack-section">
-              <div class="stack-group">
-                <span class="stack-label">Frontend</span>
-                <div class="tags-row">
-                  <n-tag
-                    type="success"
-                    size="small"
-                    round
-                  >
-                    Vue 3
-                  </n-tag>
-                  <n-tag
-                    type="success"
-                    size="small"
-                    round
-                  >
-                    TypeScript
-                  </n-tag>
-                </div>
-              </div>
-
-              <div class="stack-group">
-                <span class="stack-label">Backend</span>
-                <div class="tags-row">
-                  <n-tag
-                    type="info"
-                    size="small"
-                    round
-                  >
-                    Golang (Gin)
-                  </n-tag>
-                  <n-tag
-                    type="info"
-                    size="small"
-                    round
-                  >
-                    Python (FastAPI)
-                  </n-tag>
-                </div>
-              </div>
-
-              <div class="stack-group">
-                <span class="stack-label">Infra & DB</span>
-                <div class="tags-row">
-                  <n-tag
-                    type="warning"
-                    size="small"
-                    round
-                  >
-                    PostgreSQL + PostGIS
-                  </n-tag>
-                  <n-tag
-                    type="error"
-                    size="small"
-                    round
-                  >
-                    Kafka
-                  </n-tag>
-                  <n-tag
-                    type="primary"
-                    size="small"
-                    round
-                  >
-                    gRPC
-                  </n-tag>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Слайд 3: Важно знать -->
-        <div class="slide-wrapper">
-          <div class="slide-scroll-area">
-            <div
-              class="icon-wrapper"
-              :style="{ color: slides[2].color }"
-            >
-              <u-icon
-                :icon="slides[2].icon"
-                size="64"
-              />
-            </div>
-            <n-h2 class="slide-title">
-              Важно знать
-            </n-h2>
-
-            <n-alert
-              type="warning"
-              class="safety-alert"
-              :show-icon="false"
-            >
-              <template #header>
-                ⚠️ Work in Progress
-              </template>
-              Приложение находится в активной разработке.
-            </n-alert>
-
-            <div class="rules-block">
-              <n-ul>
-                <n-li>При нажатии кнопки "Начать", вы соглашаетесь с правилами сервиса.</n-li>
-                <n-li>Не делитесь ссылкой с незнакомцами.</n-li>
-              </n-ul>
-            </div>
-
-            <n-button
-              text
-              tag="a"
-              class="github-link"
-              @click="openGithub"
-            >
-              <template #icon>
-                <u-icon icon="mdi:github" />
-              </template>
-              Исходный код на GitHub
-            </n-button>
-          </div>
-        </div>
-      </n-carousel>
-
-      <div class="footer-actions">
-        <n-button
-          type="primary"
-          size="large"
-          block
-          class="action-btn"
-          @click="handleNext"
+      <div class="card-layout">
+        <n-carousel
+          ref="carouselRef"
+          show-dots
+          :touchable="false"
+          :draggable="false"
+          effect="fade"
+          class="welcome-carousel"
+          @update:current-index="handleUpdateIndex"
         >
-          {{ isLastSlide ? 'Начать использование' : 'Далее' }}
-        </n-button>
+          <!-- Слайд 1: О приложении -->
+          <div class="slide-wrapper">
+            <div class="slide-scroll-area">
+              <div
+                class="icon-box"
+                :style="{ background: `rgba(32, 128, 240, 0.1)`, color: '#2080f0' }"
+              >
+                <u-icon
+                  :icon="slides[0].icon"
+                  size="56"
+                />
+              </div>
+
+              <n-h1 class="slide-title">
+                RealTimeMap
+              </n-h1>
+              <n-p class="description">
+                Интерактивная карта для обмена событиями и координатами в реальном времени.
+              </n-p>
+
+              <div class="features-list">
+                <div class="feature-item glass-inner">
+                  <div class="feature-icon">
+                    📍
+                  </div>
+                  <div class="feature-text">
+                    <strong>Геолокация</strong>
+                    <span>Точная привязка событий к карте</span>
+                  </div>
+                </div>
+                <div class="feature-item glass-inner">
+                  <div class="feature-icon">
+                    ⚡
+                  </div>
+                  <div class="feature-text">
+                    <strong>Live Sync</strong>
+                    <span>Мгновенное обновление данных (WebSocket)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Слайд 2: Стек -->
+          <div class="slide-wrapper">
+            <div class="slide-scroll-area">
+              <div
+                class="icon-box"
+                :style="{ background: `rgba(24, 160, 88, 0.1)`, color: '#18a058' }"
+              >
+                <u-icon
+                  :icon="slides[1].icon"
+                  size="56"
+                />
+              </div>
+
+              <n-h2 class="slide-title">
+                Технологии
+              </n-h2>
+              <n-p class="description">
+                Проект создан энтузиастами для изучения современных архитектурных решений.
+              </n-p>
+
+              <div class="stack-section">
+                <div class="stack-group">
+                  <span class="stack-label">Frontend</span>
+                  <div class="tags-row">
+                    <n-tag
+                      :bordered="false"
+                      type="success"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      Vue 3
+                    </n-tag>
+                    <n-tag
+                      :bordered="false"
+                      type="success"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      TypeScript
+                    </n-tag>
+                    <n-tag
+                      :bordered="false"
+                      type="success"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      Vite
+                    </n-tag>
+                  </div>
+                </div>
+
+                <div class="stack-group">
+                  <span class="stack-label">Backend</span>
+                  <div class="tags-row">
+                    <n-tag
+                      :bordered="false"
+                      type="info"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      Golang (Gin)
+                    </n-tag>
+                    <n-tag
+                      :bordered="false"
+                      type="info"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      Python (FastAPI)
+                    </n-tag>
+                  </div>
+                </div>
+
+                <div class="stack-group">
+                  <span class="stack-label">Infrastructure</span>
+                  <div class="tags-row">
+                    <n-tag
+                      :bordered="false"
+                      type="warning"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      PostgreSQL
+                    </n-tag>
+                    <n-tag
+                      :bordered="false"
+                      type="error"
+                      size="small"
+                      round
+                      class="glass-tag"
+                    >
+                      Kafka
+                    </n-tag>
+                    <n-tag
+                      type="primary"
+                      size="small"
+                      round
+                    >
+                      gRPC
+                    </n-tag>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Слайд 3: Важно -->
+          <div class="slide-wrapper">
+            <div class="slide-scroll-area">
+              <div
+                class="icon-box"
+                :style="{ background: `rgba(208, 48, 80, 0.1)`, color: '#d03050' }"
+              >
+                <u-icon
+                  :icon="slides[2].icon"
+                  size="56"
+                />
+              </div>
+
+              <n-h2 class="slide-title">
+                Внимание
+              </n-h2>
+
+              <n-alert
+                type="warning"
+                class="safety-alert glass-inner"
+                :show-icon="false"
+              >
+                <div style="font-weight: 600; margin-bottom: 4px;">
+                  ⚠️ Work in Progress
+                </div>
+                Приложение в активной разработке. Возможны сбои и очистка данных.
+              </n-alert>
+
+              <div class="rules-block">
+                <n-ul>
+                  <n-li>Нажимая "Начать", вы принимаете правила.</n-li>
+                  <n-li>Не передавайте доступ третьим лицам.</n-li>
+                </n-ul>
+              </div>
+
+              <n-button
+                text
+                tag="a"
+                class="github-link"
+                @click="openGithub"
+              >
+                <template #icon>
+                  <u-icon icon="mdi:github" />
+                </template>
+                GitHub Repo
+              </n-button>
+            </div>
+          </div>
+        </n-carousel>
+
+        <!-- Футер тоже стеклянный -->
+        <div class="footer-actions glass-footer">
+          <n-button
+            type="primary"
+            size="large"
+            block
+            round
+            class="action-btn"
+            @click="handleNext"
+          >
+            {{ isLastSlide ? 'Начать использование' : 'Далее' }}
+          </n-button>
+        </div>
       </div>
-    </n-card>
+    </u-glass-wrapper>
   </div>
 </template>
 
@@ -333,12 +358,12 @@ function openGithub() {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: #f0f2f5;
+  background: radial-gradient(circle at center, #f9fbfc 0%, #edf1f5 100%);
   padding: 16px;
   overflow: hidden;
 }
 
-/* --- SVG Анимация (Змейки) --- */
+/* --- Змейки --- */
 .snake-background {
   position: absolute;
   top: 0;
@@ -350,45 +375,34 @@ function openGithub() {
 }
 
 .snake-runner {
-  /*
-     stroke-dasharray: Длина тела змейки, Длина пробела
-     Пример: 150px змея, 1000px пустоты до следующей
-  */
-  stroke-dasharray: 100 2000;
-  stroke-dashoffset: 2100; /* Начинаем за пределами */
+  stroke-dasharray: 150 1800; // Длина змеи и отступ
+  stroke-dashoffset: 1950;
   animation: snakeMove linear infinite;
+  filter: drop-shadow(0 0 5px currentColor); // Легкое свечение
 }
 
 @keyframes snakeMove {
   to {
-    stroke-dashoffset: -2100; /* Двигаем пунктир вдоль пути */
+    stroke-dashoffset: -1950;
   }
 }
 
-/* --- Карточка --- */
-.welcome-card {
-  position: relative;
-  z-index: 1;
+/* --- Glassmorphism Card --- */
+.welcome-card-glass {
   width: 100%;
   max-width: 440px;
   height: 650px;
   max-height: 90vh;
-  border-radius: 24px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+  border-radius: 32px;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.card-layout {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-
-  /* Эффект стекла (optional) */
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-
-  :deep(.n-card__content) {
-    display: flex;
-    flex-direction: column;
-    padding: 0;
-    height: 100%;
-  }
+  height: 100%;
+  width: 100%;
 }
 
 .welcome-carousel {
@@ -396,10 +410,9 @@ function openGithub() {
   width: 100%;
 }
 
-/* --- Скролл контент --- */
+/* --- Слайды --- */
 .slide-wrapper {
   height: 100%;
-  width: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -412,54 +425,67 @@ function openGithub() {
   align-items: center;
   text-align: center;
   overflow-y: auto;
-
   scrollbar-width: none;
   &::-webkit-scrollbar {
     display: none;
   }
 }
 
+.icon-box {
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // Фон задается инлайново для цвета, но можно добавить тень
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.03);
+}
+
 .slide-title {
   margin: 0 0 12px 0;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
-  color: #2c3e50;
+  color: var(--n-text-color);
+  letter-spacing: -0.5px;
 }
 
 .description {
   font-size: 15px;
-  color: #64748b;
-  margin-bottom: 24px;
-  line-height: 1.5;
+  color: #666;
+  margin-bottom: 32px;
+  line-height: 1.6;
 }
 
-.icon-wrapper {
-  margin-bottom: 24px;
-  padding: 16px;
-  background: #f8fafc;
-  border-radius: 24px;
-  display: inline-flex;
+/* --- Внутренние элементы стекла --- */
+.glass-inner {
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(4px);
 }
 
-/* --- 1 Слайд --- */
 .features-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
   width: 100%;
   text-align: left;
 }
 
 .feature-item {
   display: flex;
-  gap: 16px;
   align-items: center;
-  background: #f8fafc;
-  padding: 12px;
-  border-radius: 12px;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  transition: transform 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.8);
+  }
 
   .feature-icon {
-    font-size: 24px;
+    font-size: 22px;
   }
   .feature-text {
     display: flex;
@@ -467,7 +493,6 @@ function openGithub() {
     font-size: 13px;
     strong {
       color: #333;
-      font-size: 14px;
       margin-bottom: 2px;
     }
     span {
@@ -476,32 +501,27 @@ function openGithub() {
   }
 }
 
-/* --- 2 Слайд (Стек) --- */
+/* --- Стек --- */
 .stack-section {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 16px;
 }
 
 .stack-group {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid #f1f1f1;
-  &:last-child {
-    border-bottom: none;
-  }
+  gap: 8px;
 }
 
 .stack-label {
   font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: #94a3b8;
   font-weight: 700;
+  color: #999;
+  margin-left: 4px;
 }
 
 .tags-row {
@@ -510,21 +530,23 @@ function openGithub() {
   gap: 8px;
 }
 
-/* --- 3 Слайд --- */
+.glass-tag {
+  background: rgba(255, 255, 255, 0.6) !important;
+}
+
 .safety-alert {
-  text-align: left;
-  border-radius: 12px;
   width: 100%;
+  text-align: left;
+  border-radius: 16px;
   margin-bottom: 20px;
 }
 
 .rules-block {
   text-align: left;
   font-size: 14px;
-  color: #4b5563;
+  color: #555;
   width: 100%;
   margin-bottom: 24px;
-
   ul {
     padding-left: 20px;
   }
@@ -534,12 +556,13 @@ function openGithub() {
 }
 
 .github-link {
-  color: #333;
   margin-top: auto;
-  opacity: 0.7;
-  transition: opacity 0.2s;
+  color: #555;
+  opacity: 0.8;
+  transition: all 0.2s;
   &:hover {
     opacity: 1;
+    transform: translateY(-1px);
   }
 }
 
@@ -547,28 +570,25 @@ function openGithub() {
 .footer-actions {
   flex-shrink: 0;
   padding: 24px;
-  padding-top: 40px;
-  background: #fff;
+  padding-top: 32px;
   z-index: 5;
+
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0.8) 100%
+  );
 }
 
 .action-btn {
-  height: 50px;
-  border-radius: 14px;
+  height: 52px;
   font-size: 16px;
   font-weight: 600;
-  box-shadow: 0 4px 14px rgba(32, 128, 240, 0.3);
+  box-shadow: 0 8px 20px rgba(32, 128, 240, 0.25);
 }
 
 :deep(.n-carousel__dots) {
-  bottom: 100px !important;
-}
-
-:deep(.n-carousel__dot) {
-  background-color: #e2e8f0;
-}
-:deep(.n-carousel__dot--active) {
-  background-color: #2080f0;
-  width: 20px;
+  display: none;
 }
 </style>
