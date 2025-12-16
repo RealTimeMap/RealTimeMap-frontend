@@ -90,15 +90,29 @@ function openGithub() {
         v-for="snake in snakes"
         :key="snake.id"
       >
-        <!-- Полупрозрачный трек -->
         <path
           :d="snake.d"
           fill="none"
           :stroke="snake.color"
           :stroke-width="snake.width"
-          opacity="0.05"
+          opacity="0.1"
         />
-        <!-- Светящаяся голова -->
+
+        <path
+          class="snake-runner"
+          :d="snake.d"
+          fill="none"
+          :stroke="snake.color"
+          :stroke-width="snake.width * 4"
+          stroke-linecap="round"
+          :style="{
+            opacity: 0.6,
+            filter: 'blur(5px)',
+            animationDuration: `${snake.duration}s`,
+            animationDelay: `-${snake.delay}s`,
+          }"
+        />
+
         <path
           class="snake-runner"
           :d="snake.d"
@@ -370,6 +384,7 @@ function openGithub() {
   stroke-dashoffset: 1950;
   animation: snakeMove linear infinite;
   will-change: stroke-dashoffset;
+  filter: brightness(1.2);
 }
 
 @keyframes snakeMove {
