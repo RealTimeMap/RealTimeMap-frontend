@@ -369,7 +369,7 @@ function openGithub() {
   stroke-dasharray: 150 1800;
   stroke-dashoffset: 1950;
   animation: snakeMove linear infinite;
-  filter: drop-shadow(0 0 5px currentColor);
+  will-change: stroke-dashoffset;
 }
 
 @keyframes snakeMove {
