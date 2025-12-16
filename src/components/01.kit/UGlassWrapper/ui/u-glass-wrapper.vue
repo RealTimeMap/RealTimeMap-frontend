@@ -3,10 +3,12 @@ import { useSettingsStore } from '@/components/02.features/app-settings/model/se
 
 interface Props {
   scale?: number
+  enabledGlass?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
   scale: 40,
+  enabledGlass: true,
 })
 
 let uid = 0
@@ -18,6 +20,10 @@ const wrapperStyle = computed(() => ({
 }))
 
 const settingsStore = useSettingsStore()
+
+const showGlassEffect = computed(() => {
+  return settingsStore.isGlassEffectEnabled && props.enabledGlass
+})
 </script>
 
 <template>
@@ -75,7 +81,7 @@ const settingsStore = useSettingsStore()
     </svg>
 
     <div class="liquid-glass-tint" />
-    <template v-if="settingsStore.isGlassEffectEnabled">
+    <template v-if="showGlassEffect">
       <div class="liquid-glass-effect" />
     </template>
     <template v-else>

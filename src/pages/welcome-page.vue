@@ -32,7 +32,7 @@ const random = (min: number, max: number) => Math.random() * (max - min) + min
 onMounted(() => {
   const width = window.innerWidth
   const height = window.innerHeight
-  const count = 8
+  const count = 6
 
   const colors = ['#2080f0', '#18a058', '#d03050', '#f0a020']
 
@@ -116,7 +116,7 @@ function openGithub() {
 
     <u-glass-wrapper
       class="welcome-card-glass"
-      :scale="40"
+      :enabled-glass="false"
     >
       <div class="card-layout">
         <n-carousel
