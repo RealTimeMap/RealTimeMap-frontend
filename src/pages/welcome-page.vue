@@ -250,7 +250,7 @@ function openGithub() {
                     Kafka
                   </n-tag>
                   <n-tag
-
+                    type="primary"
                     size="small"
                     round
                   >
