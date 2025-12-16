@@ -114,9 +114,8 @@ function openGithub() {
       </g>
     </svg>
 
-    <u-glass-wrapper
+    <div
       class="welcome-card-glass"
-      :enabled-glass="false"
     >
       <div class="card-layout">
         <n-carousel
@@ -340,7 +339,7 @@ function openGithub() {
           </n-button>
         </div>
       </div>
-    </u-glass-wrapper>
+    </div>
   </div>
 </template>
 
@@ -386,6 +385,8 @@ function openGithub() {
   height: 650px;
   max-height: 90vh;
   border-radius: 32px;
+  background: var(--glass-background);
+  backdrop-filter: blur(4px);
 
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
 }
