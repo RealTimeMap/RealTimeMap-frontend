@@ -9,7 +9,7 @@ export default antfu({
       'error',
       {
         cases: {
-          kebabCase: true,
+          pascalCase: true,
           camelCase: true,
         },
       },
@@ -26,7 +26,7 @@ export default antfu({
 
     'vue/component-definition-name-casing': [
       'error',
-      'PascalCase',
+      'kebab-case',
     ],
 
     'vue/attribute-hyphenation': [

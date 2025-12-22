@@ -1,1 +1,1 @@
-export { default } from './ui/u-app-panel.vue'
+export { default } from './ui/UAppPanel.vue'

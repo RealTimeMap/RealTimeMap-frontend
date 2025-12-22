@@ -1,7 +1,7 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/components/02.features/authentication/model/auth'
-import { useOnboarding } from '@/components/02.features/onboarding/model/useOnboarding'
+import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
 
 const AuthProcessingComponent = { template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>' }
 
@@ -9,7 +9,7 @@ const routes = [
   {
     path: '/welcome',
     name: 'Welcome',
-    component: () => import('@/pages/welcome-page.vue'),
+    component: () => import('@/pages/WelcomePage.vue'),
     meta: {
       requiresAuth: false,
       layout: 'empty',
@@ -18,7 +18,7 @@ const routes = [
   {
     path: '/',
     name: 'home-map',
-    component: () => import('@/pages/home-map.vue'),
+    component: () => import('@/pages/HomeMap.vue'),
     meta: {
       layout: 'default',
     },
@@ -57,7 +57,7 @@ const routes = [
   {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
-    component: () => import('@/pages/not-found.vue'),
+    component: () => import('@/pages/NotFound.vue'),
     meta: {
       layout: 'empty',
     },

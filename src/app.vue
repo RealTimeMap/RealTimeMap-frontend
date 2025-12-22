@@ -7,9 +7,9 @@ import {
   NMessageProvider,
   NNotificationProvider,
 } from 'naive-ui'
-import DefaultLayout from '@/components/03.layouts/default-layout.vue'
-import EmptyLayout from '@/components/03.layouts/empty-layout.vue'
-import { useSettingsStore } from './components/02.features/app-settings/model/settings'
+import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
+import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
+import { useSettingsStore } from './components/02.features/AppSettings/model/settings'
 
 const layouts = {
   empty: EmptyLayout,

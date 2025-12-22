@@ -1,1 +1,1 @@
-export { default } from './ui/u-modal-wrapper.vue'
+export { default } from './ui/UModalWrapper.vue'

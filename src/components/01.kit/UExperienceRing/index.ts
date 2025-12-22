@@ -1,1 +1,1 @@
-export { default } from './ui/u-experience-ring.vue'
+export { default } from './ui/UExperienceRing.vue'

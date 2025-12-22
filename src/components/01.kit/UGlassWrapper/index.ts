@@ -1,1 +1,1 @@
-export { default } from './ui/u-glass-wrapper.vue'
+export { default } from './ui/UGlassWrapper.vue'

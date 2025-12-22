@@ -1,1 +1,1 @@
-export { default } from './ui/u-theme-switcher.vue'
+export { default } from './ui/UThemeSwitcher.vue'

@@ -1,1 +1,1 @@
-export { default } from './ui/u-icon.vue'
+export { default } from './ui/UIcon.vue'
