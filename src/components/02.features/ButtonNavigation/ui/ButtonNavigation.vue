@@ -11,7 +11,7 @@ import {
   SettingsOutline,
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
-import { useAddMarkStore } from '../../../../shared/stores/add-mark'
+import { useAddMarkStore } from '../../../../shared/stores/addMark'
 import { useAuthStore } from '../../Authentication/model/auth'
 import { useGeolocation } from '../../Geolocation/composables/useGeolocation'
 

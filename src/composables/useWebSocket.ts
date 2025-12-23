@@ -1,6 +1,6 @@
 import type { Socket } from 'socket.io-client'
 import type { DeepReadonly } from 'vue'
-import type { ClientToServerEvents, ServerToClientEvents } from '@/types/socket-events'
+import type { ClientToServerEvents, ServerToClientEvents } from '@/types/socketEvents'
 import { io } from 'socket.io-client'
 
 interface WebSocketState {

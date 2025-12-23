@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import type { LngLat, LngLatBounds, YMap } from '@yandex/ymaps3-types'
+import type {
+  DomEvent,
+  DomEventHandlerObject,
+  LngLat,
+  LngLatBounds,
+  YMap,
+} from '@yandex/ymaps3-types'
 import {
   YandexMap,
   YandexMapDefaultFeaturesLayer,
@@ -25,6 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   (e: 'mapReady', mapInstance: YMap): void
   (e: 'update:bounds', bounds: LngLatBounds): void
+  (e: 'clickMarker', coordinates: LngLat): void
 }>()
 
 const mapInstance = shallowRef<null | YMap>(null)
@@ -59,6 +66,14 @@ function onMapZoomChange(event: any) {
   }
 }
 
+function onMapClick(_object: DomEventHandlerObject, event: DomEvent) {
+  const cords = event.coordinates
+
+  if (cords) {
+    emit('clickMarker', cords)
+  }
+}
+
 const settingsStore = useSettingsStore()
 
 const mapTheme = computed(() => {
@@ -76,8 +91,8 @@ const mapTheme = computed(() => {
         zoom,
       },
       zoomRange: {
-        min: 13,
-        max: 18,
+        min: 5,
+        max: 17,
       },
       theme: mapTheme,
     }"
@@ -99,6 +114,7 @@ const mapTheme = computed(() => {
     <yandex-map-listener
       :settings="{
         onUpdate: onMapZoomChange,
+        onClick: onMapClick,
       }"
     />
   </yandex-map>

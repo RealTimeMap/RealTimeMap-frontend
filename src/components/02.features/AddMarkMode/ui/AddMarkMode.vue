@@ -3,7 +3,7 @@ import type { LngLat } from '@yandex/ymaps3-types'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useDialogStore } from '@/shared/stores/dialog'
 import UMarker from '../../../01.kit/UMarker/ui/UMarker.vue'
-import { useAddMarkStore } from '../../../../shared/stores/add-mark'
+import { useAddMarkStore } from '../../../../shared/stores/addMark'
 
 const addMarkStore = useAddMarkStore()
 const { openDialog, closeDialog } = useDialogStore()

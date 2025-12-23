@@ -3,7 +3,7 @@ import type { UploadFileInfo } from 'naive-ui'
 import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
 import { NDatePicker, NSelect, NThing, NUpload, useMessage } from 'naive-ui'
 import { computed, onMounted, ref } from 'vue'
-import { useAddMarkStore } from '@/shared/stores/add-mark'
+import { useAddMarkStore } from '@/shared/stores/addMark'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { markApi } from '@/utils/mark'
 

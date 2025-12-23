@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { YMap } from '@yandex/ymaps3-types'
+import type { LngLat, YMap } from '@yandex/ymaps3-types'
 import { AddMarkMode } from '../components/02.features/AddMarkMode'
 import { useAuthStore } from '../components/02.features/Authentication/model/auth'
 import { GeolocationFeedback } from '../components/02.features/Geolocation'
@@ -14,8 +14,14 @@ const {
 } = useGeolocation()
 const mapApi = shallowRef<null | YMap>(null)
 
+const markAddCoords = ref<null | LngLat>(null)
+
 function handleMapReady(map: YMap) {
   mapApi.value = map
+}
+
+function handleMapClick(coordinates: LngLat) {
+  markAddCoords.value = coordinates
 }
 
 const authStore = useAuthStore()
@@ -40,6 +46,7 @@ const { user } = storeToRefs(authStore)
       :show-user-marker="false"
       class="col"
       @map-ready="handleMapReady"
+      @click-marker="handleMapClick"
     >
       <marks-layer
         :coordinates="userPosition"

@@ -1,8 +1,8 @@
-import type { MarksRequestPayload } from '@/types/socket-events'
+import type { MarksRequestPayload } from '@/types/socketEvents'
 import type { Mark } from '@/utils/mark/index.type'
 import { useWebSocket } from '@/composables/useWebSocket'
 
-const MARKS_NAMESPACE = '/marks'
+const MARKS_NAMESPACE = '/mark'
 
 export function useMarksSocket() {
   const { on, emit, getSocketState } = useWebSocket()
