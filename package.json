@@ -43,6 +43,7 @@
     "@vitejs/plugin-vue": "^6.0.2",
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/tsconfig": "^0.7.0",
+    "baseline-browser-mapping": "^2.9.11",
     "eslint": "^9.39.1",
     "eslint-plugin-format": "^1.1.0",
     "eslint-plugin-vue": "~10.3.0",

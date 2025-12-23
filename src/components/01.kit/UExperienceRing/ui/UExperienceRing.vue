@@ -12,6 +12,7 @@ const props = withDefaults(defineProps<Props>(), {
   strokeWidth: 4,
   progress: 0,
   color: '#4cd197',
+  level: undefined,
 })
 
 // --- ГЕОМЕТРИЯ ---

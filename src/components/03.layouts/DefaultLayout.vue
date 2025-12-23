@@ -31,14 +31,14 @@ onMounted(() => {
     </u-app-panel>
 
     <u-app-panel :show="activeNavItem === 'Person'">
-      <Transition
+      <transition
         name="fade"
         mode="out-in"
       >
         <component
           :is="isAuthenticated ? UserView : GuestView"
         />
-      </Transition>
+      </transition>
     </u-app-panel>
 
     <u-modal-wrapper />

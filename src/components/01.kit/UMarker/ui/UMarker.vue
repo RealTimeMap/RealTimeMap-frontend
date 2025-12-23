@@ -26,23 +26,27 @@ const emit = defineEmits<{
 }>()
 
 const markerRef = shallowRef<any>(null)
-const currentCoordinates = ref<LngLat>([...props.coordinates])
+const localCoordinates = ref<LngLat>([0, 0])
+
+watch(() => props.coordinates, (newCoords) => {
+  localCoordinates.value = [...newCoords]
+}, { immediate: true, deep: true })
 
 const markerSettings = computed(() => ({
-  coordinates: currentCoordinates.value,
+  coordinates: localCoordinates.value,
   draggable: props.draggable,
   ...props.settings,
 }))
 
 watch(() => props.coordinates, (newCoords) => {
-  currentCoordinates.value = [...newCoords]
+  localCoordinates.value = [...newCoords]
 }, { deep: true })
 
 const onDragMove: YMapMarkerEventHandler = (event) => {
   const newCoords = event as LngLat
 
   if (newCoords) {
-    currentCoordinates.value = newCoords
+    localCoordinates.value = newCoords
     emit('dragend', newCoords)
   }
   else {
@@ -52,7 +56,7 @@ const onDragMove: YMapMarkerEventHandler = (event) => {
 
 onMounted(() => {
   if (props.coordinates) {
-    currentCoordinates.value = [...props.coordinates]
+    localCoordinates.value = [...props.coordinates]
   }
 })
 </script>
@@ -82,7 +86,7 @@ onMounted(() => {
 
       <template v-else-if="props.media?.icon">
         <div class="marker__block">
-          <UIcon
+          <u-icon
             :icon="props.media?.icon"
             class="marker-icon--quasar"
           />

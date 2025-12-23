@@ -36,7 +36,7 @@ function handleMarkClick(markId: number) {
 </script>
 
 <template>
-  <UMarker
+  <u-marker
     v-for="mark in marks"
     :key="mark.id"
     :coordinates="mark.geom.coordinates as LngLat"

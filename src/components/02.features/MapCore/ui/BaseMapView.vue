@@ -42,19 +42,27 @@ watch(mapInstance, (newMap) => {
   }
 })
 
-const zoom = ref(props.zoomLevel)
-const center = ref(props.centerCoordinates)
+const zoomLocal = ref()
+const centerLocal = ref()
+
+watch(() => props.centerCoordinates, (newCenter) => {
+  centerLocal.value = newCenter
+}, { immediate: true, deep: true })
+
+watch (() => props.zoomLevel, (newZoom) => {
+  zoomLocal.value = newZoom
+}, { immediate: true })
 
 function onMapZoomChange(event: any) {
   const newZoom = event?.location?.zoom
   const newCenter = event?.location?.center
 
   if (newCenter) {
-    center.value = newCenter
+    centerLocal.value = newCenter
   }
 
   if (typeof newZoom === 'number') {
-    zoom.value = newZoom
+    zoomLocal.value = newZoom
   }
 
   if (mapInstance.value) {
@@ -87,8 +95,8 @@ const mapTheme = computed(() => {
     v-model="mapInstance"
     :settings="{
       location: {
-        center,
-        zoom,
+        center: centerLocal,
+        zoom: zoomLocal,
       },
       zoomRange: {
         min: 5,

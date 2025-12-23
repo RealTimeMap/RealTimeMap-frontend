@@ -51,7 +51,7 @@ const { user } = storeToRefs(authStore)
       <marks-layer
         :coordinates="userPosition"
       />
-      <UMarker
+      <u-marker
         :coordinates="userPosition"
         :draggable="false"
         :media="{

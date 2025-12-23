@@ -4,19 +4,16 @@ import { NIcon } from 'naive-ui'
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/shared/stores/dialog'
 
-const propsDialog = defineProps({
-  width: {
-    type: String,
-    default: '500px',
-  },
-  closeable: {
-    type: Boolean,
-    default: true,
-  },
-  closeOnOverlayClick: {
-    type: Boolean,
-    default: true,
-  },
+interface PropsDialog {
+  width?: string
+  closeable?: boolean
+  closeOnOverlayClick?: boolean
+}
+
+const propsDialog = withDefaults(defineProps<PropsDialog>(), {
+  width: '500px',
+  closeable: true,
+  closeOnOverlayClick: true,
 })
 
 const dialogStore = useDialogStore()

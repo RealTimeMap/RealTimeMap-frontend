@@ -5,6 +5,7 @@ const props = defineProps<{
   markId: number
 }>()
 const scrollContainerRef = ref<HTMLElement | null>(null)
+const markIdRef = toRef(props, 'markId')
 
 const {
   commentText,
@@ -19,11 +20,11 @@ const {
   error,
   mark,
 } = useMarkDetail(
-  props.markId,
+  markIdRef.value,
   scrollContainerRef,
 )
 
-watch(() => props.markId, fetchData)
+watch(markIdRef, fetchData)
 
 onMounted(fetchData)
 </script>

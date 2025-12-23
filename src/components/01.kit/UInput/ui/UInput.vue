@@ -15,7 +15,9 @@ const props = withDefaults(defineProps<UInputProps>(), {
   disabled: false,
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits<{
+  (e: 'update:modelValue', value: string): void
+}>()
 
 const {
   attrs,
