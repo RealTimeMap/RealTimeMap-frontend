@@ -5,6 +5,6 @@ export default {
   install: (_app: App) => {
     const { connect } = useWebSocket()
 
-    connect('/mark')
+    connect('/marks')
   },
 }
