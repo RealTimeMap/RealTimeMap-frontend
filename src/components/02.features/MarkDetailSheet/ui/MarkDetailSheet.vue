@@ -66,7 +66,7 @@ onMounted(fetchData)
         >
           <img
             :src="mark.category.icon"
-            :alt="mark.category.category_name"
+            :alt="mark.category.categoryName"
           >
         </div>
         <div>
@@ -74,7 +74,7 @@ onMounted(fetchData)
             class="cat-name"
             :style="{ color: mark.category.color }"
           >
-            {{ mark.category.category_name }}
+            {{ mark.category.categoryName }}
           </div>
           <h2 class="mark-title">
             {{ mark.mark_name }}
