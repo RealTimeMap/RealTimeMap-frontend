@@ -35,7 +35,7 @@ export interface MarkAddPayload {
 
 export interface MarkCategory {
   id: number
-  category_name: string
+  categoryName: string
   color: string
   icon: string
 }
@@ -62,8 +62,8 @@ export interface MarkFull extends Mark {
 }
 
 export interface MarkCreateResponse {
-  allowed_category: MarkCategory[]
-  allowed_duration: number[]
+  allowedCategories: MarkCategory[]
+  allowedDuration: number[]
 }
 
 export interface MarkComment {

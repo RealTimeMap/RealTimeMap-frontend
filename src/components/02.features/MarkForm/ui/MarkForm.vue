@@ -27,14 +27,14 @@ const isSubmitting = ref(false)
 
 // --- Computed Options для NSelect ---
 const categoryOptions = computed(() => {
-  return markCreateData.value?.allowed_category.map(cat => ({
-    label: cat.category_name,
+  return markCreateData.value?.allowedCategories.map(cat => ({
+    label: cat.categoryName,
     value: cat.id,
   })) || []
 })
 
 const durationOptions = computed(() => {
-  return markCreateData.value?.allowed_duration.map(dur => ({
+  return markCreateData.value?.allowedDuration.map(dur => ({
     label: `${dur} ч.`,
     value: dur,
   })) || []
@@ -47,8 +47,8 @@ async function fetchCreateData() {
     const response = await markApi.getMarkCreate()
     markCreateData.value = response
 
-    if (response.allowed_duration.length > 0) {
-      selectedDuration.value = response.allowed_duration[0] as MarkAddPayload['duration']
+    if (response.allowedDuration.length > 0) {
+      selectedDuration.value = response.allowedDuration[0] as MarkAddPayload['duration']
     }
   }
   catch (err) {
