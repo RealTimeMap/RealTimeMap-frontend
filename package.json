@@ -17,7 +17,7 @@
     "--------------------------------------------------------------------------------": "",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "typecheck": "vue-tsc --noEmit",
+    "typecheck": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
     "---------------------------------------------------------------------------------": "",
     "postinstall": "simple-git-hooks"
   },
@@ -60,10 +60,8 @@
     "vue-tsc": "^3.2.1"
   },
   "simple-git-hooks": {
-    "pre-commit": "bun x lint-staged && bun run typecheck",
-    "post-commit": "git status",
-    "pre-push": "bun x lint-staged && bun run typecheck",
-    "post-merge": "bun i"
+    "pre-commit": "npx lint-staged",
+    "pre-push": "bun run typecheck"
   },
   "lint-staged": {
     "*": "eslint --fix"
