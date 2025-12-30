@@ -27,10 +27,10 @@ export interface MarkAddPayload {
   photo?: string[]
   latitude: number
   longitude: number
-  mark_name: string
+  markName: string
   start_at?: string
   duration?: 12 | 24 | 36 | 48
-  category_id: number
+  categoryId: number
 }
 
 export interface MarkCategory {

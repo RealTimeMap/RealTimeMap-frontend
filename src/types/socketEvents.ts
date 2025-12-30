@@ -13,13 +13,31 @@ export interface Message {
 }
 
 export interface MarksRequestPayload {
-  longitude: number
-  latitude: number
-  radius?: number
-  srid?: number
-  date?: string
-  duration?: number | null
-  show_ended?: boolean | null
+  // longitude: number
+  // latitude: number
+  // radius?: number
+  // srid?: number
+  // date?: string
+  // duration?: number | null
+  // show_ended?: boolean | null
+
+  screen: {
+    leftTop: {
+      lat: number
+      lon: number
+    }
+    center: {
+      lat: number
+      lon: number
+    }
+    rightBottom: {
+      lat: number
+      lon: number
+    }
+  }
+  startAt: string
+  endAt: string
+  zoomLevel: number
 }
 
 // =================================================================

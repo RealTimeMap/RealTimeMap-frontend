@@ -1,29 +1,44 @@
-<script setup lang="ts">
-import type { LngLat } from '@yandex/ymaps3-types'
+<!-- <script setup lang="ts">
+import type { LngLat, LngLatBounds } from '@yandex/ymaps3-types'
 import { useDebounceFn } from '@vueuse/core'
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { useMarksSocket } from '../composables/useMarksSocket'
 
 const props = defineProps<{
-  coordinates: LngLat
+  userCoordinates: LngLat
+  screenBounds: LngLatBounds | null
 }>()
 
 const dialogStore = useDialogStore()
 const { marks, fetchMarks } = useMarksSocket()
 
-const debounceFetchMark = useDebounceFn((coordinates: LngLat) => {
-  const [longitude, latitude] = coordinates
-  fetchMarks({
-    show_ended: false,
-    longitude,
-    latitude,
-    radius: 100000,
-  })
+const debounceFetchMark = useDebounceFn((
+  userCoordinates: LngLat,
+  screenBounds: LngLatBounds | null,
+) => {
+  const [longitude, latitude] = userCoordinates
+
+    fetchMarks({
+      screen: {
+        leftTop: {
+          lat: screenBounds?[0][0],
+          lon: screenBounds?[0][1],
+        },
+        center: {
+          lat: latitude,
+          lon: longitude,
+        },
+      },
+    // show_ended: false,
+    // longitude,
+    // latitude,
+    // radius: 100000,
+    })
 }, 500)
 
 watch(
-  () => props.coordinates,
+  () => props.userCoordinates,
   (newCord) => {
     if (newCord)
       debounceFetchMark(newCord)
@@ -48,4 +63,4 @@ function handleMarkClick(markId: number) {
     :color="mark.category.color"
     @click="handleMarkClick(mark.id)"
   />
-</template>
+</template> -->
