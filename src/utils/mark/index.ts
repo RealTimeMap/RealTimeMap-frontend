@@ -19,7 +19,7 @@ export const markApi = {
   },
 
   postMarkAdd(payload: MarkAddPayload): Promise<MarkAddResponse> {
-    return apiService.post<MarkAddResponse>('/marks', payload, {
+    return apiService.post<MarkAddResponse>('/marks/create', payload, {
       headers: {
         'Content-Type': 'multipart/form-data',
         'Authorization': `Bearer ${getCookie('token')}`,

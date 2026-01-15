@@ -89,10 +89,10 @@ async function handleSubmit() {
 
     const formData = new FormData()
 
-    formData.append('mark_name', markName.value)
+    formData.append('markName', markName.value)
     formData.append('latitude', String(addMarkStore.markerCoords[1]))
     formData.append('longitude', String(addMarkStore.markerCoords[0]))
-    formData.append('category_id', String(selectedCategoryId.value))
+    formData.append('categoryId', String(selectedCategoryId.value))
     formData.append('duration', String(selectedDuration.value))
 
     if (additionalInfo.value) {

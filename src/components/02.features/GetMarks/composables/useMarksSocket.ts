@@ -1,5 +1,5 @@
 import type { MarksRequestPayload } from '@/types/socketEvents'
-import type { Mark } from '@/utils/mark/index.type'
+import type { Mark, MarksResponse } from '@/utils/mark/index.type'
 import { useWebSocket } from '@/composables/useWebSocket'
 
 const MARKS_NAMESPACE = '/marks'
@@ -22,7 +22,10 @@ export function useMarksSocket() {
 
     isLoading.value = true
     error.value = null
-    emit(MARKS_NAMESPACE, 'marks_message', params)
+    emit(MARKS_NAMESPACE, 'message', params, (res: MarksResponse) => {
+      marks.value = res.marks
+      isLoading.value = false
+    })
   }
 
   const handleMarkCreated = (newMark: Mark) => {
@@ -33,14 +36,14 @@ export function useMarksSocket() {
     }
   }
 
-  const handleGetMarks = (receivedMarks: Mark[]) => {
-    marks.value = receivedMarks
-    isLoading.value = false
-  }
+  // const handleGetMarks = (receivedMarks: Mark[]) => {
+  //   marks.value = receivedMarks
+  //   isLoading.value = false
+  // }
 
   const unsubscribes = [
-    on(MARKS_NAMESPACE, 'marks_get', handleGetMarks),
-    on(MARKS_NAMESPACE, 'marks_created', handleMarkCreated),
+    // on(MARKS_NAMESPACE, 'marksGet', handleGetMarks),
+    on(MARKS_NAMESPACE, 'marksCreated', handleMarkCreated),
   ]
 
   onUnmounted(() => {

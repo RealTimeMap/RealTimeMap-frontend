@@ -1,33 +1,64 @@
 <script setup lang="ts">
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { LngLat, LngLatBounds } from '@yandex/ymaps3-types'
 import { useDebounceFn } from '@vueuse/core'
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { useMarksSocket } from '../composables/useMarksSocket'
 
 const props = defineProps<{
-  coordinates: LngLat
+  userCoordinates: LngLat
+  screenBounds: LngLatBounds | null
 }>()
 
 const dialogStore = useDialogStore()
 const { marks, fetchMarks } = useMarksSocket()
 
-const debounceFetchMark = useDebounceFn((coordinates: LngLat) => {
-  const [longitude, latitude] = coordinates
+const debounceFetchMark = useDebounceFn((
+  userCoordinates: LngLat,
+  screenBounds: LngLatBounds | null,
+) => {
+  if (!screenBounds || !userCoordinates)
+    return
+
+  const yesterday = new Date()
+  yesterday.setDate(yesterday.getDate() - 1)
+
+  const [longitude, latitude] = userCoordinates
+
   fetchMarks({
-    show_ended: false,
-    longitude,
-    latitude,
-    radius: 100000,
+    startAt: yesterday.toISOString(),
+    endAt: new Date().toISOString(),
+    zoomLevel: 18,
+    screen: {
+      leftTop: {
+        lat: screenBounds[0][1],
+        lon: screenBounds[0][0],
+      },
+      rightBottom: {
+        lat: screenBounds[1][1],
+        lon: screenBounds[1][0],
+      },
+      center: {
+        lat: latitude,
+        lon: longitude,
+      },
+    },
+    // show_ended: false,
+    // longitude,
+    // latitude,
+    // radius: 100000,
   })
+
+  console.log(marks.value)
 }, 500)
 
 watch(
-  () => props.coordinates,
-  (newCord) => {
-    if (newCord)
-      debounceFetchMark(newCord)
+  [() => props.userCoordinates, () => props.screenBounds],
+  ([newCord, newBounds]) => {
+    if (newCord && newBounds)
+      debounceFetchMark(newCord, newBounds)
   },
+  { immediate: true },
 )
 
 function handleMarkClick(markId: number) {
