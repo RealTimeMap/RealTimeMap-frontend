@@ -3,7 +3,7 @@
 // Описываем основные сущности, которые передаются по сокету.
 // =================================================================
 
-import type { Mark } from '@/utils/mark/index.type'
+import type { Mark, MarksResponse } from '@/utils/mark/index.type'
 
 export interface Message {
   id: string
@@ -49,7 +49,10 @@ export interface MarksRequestPayload {
 
 export interface ClientToServerEvents {
   // --- Публичные события (неймспейс /marks) ---
-  'marks_message': (payload: MarksRequestPayload) => void
+  'message': (
+    payload: MarksRequestPayload,
+    callback: (response: MarksResponse) => void
+  ) => void
 
   // --- Для получения активных пользователей ---
   'user_count': () => void
@@ -72,8 +75,8 @@ export interface ServerToClientEvents {
   'user_count': (payload: { count: number | undefined }) => void
 
   // --- События для меток (неймспейс /marks) ---
-  'marks_get': (payload: Mark[]) => void
-  'marks_created': (payload: Mark) => void
+  'marksGet': (payload: Mark[]) => void
+  'marksCreated': (payload: Mark) => void
   'marks_updated': (payload: Partial<Mark> & { id: string }) => void
   'marks_deleted': (payload: { id: string }) => void
 

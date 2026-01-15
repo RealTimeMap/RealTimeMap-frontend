@@ -46,6 +46,7 @@ export function useWebSocket(): UseWebSocketReturn {
     console.warn(`[WebSocket] Attempting to connect to ${fullUrl}`)
 
     const socket = io(fullUrl, {
+      path: '/marks/socket.io',
       ...(auth && { auth }),
       autoConnect: false,
       transports: ['websocket', 'polling'],

@@ -57,6 +57,11 @@ export interface Mark {
   category: MarkCategory
 }
 
+export interface MarksResponse {
+  marks: Mark[]
+  success: boolean
+}
+
 export interface MarkFull extends Mark {
   owner: User
 }
