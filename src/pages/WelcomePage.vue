@@ -13,7 +13,7 @@ import {
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
 
 const { completeOnboarding } = useOnboarding()
-const carouselRef = ref<any>(null)
+const carouselRef = ref<{ next: () => void } | null>(null)
 const currentIndex = ref(0)
 const totalSlides = 3
 
@@ -29,12 +29,12 @@ const snakes = ref<SnakePath[]>([])
 
 const random = (min: number, max: number) => Math.random() * (max - min) + min
 
+const COLORS = ['#2080f0', '#18a058', '#d03050', '#f0a020']
+
 onMounted(() => {
   const width = window.innerWidth
   const height = window.innerHeight
   const count = 12
-
-  const colors = ['#2080f0', '#18a058', '#d03050', '#f0a020']
 
   snakes.value = Array.from({ length: count }).map((_, i) => {
     const startY = random(0, height)
@@ -48,7 +48,7 @@ onMounted(() => {
     return {
       id: i,
       d: pathData,
-      color: colors[Math.floor(random(0, colors.length))],
+      color: COLORS[Math.floor(random(0, COLORS.length))] as string,
       width: random(3, 6),
       duration: random(8, 15),
       delay: random(0, 5),
@@ -134,7 +134,7 @@ function openGithub() {
                 :style="{ background: `rgba(32, 128, 240, 0.1)`, color: '#2080f0' }"
               >
                 <u-icon
-                  :icon="slides[0].icon"
+                  :icon="slides[0]?.icon!"
                   size="56"
                 />
               </div>
@@ -177,7 +177,7 @@ function openGithub() {
                 :style="{ background: `rgba(24, 160, 88, 0.1)`, color: '#18a058' }"
               >
                 <u-icon
-                  :icon="slides[1].icon"
+                  :icon="slides[1]?.icon!"
                   size="56"
                 />
               </div>
@@ -282,7 +282,7 @@ function openGithub() {
                 :style="{ background: `rgba(208, 48, 80, 0.1)`, color: '#d03050' }"
               >
                 <u-icon
-                  :icon="slides[2].icon"
+                  :icon="slides[2]?.icon!"
                   size="56"
                 />
               </div>
