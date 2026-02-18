@@ -121,7 +121,10 @@ onMounted(fetchData)
         </div>
       </div>
 
-      <div class="block comments-section">
+      <div
+        v-if="comments"
+        class="block comments-section"
+      >
         <h3>Комментарии ({{ comments.length }})</h3>
 
         <div

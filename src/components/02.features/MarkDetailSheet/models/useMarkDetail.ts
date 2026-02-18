@@ -36,8 +36,8 @@ export function useMarkDetail(
         mark.value = data
       }
 
-      const dataComments = await markApi.getMarkComments(markId)
-      comments.value = dataComments.items.reverse()
+      // const dataComments = await markApi.getMarkComments(markId)
+      // comments.value = dataComments.items.reverse()
       await nextTick()
       scrollToBottom()
     }
