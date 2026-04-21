@@ -61,9 +61,7 @@ const { user } = storeToRefs(authStore)
       <u-marker
         :coordinates="userPosition"
         :draggable="false"
-        :media="{
-          photoUrl: user?.avatar || '',
-        }"
+        :media="user?.avatar || 'https://avatars.githubusercontent.com/u/71484693?v=4'"
       />
       <add-mark-mode />
     </base-map-view>

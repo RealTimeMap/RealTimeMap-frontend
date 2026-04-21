@@ -2,17 +2,12 @@
 import type { LngLat, YMapMarkerEventHandler } from '@yandex/ymaps3-types'
 import { YandexMapMarker } from 'vue-yandex-maps'
 
-interface Media {
-  photoUrl?: string | undefined
-  icon?: string
-}
-
 interface Props {
   coordinates: LngLat
   draggable?: boolean
   settings?: object
   color?: string
-  media: Media
+  media?: string | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -73,23 +68,14 @@ onMounted(() => {
       class="custom-map-marker"
       :class="{ draggable: props.draggable }"
     >
-      <template v-if="props.media?.photoUrl">
+      <template v-if="props?.media">
         <div class="marker__block">
           <img
-            :src="props.media?.photoUrl"
+            :src="props.media"
             class="marker-photo"
             :style="{ borderColor: props.color }"
             alt="photo"
           >
-        </div>
-      </template>
-
-      <template v-else-if="props.media?.icon">
-        <div class="marker__block">
-          <u-icon
-            :icon="props.media?.icon"
-            class="marker-icon--quasar"
-          />
         </div>
       </template>
 
@@ -122,34 +108,26 @@ onMounted(() => {
   &::after {
     content: '';
     position: absolute;
-    bottom: -8px;
+    bottom: -2px;
     left: 50%;
     transform: translateX(-50%);
     width: 0;
     height: 0;
-    border: 8px solid transparent;
+    border: 6px solid transparent;
     border-top-color: #3399ff;
     z-index: 1;
   }
 }
 
-.marker-icon--quasar {
-  font-size: 25px;
-  color: #3399ff;
-  background-color: white;
-  border-radius: 50%;
-  padding: 6px;
-  border: 4px solid #3399ff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
-}
-
 .marker-photo {
-  width: 48px;
-  height: 48px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid #3399ff;
-  box-shadow: 0 0 8px rgba(0, 123, 255, 0.6);
+  border: 1px solid #3399ff;
+  box-shadow:
+    rgba(0, 0, 0, 0.5) 0px 6px 14px,
+    rgba(255, 255, 255, 0.3) 0px 1px 0px inset;
   background-color: white;
   position: relative;
   z-index: 2;

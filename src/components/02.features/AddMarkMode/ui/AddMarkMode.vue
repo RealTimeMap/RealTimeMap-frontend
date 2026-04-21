@@ -30,7 +30,7 @@ function handleClose() {
     <u-marker
       :coordinates="addMarkStore.markerCoords"
       draggable
-      :media="{}"
+      :media="null"
       @dragend="onDragEnd"
     />
 

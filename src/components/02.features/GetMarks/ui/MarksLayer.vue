@@ -73,9 +73,7 @@ function handleMarkClick(markId: number) {
     :coordinates="mark.geom.coordinates as LngLat"
     :draggable="false"
     :title="mark.mark_name"
-    :media="{
-      photoUrl: mark.photo ? mark.photo[0] : mark.category.icon,
-    }"
+    :media="mark.photo ? mark.photo[0] : null"
     :color="mark.category.color"
     @click="handleMarkClick(mark.id)"
   />

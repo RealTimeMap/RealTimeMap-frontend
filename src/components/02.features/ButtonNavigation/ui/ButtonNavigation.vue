@@ -110,51 +110,6 @@ $orb-background: var(--orb-background);
 $nav-icon-inactive: var(--nav-icon-inactive);
 $nav-icon-active: var(--nav-icon-active);
 
-@keyframes emerge-arc-left {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, calc(-50% + 30px)) scale(0);
-  }
-  70% {
-    opacity: 1;
-    transform: translate(calc(-50% - 70px), calc(-50% - 50px)) scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(calc(-50% - 55px), calc(-50% - 45px)) scale(1);
-  }
-}
-
-@keyframes emerge-arc-middle {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, calc(-50% + 30px)) scale(0);
-  }
-  70% {
-    opacity: 1;
-    transform: translate(-50%, calc(-50% - 85px)) scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(-50%, calc(-50% - 75px)) scale(1);
-  }
-}
-
-@keyframes emerge-arc-right {
-  0% {
-    opacity: 0;
-    transform: translate(-50%, calc(-50% + 30px)) scale(0);
-  }
-  70% {
-    opacity: 1;
-    transform: translate(calc(-50% + 70px), calc(-50% - 50px)) scale(1.1);
-  }
-  100% {
-    opacity: 1;
-    transform: translate(calc(-50% + 55px), calc(-50% - 45px)) scale(1);
-  }
-}
-
 .bottom-nav {
   position: fixed;
   bottom: 40px;
@@ -236,58 +191,5 @@ $nav-icon-active: var(--nav-icon-active);
   border-radius: 2px;
   background-color: $orb-background;
   z-index: 2;
-}
-
-.speed-dial {
-  position: absolute;
-  top: 75%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-  z-index: 5;
-}
-
-.speed-dial__button {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background-color: $orb-background;
-  border: none;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  color: var(--primary-color);
-  opacity: 0;
-  transform: translate(-50%, calc(-50% + 30px)) scale(0);
-  transition:
-    transform 0.3s ease-in-out,
-    opacity 0.3s ease-in-out;
-}
-
-.speed-dial.is-visible {
-  pointer-events: auto;
-}
-
-.speed-dial.is-visible .speed-dial__button {
-  transition: none;
-  animation-duration: 0.4s;
-  animation-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation-fill-mode: forwards;
-  animation-delay: calc(0.1s * var(--i));
-}
-
-.speed-dial.is-visible .speed-dial__button:nth-child(1) {
-  animation-name: emerge-arc-left;
-}
-.speed-dial.is-visible .speed-dial__button:nth-child(2) {
-  animation-name: emerge-arc-middle;
-}
-.speed-dial.is-visible .speed-dial__button:nth-child(3) {
-  animation-name: emerge-arc-right;
 }
 </style>
