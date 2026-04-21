@@ -1,83 +1,41 @@
 <script setup lang="ts">
 import {
-  Add,
-  Close,
-  ImageOutline as ImageIcon,
-  Map,
+  ChatboxOutline,
   MapOutline,
-  Person,
   PersonOutline,
-  Settings,
-  SettingsOutline,
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
-import { useAddMarkStore } from '../../../../shared/stores/addMark'
-import { useAuthStore } from '../../Authentication/model/auth'
-import { useGeolocation } from '../../Geolocation/composables/useGeolocation'
 
-const { userPosition } = useGeolocation()
-const addMarkStore = useAddMarkStore()
+const activeItemId = defineModel<string>(
+  'activeItem',
+  {
+    default: 'Map',
+  },
+)
 
-const activeItemId = defineModel<string>('activeItem', { default: 'Map' })
-const authStore = useAuthStore()
-
-interface ActionItem {
-  id: string
-  icon: Component
-  action: () => void
-}
 interface NavItem {
   id: string
   icon: Component
-  activeIcon: Component
+  label: string
 }
 
 const navItems: NavItem[] = ([
-  { id: 'Person', icon: PersonOutline, activeIcon: Person },
-  { id: 'Map', icon: MapOutline, activeIcon: Map },
   {
-    id: 'Settings',
-    icon: SettingsOutline,
-    activeIcon: Settings,
+    id: 'Map',
+    icon: MapOutline,
+    label: 'Карта',
+  },
+  {
+    id: 'Chatbox',
+    icon: ChatboxOutline,
+    label: 'Чаты',
+  },
+  {
+    id: 'Person',
+    icon: PersonOutline,
+    label: 'Профиль',
   },
 ])
-
-function handleAddClick() {
-  if (userPosition.value)
-    addMarkStore.startAddingMark(userPosition.value)
-}
-
-const actionItems = computed<ActionItem[]>(() => {
-  const items: ActionItem[] = [
-    { id: 'add', icon: Add, action: handleAddClick },
-    // eslint-disable-next-line no-console
-    { id: 'image', icon: ImageIcon, action: () => console.log('Image clicked') },
-    // eslint-disable-next-line no-console
-    { id: 'close', icon: Close, action: () => console.log('Close clicked') },
-  ]
-
-  if (!authStore.token)
-    return items.filter(item => item.id !== 'add')
-
-  return items
-})
-
-const isActionsVisible = ref(false)
-let showActionsTimer: ReturnType<typeof setTimeout> | null = null
-
-watch(activeItemId, (newItemId) => {
-  if (showActionsTimer)
-    clearTimeout(showActionsTimer)
-
-  if (newItemId === 'Map') {
-    showActionsTimer = setTimeout(() => {
-      isActionsVisible.value = true
-    }, 400)
-  }
-  else {
-    isActionsVisible.value = false
-  }
-})
 
 const itemRefs = shallowRef<HTMLElement[]>([])
 const navList = ref<HTMLUListElement | null>(null)
@@ -108,18 +66,12 @@ onMounted(() => {
 
   nextTick(() => {
     isReadyForAnimation.value = true
-    if (activeItemId.value === 'Map') {
-      showActionsTimer = setTimeout(() => {
-        isActionsVisible.value = true
-      }, 300)
-    }
   })
 })
 </script>
 
 <template>
   <u-glass-wrapper
-    v-if="!addMarkStore.isAddingMark"
     :scale="40"
     :class="{ 'is-visible': isReadyForAnimation }"
     class="bottom-nav"
@@ -143,36 +95,13 @@ onMounted(() => {
         @click="setActiveItem(item.id, index)"
       >
         <n-icon
-          size="30"
-          :component="activeItemId === item.id ? item.activeIcon : item.icon"
+          size="24"
+          :component="item.icon"
           class="bottom-nav__icon"
-          :class="{ 'is-main-active': item.id === 'Map' && activeItemId === 'Map' }"
         />
+        <span class="bottom-nav__label">{{ item.label }}</span>
       </li>
     </ul>
-
-    <div
-      class="bottom-nav__indicator"
-      :style="indicatorStyle"
-    >
-      <div
-        class="speed-dial"
-        :class="{ 'is-visible': isActionsVisible }"
-      >
-        <button
-          v-for="(action, index) in actionItems"
-          :key="action.id"
-          class="speed-dial__button"
-          :style="{ '--i': index }"
-          @click="action.action"
-        >
-          <n-icon
-            :component="action.icon"
-            size="24"
-          />
-        </button>
-      </div>
-    </div>
   </u-glass-wrapper>
 </template>
 
@@ -233,11 +162,12 @@ $nav-icon-active: var(--nav-icon-active);
   transform: translateX(-50%);
   width: 90%;
   max-width: 400px;
-  height: 60px;
-  border-radius: 20px;
+  height: 70px;
+  border-radius: 28px;
   box-shadow:
-    0 6px 6px rgba(0, 0, 0, 0.2),
-    0 0 20px rgba(0, 0, 0, 0.1);
+    rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
+    rgba(0, 0, 0, 0.35) 0px 10px 30px;
+
   transform: translateX(-50%) translateY(250%);
   opacity: 0;
   transition:
@@ -264,30 +194,33 @@ $nav-icon-active: var(--nav-icon-active);
   flex: 1;
   display: flex;
   justify-content: center;
+  flex-direction: column;
   align-items: center;
 }
 
-.bottom-nav__icon {
+.bottom-nav__icon,
+.bottom-nav__label {
   color: $nav-icon-inactive;
   transition:
     transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55),
     color 0.4s ease,
     opacity 0.3s ease;
-  z-index: 3;
-  position: relative;
-  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
-.bottom-nav__item--active .bottom-nav__icon {
-  color: $nav-icon-active;
-  transform: translateY(-30px);
+.bottom-nav__label {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.bottom-nav__item--active {
+  .bottom-nav__icon,
+  .bottom-nav__label {
+    color: $nav-icon-active;
+  }
 }
 
 .bottom-nav__indicator {
   position: absolute;
-  top: -25px;
-  height: 50px;
-  width: 50px;
   z-index: 0;
   transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
   overflow: visible;
@@ -298,12 +231,11 @@ $nav-icon-active: var(--nav-icon-active);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
+  width: 28px;
+  height: 3px;
+  border-radius: 2px;
   background-color: $orb-background;
-  border-radius: 50%;
   z-index: 2;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .speed-dial {

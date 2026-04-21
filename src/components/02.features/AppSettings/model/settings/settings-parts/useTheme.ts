@@ -45,9 +45,9 @@ export function useTheme() {
         '--glass-tint': 'rgba(0, 0, 0, 0.2)',
         '--glass-shine': 'rgba(255, 255, 255, 0.1)',
 
-        '--orb-background': 'rgba(255, 255, 255, 0.9)',
+        '--orb-background': 'var(--primary-color)',
         '--nav-icon-inactive': 'rgba(255, 255, 255, 0.6)',
-        '--nav-icon-active': '#000000',
+        '--nav-icon-active': 'var(--primary-color)',
       }
     }
     return {
@@ -63,9 +63,9 @@ export function useTheme() {
       '--glass-tint': 'rgba(255, 255, 255, 0.25)',
       '--glass-shine': 'rgba(255, 255, 255, 0.5)',
 
-      '--orb-background': '#ffffff',
+      '--orb-background': 'var(--primary-color)',
       '--nav-icon-inactive': '#555555',
-      '--nav-icon-active': '#000000',
+      '--nav-icon-active': 'var(--primary-color)',
     }
   })
 
