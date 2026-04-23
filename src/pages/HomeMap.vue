@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import type { LngLat, LngLatBounds, YMap } from '@yandex/ymaps3-types'
+import MarkForm from '@/components/02.features/MarkForm'
+import { useDialogStore } from '@/shared/stores/dialog'
 import { AddMarkMode } from '../components/02.features/AddMarkMode'
 import { useAuthStore } from '../components/02.features/Authentication/model/auth'
 import { GeolocationFeedback } from '../components/02.features/Geolocation'
@@ -12,6 +14,7 @@ const {
   error: geolocationError,
   isLoading: isLoadingGeolocation,
 } = useGeolocation()
+const { openDialog } = useDialogStore()
 
 const mapApi = shallowRef<null | YMap>(null)
 const markAddCoords = ref<null | LngLat>(null)
@@ -23,6 +26,10 @@ function handleMapReady(map: YMap) {
 
 function handleMapClick(coordinates: LngLat) {
   markAddCoords.value = coordinates
+
+  openDialog(MarkForm, {
+    coords: coordinates,
+  }, 'Добавить новую метку')
 }
 
 function handleUpdateBounds(bounds: LngLatBounds) {
@@ -51,7 +58,7 @@ const { user } = storeToRefs(authStore)
       :show-user-marker="false"
       class="col"
       @map-ready="handleMapReady"
-      @click-marker="handleMapClick"
+      @dbl-click-marker="handleMapClick"
       @update:bounds="handleUpdateBounds"
     >
       <marks-layer

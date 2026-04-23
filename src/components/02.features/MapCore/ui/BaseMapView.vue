@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import type {
+  BehaviorType,
   DomEvent,
   DomEventHandlerObject,
   LngLat,
   LngLatBounds,
   YMap,
 } from '@yandex/ymaps3-types'
+import type { YMapLocation } from '@yandex/ymaps3-types/imperative/YMap'
 import {
   YandexMap,
   YandexMapDefaultFeaturesLayer,
@@ -31,7 +33,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   (e: 'mapReady', mapInstance: YMap): void
   (e: 'update:bounds', bounds: LngLatBounds): void
-  (e: 'clickMarker', coordinates: LngLat): void
+  (e: 'dblClickMarker', coordinates: LngLat): void
 }>()
 
 const mapInstance = shallowRef<null | YMap>(null)
@@ -53,35 +55,30 @@ watch (() => props.zoomLevel, (newZoom) => {
   zoomLocal.value = newZoom
 }, { immediate: true })
 
-function onMapZoomChange(event: any) {
-  const newZoom = event?.location?.zoom
-  const newCenter = event?.location?.center
+function onMapUpdate({ location }: { location: YMapLocation }): void {
+  const { zoom, center } = location
 
-  if (newCenter) {
-    centerLocal.value = newCenter
+  if (center) {
+    centerLocal.value = center
   }
 
-  if (typeof newZoom === 'number') {
-    zoomLocal.value = newZoom
+  if (typeof zoom === 'number') {
+    zoomLocal.value = zoom
   }
 
-  if (mapInstance.value) {
-    const currentBounds = mapInstance.value.bounds
-
-    if (currentBounds) {
-      emit('update:bounds', currentBounds)
-    }
+  const currentBounds = mapInstance.value?.bounds
+  if (currentBounds) {
+    emit('update:bounds', currentBounds)
   }
 }
 
-function onMapClick(_object: DomEventHandlerObject, event: DomEvent) {
-  const cords = event.coordinates
-
-  if (cords) {
-    emit('clickMarker', cords)
+function onMapDblClick(_object: DomEventHandlerObject, event: DomEvent) {
+  if (event.coordinates) {
+    emit('dblClickMarker', event.coordinates)
   }
 }
 
+const MAP_BEHAVIORS: BehaviorType[] = ['drag', 'scrollZoom', 'pinchZoom', 'magnifier']
 const settingsStore = useSettingsStore()
 
 const mapTheme = computed(() => {
@@ -98,6 +95,7 @@ const mapTheme = computed(() => {
         center: centerLocal,
         zoom: zoomLocal,
       },
+      behaviors: MAP_BEHAVIORS,
       zoomRange: {
         min: 5,
         max: 17,
@@ -121,8 +119,8 @@ const mapTheme = computed(() => {
     <slot />
     <yandex-map-listener
       :settings="{
-        onUpdate: onMapZoomChange,
-        onClick: onMapClick,
+        onUpdate: onMapUpdate,
+        onDblClick: onMapDblClick,
       }"
     />
   </yandex-map>

@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import type { LngLat } from '@yandex/ymaps3-types'
 import type { UploadFileInfo } from 'naive-ui'
 import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
 import { NDatePicker, NSelect, NThing, NUpload, useMessage } from 'naive-ui'
-import { computed, onMounted, ref } from 'vue'
-import { useAddMarkStore } from '@/shared/stores/addMark'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { markApi } from '@/utils/mark'
 
+const { coords } = defineProps<{ coords: LngLat }>()
+
 // --- Stores & Hooks ---
-const addMarkStore = useAddMarkStore()
 const { closeDialog } = useDialogStore()
 const message = useMessage()
 
@@ -66,7 +66,7 @@ onMounted(() => {
 
 // --- Handlers ---
 async function handleSubmit() {
-  if (!addMarkStore.markerCoords) {
+  if (!coords) {
     message.error('Координаты метки не найдены')
     return
   }
@@ -90,8 +90,8 @@ async function handleSubmit() {
     const formData = new FormData()
 
     formData.append('markName', markName.value)
-    formData.append('latitude', String(addMarkStore.markerCoords[1]))
-    formData.append('longitude', String(addMarkStore.markerCoords[0]))
+    formData.append('latitude', String(coords[1]))
+    formData.append('longitude', String(coords[0]))
     formData.append('categoryId', String(selectedCategoryId.value))
     formData.append('duration', String(selectedDuration.value))
 
@@ -112,7 +112,6 @@ async function handleSubmit() {
     await markApi.postMarkAdd(formData as any)
 
     message.success('Метка успешно создана')
-    addMarkStore.stopAddingMark()
     closeDialog()
   }
   catch (e) {
@@ -125,7 +124,6 @@ async function handleSubmit() {
 }
 
 function handleClose() {
-  addMarkStore.stopAddingMark()
   closeDialog()
 }
 </script>

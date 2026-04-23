@@ -13,7 +13,9 @@ function onDragEnd(newCoords: LngLat) {
 }
 
 function onNextClick() {
-  openDialog(MarkForm, {}, 'Добавить новую метку')
+  openDialog(MarkForm, {
+    coords: addMarkStore.markerCoords as LngLat,
+  }, 'Добавить новую метку')
 }
 
 function handleClose() {
