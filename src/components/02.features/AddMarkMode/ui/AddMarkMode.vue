@@ -6,21 +6,21 @@ import UMarker from '../../../01.kit/UMarker/ui/UMarker.vue'
 import { useAddMarkStore } from '../../../../shared/stores/addMark'
 
 const addMarkStore = useAddMarkStore()
-const { openDialog, closeDialog } = useDialogStore()
+const { open, close } = useDialogStore()
 
 function onDragEnd(newCoords: LngLat) {
   addMarkStore.setMarkerCoords(newCoords)
 }
 
 function onNextClick() {
-  openDialog(MarkForm, {
+  open(MarkForm, {
     coords: addMarkStore.markerCoords as LngLat,
-  }, 'Добавить новую метку')
+  })
 }
 
 function handleClose() {
   addMarkStore.stopAddingMark()
-  closeDialog()
+  close()
 }
 </script>
 

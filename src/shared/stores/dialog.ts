@@ -1,41 +1,68 @@
-import type { AllowedComponentProps, Component, ShallowRef, VNodeProps } from 'vue'
+import type { AllowedComponentProps, Component, VNodeProps } from 'vue'
 
 type ComponentProps<C extends Component> = C extends new (...args: any) => any
   ? Omit<InstanceType<C>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
   : never
 
-export const useDialogStore = defineStore('dialog', () => {
-  const show = ref(false)
-  const title = ref('')
-  const component: ShallowRef<Component | null> = shallowRef(null)
-  const props: Ref<Record<string, unknown> | undefined> = ref(undefined)
+export type TransitionType = 'slide-up' | 'slide-left' | 'scale'
 
-  function openDialog<C extends Component>(
-    comp: C,
-    passedProps?: ComponentProps<C>,
-    dialogTitle = '',
-  ): void {
-    component.value = comp
-    props.value = passedProps as Record<string, unknown> | undefined
-    title.value = dialogTitle
-    show.value = true
+export interface DialogOptions {
+  title?: string
+  width?: string
+  height?: string
+  classModal?: string
+  closeable?: boolean
+  closeOnOverlayClick?: boolean
+  transition?: TransitionType
+  position?: 'center' | 'right' | 'left' | 'flex-end'
+}
+
+export const useDialogStore = defineStore('dialog', () => {
+  const activeDialog = shallowRef<{
+    component: Component
+    props?: ComponentProps<Component>
+    options: Required<DialogOptions>
+  } | null>(null)
+
+  const isVisible = ref(false)
+
+  const defaultOptions: Required<DialogOptions> = {
+    title: '',
+    height: 'auto',
+    width: '500px',
+    classModal: '',
+    closeable: true,
+    closeOnOverlayClick: true,
+    transition: 'slide-up',
+    position: 'center',
   }
 
-  function closeDialog() {
-    show.value = false
-    setTimeout(() => {
-      component.value = null
-      props.value = undefined
-      title.value = ''
-    }, 300)
+  function open<C extends Component>(
+    component: C,
+    props?: ComponentProps<C>,
+    options: DialogOptions = {},
+  ): void {
+    activeDialog.value = {
+      component,
+      props,
+      options: { ...defaultOptions, ...options },
+    }
+    isVisible.value = true
+  }
+
+  function close() {
+    isVisible.value = false
+  }
+
+  function destroy() {
+    activeDialog.value = null
   }
 
   return {
-    show,
-    component,
-    props,
-    title,
-    openDialog,
-    closeDialog,
+    activeDialog,
+    isVisible,
+    open,
+    close,
+    destroy,
   }
 })

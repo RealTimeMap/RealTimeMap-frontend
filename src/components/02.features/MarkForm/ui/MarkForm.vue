@@ -2,14 +2,14 @@
 import type { LngLat } from '@yandex/ymaps3-types'
 import type { UploadFileInfo } from 'naive-ui'
 import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
-import { NDatePicker, NSelect, NThing, NUpload, useMessage } from 'naive-ui'
+import { useMessage } from 'naive-ui'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { markApi } from '@/utils/mark'
 
 const { coords } = defineProps<{ coords: LngLat }>()
 
 // --- Stores & Hooks ---
-const { closeDialog } = useDialogStore()
+const { close } = useDialogStore()
 const message = useMessage()
 
 // --- State ---
@@ -26,14 +26,14 @@ const isLoadingData = ref(false)
 const isSubmitting = ref(false)
 
 // --- Computed Options для NSelect ---
-const categoryOptions = computed(() => {
+const _categoryOptions = computed(() => {
   return markCreateData.value?.allowedCategories.map(cat => ({
     label: cat.categoryName,
     value: cat.id,
   })) || []
 })
 
-const durationOptions = computed(() => {
+const _durationOptions = computed(() => {
   return markCreateData.value?.allowedDuration.map(dur => ({
     label: `${dur} ч.`,
     value: dur,
@@ -65,7 +65,7 @@ onMounted(() => {
 })
 
 // --- Handlers ---
-async function handleSubmit() {
+async function _handleSubmit() {
   if (!coords) {
     message.error('Координаты метки не найдены')
     return
@@ -112,7 +112,7 @@ async function handleSubmit() {
     await markApi.postMarkAdd(formData as any)
 
     message.success('Метка успешно создана')
-    closeDialog()
+    close()
   }
   catch (e) {
     console.error(e)
@@ -122,48 +122,40 @@ async function handleSubmit() {
     isSubmitting.value = false
   }
 }
-
-function handleClose() {
-  closeDialog()
-}
 </script>
 
 <template>
   <div class="mark-form">
-    <n-thing class="select-thing">
-      <template #header>
-        Фото
-      </template>
-      <template #description>
-        <n-upload
-          v-model:file-list="fileList"
-          :max="4"
-          :default-upload="false"
-          accept="image/*"
-          directory-dnd
-          list-type="image-card"
-          class="upload-area"
-        >
-          <div class="upload-text">
-            Загрузить фото
-          </div>
-        </n-upload>
-      </template>
-    </n-thing>
+    <div class="u-block mark-form__coords-wrap">
+      <u-icon
+        icon="line-md:my-location-loop"
+        width="22"
+        height="22"
+      />
+      <div class="mark-form__coords">
+        <span>Точка на карте</span>
+        <span>{{ coords[0].toFixed(4) }}° N, {{ coords[1].toFixed(4) }}° E</span>
+      </div>
+    </div>
+    <u-ploader
+      v-model:files="fileList"
+      :max="4"
+      :max-size-mb="20"
+    />
 
     <u-input
       v-model="markName"
       label="Название метки"
     />
 
-    <u-input
+    <!-- <u-input
       v-model="additionalInfo"
       label="Дополнительная информация"
       placeholder="Описание, детали, контакты"
       type="textarea"
-    />
+    /> -->
 
-    <div class="form-item">
+    <!-- <div class="form-item">
       <span class="label">Время начала</span>
       <n-date-picker
         v-model:value="start_at"
@@ -173,9 +165,9 @@ function handleClose() {
         clearable
         class="full-width"
       />
-    </div>
+    </div> -->
 
-    <n-thing class="select-thing">
+    <!-- <n-thing class="select-thing">
       <template #header>
         Категория
       </template>
@@ -205,16 +197,9 @@ function handleClose() {
           size="small"
         />
       </template>
-    </n-thing>
+    </n-thing> -->
 
-    <div class="form-actions">
-      <button
-        type="button"
-        class="cancel-btn"
-        @click="handleClose"
-      >
-        Отмена
-      </button>
+    <!-- <div class="form-actions">
       <button
         class="submit-btn"
         @click="handleSubmit"
@@ -222,6 +207,7 @@ function handleClose() {
         {{ isSubmitting ? 'Отправка...' : 'Создать' }}
       </button>
     </div>
+  </div> -->
   </div>
 </template>
 
@@ -230,6 +216,39 @@ function handleClose() {
   display: flex;
   flex-direction: column;
   gap: 16px;
+}
+
+.mark-form__coords-wrap {
+  gap: 22px;
+
+  svg {
+    margin-left: 10px;
+    color: var(--primary-color);
+  }
+}
+
+.mark-form__coords {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+
+  span {
+    &:first-child {
+      color: var(--text-color);
+      font-size: 15px;
+      font-weight: 600;
+    }
+    &:last-child {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.55);
+      font-family:
+        ui-monospace,
+        SF Mono,
+        monospace;
+      margin-top: 2px;
+    }
+  }
 }
 
 .form-item {

@@ -48,8 +48,6 @@ const debounceFetchMark = useDebounceFn((
     // latitude,
     // radius: 100000,
   })
-
-  console.log(marks.value)
 }, 500)
 
 watch(
@@ -62,7 +60,7 @@ watch(
 )
 
 function handleMarkClick(markId: number) {
-  dialogStore.openDialog(MarkDetailsSheet, { markId }, 'Детали метки')
+  dialogStore.open(MarkDetailsSheet, { markId })
 }
 </script>
 

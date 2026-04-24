@@ -1,1 +1,17 @@
 @use 'normalize';
+
+.u-block {
+  position: relative;
+  border-radius: 18px;
+  overflow: hidden;
+  backdrop-filter: blur(38.4px) saturate(180%);
+  background: rgba(18, 24, 38, 0.45);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
+    rgba(0, 0, 0, 0.35) 0px 10px 30px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}

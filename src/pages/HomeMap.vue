@@ -14,7 +14,7 @@ const {
   error: geolocationError,
   isLoading: isLoadingGeolocation,
 } = useGeolocation()
-const { openDialog } = useDialogStore()
+const { open } = useDialogStore()
 
 const mapApi = shallowRef<null | YMap>(null)
 const markAddCoords = ref<null | LngLat>(null)
@@ -27,9 +27,12 @@ function handleMapReady(map: YMap) {
 function handleMapClick(coordinates: LngLat) {
   markAddCoords.value = coordinates
 
-  openDialog(MarkForm, {
+  open(MarkForm, {
     coords: coordinates,
-  }, 'Добавить новую метку')
+  }, {
+    title: 'Новая метка',
+    position: 'flex-end',
+  })
 }
 
 function handleUpdateBounds(bounds: LngLatBounds) {
