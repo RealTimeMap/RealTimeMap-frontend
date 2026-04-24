@@ -16,6 +16,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UAppPanel: typeof import('./../../components/01.kit/UAppPanel/index.ts')['default']
     UCustomUploader: typeof import('../../components/01.kit/UPloader/index.ts')['default']
+    UDrawer: typeof import('./../../components/01.kit/UDrawer/index.ts')['default']
     UExperienceRing: typeof import('./../../components/01.kit/UExperienceRing/index.ts')['default']
     UGlassWrapper: typeof import('./../../components/01.kit/UGlassWrapper/index.ts')['default']
     UIcon: typeof import('./../../components/01.kit/UIcon/index.ts')['default']

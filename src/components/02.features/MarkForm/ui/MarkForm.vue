@@ -3,10 +3,12 @@ import type { LngLat } from '@yandex/ymaps3-types'
 import type { UploadFileInfo } from 'naive-ui'
 import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
 import { useMessage } from 'naive-ui'
+import { useGeocoding } from '@/composables/useGeocoding'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { markApi } from '@/utils/mark'
 
 const { coords } = defineProps<{ coords: LngLat }>()
+const { address, fetchAddress } = useGeocoding()
 
 // --- Stores & Hooks ---
 const { close } = useDialogStore()
@@ -62,6 +64,7 @@ async function fetchCreateData() {
 
 onMounted(() => {
   fetchCreateData()
+  fetchAddress(coords)
 })
 
 // --- Handlers ---
@@ -137,16 +140,37 @@ async function _handleSubmit() {
         <span>{{ coords[0].toFixed(4) }}° N, {{ coords[1].toFixed(4) }}° E</span>
       </div>
     </div>
+
     <u-ploader
       v-model:files="fileList"
       :max="4"
       :max-size-mb="20"
     />
 
-    <u-input
-      v-model="markName"
-      label="Название метки"
-    />
+    <div class="u-block mark-form__content">
+      <u-input
+        v-model="markName"
+        label="Название метки"
+      />
+      <u-drawer />
+      <div class="mark-content__container">
+        <span class="label">Адрес</span>
+        <div
+          class="value"
+        >
+          {{ address || 'Не удалось определить адрес' }}
+        </div>
+      </div>
+      <u-drawer />
+      <div class="mark-content__container">
+        <span class="label">Дата</span>
+        <div
+          class="value"
+        >
+          {{ new Date().toLocaleDateString('ru-RU') }}
+        </div>
+      </div>
+    </div>
 
     <!-- <u-input
       v-model="additionalInfo"
@@ -247,6 +271,27 @@ async function _handleSubmit() {
         SF Mono,
         monospace;
       margin-top: 2px;
+    }
+  }
+}
+
+.mark-form__content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+
+  .mark-content__container {
+    .label {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .value {
+      color: rgb(255, 255, 255);
+      font-size: 15px;
     }
   }
 }
