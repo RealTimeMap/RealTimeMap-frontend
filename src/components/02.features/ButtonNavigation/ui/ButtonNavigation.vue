@@ -73,7 +73,6 @@ onMounted(() => {
 <template>
   <u-glass-wrapper
     :scale="40"
-    :class="{ 'is-visible': isReadyForAnimation }"
     class="bottom-nav"
   >
     <div
@@ -123,8 +122,8 @@ $nav-icon-active: var(--nav-icon-active);
     rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
     rgba(0, 0, 0, 0.35) 0px 10px 30px;
 
-  transform: translateX(-50%) translateY(250%);
-  opacity: 0;
+  /* transform: translateX(-50%) translateY(250%);
+   opacity: 0; */
   transition:
     transform 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.5s,
     opacity 0.6s ease-out 0.5s;

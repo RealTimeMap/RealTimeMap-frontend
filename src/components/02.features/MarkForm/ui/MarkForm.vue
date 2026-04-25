@@ -153,27 +153,24 @@ async function _handleSubmit() {
         label="Название метки"
       />
       <u-drawer />
-      <div class="mark-content__container">
-        <span class="label">Адрес</span>
+      <div>
+        <span class="label-text">Адрес</span>
         <div
-          class="value"
+          class="value-text"
         >
           {{ address || 'Не удалось определить адрес' }}
         </div>
       </div>
-      <u-drawer />
-      <div class="mark-content__container">
-        <span class="label">Дата</span>
-        <div
-          class="value"
-        >
-          {{ new Date().toLocaleDateString('ru-RU') }}
-        </div>
-      </div>
     </div>
 
-    <!-- <u-input
+    <u-text-area
       v-model="additionalInfo"
+      label="Описание"
+      placeholder="История этого места, воспоминания, что здесь было..."
+    />
+
+    <!--
+      <u-input
       label="Дополнительная информация"
       placeholder="Описание, детали, контакты"
       type="textarea"
@@ -280,20 +277,6 @@ async function _handleSubmit() {
   flex-direction: column;
   gap: 8px;
   align-items: flex-start;
-
-  .mark-content__container {
-    .label {
-      font-size: 11px;
-      color: rgba(255, 255, 255, 0.5);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .value {
-      color: rgb(255, 255, 255);
-      font-size: 15px;
-    }
-  }
 }
 
 .form-item {

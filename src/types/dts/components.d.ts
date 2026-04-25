@@ -15,6 +15,8 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UAppPanel: typeof import('./../../components/01.kit/UAppPanel/index.ts')['default']
+    UAreaText: typeof import('../../components/01.kit/UTextArea/index.ts')['default']
+    UChip: typeof import('./../../components/01.kit/UChip/index.ts')['default']
     UCustomUploader: typeof import('../../components/01.kit/UPloader/index.ts')['default']
     UDrawer: typeof import('./../../components/01.kit/UDrawer/index.ts')['default']
     UExperienceRing: typeof import('./../../components/01.kit/UExperienceRing/index.ts')['default']
@@ -25,6 +27,7 @@ declare module 'vue' {
     UModalWrapper: typeof import('./../../components/01.kit/UModalWrapper/index.ts')['default']
     UPloader: typeof import('./../../components/01.kit/UPloader/index.ts')['default']
     UseInput: typeof import('./../../components/01.kit/UInput/models/useInput.ts')['default']
+    UTextArea: typeof import('./../../components/01.kit/UTextArea/index.ts')['default']
     UThemeSwitcher: typeof import('./../../components/01.kit/UThemeSwitcher/index.ts')['default']
   }
 }

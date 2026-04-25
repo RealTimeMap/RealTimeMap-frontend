@@ -4,7 +4,7 @@
 
 <style>
 .u-drawer {
-  height: 0.5px;
+  height: 1px;
   background: rgba(255, 255, 255, 0.08);
   width: 100%;
 }
