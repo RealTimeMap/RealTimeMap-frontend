@@ -23,6 +23,14 @@ const routes = [
       layout: 'default',
     },
   },
+  {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/pages/LoginPage.vue'),
+    meta: {
+      layout: 'default',
+    },
+  },
 
   {
     path: '/oauth/google',

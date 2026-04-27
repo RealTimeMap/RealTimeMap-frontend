@@ -18,7 +18,7 @@ app.use(createPinia())
 app.use(router)
 app.use(websocketPlugin)
 app.use(createYmaps({
-  apikey: '9811b22a-e004-49b4-ac9a-4103a26f10ee',
+  apikey: import.meta.env.VITE_YANDEX_GEOCODER_KEY,
 }))
 
 app.mount('#app')

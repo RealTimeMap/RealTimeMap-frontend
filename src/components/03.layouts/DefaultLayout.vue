@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import GuestView from '@/components/02.features/Authentication/'
 import BottomNavigation from '@/components/02.features/ButtonNavigation'
-import UserView from '@/components/02.features/Profile'
 import { useAuthStore } from '../02.features/Authentication/model/auth'
 
 const activeNavItem = ref('Map')
@@ -21,8 +19,12 @@ onMounted(() => {
       <slot />
     </main>
 
-    <footer class="default-layout__footer">
-      <u-chip>
+    <footer
+      class="default-layout__footer"
+    >
+      <u-chip
+        v-if="isAuthenticated"
+      >
         <u-icon
           icon="tabler:hand-click"
           width="34"
@@ -33,17 +35,6 @@ onMounted(() => {
       </u-chip>
       <bottom-navigation v-model:active-item="activeNavItem" />
     </footer>
-
-    <u-app-panel :show="activeNavItem === 'Person'">
-      <transition
-        name="fade"
-        mode="out-in"
-      >
-        <component
-          :is="isAuthenticated ? UserView : GuestView"
-        />
-      </transition>
-    </u-app-panel>
 
     <u-modal-wrapper />
   </div>

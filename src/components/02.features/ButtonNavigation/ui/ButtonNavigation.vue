@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  ChatboxOutline,
+  // ChatboxOutline,
   MapOutline,
   PersonOutline,
 } from '@vicons/ionicons5'
@@ -25,11 +25,11 @@ const navItems: NavItem[] = ([
     icon: MapOutline,
     label: 'Карта',
   },
-  {
-    id: 'Chatbox',
-    icon: ChatboxOutline,
-    label: 'Чаты',
-  },
+  // {
+  //   id: 'Chatbox',
+  //   icon: ChatboxOutline,
+  //   label: 'Чаты',
+  // },
   {
     id: 'Person',
     icon: PersonOutline,
@@ -40,6 +40,7 @@ const navItems: NavItem[] = ([
 const itemRefs = shallowRef<HTMLElement[]>([])
 const navList = ref<HTMLUListElement | null>(null)
 const indicatorStyle = ref({})
+const router = useRouter()
 
 function updateIndicatorPosition(activeIndex: number) {
   const activeItemEl = itemRefs.value[activeIndex]
@@ -56,6 +57,12 @@ function updateIndicatorPosition(activeIndex: number) {
 function setActiveItem(id: string, index: number) {
   activeItemId.value = id
   updateIndicatorPosition(index)
+
+  if (id === 'Map')
+    router.push({ name: 'home-map' })
+
+  if (id === 'Person')
+    router.push({ name: 'login' })
 }
 
 const isReadyForAnimation = ref(false)

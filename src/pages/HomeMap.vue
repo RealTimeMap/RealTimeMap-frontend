@@ -15,6 +15,8 @@ const {
   isLoading: isLoadingGeolocation,
 } = useGeolocation()
 const { open } = useDialogStore()
+const authStore = useAuthStore()
+const { user, isAuthenticated } = storeToRefs(authStore)
 
 const mapApi = shallowRef<null | YMap>(null)
 const markAddCoords = ref<null | LngLat>(null)
@@ -25,8 +27,9 @@ function handleMapReady(map: YMap) {
 }
 
 function handleMapClick(coordinates: LngLat) {
+  if (isAuthenticated)
+    return
   markAddCoords.value = coordinates
-
   open(MarkForm, {
     coords: coordinates,
   }, {
@@ -38,9 +41,6 @@ function handleMapClick(coordinates: LngLat) {
 function handleUpdateBounds(bounds: LngLatBounds) {
   screenBounds.value = bounds
 }
-
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
 </script>
 
 <template>
