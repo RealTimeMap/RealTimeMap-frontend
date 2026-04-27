@@ -7,6 +7,7 @@ import { useAuthStore } from '../components/02.features/Authentication/model/aut
 import { GeolocationFeedback } from '../components/02.features/Geolocation'
 import { useGeolocation } from '../components/02.features/Geolocation/composables/useGeolocation'
 import MarksLayer from '../components/02.features/GetMarks/ui/MarksLayer.vue'
+import LocateButton from '../components/02.features/LocateButton'
 import { BaseMapView } from '../components/02.features/MapCore'
 
 const {
@@ -82,5 +83,10 @@ watch(userPosition, (newPos) => {
       />
       <add-mark-mode />
     </base-map-view>
+
+    <locate-button
+      :user-position="userPosition"
+      :map-api="mapApi"
+    />
   </main>
 </template>
