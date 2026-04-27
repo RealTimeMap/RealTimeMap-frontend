@@ -25,7 +25,6 @@ const model = defineModel<string>()
 .u-textarea {
   position: relative;
   width: 100%;
-  max-width: 400px;
   align-items: flex-start;
   gap: 0;
   flex-direction: column;

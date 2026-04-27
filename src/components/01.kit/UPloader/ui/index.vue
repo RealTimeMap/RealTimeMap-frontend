@@ -129,7 +129,11 @@ onUnmounted(() => {
 
       <div class="uploader__content">
         <div class="uploader__icon">
-          <!-- SVG Icon -->
+          <u-icon
+            icon="line-md:image"
+            width="28"
+            height="28"
+          />
         </div>
         <span class="uploader__title">Добавить фото</span>
         <span class="uploader__tip">JPG / HEIC · до {{ maxSizeMb }} МБ</span>
@@ -233,7 +237,6 @@ onUnmounted(() => {
   }
 
   &__icon {
-    color: #4a5d6a;
     margin-bottom: 12px;
   }
 
