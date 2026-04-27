@@ -16,7 +16,7 @@ const {
 } = useGeolocation()
 const { open } = useDialogStore()
 const authStore = useAuthStore()
-const { user, isAuthenticated } = storeToRefs(authStore)
+const { user } = storeToRefs(authStore)
 
 const mapApi = shallowRef<null | YMap>(null)
 const markAddCoords = ref<null | LngLat>(null)
@@ -27,8 +27,8 @@ function handleMapReady(map: YMap) {
 }
 
 function handleMapClick(coordinates: LngLat) {
-  if (isAuthenticated)
-    return
+  // if (isAuthenticated)
+  //   return
   markAddCoords.value = coordinates
   open(MarkForm, {
     coords: coordinates,
@@ -41,6 +41,13 @@ function handleMapClick(coordinates: LngLat) {
 function handleUpdateBounds(bounds: LngLatBounds) {
   screenBounds.value = bounds
 }
+
+const mapInitialCenter = shallowRef<LngLat | null>(null)
+watch(userPosition, (newPos) => {
+  if (newPos && !mapInitialCenter.value) {
+    mapInitialCenter.value = newPos
+  }
+}, { immediate: true })
 </script>
 
 <template>
@@ -55,8 +62,8 @@ function handleUpdateBounds(bounds: LngLatBounds) {
       class="absolute-center"
     />
     <base-map-view
-      v-if="!isLoadingGeolocation && !geolocationError && userPosition"
-      :center-coordinates="userPosition"
+      v-if="!isLoadingGeolocation && !geolocationError && mapInitialCenter && userPosition"
+      :center-coordinates="mapInitialCenter"
       :zoom-level="15"
       :show-user-marker="false"
       class="col"
