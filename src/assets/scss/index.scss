@@ -1,5 +1,15 @@
 @use 'normalize';
 
+html,
+body {
+  height: 100dvh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
 .u-block {
   position: relative;
   border-radius: 18px;
