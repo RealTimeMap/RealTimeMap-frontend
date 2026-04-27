@@ -47,6 +47,7 @@ onMounted(() => {
   &__main {
     flex-grow: 1;
     position: relative;
+    overflow: hidden;
   }
 
   &__footer {

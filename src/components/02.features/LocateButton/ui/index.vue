@@ -39,7 +39,7 @@ function centerOnUser() {
 .locate-button {
   position: absolute;
   right: 20px;
-  bottom: 160px;
+  bottom: 190px;
   backdrop-filter: blur(38.4px) saturate(180%);
   width: 44px;
   height: 44px;
