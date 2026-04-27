@@ -2,13 +2,23 @@
 </script>
 
 <template>
-  <div class="auth-bg">
-    <div class="glow glow-cyan" />
-    <div class="glow glow-purple" />
+  <div class="">
+    <div class="auth-bg">
+      <div class="glow glow-cyan" />
+      <div class="glow glow-purple" />
+    </div>
+    <div class="auth-content">
+      <div class="auth-content__heading">
+        <h1>С возвращением</h1>
+        <span>
+          Войдите, чтобы продолжить исследовать метки на карте
+        </span>
+      </div>
+    </div>
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .auth-bg {
   position: fixed;
   inset: 0;
@@ -61,6 +71,33 @@
   }
   to {
     transform: translate(-15%, -10%) scale(1.4);
+  }
+}
+
+.auth-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 100dvh;
+
+  &__heading {
+    text-align: center;
+    max-width: 340px;
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      color: white;
+    }
+
+    span {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.4;
+    }
   }
 }
 </style>
