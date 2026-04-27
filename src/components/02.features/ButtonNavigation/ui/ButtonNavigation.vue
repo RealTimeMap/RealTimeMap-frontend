@@ -6,24 +6,26 @@ import {
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
 
-const activeItemId = defineModel<string>(
-  'activeItem',
-  {
-    default: 'Map',
-  },
-)
-
 interface NavItem {
   id: string
   icon: Component
   label: string
+  routeName: string
 }
+
+const activeItemId = ref<string>('')
+const itemRefs = shallowRef<HTMLElement[]>([])
+const navList = ref<HTMLUListElement | null>(null)
+const indicatorStyle = ref({})
+const route = useRoute()
+const router = useRouter()
 
 const navItems: NavItem[] = ([
   {
     id: 'Map',
     icon: MapOutline,
     label: 'Карта',
+    routeName: 'home-map',
   },
   // {
   //   id: 'Chatbox',
@@ -34,13 +36,9 @@ const navItems: NavItem[] = ([
     id: 'Person',
     icon: PersonOutline,
     label: 'Профиль',
+    routeName: 'login',
   },
 ])
-
-const itemRefs = shallowRef<HTMLElement[]>([])
-const navList = ref<HTMLUListElement | null>(null)
-const indicatorStyle = ref({})
-const router = useRouter()
 
 function updateIndicatorPosition(activeIndex: number) {
   const activeItemEl = itemRefs.value[activeIndex]
@@ -54,27 +52,29 @@ function updateIndicatorPosition(activeIndex: number) {
   }
 }
 
-function setActiveItem(id: string, index: number) {
-  activeItemId.value = id
-  updateIndicatorPosition(index)
+function handleNavClick(item: NavItem) {
+  router.push({ name: item.routeName })
+}
+watch(
+  () => route.name,
+  (newName) => {
+    const index = navItems.findIndex(item => item.routeName === newName)
+    if (index !== -1) {
+      activeItemId.value = navItems[index].id
+      nextTick(() => updateIndicatorPosition(index))
+    }
+  },
+  { immediate: true },
+)
 
-  if (id === 'Map')
-    router.push({ name: 'home-map' })
-
-  if (id === 'Person')
-    router.push({ name: 'login' })
+function handleResize() {
+  const index = navItems.findIndex(item => item.id === activeItemId.value)
+  if (index !== -1)
+    updateIndicatorPosition(index)
 }
 
-const isReadyForAnimation = ref(false)
-onMounted(() => {
-  const initialActiveIndex = navItems.findIndex(item => item.id === activeItemId.value)
-  if (initialActiveIndex !== -1)
-    updateIndicatorPosition(initialActiveIndex)
-
-  nextTick(() => {
-    isReadyForAnimation.value = true
-  })
-})
+onMounted(() => window.addEventListener('resize', handleResize))
+onUnmounted(() => window.removeEventListener('resize', handleResize))
 </script>
 
 <template>
@@ -98,7 +98,7 @@ onMounted(() => {
         :ref="el => { if (el) itemRefs[index] = el as HTMLElement }"
         class="bottom-nav__item"
         :class="{ 'bottom-nav__item--active': activeItemId === item.id }"
-        @click="setActiveItem(item.id, index)"
+        @click="handleNavClick(item)"
       >
         <n-icon
           size="24"

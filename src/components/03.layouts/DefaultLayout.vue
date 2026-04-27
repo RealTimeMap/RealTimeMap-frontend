@@ -2,8 +2,6 @@
 import BottomNavigation from '@/components/02.features/ButtonNavigation'
 import { useAuthStore } from '../02.features/Authentication/model/auth'
 
-const activeNavItem = ref('Map')
-
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)
 const { initAuth } = authStore
@@ -33,7 +31,7 @@ onMounted(() => {
           Двойное касание — новая метка
         </span>
       </u-chip>
-      <bottom-navigation v-model:active-item="activeNavItem" />
+      <bottom-navigation />
     </footer>
 
     <u-modal-wrapper />
