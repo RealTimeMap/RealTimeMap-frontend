@@ -8,7 +8,7 @@ defineOptions({
 
 const props = withDefaults(defineProps<UInputProps>(), {
   modelValue: '',
-  label: '',
+  label: undefined,
   error: false,
   errorMessage: '',
   loading: false,
@@ -50,8 +50,9 @@ const {
         :id="inputId"
         v-model="value"
         :type="inputType"
-        class="u-input"
-        placeholder=" "
+        class="u-input value-text"
+        :class="{ 'no-label': label === undefined }"
+        :placeholder="placeholder"
         :disabled="isDisabled"
         :aria-invalid="hasError"
         :aria-describedby="errorMessage ? `${inputId}-error` : undefined"
@@ -60,7 +61,7 @@ const {
 
       <label
         :for="inputId"
-        class="u-input-label"
+        class="u-input-label label-text"
       >
         {{ label }}
       </label>
@@ -205,21 +206,18 @@ const {
 .u-input {
   width: 100%;
   border: none;
-  border-bottom: 1px solid var(--n-border-color, #ccc);
-  padding: 20px 0 5px 0;
+  padding: 20px 0 0 0;
   background-color: transparent;
-  font-size: 1rem;
-  color: var(--text-color, #000);
   outline: none;
   transition: all 0.2s ease;
   cursor: text;
 
-  .u-input-wrapper.has-suffix & {
-    padding-right: 30px;
+  &.no-label {
+    padding: 0;
   }
 
-  &:focus {
-    border-bottom-color: var(--primary-color, #3498db);
+  .u-input-wrapper.has-suffix & {
+    padding-right: 30px;
   }
 
   &:disabled {
@@ -232,24 +230,18 @@ const {
   &::-ms-clear {
     display: none;
   }
+
+  &::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+  }
 }
 
 .u-input-label {
   position: absolute;
-  top: 15px;
   left: 0;
   color: var(--n-text-color-disabled, #aaa);
   pointer-events: none;
   transition: all 0.2s ease;
-  font-size: 1rem;
-}
-
-.u-input:focus ~ .u-input-label,
-.u-input-wrapper.is-filled .u-input-label {
-  top: -5px;
-  left: 0;
-  font-size: 0.8rem;
-  color: var(--primary-color, #3498db);
 }
 
 .u-input-wrapper.has-error .u-input:focus ~ .u-input-label,

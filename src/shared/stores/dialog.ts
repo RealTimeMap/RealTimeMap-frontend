@@ -8,6 +8,7 @@ export type TransitionType = 'slide-up' | 'slide-left' | 'scale'
 
 export interface DialogOptions {
   title?: string
+  headerModal?: boolean
   width?: string
   height?: string
   classModal?: string
@@ -28,6 +29,7 @@ export const useDialogStore = defineStore('dialog', () => {
 
   const defaultOptions: Required<DialogOptions> = {
     title: '',
+    headerModal: true,
     height: 'auto',
     width: '500px',
     classModal: '',

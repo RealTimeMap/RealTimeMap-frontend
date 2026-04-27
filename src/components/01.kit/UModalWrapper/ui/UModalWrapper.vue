@@ -36,6 +36,7 @@ const {
           :class="options?.classModal"
         >
           <header
+            v-if="options?.headerModal"
             class="modal-wrapper__header"
           >
             <h3 class="modal-wrapper__title">

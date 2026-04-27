@@ -2,20 +2,20 @@ import type { LngLat } from '@yandex/ymaps3-types'
 import type { User } from '@/utils/user/index.type'
 
 export interface MarkAddResponse {
-  additional_info?: string
+  additionalInfo?: string
   photo?: string[]
   id: number
-  mark_name: string
-  owner_id: number
+  markName: string
+  ownerId: number
   geom: {
     bbox?: number[]
     type: 'Point'
     coordinates: number[]
   }
-  end_at: string
-  is_ended: boolean
+  endAt: string
+  isEnded: boolean
   category: {
-    category_name: string
+    categoryName: string
     color: string
     id: number
     icon: string
@@ -23,12 +23,12 @@ export interface MarkAddResponse {
 }
 
 export interface MarkAddPayload {
-  additional_info?: string
+  additionalInfo?: string
   photo?: string[]
   latitude: number
   longitude: number
   markName: string
-  start_at?: string
+  startAt?: string
   duration?: 12 | 24 | 36 | 48
   categoryId: number
 }
@@ -42,18 +42,18 @@ export interface MarkCategory {
 
 export interface Mark {
   id: number
-  mark_name: string
-  start_at: string
-  end_at: string
-  is_ended: boolean
+  markName: string
+  startAt: string
+  endAt: string
+  isEnded: boolean
   duration: number
   owner_id: number
-  additional_info: string
+  additionalInfo: string
   geom: {
     type: string
     coordinates: LngLat
   }
-  photo: string[]
+  photos: string[]
   category: MarkCategory
 }
 
@@ -63,7 +63,11 @@ export interface MarksResponse {
 }
 
 export interface MarkFull extends Mark {
-  owner: User
+  owner: {
+    id: number
+    username: string
+    avatar: string
+  }
 }
 
 export interface MarkCreateResponse {
@@ -75,23 +79,23 @@ export interface MarkComment {
   content: string
   id: number
   owner: User
-  created_at: string
+  createdAt: string
   replies: any[]
   stats: {
-    likes_count: number
-    dislikes_count: number
-    total_replies: number
+    likesCount: number
+    dislikesCount: number
+    totalReplies: number
   }
 }
 
 export interface MarkCommentPayload {
   content: string
-  parent_id?: number | null
+  parentId?: number | null
 }
 
 export interface MarkCommentResponse {
   items: MarkComment[]
   total: number
   page: number
-  page_size: number
+  pageSize: number
 }

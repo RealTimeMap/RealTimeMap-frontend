@@ -68,7 +68,7 @@ export function useMarkDetail(
     try {
       const payload: MarkCommentPayload = {
         content,
-        parent_id: null,
+        parentId: null,
       }
 
       const newComment = await markApi.postMarkComment(markId, payload)
@@ -90,7 +90,10 @@ export function useMarkDetail(
     }
   }
 
-  function formatDate(dateString?: string) {
+  function formatDate(
+    dateString: string,
+    showTime?: boolean,
+  ) {
     if (!dateString)
       return '—'
     const date = new Date(dateString)
@@ -100,13 +103,16 @@ export function useMarkDetail(
     return date.toLocaleString('ru-RU', {
       day: 'numeric',
       month: 'long',
-      hour: '2-digit',
-      minute: '2-digit',
+      year: 'numeric',
+      ...(showTime && {
+        hour: 'numeric',
+        minute: 'numeric',
+      }),
     })
   }
 
-  const statusText = computed(() => (mark.value?.is_ended ? 'Завершена' : 'Активна'))
-  const statusClass = computed(() => (mark.value?.is_ended ? 'status--ended' : 'status--active'))
+  const statusText = computed(() => (mark.value?.isEnded ? 'Завершена' : 'Активна'))
+  const statusClass = computed(() => (mark.value?.isEnded ? 'status--ended' : 'status--active'))
 
   return {
     comments,

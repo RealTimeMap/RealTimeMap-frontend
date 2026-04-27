@@ -1,6 +1,7 @@
 export interface UInputProps {
   modelValue: string | number | null
   label?: string
+  placeholder?: string
   type?: 'text' | 'password' | 'email' | 'tel' | 'textarea'
   error?: boolean
   errorMessage?: string

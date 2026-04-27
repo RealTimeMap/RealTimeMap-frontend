@@ -17,7 +17,7 @@ const message = useMessage()
 // --- State ---
 const markName = ref('')
 const additionalInfo = ref('')
-const start_at = ref<number | null>(null)
+const startAt = ref<number | null>(null)
 
 const selectedCategoryId = ref<number | null>(null)
 const selectedDuration = ref<MarkAddPayload['duration'] | null>(null)
@@ -99,11 +99,11 @@ async function _handleSubmit() {
     formData.append('duration', String(selectedDuration.value))
 
     if (additionalInfo.value) {
-      formData.append('additional_info', additionalInfo.value)
+      formData.append('additionalInfo', additionalInfo.value)
     }
 
-    if (start_at.value) {
-      formData.append('start_at', new Date(start_at.value).toISOString())
+    if (startAt.value) {
+      formData.append('startAt', new Date(startAt.value).toISOString())
     }
 
     fileList.value.forEach((fileItem) => {
@@ -150,7 +150,8 @@ async function _handleSubmit() {
     <div class="u-block mark-form__content">
       <u-input
         v-model="markName"
-        label="Название метки"
+        label="Название"
+        placeholder="Напр. «Двор на Патриарших»"
       />
       <u-drawer />
       <div>
@@ -161,6 +162,7 @@ async function _handleSubmit() {
           {{ address || 'Не удалось определить адрес' }}
         </div>
       </div>
+      <u-drawer />
     </div>
 
     <u-text-area
@@ -179,7 +181,7 @@ async function _handleSubmit() {
     <!-- <div class="form-item">
       <span class="label">Время начала</span>
       <n-date-picker
-        v-model:value="start_at"
+        v-model:value="startAt"
         type="datetime"
         placeholder="Выберите дату и время"
         format="dd.MM.yyyy HH:mm"

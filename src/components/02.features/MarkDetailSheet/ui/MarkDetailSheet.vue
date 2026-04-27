@@ -12,8 +12,6 @@ const {
   isSending,
   handlePostComment,
   formatDate,
-  statusClass,
-  statusText,
   comments,
   fetchData,
   isLoading,
@@ -26,7 +24,28 @@ const {
 
 watch(markIdRef, fetchData)
 
-onMounted(fetchData)
+const isExpanded = ref(false)
+const canExpand = ref(false)
+const descRef = ref<HTMLElement | null>(null)
+
+function checkClamping() {
+  if (descRef.value && !isExpanded.value) {
+    const el = descRef.value
+    canExpand.value = el.scrollHeight > el.clientHeight
+  }
+}
+
+watch(() => mark.value?.additionalInfo, () => {
+  isExpanded.value = false
+  canExpand.value = false
+  nextTick(checkClamping)
+})
+
+onMounted(() => {
+  fetchData()
+  setTimeout(checkClamping, 100)
+  window.addEventListener('resize', checkClamping)
+})
 </script>
 
 <template>
@@ -46,86 +65,70 @@ onMounted(fetchData)
     </div>
 
     <template v-else-if="mark">
-      <div
-        v-if="mark.photo?.length"
-        class="block gallery-block"
-      >
-        <img
-          v-for="(src, i) in mark.photo"
-          :key="i"
-          :src="src"
-          class="gallery-img"
-          alt="Фото"
-        >
-      </div>
-
-      <div class="block header-block">
+      <div class="header-block">
         <div
-          class="cat-icon"
-          :style="{ background: `${mark.category.color}20` }"
+          v-if="mark.photos?.length"
+          class="gallery-block"
         >
           <img
-            :src="mark.category.icon"
-            :alt="mark.category.categoryName"
+            v-for="(src, i) in mark.photos"
+            :key="i"
+            :src="src"
+            class="gallery-img"
+            alt="Фото"
           >
         </div>
-        <div>
-          <div
-            class="cat-name"
-            :style="{ color: mark.category.color }"
-          >
-            {{ mark.category.categoryName }}
-          </div>
-          <h2 class="mark-title">
-            {{ mark.mark_name }}
-          </h2>
+        <div class="header-block__title">
+          {{ mark.markName }}
+        </div>
+        <div class="header-block__badge">
+          фото · {{ formatDate(mark.startAt) }}
         </div>
       </div>
 
-      <div class="block info-block">
-        <div class="label">
-          Описание
-        </div>
-        <div class="text">
-          {{ mark.additional_info || 'Нет описания' }}
-        </div>
-      </div>
-
-      <div class="block info-block">
-        <div class="label">
-          Время действия
-        </div>
-        <div class="time-row">
-          <span>{{ formatDate(mark.end_at) }}</span>
-          <span
-            class="status-badge"
-            :class="statusClass"
-          >{{ statusText }}</span>
-        </div>
-      </div>
-
-      <!-- OWNER -->
       <div class="block owner-block">
         <img
           :src="mark.owner.avatar || '/default-avatar.png'"
           class="avatar"
-          alt="Ava"
+          :alt="mark.owner.username.slice(0, 2).toUpperCase()"
         >
-        <div>
-          <div class="label">
-            Автор
-          </div>
-          <div class="owner-name">
+        <div class="owner-info">
+          <div class="owner-info__name">
             {{ mark.owner.username }}
           </div>
+          <div class="owner-info__dop">
+            @{{ mark.owner.username }} · добавил 2 дня назад
+          </div>
         </div>
+      </div>
+
+      <div
+        v-if="mark.additionalInfo"
+        class="desc-wrapper"
+      >
+        <p
+          ref="descRef"
+          class="desc-block"
+          :class="{ 'is-expanded': isExpanded }"
+        >
+          {{ mark.additionalInfo }}
+        </p>
+
+        <button
+          v-if="canExpand"
+          class="expand-btn"
+          @click="isExpanded = !isExpanded"
+        >
+          {{ isExpanded ? 'Скрыть' : 'Читать полностью' }}
+        </button>
       </div>
 
       <div
         v-if="comments"
         class="block comments-section"
       >
-        <h3>Комментарии ({{ comments.length }})</h3>
+        <h3>Комментарии</h3>
+        <u-drawer />
 
         <div
           ref="scrollContainerRef"
@@ -145,13 +148,12 @@ onMounted(fetchData)
           >
             <img
               :src="comment.owner.avatar || '/default-avatar.png'"
-              class="comment-avatar"
-              alt="User"
+              class="avatar"
+              :alt="comment.owner.username.slice(0, 2).toUpperCase()"
             >
             <div class="comment-content">
               <div class="comment-header">
-                <span class="comment-author">{{ comment.owner?.username || 'Пользователь' }}</span>
-                <span class="comment-date">{{ formatDate(comment.created_at) }}</span>
+                <span class="comment-author">{{ comment.owner?.username }}</span>
               </div>
               <div class="comment-text">
                 {{ comment.content }}
@@ -159,36 +161,34 @@ onMounted(fetchData)
             </div>
           </div>
         </div>
+      </div>
 
-        <div class="comment-form">
-          <n-input
-            v-model:value="commentText"
-            type="textarea"
-            placeholder="Написать комментарий..."
-            :autosize="{ minRows: 1, maxRows: 4 }"
-            :disabled="isSending"
-            class="comment-input"
-          />
-          <n-button
-            type="primary"
-            class="send-btn"
-            :disabled="!commentText.trim() || isSending"
-            :loading="isSending"
-            @click="handlePostComment"
-          >
-            <template #icon>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-              ><path
-                fill="currentColor"
-                d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-              /></svg>
-            </template>
-          </n-button>
-        </div>
+      <div class="comment-form">
+        <img
+          src="https://avatars.githubusercontent.com/u/71484693?v=4"
+          class="avatar"
+          alt="HE"
+        >
+        <u-input
+          v-model="commentText"
+          placeholder="Написать комментарий..."
+        />
+        <button
+          class="send-btn"
+          :disabled="!commentText.trim() || isSending"
+          :loading="isSending"
+          @click="handlePostComment"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+          ><path
+            fill="currentColor"
+            d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+          /></svg>
+        </button>
       </div>
     </template>
   </div>
