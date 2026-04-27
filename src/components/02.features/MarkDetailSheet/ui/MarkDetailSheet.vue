@@ -164,31 +164,33 @@ onMounted(() => {
       </div>
 
       <div class="comment-form">
-        <img
-          src="https://avatars.githubusercontent.com/u/71484693?v=4"
-          class="avatar"
-          alt="HE"
-        >
-        <u-input
-          v-model="commentText"
-          placeholder="Написать комментарий..."
-        />
-        <button
-          class="send-btn"
-          :disabled="!commentText.trim() || isSending"
-          :loading="isSending"
-          @click="handlePostComment"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-          ><path
-            fill="currentColor"
-            d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-          /></svg>
-        </button>
+        <div class="comment-form__wrapper">
+          <img
+            src="https://avatars.githubusercontent.com/u/71484693?v=4"
+            class="avatar"
+            alt="HE"
+          >
+          <u-input
+            v-model="commentText"
+            placeholder="Написать комментарий..."
+          />
+          <button
+            class="send-btn"
+            :disabled="!commentText.trim() || isSending"
+            :loading="isSending"
+            @click="handlePostComment"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+            ><path
+              fill="currentColor"
+              d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
+            /></svg>
+          </button>
+        </div>
       </div>
     </template>
   </div>

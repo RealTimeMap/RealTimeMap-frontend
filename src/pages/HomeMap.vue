@@ -22,6 +22,7 @@ const { user } = storeToRefs(authStore)
 const mapApi = shallowRef<null | YMap>(null)
 const markAddCoords = ref<null | LngLat>(null)
 const screenBounds = ref<null | LngLatBounds>(null)
+const zoomLevel = ref<number>(15)
 
 function handleMapReady(map: YMap) {
   mapApi.value = map
@@ -34,13 +35,17 @@ function handleMapClick(coordinates: LngLat) {
   open(MarkForm, {
     coords: coordinates,
   }, {
-    title: 'Новая метка',
     position: 'flex-end',
+    headerModal: false,
   })
 }
 
 function handleUpdateBounds(bounds: LngLatBounds) {
   screenBounds.value = bounds
+}
+
+function handleUpdateZoom(newZoom: number) {
+  zoomLevel.value = newZoom
 }
 
 const mapInitialCenter = shallowRef<LngLat | null>(null)
@@ -65,16 +70,18 @@ watch(userPosition, (newPos) => {
     <base-map-view
       v-if="!isLoadingGeolocation && !geolocationError && mapInitialCenter && userPosition"
       :center-coordinates="mapInitialCenter"
-      :zoom-level="15"
+      :zoom-level="zoomLevel"
       :show-user-marker="false"
       class="col"
       @map-ready="handleMapReady"
       @dbl-click-marker="handleMapClick"
       @update:bounds="handleUpdateBounds"
+      @update:zoom-level="handleUpdateZoom"
     >
       <marks-layer
         :user-coordinates="userPosition"
         :screen-bounds="screenBounds"
+        :zoom-level="zoomLevel"
       />
       <u-marker
         :coordinates="userPosition"

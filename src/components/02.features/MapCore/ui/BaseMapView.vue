@@ -19,7 +19,7 @@ import { useSettingsStore } from '../../AppSettings/model/settings'
 
 interface Props {
   centerCoordinates: LngLat
-  zoomLevel?: number
+  zoomLevel: number
   showUserMarker?: boolean
   userMarkerSettings?: object
 }
@@ -34,6 +34,7 @@ const emit = defineEmits<{
   (e: 'mapReady', mapInstance: YMap): void
   (e: 'update:bounds', bounds: LngLatBounds): void
   (e: 'dblClickMarker', coordinates: LngLat): void
+  (e: 'update:zoom-level', zoomLevel: number): void
 }>()
 
 const mapInstance = shallowRef<null | YMap>(null)
@@ -64,6 +65,7 @@ function onMapUpdate({ location }: { location: YMapLocation }): void {
 
   if (typeof zoom === 'number') {
     zoomLocal.value = zoom
+    emit('update:zoom-level', Math.ceil(zoom))
   }
 
   const currentBounds = mapInstance.value?.bounds

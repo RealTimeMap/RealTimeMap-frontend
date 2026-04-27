@@ -8,14 +8,16 @@ import { useMarksSocket } from '../composables/useMarksSocket'
 const props = defineProps<{
   userCoordinates: LngLat
   screenBounds: LngLatBounds | null
+  zoomLevel: number
 }>()
 
 const dialogStore = useDialogStore()
-const { marks, fetchMarks } = useMarksSocket()
+const { marks, clusters, fetchMarks } = useMarksSocket()
 
 const debounceFetchMark = useDebounceFn((
   userCoordinates: LngLat,
   screenBounds: LngLatBounds | null,
+  zoomLevel: number,
 ) => {
   if (!screenBounds || !userCoordinates)
     return
@@ -28,7 +30,7 @@ const debounceFetchMark = useDebounceFn((
   fetchMarks({
     startAt: yesterday.toISOString(),
     endAt: new Date().toISOString(),
-    zoomLevel: 18,
+    zoomLevel,
     screen: {
       leftTop: {
         lat: screenBounds[0][1],
@@ -51,10 +53,10 @@ const debounceFetchMark = useDebounceFn((
 }, 500)
 
 watch(
-  [() => props.userCoordinates, () => props.screenBounds],
-  ([newCord, newBounds]) => {
-    if (newCord && newBounds)
-      debounceFetchMark(newCord, newBounds)
+  [() => props.userCoordinates, () => props.screenBounds, () => props.zoomLevel],
+  ([newCord, newBounds, newZoomLevel]) => {
+    if (newCord && newBounds && newZoomLevel)
+      debounceFetchMark(newCord, newBounds, newZoomLevel)
   },
   { immediate: true },
 )
@@ -81,5 +83,12 @@ function handleMarkClick(markId: number) {
     :media="mark.photos ? mark.photos[0] : null"
     :color="mark.category.color"
     @click="handleMarkClick(mark.id)"
+  />
+
+  <u-cluster
+    v-for="cluster in clusters"
+    :key="cluster.count"
+    :coordinates="cluster.center.coordinates as LngLat"
+    :count="cluster.count"
   />
 </template>

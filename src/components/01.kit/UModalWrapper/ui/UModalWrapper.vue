@@ -55,6 +55,8 @@ const {
             </button>
           </header>
 
+          <div class="modal-wrapper__heading" />
+
           <main class="modal-wrapper__body">
             <component
               :is="activeDialog?.component"
@@ -73,13 +75,13 @@ const {
   inset: 0;
   background-color: rgba(0, 0, 0, 0.4);
   display: flex;
-
   align-items: var(--modal-position, center);
   justify-content: center;
   z-index: 2000;
 
   &__container {
     background: var(--u-modal-wrapper-bg);
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
 
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
@@ -121,6 +123,15 @@ const {
     &:hover {
       color: #333;
     }
+  }
+
+  &__heading {
+    width: 36px;
+    height: 5px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.25);
+    margin: 8px auto 0px;
+    flex-shrink: 0;
   }
 
   &__body {

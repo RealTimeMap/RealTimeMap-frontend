@@ -38,8 +38,6 @@ export function useMarkDetail(
 
       const dataComments = await markApi.getMarkComments(markId)
       comments.value = dataComments.items.reverse()
-      await nextTick()
-      scrollToBottom()
     }
     catch (e) {
       console.error(e)

@@ -57,10 +57,25 @@ export interface Mark {
   category: MarkCategory
 }
 
+export interface Cluster {
+  center: {
+    type: 'Point'
+    coordinates: LngLat
+  }
+  count: number
+}
+
+export interface ClusterResponse {
+  cluster: Cluster[]
+  success: boolean
+}
+
 export interface MarksResponse {
   marks: Mark[]
   success: boolean
 }
+
+export type MarksOrClusterResponse = MarksResponse | ClusterResponse
 
 export interface MarkFull extends Mark {
   owner: {
