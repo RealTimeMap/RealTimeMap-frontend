@@ -29,6 +29,8 @@ export function useMarkAdd(coords: LngLat) {
   // --- Computed Options для NSelect ---
   const categoryOptions = computed(() => {
     return markCreateData.value?.allowedCategories.map(cat => ({
+      icon: cat.icon,
+      color: cat.color,
       label: cat.categoryName,
       value: cat.id,
     })) || []

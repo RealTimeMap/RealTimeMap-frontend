@@ -239,7 +239,6 @@ const {
 .u-input-label {
   position: absolute;
   left: 0;
-  color: var(--n-text-color-disabled, #aaa);
   pointer-events: none;
   transition: all 0.2s ease;
 }

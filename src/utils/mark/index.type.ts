@@ -1,5 +1,4 @@
 import type { LngLat } from '@yandex/ymaps3-types'
-import type { User } from '@/utils/user/index.type'
 
 export interface MarkAddResponse {
   additionalInfo?: string
@@ -91,15 +90,20 @@ export interface MarkCreateResponse {
 }
 
 export interface MarkComment {
-  content: string
   id: number
-  owner: User
-  createdAt: string
-  replies: any[]
-  stats: {
-    likesCount: number
-    dislikesCount: number
-    totalReplies: number
+  content: string
+  author: {
+    id: number
+    username: string
+    tag: string
+    avatar: string
+  }
+  likes: number
+  dislikes: number
+  meta: {
+    canReply: boolean
+    haveReplies: boolean
+    repliesCount: number
   }
 }
 

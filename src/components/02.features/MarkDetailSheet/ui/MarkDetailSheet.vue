@@ -144,21 +144,43 @@ onMounted(() => {
           <div
             v-for="comment in comments"
             :key="comment.id"
-            class="comment-item"
+            class="comment-wrapper"
           >
-            <img
-              src=""
-              class="avatar"
-              :alt="comment.owner.username.slice(0, 2).toUpperCase()"
-            >
-            <div class="comment-content">
-              <div class="comment-header">
-                <span class="comment-author">{{ comment.owner?.username }}</span>
-              </div>
-              <div class="comment-text">
-                {{ comment.content }}
+            <div class="comment-item">
+              <img
+                src=""
+                class="avatar"
+                :alt="comment.author.username.slice(0, 2).toUpperCase()"
+              >
+              <div class="comment-content">
+                <span class="comment-author">{{ comment.author?.username }}</span>
+                <div class="comment-text">
+                  {{ comment.content }}
+                </div>
+                <div class="comment-content__social">
+                  <div class="comment-likes">
+                    <u-icon icon="line-md:heart" />
+                    {{ comment.likes }}
+                  </div>
+                  <div class="comment-likes">
+                    <u-icon icon="line-md:arrow-down" />
+                    {{ comment.likes }}
+                  </div>
+                  <div class="comment-likes">
+                    <u-icon icon="line-md:turn-left" />
+                    Ответить
+                  </div>
+                  <div
+                    v-if="comment.meta.repliesCount > 0"
+                    class="comment-replies"
+                  >
+                    &mdash;
+                    Ответы · {{ comment.meta.repliesCount }}
+                  </div>
+                </div>
               </div>
             </div>
+            <u-drawer />
           </div>
         </div>
       </div>
