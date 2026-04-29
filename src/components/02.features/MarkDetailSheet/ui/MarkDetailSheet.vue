@@ -148,7 +148,7 @@ onMounted(() => {
           >
             <div class="comment-item">
               <img
-                src=""
+                :src="comment.author.avatar || '/default-avatar.png'"
                 class="avatar"
                 :alt="comment.author.username.slice(0, 2).toUpperCase()"
               >
