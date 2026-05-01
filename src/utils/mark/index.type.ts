@@ -81,6 +81,7 @@ export interface MarkFull extends Mark {
     id: number
     username: string
     avatar: string
+    tag: string
   }
 }
 
