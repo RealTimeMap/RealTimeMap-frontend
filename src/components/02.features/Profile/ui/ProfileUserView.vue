@@ -1,25 +1,16 @@
 <script setup lang="ts">
 import { NAvatar } from 'naive-ui'
-import { useAuthStore } from '../../Authentication/model/auth'
+import { useAuthStore } from '../../Authentication/models/auth'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
 
 // --- БИЗНЕС-ЛОГИКА ---
-const gameStats = computed(() => user.value?.gamefication)
-const currentVal = computed(() => gameStats.value?.current_exp ?? 0)
-const currentLevel = computed(() => gameStats.value?.current_level ?? 0)
-const currentColor = computed(() => user.value?.gamefication?.current_level_color)
+const gameStats = computed(() => user.value?.gamification)
+const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 
 const maxVal = computed(() => {
-  return gameStats.value?.next_level?.required_exp ?? currentVal.value
-})
-
-const progressPercentage = computed(() => {
-  if (maxVal.value === 0)
-    return 0
-  const percent = (currentVal.value / maxVal.value) * 100
-  return Math.min(100, Math.max(0, percent))
+  return gameStats.value?.progressPercent
 })
 </script>
 
@@ -27,13 +18,13 @@ const progressPercentage = computed(() => {
   <div class="user-profile-view">
     <div class="user-profile-view--header">
       <u-experience-ring
-        :size="60"
-        :progress="progressPercentage"
-        :color="currentColor"
+        :size="88"
+        :progress="maxVal"
+        :stroke-width="3"
         :level="gameStats ? currentLevel : undefined"
       >
         <n-avatar
-          :size="60"
+          :size="88"
           class="avatar-user"
           round
           :src="user?.avatar"
@@ -43,22 +34,6 @@ const progressPercentage = computed(() => {
 
       <div class="user-info">
         <h2>{{ user?.username || 'Guest' }}</h2>
-
-        <div
-          v-if="gameStats"
-          class="xp-details"
-        >
-          <span class="xp-numbers">
-            {{ currentVal.toLocaleString() }} / {{ maxVal.toLocaleString() }} XP
-          </span>
-
-          <span
-            v-if="gameStats.exp_for_level_up > 0"
-            class="xp-left"
-          >
-            Осталось: {{ gameStats.exp_for_level_up.toLocaleString() }}
-          </span>
-        </div>
       </div>
     </div>
 
@@ -78,12 +53,16 @@ const progressPercentage = computed(() => {
 
   &--header {
     display: flex;
+    flex-direction: column;
     align-items: center;
     gap: 16px;
   }
 }
 
 .button-logout {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   margin-left: auto;
   color: var(--red-color);
 }

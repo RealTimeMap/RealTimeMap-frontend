@@ -2,6 +2,7 @@ import type { LoginPayload, RegistrationPayload } from '@/utils/auth/index.type'
 import type { User } from '@/utils/user/index.type'
 import { defineStore } from 'pinia'
 import { getCookie, setCookie } from '@/shared/lib/cookie'
+import router from '@/shared/lib/router'
 import { authApi } from '@/utils/auth'
 import { userApi } from '@/utils/user'
 
@@ -78,6 +79,7 @@ export const useAuthStore = defineStore('auth', {
     async logout() {
       try {
         await authApi.logout()
+        router.push('/login')
       }
       catch (error) {
         console.error('Logout request failed', error)

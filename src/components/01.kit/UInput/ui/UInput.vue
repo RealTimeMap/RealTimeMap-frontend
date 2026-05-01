@@ -71,19 +71,11 @@ const {
         class="u-input-loading"
         aria-label="Загрузка"
       >
-        <svg
-          width="16"
+        <u-icon
+          icon="svg-spinners:ring-resize"
           height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-        >
-          <path
-            d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"
-            stroke-linecap="round"
-          />
-        </svg>
+          width="16"
+        />
       </div>
 
       <button
@@ -95,46 +87,19 @@ const {
         :aria-label="isPasswordVisible ? 'Скрыть пароль' : 'Показать пароль'"
         @click="togglePasswordVisibility"
       >
-        <svg
-          v-if="isPasswordVisible"
-          xmlns="http://www.w3.org/2000/svg"
+        <u-icon
+          v-if="!isPasswordVisible"
           width="20"
           height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-          <circle
-            cx="12"
-            cy="12"
-            r="3"
-          />
-        </svg>
+          icon="ri:eye-off-line"
+        />
 
-        <svg
+        <u-icon
           v-else
-          xmlns="http://www.w3.org/2000/svg"
           width="20"
           height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07-2.3 2.3" />
-          <line
-            x1="1"
-            y1="1"
-            x2="23"
-            y2="23"
-          />
-        </svg>
+          icon="ri:eye-line"
+        />
       </button>
     </div>
 
@@ -161,10 +126,10 @@ const {
 
   &.has-error {
     .u-input {
-      border-bottom-color: var(--error-color, #e74c3c);
+      border: 1px solid var(--error-color, #e74c3c);
 
       &:focus {
-        border-bottom-color: var(--error-color, #e74c3c);
+        border: 1px solid var(--error-color, #e74c3c);
       }
     }
 

@@ -5,14 +5,16 @@ import {
   PersonOutline,
 } from '@vicons/ionicons5'
 import { NIcon } from 'naive-ui'
+import { useAuthStore } from '../../Authentication/models/auth'
 
 interface NavItem {
   id: string
   icon: Component
   label: string
-  routeName: string
+  routeName: string[]
 }
 
+const auth = useAuthStore()
 const activeItemId = ref<string>('')
 const itemRefs = shallowRef<HTMLElement[]>([])
 const navList = ref<HTMLUListElement | null>(null)
@@ -25,7 +27,7 @@ const navItems: NavItem[] = ([
     id: 'Map',
     icon: MapOutline,
     label: 'Карта',
-    routeName: 'home-map',
+    routeName: ['home-map'],
   },
   // {
   //   id: 'Chatbox',
@@ -36,7 +38,7 @@ const navItems: NavItem[] = ([
     id: 'Person',
     icon: PersonOutline,
     label: 'Профиль',
-    routeName: 'login',
+    routeName: ['login', 'profile'],
   },
 ])
 
@@ -53,12 +55,19 @@ function updateIndicatorPosition(activeIndex: number) {
 }
 
 function handleNavClick(item: NavItem) {
-  router.push({ name: item.routeName })
+  if (item.id === 'Person') {
+    const targetRoute = auth.isAuthenticated ? 'profile' : 'login'
+    router.push({ name: targetRoute })
+  }
+  else {
+    router.push({ name: item.routeName[0] })
+  }
 }
+
 watch(
   () => route.name,
   (newName) => {
-    const index = navItems.findIndex(item => item.routeName === newName)
+    const index = navItems.findIndex(item => item.routeName.includes(newName as string))
     if (index !== -1) {
       activeItemId.value = navItems[index].id
       nextTick(() => updateIndicatorPosition(index))

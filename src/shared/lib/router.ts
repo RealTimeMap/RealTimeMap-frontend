@@ -1,6 +1,6 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+import { useAuthStore } from '@/components/02.features/Authentication/models/auth'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
 
 const AuthProcessingComponent = { template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>' }
@@ -29,6 +29,17 @@ const routes = [
     component: () => import('@/pages/LoginPage.vue'),
     meta: {
       layout: 'default',
+      guestOnly: true,
+    },
+  },
+
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/pages/ProfilePage.vue'),
+    meta: {
+      layout: 'default',
+      requiresAuth: true,
     },
   },
 
@@ -77,20 +88,30 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore()
   const { hasSeenOnboarding } = useOnboarding()
 
-  const isWelcomePage = to.path === '/welcome'
   const seen = hasSeenOnboarding()
+  const isAuthenticated = authStore.isAuthenticated
+  const isWelcomePage = to.name === 'Welcome'
 
   if (!seen && !isWelcomePage) {
-    next('/welcome')
-    return
+    return next({ name: 'Welcome' })
+  }
+  if (seen && isWelcomePage) {
+    return next({ name: 'home-map' })
   }
 
-  if (seen && isWelcomePage) {
-    next('/')
-    return
+  if (to.meta.guestOnly && isAuthenticated) {
+    return next({ name: 'profile' })
+  }
+
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    return next({
+      name: 'login',
+      query: { redirect: to.fullPath },
+    })
   }
 
   next()

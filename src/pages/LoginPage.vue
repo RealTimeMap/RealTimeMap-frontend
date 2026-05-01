@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ProfileFormView from '@/components/02.features/Authentication/ui/ProfileFormView.vue'
 </script>
 
 <template>
@@ -14,6 +15,7 @@
           Войдите, чтобы продолжить исследовать метки на карте
         </span>
       </div>
+      <profile-form-view />
     </div>
   </div>
 </template>
@@ -81,6 +83,7 @@
   justify-content: center;
   height: 100%;
   min-height: 100dvh;
+  gap: 30px;
 
   &__heading {
     text-align: center;

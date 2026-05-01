@@ -11,7 +11,7 @@ export const userApi = {
       })
     }
 
-    return apiService.get<User>('/user/me', {
+    return apiService.get<User>('/profile/me', {
       headers: {
         Authorization: `Bearer ${getCookie('token')}`,
       },

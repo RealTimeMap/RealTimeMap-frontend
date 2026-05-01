@@ -1,208 +1,163 @@
 <script setup lang="ts">
-import {
-  NButton,
-  NDivider,
-  NForm,
-  NTabPane,
-  NTabs,
-} from 'naive-ui'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '../model/auth'
-import { useAuthForm } from '../models/useAuthForm'
-
-const {
-  formRef,
-  formValue,
-  rules,
-  authMode,
-  submitButtonText,
-  isLoading,
-  formErrors,
-  handleTabChange,
-  handleValidateClick,
-  clearErrors,
-} = useAuthForm()
+import { useAuthStore } from '../models/auth'
 
 const auth = useAuthStore()
 
+interface LoginForm {
+  username: string
+  password: string
+}
+type FormErrors = Partial<Record<keyof LoginForm, string>>
+
 const { t } = useI18n()
+
+const formValue = reactive<LoginForm>({
+  username: '',
+  password: '',
+})
+const formErrors = ref<FormErrors>({})
+const isLoading = ref(false)
+const router = useRouter()
+
+function clearError(field: keyof LoginForm) {
+  if (formErrors.value[field]) {
+    formErrors.value[field] = undefined
+  }
+}
+
+function validate(): boolean {
+  const errors: FormErrors = {}
+
+  if (!formValue.username) {
+    errors.username = t('validation.required')
+  }
+  else if (formValue.username.length < 3) {
+    errors.username = t('validation.min_3')
+  }
+
+  if (!formValue.password) {
+    errors.password = t('validation.required')
+  }
+  else if (formValue.password.length < 6) {
+    errors.password = t('validation.min_6')
+  }
+
+  formErrors.value = errors
+  return Object.keys(errors).length === 0
+}
+
+async function handleValidateClick() {
+  if (!validate())
+    return
+
+  isLoading.value = true
+  try {
+    await auth.login({ ...formValue })
+    router.push('/profile')
+  }
+  catch (error: any) {
+    formErrors.value.username = error.message || 'Ошибка авторизации'
+  }
+  finally {
+    isLoading.value = false
+  }
+}
+
+function disableButton() {
+  return formValue.username === '' || formValue.password === ''
+}
 </script>
 
 <template>
-  <div class="auth-form-container">
-    <!-- <n-avatar
-      :size="60"
-      class="avatar-user"
-      round
-      src="https://avatars.githubusercontent.com/u/83133043?v=4"
-    /> -->
-    <n-tabs
-      :value="authMode"
-      class="auth-tabs"
-      type="segment"
-      animated
-      @update:value="handleTabChange"
-    >
-      <n-tab-pane
-        name="login"
-        :tab="t('auth.login')"
-      />
-      <n-tab-pane
-        name="register"
-        :tab="t('auth.register')"
-      />
-    </n-tabs>
-
-    <n-form
-      ref="formRef"
-      :model="formValue"
-      :rules="rules"
-      class="auth-form-body"
-    >
-      <div
-        v-if="formErrors.general"
-        class="error-message general-error"
-        role="alert"
-      >
-        {{ formErrors.general }}
-      </div>
+  <div class="auth-form">
+    <div class="auth-form__body">
       <u-input
         v-model="formValue.username"
-        :label="t('form.username.title')"
+        label=""
+        :placeholder="t('form.username.title')"
         :disabled="isLoading"
         :loading="isLoading"
         :error="!!formErrors.username"
         type="text"
-        @input="clearErrors('username')"
-      />
-
-      <u-input
-        v-if="authMode === 'register'"
-        v-model="formValue.email"
-        :label="t('form.email')"
-        :disabled="isLoading"
-        :loading="isLoading"
-        :error="!!formErrors.email"
-        type="email"
-        @input="clearErrors('email')"
+        @input="clearError('username')"
       />
 
       <u-input
         v-model="formValue.password"
-        :label="t('form.password.title')"
+        label=""
+        :placeholder="t('form.password.title')"
         :loading="isLoading"
         :disabled="isLoading"
         :error="!!formErrors.password"
         type="password"
-        @input="clearErrors('password')"
+        @input="clearError('password')"
       />
+    </div>
 
-      <u-input
-        v-if="authMode === 'register'"
-        v-model="formValue.repeatPassword"
-        :label="t('form.repeatPassword.title')"
-        :loading="isLoading"
-        :disabled="isLoading"
-        :error="!!formErrors.repeatPassword"
-        type="password"
-        @input="clearErrors('repeatPassword')"
-      />
+    <button class="button__link">
+      Забыли пароль?
+    </button>
 
-      <n-button
-        type="primary"
-        :loading="isLoading"
-        size="large"
-        @click="handleValidateClick"
-      >
-        {{ submitButtonText }}
-      </n-button>
+    <button
+      class="button primary"
+      :class="{ disable: disableButton() }"
+      :disabled="disableButton()"
+      :loading="isLoading"
+      @click="handleValidateClick"
+    >
+      Войти
+    </button>
 
-      <n-divider>Или</n-divider>
+    <u-drawer text="или" />
 
-      <n-button
-        size="large"
-        class="google-btn"
-        :disabled="isLoading"
+    <div class="auth-form__social">
+      <button
+        class="button__social"
         @click="auth.googleAuth()"
       >
-        <template #icon>
-          <u-icon icon="material-icon-theme:google" />
-        </template>
-        Войти через Google
-      </n-button>
-    </n-form>
+        <u-icon
+          icon="uil:google"
+          width="16"
+          height="16"
+        />
+        Google
+      </button>
+    </div>
   </div>
 </template>
 
 <style lang="scss" scoped>
-.auth-form-body {
+.auth-form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-}
-
-.auth-form-container {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  width: 100%;
+  gap: 16px;
+  position: relative;
+  width: 90%;
   max-width: 400px;
 
-  .avatar-user {
-    position: absolute;
-    top: -70px;
-    left: 50%;
-    transform: translateX(-50%);
-    box-shadow: 0 0 10px 0 var(--primary-color);
-  }
-}
+  &__body {
+    border-radius: 22px;
+    overflow: hidden;
+    backdrop-filter: blur(41.28px) saturate(180%);
+    background: rgba(18, 24, 38, 0.43);
+    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    box-shadow:
+      rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
+      rgba(0, 0, 0, 0.35) 0px 10px 30px;
+    padding: 6px 14px;
 
-.google-btn {
-  width: 100%;
-  font-weight: 500;
-  color: #3c4043;
-  background-color: #fff;
-  border: 1px solid #dadce0;
-  transition: all 0.2s ease;
-
-  &:hover {
-    background-color: #f7f8f8;
-    border-color: #d2e3fc;
-    color: #202124;
+    :deep(.u-input) {
+      padding: 14px 2px;
+    }
   }
 
-  &:focus {
-    background-color: #f7f8f8;
-  }
-}
-
-.auth-tabs {
-  :deep(.n-tabs-rail) {
-    border-radius: 8px;
-  }
-}
-
-:deep(.n-divider) {
-  display: flex;
-  align-items: center;
-  text-align: center;
-  color: #9ca3af;
-  font-size: 13px;
-  margin: 4px 0;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid #e5e7eb;
-  }
-
-  &::before {
-    margin-right: 0.5em;
-  }
-
-  &::after {
-    margin-left: 0.5em;
+  .button__link {
+    width: max-content;
+    margin-left: auto;
+    background: none;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 </style>

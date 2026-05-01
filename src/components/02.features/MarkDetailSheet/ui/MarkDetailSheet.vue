@@ -97,7 +97,7 @@ onMounted(() => {
             {{ mark.owner.username }}
           </div>
           <div class="owner-info__dop">
-            @{{ mark.owner.tag }} · добавил 2 дня назад
+            {{ mark.owner.tag }} · добавил 2 дня назад
           </div>
         </div>
       </div>

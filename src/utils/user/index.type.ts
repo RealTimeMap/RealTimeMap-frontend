@@ -1,24 +1,22 @@
 export interface User {
-  id: number
-  email: string
-  is_active?: boolean
-  is_superuser?: boolean
-  is_verified?: boolean
-  phone?: string
+  userId: number
   username: string
   avatar?: string
-  subscription?: UserSubscription
-  ban?: UserBan
-  gamefication?: UserGemefication
+  settings: {
+    showInSearc: boolean
+  }
+  // subscription?: UserSubscription
+  // ban?: UserBan
+  gamification?: UserGemefication
 }
 
-interface UserSubscription {
+interface _UserSubscription {
   payment_provider_id?: string
   starts_at: Date
   ends_at: Date
 }
 
-interface UserBan {
+interface _UserBan {
   id: number
   user_id: number
   moderator_id: number
@@ -29,32 +27,19 @@ interface UserGemefication {
   /**
    * текущий уровень пользователя
    */
-  current_level: number
+  currentLevel: number
   /**
    * текущий опыт
    */
-  current_exp: number
+  currentXp: number
   /**
-   * Цвет текущего уровня
+   * Прогресс уровня
    */
-  current_level_color: string
-  /**
-   * Следующий уровень (вычисляется бэком)
-   */
-  next_level?: {
-    /**
-     * Числовое значение следующего уровня
-     */
-    level: number
-    /**
-     * Требуемое кол-во опыта для перехода на данный уровень
-     */
-    required_exp: number
-  }
+  progressPercent: number
   /**
    * Значение опыта которое необходимо для перехода на новый уровень
    */
-  exp_for_level_up: number
+  xpForNextLevel: number
 }
 
 export type UserIncludeType = 'ban' | 'gamefication' | 'subscription'

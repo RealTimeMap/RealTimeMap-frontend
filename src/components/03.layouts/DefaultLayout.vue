@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import BottomNavigation from '@/components/02.features/ButtonNavigation'
-import { useAuthStore } from '../02.features/Authentication/model/auth'
+import { useAuthStore } from '../02.features/Authentication/models/auth'
 
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)
 const { initAuth } = authStore
+
+const router = useRouter()
 
 onMounted(() => {
   initAuth()
@@ -21,7 +23,7 @@ onMounted(() => {
       class="default-layout__footer"
     >
       <u-chip
-        v-if="isAuthenticated"
+        v-if="isAuthenticated && router.currentRoute.value.name === 'home-map'"
       >
         <u-icon
           icon="tabler:hand-click"

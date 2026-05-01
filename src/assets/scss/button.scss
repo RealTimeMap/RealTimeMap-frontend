@@ -1,0 +1,49 @@
+.button {
+  &.primary {
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, oklch(0.62 0.22 220), oklch(0.48 0.22 270));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow:
+      oklch(0.62 0.22 220 / 0.4) 0px 8px 24px,
+      rgba(255, 255, 255, 0.3) 0px 1px 0px inset;
+
+    color: #fff;
+  }
+
+  &.disable {
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    box-shadow: none;
+    transition: 200ms;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.button__social {
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;
+  backdrop-filter: blur(38.4px) saturate(180%);
+  background: rgba(18, 24, 38, 0.45);
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+  box-shadow:
+    rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
+    rgba(0, 0, 0, 0.35) 0px 10px 30px;
+  flex: 1 1 0%;
+  height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  color: #fff;
+  width: 100%;
+}

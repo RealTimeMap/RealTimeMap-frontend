@@ -11,7 +11,7 @@ const props = withDefaults(defineProps<Props>(), {
   size: 60,
   strokeWidth: 4,
   progress: 0,
-  color: '#4cd197',
+  color: '#7aafeb',
   level: undefined,
 })
 
@@ -95,11 +95,11 @@ const dashOffset = computed(() => {
   position: absolute;
   top: 0;
   left: 0;
-  transform: rotate(-90deg);
+  transform: rotate(90deg);
   z-index: 1;
 
   .xp-ring__track {
-    stroke: #f0f0f0;
+    stroke: oklch(0.12 0.03 220);
   }
 
   .xp-ring__progress {
@@ -111,7 +111,6 @@ const dashOffset = computed(() => {
 .xp-ring-content {
   z-index: 2;
   border-radius: 50%;
-  border: 2px solid #fff;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -123,23 +122,21 @@ const dashOffset = computed(() => {
 
 .xp-level-badge {
   position: absolute;
-  bottom: -5px;
-  z-index: 3;
-
-  background: #333;
-  color: #fff;
-  font-size: 11px;
-  font-weight: bold;
-
-  min-width: 20px;
-  height: 20px;
-  border-radius: 10px;
-  border: 2px solid #fff;
-
+  bottom: -2px;
+  right: -4px;
+  min-width: 30px;
+  height: 30px;
+  padding: 0px 8px;
+  border-radius: 15px;
+  background: linear-gradient(135deg, oklch(0.62 0.22 220), oklch(0.45 0.2 290));
+  border: 2.5px solid oklch(0.12 0.03 220);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  font-size: 12px;
+  font-weight: 800;
+  color: rgb(255, 255, 255);
+  box-shadow: oklch(0.62 0.22 220 / 0.5) 0px 4px 12px;
+  z-index: 2;
 }
 </style>
