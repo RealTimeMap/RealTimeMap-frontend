@@ -53,6 +53,10 @@ export function useMarkAdd(coords: LngLat) {
       if (response.allowedDuration.length > 0) {
         selectedDuration.value = response.allowedDuration[0] as MarkAddPayload['duration']
       }
+
+      if (response.allowedCategories.length > 0) {
+        selectedCategoryId.value = response.allowedCategories[0].id
+      }
     }
     catch (err) {
       console.error('Error fetching mark creation data:', err)

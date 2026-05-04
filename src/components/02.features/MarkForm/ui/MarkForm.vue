@@ -10,6 +10,8 @@ const {
   additionalInfo,
   fileList,
   address,
+  categoryOptions,
+  selectedCategoryId,
   handleSubmit,
   close,
   fetchCreateData,
@@ -80,6 +82,12 @@ onMounted(() => {
           </div>
         </div>
         <u-drawer />
+
+        <u-select
+          v-model="selectedCategoryId"
+          label="Категория"
+          :options="categoryOptions"
+        />
       </div>
 
       <u-text-area
