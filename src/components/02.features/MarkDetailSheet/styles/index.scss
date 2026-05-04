@@ -11,6 +11,8 @@
 .avatar {
   width: 40px;
   height: 40px;
+  flex-shrink: 0;
+
   border-radius: 50%;
   background: linear-gradient(135deg, oklch(0.7 0.14 200), oklch(0.45 0.12 250));
   display: flex;
@@ -57,7 +59,8 @@
     background-blend-mode: overlay;
     border: 0.5px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
-
+    height: 220px;
+    width: 100%;
     background:
       linear-gradient(135deg, oklch(0.22 0.05 220) 0%, oklch(0.18 0.04 240) 100%),
       repeating-linear-gradient(

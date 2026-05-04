@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useAuthStore } from '../../Authentication/models/auth'
 import { useMarkDetail } from '../models/useMarkDetail'
 
 const props = defineProps<{
@@ -6,6 +7,8 @@ const props = defineProps<{
 }>()
 const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
+
+const { user } = useAuthStore()
 
 const {
   commentText,
@@ -67,7 +70,6 @@ onMounted(() => {
     <template v-else-if="mark">
       <div class="header-block">
         <div
-          v-if="mark.photos?.length"
           class="gallery-block"
         >
           <img
@@ -185,12 +187,15 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="comment-form">
+      <div
+        v-if="user"
+        class="comment-form"
+      >
         <div class="comment-form__wrapper">
           <img
-            src="https://avatars.githubusercontent.com/u/71484693?v=4"
+            :src="user?.avatar"
             class="avatar"
-            alt="HE"
+            :alt="user?.username.slice(0, 2).toUpperCase()"
           >
           <u-input
             v-model="commentText"

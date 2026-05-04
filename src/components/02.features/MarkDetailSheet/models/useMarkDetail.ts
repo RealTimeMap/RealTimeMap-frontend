@@ -67,9 +67,11 @@ export function useMarkDetail(
       const payload: MarkCommentPayload = {
         content,
         parentId: null,
+        entityId: markId,
+        entity: 'mark',
       }
 
-      const newComment = await markApi.postMarkComment(markId, payload)
+      const newComment = await markApi.postMarkComment(payload)
 
       comments.value.push(newComment)
 

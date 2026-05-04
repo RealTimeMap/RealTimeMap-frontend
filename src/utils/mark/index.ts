@@ -31,7 +31,7 @@ export const markApi = {
     return apiService.get<MarkCommentResponse>(`/${markId}/comments/?entity=mark`)
   },
 
-  postMarkComment(markId: number, payload: MarkCommentPayload): Promise<MarkComment> {
-    return apiService.post<MarkComment>(`/marks/${markId}/comments`, payload)
+  postMarkComment(payload: MarkCommentPayload): Promise<MarkComment> {
+    return apiService.post<MarkComment>(`/comments`, payload)
   },
 }

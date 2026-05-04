@@ -110,6 +110,8 @@ export interface MarkComment {
 
 export interface MarkCommentPayload {
   content: string
+  entityId: number
+  entity: 'mark'
   parentId?: number | null
 }
 
