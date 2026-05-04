@@ -225,7 +225,6 @@ watch(model, (newVal) => {
   border-radius: 24px;
   padding: 20px;
   width: 100%;
-  max-width: 400px;
   font-family:
     system-ui,
     -apple-system,
