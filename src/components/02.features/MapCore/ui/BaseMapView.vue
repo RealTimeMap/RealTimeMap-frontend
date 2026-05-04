@@ -65,7 +65,7 @@ function onMapUpdate({ location }: { location: YMapLocation }): void {
 
   if (typeof zoom === 'number') {
     zoomLocal.value = zoom
-    emit('update:zoom-level', Math.ceil(zoom))
+    emit('update:zoom-level', zoom)
   }
 
   const currentBounds = mapInstance.value?.bounds
