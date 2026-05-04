@@ -1,5 +1,4 @@
 import type { LngLat } from '@yandex/ymaps3-types'
-import type { UploadFileInfo } from 'naive-ui'
 import type { MarkCreateResponse } from '@/utils/mark/index.type'
 import { useMessage } from 'naive-ui'
 import { useGeocoding } from '@/composables/useGeocoding'
@@ -21,7 +20,7 @@ export function useMarkAdd(coords: LngLat) {
   const endAt = ref<Date | null>(null)
 
   const selectedCategoryId = ref<number | null>(null)
-  const fileList = ref<UploadFileInfo[]>([])
+  const fileList = ref<File[]>([])
 
   const markCreateData = ref<MarkCreateResponse>()
   const isLoadingData = ref(false)
@@ -92,8 +91,8 @@ export function useMarkAdd(coords: LngLat) {
       }
 
       fileList.value.forEach((fileItem) => {
-        if (fileItem.file) {
-          formData.append('photo', fileItem.file)
+        if (fileItem) {
+          formData.append('photos', fileItem)
         }
       })
 
