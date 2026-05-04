@@ -145,7 +145,7 @@ onClickOutside(selectRef, () => {
   &__list {
     position: absolute;
     top: calc(100% + 24px);
-    width: 107%;
+    width: 109%;
     z-index: 100;
     border-radius: 18px;
     overflow: hidden;

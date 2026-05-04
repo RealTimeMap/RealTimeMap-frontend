@@ -19,6 +19,7 @@ declare module 'vue' {
     UChip: typeof import('./../../components/01.kit/UChip/index.ts')['default']
     UCluster: typeof import('./../../components/01.kit/UCluster/index.ts')['default']
     UCustomUploader: typeof import('../../components/01.kit/UPloader/index.ts')['default']
+    UDatePicker: typeof import('./../../components/01.kit/UDatePicker/index.ts')['default']
     UDrawer: typeof import('./../../components/01.kit/UDrawer/index.ts')['default']
     UExperienceRing: typeof import('./../../components/01.kit/UExperienceRing/index.ts')['default']
     UGlassWrapper: typeof import('./../../components/01.kit/UGlassWrapper/index.ts')['default']

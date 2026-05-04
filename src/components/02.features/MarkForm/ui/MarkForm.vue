@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { LngLat } from '@yandex/ymaps3-types'
 import { useMarkAdd } from '../model'
+import DateBlock from './DateBlock.vue'
 
 const props = defineProps<{ coords: LngLat }>()
 const coords = toRef(props, 'coords')
@@ -12,6 +13,10 @@ const {
   address,
   categoryOptions,
   selectedCategoryId,
+
+  startAt,
+  endAt,
+
   handleSubmit,
   close,
   fetchCreateData,
@@ -89,6 +94,11 @@ onMounted(() => {
           :options="categoryOptions"
         />
       </div>
+
+      <date-block
+        v-model:start-at="startAt"
+        v-model:end-at="endAt"
+      />
 
       <u-text-area
         v-model="additionalInfo"

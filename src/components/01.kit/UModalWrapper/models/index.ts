@@ -3,26 +3,18 @@ import { useDialogStore } from '@/shared/stores/dialog'
 
 export function useDialog() {
   const dialogStore = useDialogStore()
-  const { isVisible, activeDialog } = storeToRefs(dialogStore)
+  const { dialogs } = storeToRefs(dialogStore)
 
-  const options = computed(() => activeDialog.value?.options)
-
-  function onAfterLeave() {
-    dialogStore.destroy()
-  }
-
-  function handleOverlayClick() {
-    if (options.value?.closeOnOverlayClick) {
+  function handleOverlayClick(index: number) {
+    const dialog = dialogs.value[index]
+    if (dialog?.options.closeOnOverlayClick) {
       dialogStore.close()
     }
   }
 
   return {
-    activeDialog,
-    isVisible,
-    options,
+    dialogs,
     close: dialogStore.close,
-    onAfterLeave,
     handleOverlayClick,
   }
 }

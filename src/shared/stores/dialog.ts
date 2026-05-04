@@ -19,11 +19,12 @@ export interface DialogOptions {
 }
 
 export const useDialogStore = defineStore('dialog', () => {
-  const activeDialog = shallowRef<{
+  const dialogs = shallowRef<{
+    id: string
     component: Component
     props?: ComponentProps<Component>
     options: Required<DialogOptions>
-  } | null>(null)
+  }[]>([])
 
   const isVisible = ref(false)
 
@@ -44,24 +45,32 @@ export const useDialogStore = defineStore('dialog', () => {
     props?: ComponentProps<C>,
     options: DialogOptions = {},
   ): void {
-    activeDialog.value = {
-      component,
-      props,
-      options: { ...defaultOptions, ...options },
-    }
-    isVisible.value = true
+    const id = Math.random().toString(36).substring(2, 9)
+
+    dialogs.value = [
+      ...dialogs.value,
+      {
+        id,
+        component,
+        props,
+        options: { ...defaultOptions, ...options },
+      },
+    ]
   }
 
   function close() {
-    isVisible.value = false
+    dialogs.value = dialogs.value.slice(0, -1)
   }
 
   function destroy() {
-    activeDialog.value = null
+    dialogs.value = []
   }
 
+  const hasDialogs = computed(() => dialogs.value.length > 0)
+
   return {
-    activeDialog,
+    dialogs,
+    hasDialogs,
     isVisible,
     open,
     close,

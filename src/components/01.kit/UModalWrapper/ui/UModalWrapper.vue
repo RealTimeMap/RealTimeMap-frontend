@@ -4,10 +4,7 @@ import { NIcon } from 'naive-ui'
 import { useDialog } from '../models'
 
 const {
-  activeDialog,
-  isVisible,
-  options,
-  onAfterLeave,
+  dialogs,
   close,
   handleOverlayClick,
 } = useDialog()
@@ -16,34 +13,36 @@ const {
 <template>
   <teleport to=".n-config-provider">
     <transition
-      :name="options?.transition || 'fade'"
-      @after-leave="onAfterLeave"
+      v-for="(dialog, index) in dialogs"
+      :key="dialog.id"
+      :name="dialog.options.transition || 'fade'"
+      appear
     >
       <div
-        v-if="isVisible"
         class="modal-wrapper"
         :style="{
-          '--modal-position': options?.position,
+          '--modal-position': dialog.options.position,
+          'zIndex': 2000 + (index * 10),
         }"
-        @mousedown.self="handleOverlayClick"
+        @mousedown.self="() => handleOverlayClick(index)"
       >
         <div
           class="modal-wrapper__container"
           :style="{
-            '--modal-width': options?.width,
-            '--modal-height': options?.height,
+            '--modal-width': dialog.options?.width,
+            '--modal-height': dialog.options?.height,
           }"
-          :class="options?.classModal"
+          :class="dialog.options?.classModal"
         >
           <header
-            v-if="options?.headerModal"
+            v-if="dialog.options?.headerModal"
             class="modal-wrapper__header"
           >
             <h3 class="modal-wrapper__title">
-              {{ options?.title }}
+              {{ dialog.options?.title }}
             </h3>
             <button
-              v-if="options?.closeable"
+              v-if="dialog.options?.closeable"
               class="modal-wrapper__close-btn"
               aria-label="Закрыть модальное окно"
               @click="close"
@@ -59,8 +58,8 @@ const {
 
           <main class="modal-wrapper__body">
             <component
-              :is="activeDialog?.component"
-              v-bind="activeDialog?.props"
+              :is="dialog.component"
+              v-bind="dialog.props"
             />
           </main>
         </div>
@@ -77,7 +76,6 @@ const {
   display: flex;
   align-items: var(--modal-position, center);
   justify-content: center;
-  z-index: 2000;
 
   &__container {
     background: var(--u-modal-wrapper-bg);
@@ -138,6 +136,7 @@ const {
     padding: 1.2rem;
     overflow-y: auto;
     flex-grow: 1;
+    max-height: 90dvh;
   }
 
   &__footer {

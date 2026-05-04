@@ -22,14 +22,14 @@ export interface MarkAddResponse {
 }
 
 export interface MarkAddPayload {
-  additionalInfo?: string
-  photo?: string[]
-  latitude: number
-  longitude: number
   markName: string
-  startAt?: string
-  duration?: 12 | 24 | 36 | 48
+  additionalInfo?: string
   categoryId: number
+  startAt: string
+  endAt?: string
+  longitude: number
+  latitude: number
+  photo?: string[]
 }
 
 export interface MarkCategory {
@@ -87,7 +87,7 @@ export interface MarkFull extends Mark {
 
 export interface MarkCreateResponse {
   allowedCategories: MarkCategory[]
-  allowedDuration: number[]
+  // allowedDuration: number[]
 }
 
 export interface MarkComment {
