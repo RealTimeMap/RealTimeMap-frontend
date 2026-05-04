@@ -1,6 +1,6 @@
 import type {
+  Mark,
   MarkAddPayload,
-  MarkAddResponse,
   MarkComment,
   MarkCommentPayload,
   MarkCommentResponse,
@@ -10,28 +10,23 @@ import type {
 import { getCookie } from '@/shared/lib/cookie'
 
 export const markApi = {
-  getMarkFull(markId: number): Promise<MarkFull> {
-    return apiService.get<MarkFull>(`/marks/${markId}`)
-  },
+  getMarkFull: (id: number) =>
+    apiService.get<MarkFull>(`/marks/${id}`),
 
-  getMarkCreate(): Promise<MarkCreateResponse> {
-    return apiService.get<MarkCreateResponse>('/marks/create-data')
-  },
+  getMarkCreate: () =>
+    apiService.get<MarkCreateResponse>('/marks/create-data'),
 
-  postMarkAdd(payload: MarkAddPayload): Promise<MarkAddResponse> {
-    return apiService.post<MarkAddResponse>('/marks/create', payload, {
+  postMarkAdd: (payload: MarkAddPayload | FormData) =>
+    apiService.post<Mark>('/marks/create', payload, {
       headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${getCookie('token')}`,
+        // 'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${getCookie('token')}`,
       },
-    })
-  },
+    }),
 
-  getMarkComments(markId: number): Promise<MarkCommentResponse> {
-    return apiService.get<MarkCommentResponse>(`/${markId}/comments/?entity=mark`)
-  },
+  getMarkComments: (id: number) =>
+    apiService.get<MarkCommentResponse>(`/${id}/comments/?entity=mark`),
 
-  postMarkComment(payload: MarkCommentPayload): Promise<MarkComment> {
-    return apiService.post<MarkComment>(`/comments`, payload)
-  },
+  postMarkComment: (payload: MarkCommentPayload) =>
+    apiService.post<MarkComment>(`/comments`, payload),
 }

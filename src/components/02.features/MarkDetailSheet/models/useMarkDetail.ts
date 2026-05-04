@@ -111,14 +111,9 @@ export function useMarkDetail(
     })
   }
 
-  const statusText = computed(() => (mark.value?.isEnded ? 'Завершена' : 'Активна'))
-  const statusClass = computed(() => (mark.value?.isEnded ? 'status--ended' : 'status--active'))
-
   return {
     comments,
     commentText,
-    statusText,
-    statusClass,
     error,
     fetchData,
     formatDate,

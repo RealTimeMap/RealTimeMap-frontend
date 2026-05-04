@@ -1,5 +1,5 @@
 import type { LngLat } from '@yandex/ymaps3-types'
-import type { MarkCreateResponse } from '@/utils/mark/index.type'
+import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
 import { useMessage } from 'naive-ui'
 import { useGeocoding } from '@/composables/useGeocoding'
 import { useDialogStore } from '@/shared/stores/dialog'
@@ -77,26 +77,29 @@ export function useMarkAdd(coords: LngLat) {
 
       const formData = new FormData()
 
-      formData.append('markName', markName.value)
-      formData.append('latitude', String(coords[1]))
-      formData.append('longitude', String(coords[0]))
-      formData.append('categoryId', String(selectedCategoryId.value))
+      type SimpleFields = Omit<MarkAddPayload, 'photo'>
 
-      if (additionalInfo.value) {
-        formData.append('additionalInfo', additionalInfo.value)
+      const payload: Partial<Record<keyof SimpleFields, string>> = {
+        markName: markName.value,
+        latitude: coords[1].toString(),
+        longitude: coords[0].toString(),
+        categoryId: selectedCategoryId.value.toString(),
+        startAt: startAt.value.toISOString(),
+        additionalInfo: additionalInfo.value || '',
       }
 
-      if (startAt.value) {
-        formData.append('startAt', new Date(startAt.value).toISOString())
-      }
-
-      fileList.value.forEach((fileItem) => {
-        if (fileItem) {
-          formData.append('photos', fileItem)
-        }
+      Object.entries(payload).forEach(([key, value]) => {
+        if (value)
+          formData.append(key, value)
       })
 
-      await markApi.postMarkAdd(formData as any)
+      if (fileList.value.length > 0) {
+        fileList.value.forEach((file) => {
+          formData.append('photos', file)
+        })
+      }
+
+      await markApi.postMarkAdd(formData)
 
       message.success('Метка успешно создана')
       close()

@@ -1,36 +1,19 @@
 import type { LngLat } from '@yandex/ymaps3-types'
 
-export interface MarkAddResponse {
-  additionalInfo?: string
-  photo?: string[]
-  id: number
-  markName: string
-  ownerId: number
-  geom: {
-    bbox?: number[]
-    type: 'Point'
-    coordinates: number[]
-  }
-  endAt: string
-  isEnded: boolean
-  category: {
-    categoryName: string
-    color: string
-    id: number
-    icon: string
-  }
+interface Geometry {
+  type: 'Point'
+  coordinates: LngLat
 }
 
-export interface MarkAddPayload {
-  markName: string
-  additionalInfo?: string
-  categoryId: number
-  startAt: string
-  endAt?: string
-  longitude: number
-  latitude: number
-  photo?: string[]
+export interface ClusterResponse {
+  cluster: Cluster[]
+  success: boolean
 }
+export interface MarksResponse {
+  marks: Mark[]
+  success: boolean
+}
+export type MarksOrClusterResponse = MarksResponse | ClusterResponse
 
 export interface MarkCategory {
   id: number
@@ -39,50 +22,50 @@ export interface MarkCategory {
   icon: string
 }
 
+interface Author {
+  id: number
+  username: string
+  avatar: string
+  tag: string
+}
+
 export interface Mark {
   id: number
   markName: string
+  additionalInfo?: string
+  category: MarkCategory
+  geom: Geometry
+  owner: Author
+  photos: string[]
+}
+
+export interface MarkAddPayload extends Omit<
+  Mark,
+  'id' | 'ownerId' | 'category' | 'geom' | 'photos'
+> {
   startAt: string
   endAt: string
-  isEnded: boolean
-  duration: number
-  owner_id: number
-  additionalInfo: string
-  geom: {
-    type: string
-    coordinates: LngLat
-  }
-  photos: string[]
-  category: MarkCategory
+  categoryId: number
+  longitude: number
+  latitude: number
+  photo?: string[]
 }
 
 export interface Cluster {
-  center: {
-    type: 'Point'
-    coordinates: LngLat
-  }
+  center: Geometry
   count: number
 }
 
-export interface ClusterResponse {
-  cluster: Cluster[]
-  success: boolean
-}
-
-export interface MarksResponse {
-  marks: Mark[]
-  success: boolean
-}
-
-export type MarksOrClusterResponse = MarksResponse | ClusterResponse
-
 export interface MarkFull extends Mark {
-  owner: {
-    id: number
-    username: string
-    avatar: string
-    tag: string
+  owner: Author
+  date: {
+    startAt: string
+    endAt: string
+    progressPercent: number
+    daysPassed: number
+    daysLeft: number
   }
+  meta: { status: string }
 }
 
 export interface MarkCreateResponse {
@@ -93,12 +76,7 @@ export interface MarkCreateResponse {
 export interface MarkComment {
   id: number
   content: string
-  author: {
-    id: number
-    username: string
-    tag: string
-    avatar: string
-  }
+  author: Author
   likes: number
   dislikes: number
   meta: {
@@ -115,9 +93,10 @@ export interface MarkCommentPayload {
   parentId?: number | null
 }
 
-export interface MarkCommentResponse {
-  items: MarkComment[]
+export interface PaginatedResponse<T> {
+  items: T[]
   total: number
   page: number
   pageSize: number
 }
+export type MarkCommentResponse = PaginatedResponse<MarkComment>

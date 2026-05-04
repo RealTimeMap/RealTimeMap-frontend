@@ -84,7 +84,7 @@ onMounted(() => {
           {{ mark.markName }}
         </div>
         <div class="header-block__badge">
-          фото · {{ formatDate(mark.startAt) }}
+          фото · {{ formatDate(mark.date.startAt) }}
         </div>
       </div>
 
