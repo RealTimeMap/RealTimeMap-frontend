@@ -13,6 +13,8 @@ const props = defineProps<{
 
 const dialogStore = useDialogStore()
 const { marks, clusters, fetchMarks } = useMarksSocket()
+const router = useRouter()
+const route = useRoute()
 
 const debounceFetchMark = useDebounceFn((
   userCoordinates: LngLat,
@@ -61,16 +63,45 @@ watch(
   { immediate: true },
 )
 
-function handleMarkClick(markId: number) {
+function openMarkModal(markId: number) {
   dialogStore.open(
     MarkDetailsSheet,
     { markId },
     {
       headerModal: false,
       position: 'flex-end',
+      onClose: () => {
+        const currentQuery = { ...route.query }
+        delete currentQuery.id
+        router.push({ query: currentQuery })
+      },
     },
   )
 }
+
+function handleMarkClick(markId: number) {
+  router.push({
+    query: {
+      ...route.query,
+      id: markId,
+    },
+  })
+
+  openMarkModal(markId)
+}
+
+onMounted(() => {
+  const queryId = route.query.id
+  const idString = Array.isArray(queryId) ? queryId[0] : queryId
+
+  if (idString) {
+    const markId = Number(idString)
+
+    if (!Number.isNaN(markId)) {
+      openMarkModal(markId)
+    }
+  }
+})
 </script>
 
 <template>

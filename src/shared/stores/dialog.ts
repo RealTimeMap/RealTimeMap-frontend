@@ -16,6 +16,8 @@ export interface DialogOptions {
   closeOnOverlayClick?: boolean
   transition?: TransitionType
   position?: 'center' | 'right' | 'left' | 'flex-end'
+
+  onClose?: () => void
 }
 
 export const useDialogStore = defineStore('dialog', () => {
@@ -38,6 +40,7 @@ export const useDialogStore = defineStore('dialog', () => {
     closeOnOverlayClick: true,
     transition: 'slide-up',
     position: 'center',
+    onClose: () => { },
   }
 
   function open<C extends Component>(
@@ -59,6 +62,11 @@ export const useDialogStore = defineStore('dialog', () => {
   }
 
   function close() {
+    const topDialog = dialogs.value[dialogs.value.length - 1]
+
+    if (topDialog?.options.onClose) {
+      topDialog.options.onClose()
+    }
     dialogs.value = dialogs.value.slice(0, -1)
   }
 
