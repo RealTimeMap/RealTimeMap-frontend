@@ -14,6 +14,7 @@ const {
   commentText,
   isSending,
   handlePostComment,
+  formatRelativeDate,
   formatDate,
   comments,
   fetchData,
@@ -99,7 +100,7 @@ onMounted(() => {
             {{ mark.owner.username }}
           </div>
           <div class="owner-info__dop">
-            {{ mark.owner.tag }} · добавил 2 дня назад
+            {{ mark.owner.tag }} · {{ formatRelativeDate(mark.date.startAt) }}
           </div>
         </div>
       </div>
