@@ -112,7 +112,6 @@ onMounted(() => {
     :draggable="false"
     :title="mark.markName"
     :media="mark.photos ? mark.photos[0] : null"
-    :color="mark.category.color"
     @click="handleMarkClick(mark.id)"
   />
 

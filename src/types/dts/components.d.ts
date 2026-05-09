@@ -22,6 +22,7 @@ declare module 'vue' {
     UDatePicker: typeof import('./../../components/01.kit/UDatePicker/index.ts')['default']
     UDrawer: typeof import('./../../components/01.kit/UDrawer/index.ts')['default']
     UExperienceRing: typeof import('./../../components/01.kit/UExperienceRing/index.ts')['default']
+    UFlag: typeof import('./../../components/01.kit/UFlag/index.ts')['default']
     UGlassWrapper: typeof import('./../../components/01.kit/UGlassWrapper/index.ts')['default']
     UIcon: typeof import('./../../components/01.kit/UIcon/index.ts')['default']
     UInput: typeof import('./../../components/01.kit/UInput/index.ts')['default']

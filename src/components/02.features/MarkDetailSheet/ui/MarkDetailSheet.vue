@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+import { formatRelativeDate } from '@/helpers/date/FormatRelativeDate'
 import { useAuthStore } from '../../Authentication/models/auth'
 import { useMarkDetail } from '../models/useMarkDetail'
+import MarkPeriod from './MarkPeriod.vue'
 
 const props = defineProps<{
   markId: number
@@ -14,7 +16,6 @@ const {
   commentText,
   isSending,
   handlePostComment,
-  formatRelativeDate,
   formatDate,
   comments,
   fetchData,
@@ -103,6 +104,13 @@ onMounted(() => {
             {{ mark.owner.tag }} · {{ formatRelativeDate(mark.date.startAt) }}
           </div>
         </div>
+      </div>
+
+      <div class="">
+        <mark-period
+          :date="mark.date"
+          :meta="mark.meta"
+        />
       </div>
 
       <div

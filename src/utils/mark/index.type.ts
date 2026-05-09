@@ -32,10 +32,7 @@ interface Author {
 export interface Mark {
   id: number
   markName: string
-  additionalInfo?: string
-  category: MarkCategory
   geom: Geometry
-  owner: Author
   photos: string[]
 }
 
@@ -43,6 +40,7 @@ export interface MarkAddPayload extends Omit<
   Mark,
   'id' | 'ownerId' | 'category' | 'geom' | 'photos'
 > {
+  additionalInfo: string
   startAt: string
   endAt: string
   categoryId: number
@@ -57,6 +55,8 @@ export interface Cluster {
 }
 
 export interface MarkFull extends Mark {
+  additionalInfo?: string
+  category: MarkCategory
   owner: Author
   date: {
     startAt: string
@@ -65,7 +65,10 @@ export interface MarkFull extends Mark {
     daysPassed: number
     daysLeft: number
   }
-  meta: { status: string }
+  meta: {
+    status: string
+    markType: 'user'
+  }
 }
 
 export interface MarkCreateResponse {
