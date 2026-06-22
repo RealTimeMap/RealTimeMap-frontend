@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import maplibregl from 'maplibre-gl'
-import { useSettingsStore } from '../../AppSettings/model/settings'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
+const props = defineProps<{
+  centerCoordinates: [number, number]
+  zoomLevel: number
+}>()
+const emit = defineEmits<MapEmits>()
 interface MapEmits {
   (e: 'mapReady', mapInstance: maplibregl.Map): void
   (e: 'update:bounds', bounds: [[number, number], [number, number]]): void
@@ -10,23 +14,13 @@ interface MapEmits {
   (e: 'update:zoom-level', zoomLevel: number): void
 }
 
-const props = defineProps<{
-  centerCoordinates: [number, number]
-  zoomLevel: number
-}>()
-
-const emit = defineEmits<MapEmits>()
-
 const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
-const settingsStore = useSettingsStore()
 
 onMounted(() => {
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
-    style: settingsStore.currentTheme === 'dark'
-      ? 'https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json'
-      : 'https://tiles.stadiamaps.com/styles/alidade_smooth.json',
+    style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
     doubleClickZoom: false,
