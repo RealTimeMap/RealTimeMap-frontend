@@ -1,14 +1,13 @@
 <script setup lang="ts">
 import { NAvatar } from 'naive-ui'
 import { useAuthStore } from '../../Authentication/models/auth'
+import StatsSammary from '../widgets/StatsSammary/index.vue'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
-
 // --- БИЗНЕС-ЛОГИКА ---
 const gameStats = computed(() => user.value?.gamification)
 const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
-
 const maxVal = computed(() => {
   return gameStats.value?.progressPercent
 })
@@ -35,6 +34,11 @@ const maxVal = computed(() => {
       <div class="user-info">
         <h2>{{ user?.username || 'Guest' }}</h2>
       </div>
+
+      <stats-sammary
+        v-if="user"
+        :user-id="user?.userId"
+      />
     </div>
 
     <div class="button-logout">
