@@ -1,9 +1,11 @@
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
+import { useDevPosition } from '@/composables/useDevPosition'
 
 export function useGeolocation() {
-  const userPosition = ref<LngLat | null>(null)
+  const { devPosition, isDev } = useDevPosition()
+  const userPosition = ref<MapPoint | null>(devPosition)
   const error = ref<string | null>(null)
-  const isLoading = ref<boolean>(true)
+  const isLoading = ref<boolean>(!devPosition)
 
   const fetchGeolocation = () => {
     isLoading.value = true
@@ -37,7 +39,8 @@ export function useGeolocation() {
   }
 
   onMounted(() => {
-    fetchGeolocation()
+    if (!isDev)
+      fetchGeolocation()
   })
 
   return {

@@ -1,5 +1,3 @@
-import { createYmaps } from 'vue-yandex-maps'
-
 import App from './app.vue'
 import websocketPlugin from './plugins/websocket'
 import { withI18n } from './providers/withI18n'
@@ -17,8 +15,5 @@ withNaiveUI(app)
 app.use(createPinia())
 app.use(router)
 app.use(websocketPlugin)
-app.use(createYmaps({
-  apikey: import.meta.env.VITE_YANDEX_GEOCODER_KEY,
-}))
 
 app.mount('#app')

@@ -3,7 +3,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/components/02.features/Authentication/models/auth'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
 
-const AuthProcessingComponent = { template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>' }
+const AuthProcessingComponent = {
+  template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>',
+}
 
 const routes = [
   {

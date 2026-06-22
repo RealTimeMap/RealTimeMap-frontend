@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import type { LngLat, LngLatBounds } from '@yandex/ymaps3-types'
+import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDebounceFn } from '@vueuse/core'
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { useMarksSocket } from '../composables/useMarksSocket'
 
 const props = defineProps<{
-  userCoordinates: LngLat
-  screenBounds: LngLatBounds | null
+  userCoordinates: MapPoint
+  screenBounds: MapBounds | null
   zoomLevel: number
 }>()
 
@@ -17,8 +17,8 @@ const router = useRouter()
 const route = useRoute()
 
 const debounceFetchMark = useDebounceFn((
-  userCoordinates: LngLat,
-  screenBounds: LngLatBounds | null,
+  userCoordinates: MapPoint,
+  screenBounds: MapBounds | null,
   zoomLevel: number,
 ) => {
   if (!screenBounds || !userCoordinates)
@@ -73,14 +73,14 @@ function openMarkModal(markId: number) {
       onClose: () => {
         const currentQuery = { ...route.query }
         delete currentQuery.id
-        router.push({ query: currentQuery })
+        router.replace({ query: currentQuery })
       },
     },
   )
 }
 
 function handleMarkClick(markId: number) {
-  router.push({
+  router.replace({
     query: {
       ...route.query,
       id: markId,
@@ -108,7 +108,7 @@ onMounted(() => {
   <u-marker
     v-for="mark in marks"
     :key="mark.id"
-    :coordinates="mark.geom.coordinates as LngLat"
+    :coordinates="mark.geom.coordinates as MapPoint"
     :draggable="false"
     :title="mark.markName"
     :media="mark.photos ? mark.photos[0] : null"
@@ -118,7 +118,7 @@ onMounted(() => {
   <u-cluster
     v-for="cluster in clusters"
     :key="cluster.count"
-    :coordinates="cluster.center.coordinates as LngLat"
+    :coordinates="cluster.center.coordinates as MapPoint"
     :count="cluster.count"
   />
 </template>

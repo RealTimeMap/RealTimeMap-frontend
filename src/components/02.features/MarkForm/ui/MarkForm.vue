@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
 import { useMarkAdd } from '../model'
 import DateBlock from './DateBlock.vue'
 
-const props = defineProps<{ coords: LngLat }>()
+const props = defineProps<{ coords: MapPoint }>()
 const coords = toRef(props, 'coords')
 
 const {

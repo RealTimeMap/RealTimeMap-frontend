@@ -1,11 +1,11 @@
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
 import { ref } from 'vue'
 
 export function useGeocoding() {
   const address = ref('')
   const isLoading = ref(false)
 
-  const fetchAddress = async (coords: LngLat) => {
+  const fetchAddress = async (coords: MapPoint) => {
     if (!coords)
       return
 

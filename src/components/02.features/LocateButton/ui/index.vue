@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import type { LngLat, YMap } from '@yandex/ymaps3-types'
+import type { Map } from 'maplibre-gl'
+import type { MapPoint } from '@/types/shared/map'
 
 const { userPosition, mapApi } = defineProps<{
-  userPosition: LngLat | null
-  mapApi: YMap | null
+  userPosition: MapPoint | null
+  mapApi: Map | null
 }>()
 
 function centerOnUser() {
   if (mapApi && userPosition) {
-    mapApi.setLocation({
+    mapApi.flyTo({
       center: userPosition,
       zoom: 15,
-      duration: 400,
+      essential: true,
     })
   }
 }

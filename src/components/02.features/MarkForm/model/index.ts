@@ -1,11 +1,11 @@
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
 import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
 import { useMessage } from 'naive-ui'
 import { useGeocoding } from '@/composables/useGeocoding'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { markApi } from '@/utils/mark'
 
-export function useMarkAdd(coords: LngLat) {
+export function useMarkAdd(coords: MapPoint) {
   const { address, fetchAddress } = useGeocoding()
 
   // --- Stores & Hooks ---

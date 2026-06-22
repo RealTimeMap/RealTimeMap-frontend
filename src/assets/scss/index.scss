@@ -40,3 +40,8 @@ body {
   font-size: 16px;
   line-height: 1.4;
 }
+
+// watermark map
+.maplibregl-ctrl-attrib {
+  display: none !important;
+}

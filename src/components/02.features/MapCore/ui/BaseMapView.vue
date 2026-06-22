@@ -1,129 +1,73 @@
 <script setup lang="ts">
-import type {
-  BehaviorType,
-  DomEvent,
-  DomEventHandlerObject,
-  LngLat,
-  LngLatBounds,
-  YMap,
-} from '@yandex/ymaps3-types'
-import type { YMapLocation } from '@yandex/ymaps3-types/imperative/YMap'
-import {
-  YandexMap,
-  YandexMapDefaultFeaturesLayer,
-  YandexMapDefaultMarker,
-  YandexMapDefaultSchemeLayer,
-  YandexMapListener,
-} from 'vue-yandex-maps'
+import maplibregl from 'maplibre-gl'
 import { useSettingsStore } from '../../AppSettings/model/settings'
+import 'maplibre-gl/dist/maplibre-gl.css'
 
-interface Props {
-  centerCoordinates: LngLat
-  zoomLevel: number
-  showUserMarker?: boolean
-  userMarkerSettings?: object
+interface MapEmits {
+  (e: 'mapReady', mapInstance: maplibregl.Map): void
+  (e: 'update:bounds', bounds: [[number, number], [number, number]]): void
+  (e: 'dblClickMarker', coordinates: [number, number]): void
+  (e: 'update:zoom-level', zoomLevel: number): void
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  zoomLevel: 13,
-  showUserMarker: true,
-  userMarkerSettings: () => ({ /* по умолчанию пустой объект */ }),
-})
-
-const emit = defineEmits<{
-  (e: 'mapReady', mapInstance: YMap): void
-  (e: 'update:bounds', bounds: LngLatBounds): void
-  (e: 'dblClickMarker', coordinates: LngLat): void
-  (e: 'update:zoom-level', zoomLevel: number): void
+const props = defineProps<{
+  centerCoordinates: [number, number]
+  zoomLevel: number
 }>()
 
-const mapInstance = shallowRef<null | YMap>(null)
+const emit = defineEmits<MapEmits>()
 
-watch(mapInstance, (newMap) => {
-  if (newMap) {
-    emit('mapReady', newMap)
-  }
-})
-
-const zoomLocal = ref()
-const centerLocal = ref()
-
-watch(() => props.centerCoordinates, (newCenter) => {
-  centerLocal.value = newCenter
-}, { immediate: true, deep: true })
-
-watch (() => props.zoomLevel, (newZoom) => {
-  zoomLocal.value = newZoom
-}, { immediate: true })
-
-function onMapUpdate({ location }: { location: YMapLocation }): void {
-  const { zoom, center } = location
-
-  if (center) {
-    centerLocal.value = center
-  }
-
-  if (typeof zoom === 'number') {
-    zoomLocal.value = zoom
-    emit('update:zoom-level', zoom)
-  }
-
-  const currentBounds = mapInstance.value?.bounds
-  if (currentBounds) {
-    emit('update:bounds', currentBounds)
-  }
-}
-
-function onMapDblClick(_object: DomEventHandlerObject, event: DomEvent) {
-  if (event.coordinates) {
-    emit('dblClickMarker', event.coordinates)
-  }
-}
-
-const MAP_BEHAVIORS: BehaviorType[] = ['drag', 'scrollZoom', 'pinchZoom', 'magnifier']
+const mapContainer = ref<HTMLElement | null>(null)
+const map = shallowRef<maplibregl.Map | null>(null)
 const settingsStore = useSettingsStore()
 
-const mapTheme = computed(() => {
-  return settingsStore.currentTheme === 'dark' ? 'dark' : 'light'
+onMounted(() => {
+  const mapInstance = new maplibregl.Map({
+    container: mapContainer.value!,
+    style: settingsStore.currentTheme === 'dark'
+      ? 'https://tiles.stadiamaps.com/styles/alidade_smooth_dark.json'
+      : 'https://tiles.stadiamaps.com/styles/alidade_smooth.json',
+    center: props.centerCoordinates,
+    zoom: props.zoomLevel,
+    doubleClickZoom: false,
+    attributionControl: false,
+  })
+
+  map.value = mapInstance
+
+  mapInstance.on('load', () => {
+    emit('mapReady', mapInstance)
+  })
+
+  mapInstance.on('moveend', () => {
+    const bounds = mapInstance.getBounds().toArray() as [[number, number], [number, number]]
+    emit('update:bounds', bounds)
+  })
+  mapInstance.on('dblclick', (e) => {
+    emit('dblClickMarker', [e.lngLat.lng, e.lngLat.lat])
+  })
+  mapInstance.on('zoomend', () => {
+    emit('update:zoom-level', mapInstance.getZoom())
+  })
 })
+
+onUnmounted(() => map.value?.remove())
+
+provide('map', map)
 </script>
 
 <template>
-  <yandex-map
-    :key="mapTheme"
-    v-model="mapInstance"
-    :settings="{
-      location: {
-        center: centerLocal,
-        zoom: zoomLocal,
-      },
-      behaviors: MAP_BEHAVIORS,
-      zoomRange: {
-        min: 5,
-        max: 17,
-      },
-      theme: mapTheme,
-    }"
-
-    width="100%"
-    height="100%"
+  <div
+    ref="mapContainer"
+    class="map-container"
   >
-    <yandex-map-default-scheme-layer />
-    <yandex-map-default-features-layer />
-
-    <yandex-map-default-marker
-      v-if="props.showUserMarker"
-      :settings="{
-        coordinates: centerCoordinates,
-        ...props.userMarkerSettings,
-      }"
-    />
-    <slot />
-    <yandex-map-listener
-      :settings="{
-        onUpdate: onMapUpdate,
-        onDblClick: onMapDblClick,
-      }"
-    />
-  </yandex-map>
+    <slot v-if="map" />
+  </div>
 </template>
+
+<style scoped>
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+</style>

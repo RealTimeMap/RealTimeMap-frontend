@@ -1,99 +1,87 @@
 <script setup lang="ts">
-import type { LngLat, YMapMarkerEventHandler } from '@yandex/ymaps3-types'
-import { YandexMapMarker } from 'vue-yandex-maps'
+import type { MapPoint } from '@/types/shared/map'
+import maplibregl from 'maplibre-gl'
 
 interface Props {
-  coordinates: LngLat
+  coordinates: MapPoint
   draggable?: boolean
   settings?: object
   color?: string
   media?: string | null
 }
 
+interface MarkerEmits {
+  (e: 'click'): void
+}
+
 const props = withDefaults(defineProps<Props>(), {
   draggable: false,
   settings: () => ({}),
+  color: '#fff',
+  media: null,
 })
 
-const emit = defineEmits<{
-  (e: 'dragend', newCoordinates: LngLat): void
-  (e: 'drag', currentCoordinates: LngLat): void
-}>()
-
-const markerRef = shallowRef<any>(null)
-const localCoordinates = ref<LngLat>([0, 0])
-
-watch(() => props.coordinates, (newCoords) => {
-  localCoordinates.value = [...newCoords]
-}, { immediate: true, deep: true })
-
-const markerSettings = computed(() => ({
-  coordinates: localCoordinates.value,
-  draggable: props.draggable,
-  ...props.settings,
-}))
-
-watch(() => props.coordinates, (newCoords) => {
-  localCoordinates.value = [...newCoords]
-}, { deep: true })
-
-const onDragMove: YMapMarkerEventHandler = (event) => {
-  const newCoords = event as LngLat
-
-  if (newCoords) {
-    localCoordinates.value = newCoords
-    emit('dragend', newCoords)
-  }
-  else {
-    console.error('Не удалось получить координаты из события:', event)
-  }
-}
+const emit = defineEmits<MarkerEmits>()
+const map = inject<ShallowRef<maplibregl.Map | null>>('map')
+const markerElement = ref<HTMLElement | null>(null)
+const marker = shallowRef<maplibregl.Marker | null>(null)
 
 onMounted(() => {
-  if (props.coordinates) {
-    localCoordinates.value = [...props.coordinates]
+  if (!map?.value || !markerElement.value)
+    return
+
+  marker.value = new maplibregl.Marker({
+    element: markerElement.value,
+    draggable: props.draggable,
+    anchor: 'bottom',
+  })
+    .setLngLat(props.coordinates)
+    .addTo(map.value)
+
+  markerElement.value.addEventListener('click', () => emit('click'))
+})
+
+watch(() => props.coordinates, (newCoords) => {
+  marker.value?.setLngLat(newCoords)
+})
+
+onUnmounted(() => {
+  if (marker.value && map?.value) {
+    marker.value.remove()
   }
+  marker.value = null
 })
 </script>
 
 <template>
-  <yandex-map-marker
-    ref="markerRef"
-    :settings="{
-      ...markerSettings,
-      onDragMove,
-    }"
+  <div
+    ref="markerElement"
+    class="custom-map-marker"
+    :class="{ draggable: props.draggable }"
   >
-    <div
-      class="custom-map-marker"
-      :class="{ draggable: props.draggable }"
-    >
-      <template v-if="props?.media">
-        <div class="marker__block">
-          <img
-            :src="props.media"
-            class="marker-photo"
-            :style="{ borderColor: props.color }"
-            alt="photo"
-          >
-        </div>
-      </template>
+    <template v-if="props?.media">
+      <div class="marker__block">
+        <img
+          :src="props.media"
+          class="marker-photo"
+          :style="{ borderColor: props.color }"
+          alt="photo"
+        >
+      </div>
+    </template>
 
-      <template v-else>
-        <div class="marker-icon" />
-      </template>
+    <template v-else>
+      <div class="marker-icon" />
+    </template>
 
-      <div class="marker-pulse" />
-    </div>
-  </yandex-map-marker>
+    <div class="marker-pulse" />
+  </div>
 </template>
 
 <style scoped lang="scss">
 .custom-map-marker {
-  position: relative;
   width: 48px;
   height: 60px;
-  transform: translate(-50%, -100%);
   display: flex;
   align-items: center;
   justify-content: center;

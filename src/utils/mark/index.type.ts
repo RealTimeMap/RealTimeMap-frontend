@@ -1,8 +1,8 @@
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
 
 interface Geometry {
   type: 'Point'
-  coordinates: LngLat
+  coordinates: MapPoint
 }
 
 export interface ClusterResponse {

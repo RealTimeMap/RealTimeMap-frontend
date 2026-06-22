@@ -1,44 +1,59 @@
 <script setup lang="ts">
-import type { LngLat } from '@yandex/ymaps3-types'
-import { YandexMapMarker } from 'vue-yandex-maps'
+import type { MapPoint } from '@/types/shared/map'
+import maplibregl from 'maplibre-gl'
 
 interface Props {
-  coordinates: LngLat
+  coordinates: MapPoint
   count: number
 }
 
 const props = defineProps<Props>()
+const map = inject<ShallowRef<maplibregl.Map | null>>('map')
+const clusterElement = ref<HTMLElement | null>(null)
+const marker = shallowRef<maplibregl.Marker | null>(null)
 
-const localCoordinates = ref<LngLat>([0, 0])
+onMounted(() => {
+  if (!map?.value || !clusterElement.value)
+    return
+
+  marker.value = new maplibregl.Marker({
+    element: clusterElement.value,
+    anchor: 'center',
+  })
+    .setLngLat(props.coordinates)
+    .addTo(map.value)
+})
 
 watch(() => props.coordinates, (newCoords) => {
-  localCoordinates.value = [...newCoords]
-}, { immediate: true, deep: true })
+  marker.value?.setLngLat(newCoords)
+})
 
-const markerSettings = computed(() => ({
-  coordinates: localCoordinates.value,
-}))
+onUnmounted(() => {
+  if (marker.value && map?.value) {
+    marker.value.remove()
+  }
+  marker.value = null
+})
 </script>
 
 <template>
-  <yandex-map-marker :settings="markerSettings">
-    <div class="cluster-marker">
-      <div class="cluster-body">
-        {{ count }}
-      </div>
-
-      <div class="pulse-ring ring-1" />
-      <div class="pulse-ring ring-2" />
+  <div
+    ref="clusterElement"
+    class="cluster-marker"
+  >
+    <div class="cluster-body">
+      {{ count }}
     </div>
-  </yandex-map-marker>
+
+    <div class="pulse-ring ring-1" />
+    <div class="pulse-ring ring-2" />
+  </div>
 </template>
 
 <style scoped lang="scss">
 .cluster-marker {
-  position: relative;
   width: 40px;
   height: 40px;
-  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;

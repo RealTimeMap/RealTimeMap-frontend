@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useDialogStore } from '@/shared/stores/dialog'
 import UMarker from '../../../01.kit/UMarker/ui/UMarker.vue'
@@ -8,13 +8,13 @@ import { useAddMarkStore } from '../../../../shared/stores/addMark'
 const addMarkStore = useAddMarkStore()
 const { open, close } = useDialogStore()
 
-function onDragEnd(newCoords: LngLat) {
+function onDragEnd(newCoords: MapPoint) {
   addMarkStore.setMarkerCoords(newCoords)
 }
 
 function onNextClick() {
   open(MarkForm, {
-    coords: addMarkStore.markerCoords as LngLat,
+    coords: addMarkStore.markerCoords as MapPoint,
   })
 }
 

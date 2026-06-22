@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { LngLat, LngLatBounds, YMap } from '@yandex/ymaps3-types'
+import type { Map } from 'maplibre-gl'
+import type { MapBounds, MapPoint } from '@/types/shared/map'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useDialogStore } from '@/shared/stores/dialog'
-import { AddMarkMode } from '../components/02.features/AddMarkMode'
+// import { AddMarkMode } from '../components/02.features/AddMarkMode'
 import { useAuthStore } from '../components/02.features/Authentication/models/auth'
 import { GeolocationFeedback } from '../components/02.features/Geolocation'
 import { useGeolocation } from '../components/02.features/Geolocation/composables/useGeolocation'
@@ -15,20 +16,21 @@ const {
   error: geolocationError,
   isLoading: isLoadingGeolocation,
 } = useGeolocation()
+
 const { open } = useDialogStore()
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
 
-const mapApi = shallowRef<null | YMap>(null)
-const markAddCoords = ref<null | LngLat>(null)
-const screenBounds = ref<null | LngLatBounds>(null)
+const mapApi = shallowRef<null | Map>(null)
+const markAddCoords = ref<null | MapPoint>(null)
+const screenBounds = ref<MapBounds | null>(null)
 const zoomLevel = ref<number>(15)
 
-function handleMapReady(map: YMap) {
+function handleMapReady(map: Map) {
   mapApi.value = map
 }
 
-function handleMapClick(coordinates: LngLat) {
+function handleMapClick(coordinates: MapPoint) {
   // if (isAuthenticated)
   //   return
   markAddCoords.value = coordinates
@@ -40,7 +42,7 @@ function handleMapClick(coordinates: LngLat) {
   })
 }
 
-function handleUpdateBounds(bounds: LngLatBounds) {
+function handleUpdateBounds(bounds: MapBounds) {
   screenBounds.value = bounds
 }
 
@@ -48,7 +50,7 @@ function handleUpdateZoom(newZoom: number) {
   zoomLevel.value = newZoom
 }
 
-const mapInitialCenter = shallowRef<LngLat | null>(null)
+const mapInitialCenter = shallowRef<MapPoint | null>(null)
 watch(userPosition, (newPos) => {
   if (newPos && !mapInitialCenter.value) {
     mapInitialCenter.value = newPos
@@ -88,7 +90,7 @@ watch(userPosition, (newPos) => {
         :draggable="false"
         :media="user?.avatar || 'https://avatars.githubusercontent.com/u/71484693?v=4'"
       />
-      <add-mark-mode />
+      <!-- <add-mark-mode /> -->
     </base-map-view>
 
     <locate-button

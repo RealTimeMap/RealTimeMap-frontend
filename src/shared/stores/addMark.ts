@@ -1,10 +1,10 @@
-import type { LngLat } from '@yandex/ymaps3-types'
+import type { MapPoint } from '@/types/shared/map'
 
 export const useAddMarkStore = defineStore('add-mark', () => {
   const isAddingMark = ref(false)
-  const markerCoords = shallowRef<LngLat | null>(null)
+  const markerCoords = shallowRef<MapPoint | null>(null)
 
-  const startAddingMark = (initialCoords: LngLat) => {
+  const startAddingMark = (initialCoords: MapPoint) => {
     isAddingMark.value = true
     markerCoords.value = initialCoords
   }
@@ -14,7 +14,7 @@ export const useAddMarkStore = defineStore('add-mark', () => {
     markerCoords.value = null
   }
 
-  const setMarkerCoords = (coords: LngLat) => {
+  const setMarkerCoords = (coords: MapPoint) => {
     markerCoords.value = coords
   }
 
