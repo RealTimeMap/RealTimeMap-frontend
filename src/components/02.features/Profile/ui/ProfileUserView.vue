@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NAvatar } from 'naive-ui'
 import { useAuthStore } from '../../Authentication/models/auth'
+import StatsFull from '../widgets/StatsFull/index.vue'
 import StatsSammary from '../widgets/StatsSammary/index.vue'
 
 const authStore = useAuthStore()
@@ -15,7 +16,7 @@ const maxVal = computed(() => {
 
 <template>
   <div class="user-profile-view">
-    <div class="user-profile-view--header">
+    <div class="user-profile-view__header">
       <u-experience-ring
         :size="88"
         :progress="maxVal"
@@ -34,8 +35,14 @@ const maxVal = computed(() => {
       <div class="user-info">
         <h2>{{ user?.username || 'Guest' }}</h2>
       </div>
+    </div>
 
+    <div class="user-profile-view__stats">
       <stats-sammary
+        v-if="user"
+        :user-id="user?.userId"
+      />
+      <stats-full
         v-if="user"
         :user-id="user?.userId"
       />
@@ -54,12 +61,23 @@ const maxVal = computed(() => {
 <style lang="scss" scoped>
 .user-profile-view {
   display: flex;
+  flex-direction: column;
+  gap: 12px;
 
-  &--header {
+  &__header {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 16px;
+    width: 100%;
+  }
+
+  &__stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
   }
 }
 

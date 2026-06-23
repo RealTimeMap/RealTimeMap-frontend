@@ -1,0 +1,42 @@
+@mixin glass-panel($radius: 18px, $padding: 14px, $show-glow: true) {
+  position: relative;
+  border-radius: $radius;
+  padding: $padding;
+
+  backdrop-filter: blur(38.4px) saturate(180%);
+  background: rgba(18, 24, 38, 0.45);
+
+  border: 0.5px solid rgba(255, 255, 255, 0.12);
+
+  box-shadow:
+    rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
+    rgba(0, 0, 0, 0.35) 0px 10px 30px;
+
+  @if $show-glow {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      pointer-events: none;
+    }
+  }
+}
+
+@mixin label-text($font-size: 12px, $text-transform: uppercase, $color: rgba(255, 255, 255, 0.5)) {
+  font-size: $font-size;
+  color: $color;
+  font-weight: 600;
+  text-transform: $text-transform;
+  letter-spacing: 0.5px;
+}
+
+@mixin value-text($font-size: 16px, $color: rgb(255, 255, 255)) {
+  color: $color;
+  font-size: $font-size;
+  line-height: 1.4;
+}

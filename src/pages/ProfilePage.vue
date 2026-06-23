@@ -39,6 +39,7 @@ import ProfileUserView from '@/components/02.features/Profile/ui/ProfileUserView
 
   &-container {
     padding-top: 60px;
+    width: 100%;
   }
 }
 </style>
