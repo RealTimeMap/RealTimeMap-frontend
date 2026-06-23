@@ -30,8 +30,8 @@ const debounceFetchMark = useDebounceFn((
   const [longitude, latitude] = userCoordinates
 
   fetchMarks({
-    startAt: yesterday.toISOString(),
-    endAt: new Date().toISOString(),
+    startAt: new Date().toISOString(),
+    // endAt: new Date().toISOString(),
     zoomLevel,
     screen: {
       leftTop: {

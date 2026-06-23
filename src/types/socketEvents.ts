@@ -36,7 +36,7 @@ export interface MarksRequestPayload {
     }
   }
   startAt: string
-  endAt: string
+  // endAt: string
   zoomLevel: number
 }
 
