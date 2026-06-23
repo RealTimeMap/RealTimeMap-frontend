@@ -1,7 +1,4 @@
 import type { StatsHeatmap, StatsMonthy, StatsSummary } from './index.type'
-import { getCookie } from '@/shared/lib/cookie'
-
-const getHeaders = () => ({ Authorization: `Bearer ${getCookie('token')}` })
 
 interface Endpoints {
   summary: StatsSummary
@@ -16,7 +13,6 @@ export const statisticsApi = {
     ...args: K extends 'heatmap' ? [params: { start: string, end?: string }] : [params?: never]
   ) {
     return apiService.get<Endpoints[K]>(`/profile/${id}/statistics/${type}`, {
-      headers: getHeaders(),
       params: args[0],
     })
   },
