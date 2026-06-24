@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { NAvatar } from 'naive-ui'
 import { useAuthStore } from '../../Authentication/models/auth'
-import StatsFull from '../widgets/StatsFull/index.vue'
-import StatsSammary from '../widgets/StatsSammary/index.vue'
+import { StatsFull, StatsSummary } from '../widgets/ProfileStats/index'
 
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
@@ -38,7 +37,7 @@ const maxVal = computed(() => {
     </div>
 
     <div class="user-profile-view__stats">
-      <stats-sammary
+      <stats-summary
         v-if="user"
         :user-id="user?.userId"
       />

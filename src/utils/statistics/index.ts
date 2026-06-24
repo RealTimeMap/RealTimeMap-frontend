@@ -2,7 +2,7 @@ import type { StatsHeatmap, StatsMonthy, StatsSummary } from './index.type'
 
 interface Endpoints {
   summary: StatsSummary
-  monthy: StatsMonthy[]
+  monthly: StatsMonthy[]
   heatmap: StatsHeatmap
 }
 
