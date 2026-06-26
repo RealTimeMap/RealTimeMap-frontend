@@ -51,6 +51,24 @@ onMounted(() => {
   setTimeout(checkClamping, 100)
   window.addEventListener('resize', checkClamping)
 })
+
+async function handleShare() {
+  if (navigator.share) {
+    try {
+      await navigator.share({
+        title: mark.value?.markName || 'Интересная метка',
+        text: mark.value?.additionalInfo || 'Посмотри на эту метку на карте!',
+        url: window.location.href,
+      })
+    }
+    catch (err) {
+      console.error('Пользователь отменил или ошибка:', err)
+    }
+  }
+  else {
+    navigator.clipboard.writeText(window.location.href)
+  }
+}
 </script>
 
 <template>
@@ -90,6 +108,13 @@ onMounted(() => {
         </div>
       </div>
 
+      <div class="">
+        <mark-period
+          :date="mark.date"
+          :meta="mark.meta"
+        />
+      </div>
+
       <div class="block owner-block">
         <img
           :src="mark.owner.avatar || '/default-avatar.png'"
@@ -104,13 +129,6 @@ onMounted(() => {
             {{ mark.owner.tag }} · {{ formatRelativeDate(mark.date.startAt) }}
           </div>
         </div>
-      </div>
-
-      <div class="">
-        <mark-period
-          :date="mark.date"
-          :meta="mark.meta"
-        />
       </div>
 
       <div
@@ -132,6 +150,19 @@ onMounted(() => {
         >
           {{ isExpanded ? 'Скрыть' : 'Читать полностью' }}
         </button>
+      </div>
+
+      <div class="actions-bar">
+        <span
+          class="action-item"
+          @click="handleShare()"
+        >
+          <u-icon
+            icon="line-md:arrow-down"
+            width="16"
+          />
+          <span>0</span>
+        </span>
       </div>
 
       <div

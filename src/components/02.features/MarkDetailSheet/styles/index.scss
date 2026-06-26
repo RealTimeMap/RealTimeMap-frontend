@@ -311,3 +311,33 @@
     color: white;
   }
 }
+
+.actions-bar {
+  display: flex;
+  align-items: center;
+}
+
+.action-item {
+  @include glass-panel(999px, 8px 14px);
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  span {
+    @include value-text();
+  }
+
+  &:hover {
+    opacity: 0.7;
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

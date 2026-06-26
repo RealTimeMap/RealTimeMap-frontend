@@ -111,15 +111,13 @@ onMounted(() => {
       :key="mark.id"
       v-memo="[mark.geom.coordinates, mark.photos?.[0]]"
       :coordinates="mark.geom.coordinates as MapPoint"
-      :draggable="false"
-      :title="mark.markName"
       :media="mark.photos ? mark.photos[0] : null"
       @click="handleMarkClick(mark.id)"
     />
 
     <u-cluster
       v-for="cluster in clusters"
-      :key="`${cluster.center.coordinates.join(',')}-${cluster.count}`"
+      :key="`cluster-${cluster.center.coordinates.join('-')}`"
       v-memo="[cluster.center.coordinates, cluster.count]"
       :coordinates="cluster.center.coordinates as MapPoint"
       :count="cluster.count"
