@@ -85,6 +85,7 @@ export function useMarkAdd(coords: MapPoint) {
         longitude: coords[0].toString(),
         categoryId: selectedCategoryId.value.toString(),
         startAt: startAt.value.toISOString(),
+        endAt: endAt.value?.toISOString(),
         additionalInfo: additionalInfo.value || '',
       }
 

@@ -105,20 +105,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <u-marker
-    v-for="mark in marks"
-    :key="mark.id"
-    :coordinates="mark.geom.coordinates as MapPoint"
-    :draggable="false"
-    :title="mark.markName"
-    :media="mark.photos ? mark.photos[0] : null"
-    @click="handleMarkClick(mark.id)"
-  />
+  <div class="markers-overlay">
+    <u-marker
+      v-for="mark in marks"
+      :key="mark.id"
+      v-memo="[mark.geom.coordinates, mark.photos?.[0]]"
+      :coordinates="mark.geom.coordinates as MapPoint"
+      :draggable="false"
+      :title="mark.markName"
+      :media="mark.photos ? mark.photos[0] : null"
+      @click="handleMarkClick(mark.id)"
+    />
 
-  <u-cluster
-    v-for="cluster in clusters"
-    :key="cluster.count"
-    :coordinates="cluster.center.coordinates as MapPoint"
-    :count="cluster.count"
-  />
+    <u-cluster
+      v-for="cluster in clusters"
+      :key="`${cluster.center.coordinates.join(',')}-${cluster.count}`"
+      v-memo="[cluster.center.coordinates, cluster.count]"
+      :coordinates="cluster.center.coordinates as MapPoint"
+      :count="cluster.count"
+    />
+  </div>
 </template>
