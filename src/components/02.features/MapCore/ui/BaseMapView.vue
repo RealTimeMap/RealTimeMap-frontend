@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import maplibregl from 'maplibre-gl'
+import { useShareStore } from '../../Share/models'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const props = defineProps<{
@@ -7,6 +8,7 @@ const props = defineProps<{
   zoomLevel: number
 }>()
 const emit = defineEmits<MapEmits>()
+const shareStore = useShareStore()
 interface MapEmits {
   (e: 'mapReady', mapInstance: maplibregl.Map): void
   (e: 'update:bounds', bounds: [[number, number], [number, number]]): void
@@ -25,6 +27,9 @@ onMounted(() => {
     zoom: props.zoomLevel,
     doubleClickZoom: false,
     attributionControl: false,
+    canvasContextAttributes: {
+      preserveDrawingBuffer: true,
+    },
   })
 
   map.value = mapInstance
@@ -43,6 +48,8 @@ onMounted(() => {
   mapInstance.on('zoomend', () => {
     emit('update:zoom-level', mapInstance.getZoom())
   })
+
+  shareStore.registerMap(mapInstance)
 })
 
 onUnmounted(() => map.value?.remove())

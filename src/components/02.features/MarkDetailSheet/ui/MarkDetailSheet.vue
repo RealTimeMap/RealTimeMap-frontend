@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { toBlob } from 'html-to-image'
 import { formatRelativeDate } from '@/helpers/date/FormatRelativeDate'
 import { useAuthStore } from '../../Authentication/models/auth'
+import { useShareStore } from '../../Share/models'
 import { useMarkDetail } from '../models/useMarkDetail'
 import MarkPeriod from './MarkPeriod.vue'
 
@@ -9,9 +9,9 @@ const props = defineProps<{
   markId: number
 }>()
 
-const shareCardRef = ref<HTMLElement | null>(null)
 const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
+const shareStore = useShareStore()
 
 const { user } = useAuthStore()
 
@@ -49,43 +49,25 @@ watch(() => mark.value?.additionalInfo, () => {
   nextTick(checkClamping)
 })
 
+function onShareClick() {
+  if (mark.value && !shareStore.isGenerating) {
+    shareStore.shareMark({
+      id: mark.value.id,
+      title: mark.value.markName,
+      description: mark.value.additionalInfo || '',
+      url: window.location.href,
+      date: formatDate(mark.value.date.startAt),
+      markImg: mark.value.photos[0] || '',
+      likes: 124,
+      coordinates: mark.value.geom.coordinates,
+    })
+  }
+}
 onMounted(() => {
   fetchData()
   setTimeout(checkClamping, 100)
   window.addEventListener('resize', checkClamping)
 })
-
-async function handleShare() {
-  if (!shareCardRef.value || !mark.value)
-    return
-
-  try {
-    const blob = await toBlob(shareCardRef.value, {
-      quality: 0.95,
-      cacheBust: true,
-    })
-
-    if (!blob)
-      return
-
-    const file = new File([blob], `mark-${mark.value.id}.png`, { type: 'image/png' })
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({
-        files: [file],
-        title: mark.value.markName,
-        text: 'Посмотри на эту метку!',
-      })
-    }
-    else {
-      const url = window.location.href
-      await navigator.clipboard.writeText(url)
-    }
-  }
-  catch (err) {
-    console.error('Ошибка при создании карточки:', err)
-  }
-}
 </script>
 
 <template>
@@ -172,7 +154,7 @@ async function handleShare() {
       <div class="actions-bar">
         <span
           class="action-item"
-          @click="handleShare()"
+          @click="onShareClick()"
         >
           <u-icon
             icon="line-md:arrow-down"
@@ -274,40 +256,6 @@ async function handleShare() {
               d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
             /></svg>
           </button>
-        </div>
-      </div>
-
-      <div
-        ref="shareCardRef"
-        class="share-card-template"
-      >
-        <div class="share-card-header">
-          <div class="share-user-badge">
-            <img
-              :src="mark.owner.avatar"
-              class="share-avatar"
-            >
-            <div class="share-marker-triangle" />
-          </div>
-          <div class="share-type-badge">
-            фото
-          </div>
-        </div>
-
-        <div class="share-card-footer">
-          <h2 class="share-title">
-            {{ mark.markName }}
-          </h2>
-          <div class="share-meta">
-            <span>{{ formatDate(mark.date.startAt) }}</span>
-            <div class="share-likes">
-              <u-icon
-                icon="line-md:heart"
-                width="14"
-              />
-              <span>124</span>
-            </div>
-          </div>
         </div>
       </div>
     </template>

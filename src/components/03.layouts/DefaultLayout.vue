@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BottomNavigation from '@/components/02.features/ButtonNavigation'
 import { useAuthStore } from '../02.features/Authentication/models/auth'
+import ShareRender from '../02.features/Share/index'
 
 const authStore = useAuthStore()
 const { isAuthenticated } = storeToRefs(authStore)
@@ -37,6 +38,7 @@ onMounted(() => {
     </footer>
 
     <u-modal-wrapper />
+    <share-render />
   </div>
 </template>
 
