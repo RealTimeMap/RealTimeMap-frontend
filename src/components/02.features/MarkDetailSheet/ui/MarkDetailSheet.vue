@@ -53,20 +53,34 @@ onMounted(() => {
 })
 
 async function handleShare() {
-  if (navigator.share) {
-    try {
-      await navigator.share({
-        title: mark.value?.markName || 'Интересная метка',
-        text: mark.value?.additionalInfo || 'Посмотри на эту метку на карте!',
-        url: window.location.href,
-      })
+  const shareData: ShareData = {
+    title: mark.value?.markName || 'Интересная метка',
+    text: mark.value?.additionalInfo || 'Посмотри на эту метку на карте!',
+    url: window.location.href,
+  }
+
+  try {
+    if (mark.value?.photos?.length && navigator.canShare) {
+      const imageUrl = mark.value.photos[0]
+      const response = await fetch(imageUrl)
+      const blob = await response.blob()
+      const file = new File([blob], 'mark-photo.jpg', { type: blob.type })
+      if (navigator.canShare({ files: [file] })) {
+        shareData.files = [file]
+      }
     }
-    catch (err) {
-      console.error('Пользователь отменил или ошибка:', err)
+
+    if (navigator.share) {
+      await navigator.share(shareData)
+    }
+    else {
+      throw new Error('Web Share not supported')
     }
   }
-  else {
-    navigator.clipboard.writeText(window.location.href)
+  catch (err) {
+    if (err instanceof Error && err.name !== 'AbortError') {
+      await navigator.clipboard.writeText(window.location.href)
+    }
   }
 }
 </script>
