@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { toBlob } from 'html-to-image'
 import { formatRelativeDate } from '@/helpers/date/FormatRelativeDate'
 import { useAuthStore } from '../../Authentication/models/auth'
 import { useMarkDetail } from '../models/useMarkDetail'
@@ -7,6 +8,8 @@ import MarkPeriod from './MarkPeriod.vue'
 const props = defineProps<{
   markId: number
 }>()
+
+const shareCardRef = ref<HTMLElement | null>(null)
 const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
 
@@ -53,34 +56,34 @@ onMounted(() => {
 })
 
 async function handleShare() {
-  const shareData: ShareData = {
-    title: mark.value?.markName || 'Интересная метка',
-    text: mark.value?.additionalInfo || 'Посмотри на эту метку на карте!',
-    url: window.location.href,
-  }
+  if (!shareCardRef.value || !mark.value)
+    return
 
   try {
-    if (mark.value?.photos?.length && navigator.canShare) {
-      const imageUrl = mark.value.photos[0]
-      const response = await fetch(imageUrl)
-      const blob = await response.blob()
-      const file = new File([blob], 'mark-photo.jpg', { type: blob.type })
-      if (navigator.canShare({ files: [file] })) {
-        shareData.files = [file]
-      }
-    }
+    const blob = await toBlob(shareCardRef.value, {
+      quality: 0.95,
+      cacheBust: true,
+    })
 
-    if (navigator.share) {
-      await navigator.share(shareData)
+    if (!blob)
+      return
+
+    const file = new File([blob], `mark-${mark.value.id}.png`, { type: 'image/png' })
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({
+        files: [file],
+        title: mark.value.markName,
+        text: 'Посмотри на эту метку!',
+      })
     }
     else {
-      throw new Error('Web Share not supported')
+      const url = window.location.href
+      await navigator.clipboard.writeText(url)
     }
   }
   catch (err) {
-    if (err instanceof Error && err.name !== 'AbortError') {
-      await navigator.clipboard.writeText(window.location.href)
-    }
+    console.error('Ошибка при создании карточки:', err)
   }
 }
 </script>
@@ -271,6 +274,40 @@ async function handleShare() {
               d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
             /></svg>
           </button>
+        </div>
+      </div>
+
+      <div
+        ref="shareCardRef"
+        class="share-card-template"
+      >
+        <div class="share-card-header">
+          <div class="share-user-badge">
+            <img
+              :src="mark.owner.avatar"
+              class="share-avatar"
+            >
+            <div class="share-marker-triangle" />
+          </div>
+          <div class="share-type-badge">
+            фото
+          </div>
+        </div>
+
+        <div class="share-card-footer">
+          <h2 class="share-title">
+            {{ mark.markName }}
+          </h2>
+          <div class="share-meta">
+            <span>{{ formatDate(mark.date.startAt) }}</span>
+            <div class="share-likes">
+              <u-icon
+                icon="line-md:heart"
+                width="14"
+              />
+              <span>124</span>
+            </div>
+          </div>
         </div>
       </div>
     </template>

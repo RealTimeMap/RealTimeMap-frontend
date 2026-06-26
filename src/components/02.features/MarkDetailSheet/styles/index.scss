@@ -341,3 +341,84 @@
     transform: scale(0.95);
   }
 }
+
+// Share style
+.share-card-template {
+  // Параметры для "фото"
+  position: absolute;
+  left: -9999px;
+  width: 400px;
+  height: 400px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  // Фон с полосками как на скрине
+  background: linear-gradient(135deg, #051c24 0%, #020d12 100%);
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 10px,
+    transparent 10px,
+    transparent 20px
+  );
+  border-radius: 40px;
+  color: white;
+
+  .share-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .share-user-badge {
+    position: relative;
+    .share-avatar {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: 2px solid #00a3ff;
+      box-shadow: 0 0 15px rgba(0, 163, 255, 0.4);
+    }
+    .share-marker-triangle {
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid #00a3ff;
+    }
+  }
+
+  .share-type-badge {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .share-card-footer {
+    .share-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+    .share-meta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.4);
+
+      .share-likes {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+    }
+  }
+}
