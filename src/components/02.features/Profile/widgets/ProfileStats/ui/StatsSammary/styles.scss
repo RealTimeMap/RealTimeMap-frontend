@@ -41,8 +41,6 @@
   @include value-text(20px);
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 3ch;
 }
 
 .stats-error {

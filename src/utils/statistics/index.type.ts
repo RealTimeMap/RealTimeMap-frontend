@@ -2,9 +2,9 @@ export interface StatsSummary {
   /* Общее количество созданных меток */
   markCount: number
   /* Общее количество друзей */
-  friendsCount: number
+  friendsCount: string
   /* Общее количество подписчиков */
-  subscribersCount: number
+  subscribersCount: string
 }
 
 export interface StatsMonthy {
