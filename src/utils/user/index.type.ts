@@ -24,7 +24,7 @@ interface _UserBan {
   reason: 'abuse' | 'spam' | 'other'
 }
 
-interface UserGemefication {
+export interface UserGemefication {
   /**
    * текущий уровень пользователя
    */

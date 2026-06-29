@@ -2,6 +2,7 @@
 import { NAvatar } from 'naive-ui'
 import { useAuthStore } from '../../Authentication/models/auth'
 import Achievements from '../widgets/Achievements/index'
+import LevelBlock from '../widgets/LevelBlock'
 import { StatsFull, StatsSummary } from '../widgets/ProfileStats/index'
 
 const authStore = useAuthStore()
@@ -39,6 +40,13 @@ const maxVal = computed(() => {
           {{ user?.tag || '' }}
         </span>
       </div>
+    </div>
+
+    <div class="user-profile-view__level">
+      <level-block
+        v-if="user?.gamification"
+        :gamification="user.gamification"
+      />
     </div>
 
     <div class="user-profile-view__achive">
@@ -83,7 +91,8 @@ const maxVal = computed(() => {
     width: 100%;
   }
 
-  &__achive {
+  &__achive,
+  &__level {
     display: flex;
     width: 100%;
     justify-content: center;
