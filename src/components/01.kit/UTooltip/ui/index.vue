@@ -94,7 +94,7 @@ watch(() => props.target, () => {
 
   &__content {
     @include glass-panel(14px, 12px, false);
-    background: rgba(15, 18, 25, 0.98);
+    background: rgba(15, 18, 25, 1);
     border: 1px solid rgba(83, 112, 249, 0.4);
   }
 
