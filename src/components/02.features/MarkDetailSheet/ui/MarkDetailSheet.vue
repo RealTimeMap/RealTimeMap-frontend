@@ -12,7 +12,6 @@ const props = defineProps<{
 const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
 const shareStore = useShareStore()
-
 const { user } = useAuthStore()
 
 const {
@@ -25,6 +24,7 @@ const {
   isLoading,
   error,
   mark,
+  address,
 } = useMarkDetail(
   markIdRef.value,
   scrollContainerRef,
@@ -63,6 +63,7 @@ function onShareClick() {
     })
   }
 }
+
 onMounted(() => {
   fetchData()
   setTimeout(checkClamping, 100)
@@ -99,8 +100,13 @@ onMounted(() => {
             alt="Фото"
           >
         </div>
-        <div class="header-block__title">
-          {{ mark.markName }}
+        <div class="header-block__text">
+          <span class="header-block__title">
+            {{ mark.markName }}
+          </span>
+          <span class="header-block__address">
+            {{ address || 'не найден' }}
+          </span>
         </div>
         <div class="header-block__badge">
           фото · {{ formatDate(mark.date.startAt) }}

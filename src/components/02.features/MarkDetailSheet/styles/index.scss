@@ -29,14 +29,28 @@
   position: relative;
 
   &__title {
-    position: absolute;
-    bottom: 14px;
-    left: 14px;
-    right: 14px;
-
     font-size: 22px;
     font-weight: 700;
     letter-spacing: -0.3px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 60px 14px 14px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 40%, rgba(0, 0, 0, 0) 100%);
+    border-bottom-left-radius: 20px;
+    border-bottom-right-radius: 20px;
+    pointer-events: none;
+  }
+
+  &__address {
+    @include label-text(10px, none, rgba(255, 255, 255, 0.7));
   }
 
   &__badge {

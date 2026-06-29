@@ -1,6 +1,7 @@
 import type { Ref } from 'vue'
 import type { MarkComment, MarkCommentPayload, MarkFull } from '@/utils/mark/index.type'
 import { useMessage } from 'naive-ui'
+import { useGeocoding } from '@/composables/useGeocoding'
 import { markApi } from '@/utils/mark'
 
 export function useMarkDetail(
@@ -8,6 +9,7 @@ export function useMarkDetail(
   scrollContainerRef: Ref<HTMLElement | null>,
 ) {
   const message = useMessage()
+  const { address, fetchAddress } = useGeocoding()
 
   // --- Data State ---
   const marksCache = new Map<number, MarkFull>()
@@ -34,6 +36,10 @@ export function useMarkDetail(
         const data = await markApi.getMarkFull(markId)
         marksCache.set(markId, data)
         mark.value = data
+      }
+
+      if (mark.value?.geom?.coordinates) {
+        fetchAddress(mark.value.geom.coordinates)
       }
 
       const dataComments = await markApi.getMarkComments(markId)
@@ -122,5 +128,8 @@ export function useMarkDetail(
     isSending,
     mark,
     scrollContainerRef,
+
+    address,
+    fetchAddress,
   }
 }
