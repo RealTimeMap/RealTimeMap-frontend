@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { NAvatar } from 'naive-ui'
 import { useAuthStore } from '../../Authentication/models/auth'
+import Achievements from '../widgets/Achievements/index'
 import { StatsFull, StatsSummary } from '../widgets/ProfileStats/index'
 
 const authStore = useAuthStore()
@@ -36,6 +37,13 @@ const maxVal = computed(() => {
       </div>
     </div>
 
+    <div class="user-profile-view__achive">
+      <achievements
+        v-if="user"
+        :user-id="user?.userId"
+      />
+    </div>
+
     <div class="user-profile-view__stats">
       <stats-summary
         v-if="user"
@@ -69,6 +77,12 @@ const maxVal = computed(() => {
     align-items: center;
     gap: 16px;
     width: 100%;
+  }
+
+  &__achive {
+    display: flex;
+    width: 100%;
+    justify-content: center;
   }
 
   &__stats {

@@ -33,5 +33,6 @@ declare module 'vue' {
     USelect: typeof import('./../../components/01.kit/USelect/index.ts')['default']
     UTextArea: typeof import('./../../components/01.kit/UTextArea/index.ts')['default']
     UThemeSwitcher: typeof import('./../../components/01.kit/UThemeSwitcher/index.ts')['default']
+    UTooltip: typeof import('./../../components/01.kit/UTooltip/index.ts')['default']
   }
 }
