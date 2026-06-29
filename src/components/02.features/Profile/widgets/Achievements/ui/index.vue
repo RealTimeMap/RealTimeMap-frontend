@@ -157,7 +157,7 @@ onMounted(loadAchievements)
 
 .achievements-wrapper {
   display: grid;
-  grid-template-columns: repeat(5, 63px);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
