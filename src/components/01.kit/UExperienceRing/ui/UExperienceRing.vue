@@ -5,6 +5,7 @@ interface Props {
   progress?: number
   level?: number | string
   color?: string
+  showRing?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -13,6 +14,7 @@ const props = withDefaults(defineProps<Props>(), {
   progress: 0,
   color: '#7aafeb',
   level: undefined,
+  showRing: true,
 })
 
 // --- ГЕОМЕТРИЯ ---
@@ -43,6 +45,7 @@ const dashOffset = computed(() => {
     :style="{ width: `${ringSize}px`, height: `${ringSize}px` }"
   >
     <svg
+      v-if="showRing"
       class="xp-ring-svg"
       :width="ringSize"
       :height="ringSize"

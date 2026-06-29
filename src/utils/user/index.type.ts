@@ -2,6 +2,7 @@ export interface User {
   userId: number
   username: string
   avatar?: string
+  tag: string
   settings: {
     showInSearc: boolean
   }
@@ -29,6 +30,10 @@ interface UserGemefication {
    */
   currentLevel: number
   /**
+   * Текущее название уровня
+   */
+  currentLevelName: string
+  /**
    * текущий опыт
    */
   currentXp: number
@@ -40,6 +45,11 @@ interface UserGemefication {
    * Значение опыта которое необходимо для перехода на новый уровень
    */
   xpForNextLevel: number
+
+  nextLevel: {
+    level: number
+    levelName: string
+  }
 }
 
 export type UserIncludeType = 'ban' | 'gamefication' | 'subscription'

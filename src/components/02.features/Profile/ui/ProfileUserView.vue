@@ -22,6 +22,7 @@ const maxVal = computed(() => {
         :progress="maxVal"
         :stroke-width="3"
         :level="gameStats ? currentLevel : undefined"
+        :show-ring="false"
       >
         <n-avatar
           :size="88"
@@ -34,6 +35,9 @@ const maxVal = computed(() => {
 
       <div class="user-info">
         <h2>{{ user?.username || 'Guest' }}</h2>
+        <span class="user-info__tag">
+          {{ user?.tag || '' }}
+        </span>
       </div>
     </div>
 
@@ -105,28 +109,18 @@ const maxVal = computed(() => {
 .user-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  align-items: center;
+  gap: 0px;
 
   h2 {
     margin: 0;
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
   }
 
-  .xp-details {
-    display: flex;
-    flex-direction: column;
-    font-size: 12px;
-  }
-
-  .xp-numbers {
-    font-weight: 500;
-    color: var(--color-text);
-  }
-
-  .xp-left {
-    color: #888;
-    font-size: 11px;
+  &__tag {
+    @include label-text(14px, none);
   }
 }
 </style>
