@@ -4,7 +4,7 @@
   padding: $padding;
 
   backdrop-filter: blur(38.4px) saturate(180%);
-  background: rgba(18, 24, 38, 0.45);
+  background: var(--bg-color-block);
 
   border: 0.5px solid rgba(255, 255, 255, 0.12);
 

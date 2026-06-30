@@ -8,10 +8,15 @@ interface UOption {
   icon?: string
 }
 
-const props = defineProps<{
+interface Props {
   label: string
   options: UOption[]
-}>()
+  parentPadding?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  parentPadding: 0,
+})
 
 const modal = defineModel<number | null>()
 const selectRef = ref<HTMLElement | null>(null)
@@ -47,6 +52,7 @@ onClickOutside(selectRef, () => {
     ref="selectRef"
     class="u-select"
     :class="{ 'is-open': dropDown }"
+    :style="{ '--u-select-offset': `${props.parentPadding}px` }"
     @click="visibleSelect"
   >
     <div
@@ -143,20 +149,16 @@ onClickOutside(selectRef, () => {
   }
 
   &__list {
+    @include glass-panel(18px, 8px, false);
     position: absolute;
+
+    left: calc(-1 * var(--u-select-offset));
+    width: calc(100% + (var(--u-select-offset) * 2));
     top: calc(100% + 24px);
-    width: 109%;
+
     z-index: 100;
-    border-radius: 18px;
     overflow: hidden;
-    backdrop-filter: blur(41.28px) saturate(180%);
-    background: oklch(0.16 0.04 220 / 0.95);
-    border: 0.5px solid rgba(255, 255, 255, 0.15);
-    box-shadow:
-      rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
-      rgba(0, 0, 0, 0.35) 0px 10px 30px;
-    padding: 8px;
-    left: -16px;
+    background: rgba(18, 24, 38, 1);
 
     &-wrapper {
       display: grid;

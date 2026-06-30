@@ -187,7 +187,7 @@ onUnmounted(() => {
   &__trigger {
     width: 100%;
     height: 180px;
-    background-color: #05141c;
+    background-color: var(--bg-color-block);
     border: 0.5px solid rgba(255, 255, 255, 0.12);
     border-radius: 24px;
     position: relative;

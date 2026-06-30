@@ -92,6 +92,7 @@ onMounted(() => {
           v-model="selectedCategoryId"
           label="Категория"
           :options="categoryOptions"
+          :parent-padding="14"
         />
       </div>
 

@@ -220,10 +220,7 @@ watch(model, (newVal) => {
 
 <style lang="scss" scoped>
 .dp-modal {
-  background: #0b111a;
   color: #fff;
-  border-radius: 24px;
-  padding: 20px;
   width: 100%;
   font-family:
     system-ui,

@@ -104,10 +104,7 @@ const displayEnd = computed(() => (endAt.value ? formatter.format(endAt.value) :
     flex-direction: column;
     align-items: flex-start;
     flex: 1 1 0%;
-    padding: 10px 12px;
-    border-radius: 12px;
-    background: oklch(0.2 0.03 220 / 0.5);
-    border: 0.5px solid rgba(255, 255, 255, 0.08);
+    @include glass-panel(12px, 10px 12px, false);
     cursor: pointer;
     transition: 150ms;
 
