@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Close } from '@vicons/ionicons5'
+import { useSwipe } from '@vueuse/core'
 import { NIcon } from 'naive-ui'
 import { useDialog } from '../models'
 
@@ -8,17 +9,37 @@ const {
   close,
   handleOverlayClick,
 } = useDialog()
+
+const containerRef = ref<HTMLElement | null>(null)
+const { lengthY, isSwiping, direction } = useSwipe(containerRef, {
+  onSwipeEnd() {
+    if (direction.value === 'down' && lengthY.value < -150) {
+      close()
+    }
+  },
+})
+
+const swipeStyle = computed(() => {
+  if (isSwiping.value && lengthY.value < 0) {
+    return {
+      transform: `translateY(${Math.abs(lengthY.value)}px)`,
+      transition: 'none',
+    }
+  }
+  return {}
+})
 </script>
 
 <template>
   <teleport to=".n-config-provider">
-    <transition
-      v-for="(dialog, index) in dialogs"
-      :key="dialog.id"
-      :name="dialog.options.transition || 'fade'"
-      appear
+    <transition-group
+      name="modal-fade"
+      tag="div"
     >
+      >
       <div
+        v-for="(dialog, index) in dialogs"
+        :key="dialog.id"
         class="modal-wrapper"
         :style="{
           '--modal-position': dialog.options.position,
@@ -27,13 +48,22 @@ const {
         @mousedown.self="() => handleOverlayClick(index)"
       >
         <div
+          ref="containerRef"
           class="modal-wrapper__container"
-          :style="{
-            '--modal-width': dialog.options?.width,
-            '--modal-height': dialog.options?.height,
-          }"
-          :class="dialog.options?.classModal"
+          :style="[
+            {
+              '--modal-width': dialog.options?.width,
+              '--modal-height': dialog.options?.height,
+            },
+            swipeStyle,
+          ]"
+          :class="[dialog.options?.classModal, dialog.options.transition]"
         >
+          <div
+            class="modal-wrapper__swipe-handle"
+            @click="close"
+          />
+
           <header
             v-if="dialog.options?.headerModal"
             class="modal-wrapper__header"
@@ -64,7 +94,7 @@ const {
           </main>
         </div>
       </div>
-    </transition>
+    </transition-group>
   </teleport>
 </template>
 
@@ -94,6 +124,8 @@ const {
 
     max-width: var(--modal-width);
     height: var(--modal-height);
+
+    touch-action: none;
   }
 
   &__header {
@@ -137,6 +169,7 @@ const {
     overflow-y: auto;
     flex-grow: 1;
     max-height: 90dvh;
+    touch-action: pan-y;
   }
 
   &__footer {
@@ -152,19 +185,18 @@ const {
   }
 }
 
-.slide-up-enter-active,
-.slide-up-leave-active {
+.modal-fade-enter-active,
+.modal-fade-leave-active {
   transition: opacity 0.3s ease;
-
   .modal-wrapper__container {
-    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
   }
 }
-.slide-up-enter-from,
-.slide-up-leave-to {
-  opacity: 0;
 
-  .modal-wrapper__container {
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+  .modal-wrapper__container.slide-up {
     transform: translateY(100%);
   }
 }
