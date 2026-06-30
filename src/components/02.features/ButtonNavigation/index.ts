@@ -1,1 +1,1 @@
-export { default } from './ui/ButtonNavigation.vue'
+export { default } from './ui/index.vue'

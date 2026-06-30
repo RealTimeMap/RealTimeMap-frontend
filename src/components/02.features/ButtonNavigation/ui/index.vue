@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import {
-  // ChatboxOutline,
+  ChatboxOutline,
   MapOutline,
   PersonOutline,
 } from '@vicons/ionicons5'
@@ -29,11 +29,12 @@ const navItems: NavItem[] = ([
     label: 'Карта',
     routeName: ['home-map'],
   },
-  // {
-  //   id: 'Chatbox',
-  //   icon: ChatboxOutline,
-  //   label: 'Чаты',
-  // },
+  {
+    id: 'Chatbox',
+    icon: ChatboxOutline,
+    label: 'Чаты',
+    routeName: ['chats'],
+  },
   {
     id: 'Person',
     icon: PersonOutline,

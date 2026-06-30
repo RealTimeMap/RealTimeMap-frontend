@@ -46,6 +46,16 @@ const routes = [
   },
 
   {
+    path: '/chats',
+    name: 'chats',
+    component: () => import('@/pages/ChatsPage.vue'),
+    meta: {
+      layout: 'default',
+      requiresAuth: true,
+    },
+  },
+
+  {
     path: '/oauth/google',
     name: 'google-auth-callback',
     component: AuthProcessingComponent,

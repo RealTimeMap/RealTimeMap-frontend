@@ -38,9 +38,11 @@ function centerOnUser() {
 
 <style lang="scss" scoped>
 .locate-button {
+  --base-bottom-offset: 130px;
+
   position: absolute;
   right: 20px;
-  bottom: 190px;
+  bottom: calc(var(--base-bottom-offset) + env(safe-area-inset-bottom, 0px));
   backdrop-filter: blur(38.4px) saturate(180%);
   width: 44px;
   height: 44px;

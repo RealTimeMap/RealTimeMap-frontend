@@ -11,6 +11,10 @@ body {
   overscroll-behavior: none;
 }
 
+main {
+  position: relative;
+}
+
 .u-block {
   position: relative;
   border-radius: 18px;
