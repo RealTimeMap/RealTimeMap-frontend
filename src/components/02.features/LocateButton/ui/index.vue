@@ -43,7 +43,6 @@ function centerOnUser() {
   position: absolute;
   right: 20px;
   bottom: calc(var(--base-bottom-offset) + env(safe-area-inset-bottom, 0px));
-  backdrop-filter: blur(38.4px) saturate(180%);
   width: 44px;
   height: 44px;
   border-radius: 20px;
