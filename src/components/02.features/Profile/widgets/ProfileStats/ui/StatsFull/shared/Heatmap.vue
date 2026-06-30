@@ -278,7 +278,6 @@ loadStats()
   left: 0;
   z-index: 10;
   width: 32px;
-  background: #0c111d;
   display: grid;
   grid-template-rows: repeat(7, 18px);
   gap: 4px;

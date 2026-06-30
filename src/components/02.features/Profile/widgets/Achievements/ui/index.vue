@@ -157,7 +157,7 @@ onMounted(loadAchievements)
 
 .achievements-wrapper {
   display: grid;
-  grid-template-columns: repeat(4, 78px);
+  grid-template-columns: repeat(4, 1fr);
   gap: 6px;
 }
 
@@ -168,6 +168,7 @@ onMounted(loadAchievements)
   justify-content: center;
   padding: 8px 4px;
   border-radius: 10px;
+  width: 100%;
 
   cursor: pointer;
   transition: all 0.2s ease-in-out;

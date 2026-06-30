@@ -36,7 +36,7 @@ export function useTheme() {
         '--access-color': '#82f00d',
         '--text-color': '#e9ecef',
         '--bg-color-soft': 'rgba(0, 0, 0, 0.55)',
-        '--u-modal-wrapper-bg': 'oklch(0.14 0.04 220 / 0.88)',
+        '--u-modal-wrapper-bg': 'rgba(18, 24, 38, 0.45)',
 
         '--border-radius-md': '20px',
 

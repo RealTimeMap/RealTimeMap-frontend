@@ -90,7 +90,6 @@ watch(() => props.target, () => {
   position: fixed;
   z-index: 9999;
   pointer-events: auto;
-  filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.5));
 
   &__content {
     @include glass-panel(14px, 12px, false);
