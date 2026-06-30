@@ -11,6 +11,7 @@ const {
 } = useDialog()
 
 const containerRef = ref<HTMLElement | null>(null)
+
 const { lengthY, isSwiping, direction } = useSwipe(containerRef, {
   onSwipeEnd() {
     if (direction.value === 'down' && lengthY.value < -150) {
@@ -19,15 +20,16 @@ const { lengthY, isSwiping, direction } = useSwipe(containerRef, {
   },
 })
 
-const swipeStyle = computed(() => {
-  if (isSwiping.value && lengthY.value < 0) {
+function getSwipeStyle(index: number) {
+  const isLast = index === dialogs.value.length - 1
+  if (isLast && isSwiping.value && lengthY.value < 0) {
     return {
       transform: `translateY(${Math.abs(lengthY.value)}px)`,
       transition: 'none',
     }
   }
   return {}
-})
+}
 </script>
 
 <template>
@@ -36,7 +38,6 @@ const swipeStyle = computed(() => {
       name="modal-fade"
       tag="div"
     >
-      >
       <div
         v-for="(dialog, index) in dialogs"
         :key="dialog.id"
@@ -48,14 +49,17 @@ const swipeStyle = computed(() => {
         @mousedown.self="() => handleOverlayClick(index)"
       >
         <div
-          ref="containerRef"
+          :ref="(el) => {
+            if (index === dialogs.length - 1)
+              containerRef = el as HTMLElement
+          }"
           class="modal-wrapper__container"
           :style="[
             {
               '--modal-width': dialog.options?.width,
               '--modal-height': dialog.options?.height,
             },
-            swipeStyle,
+            getSwipeStyle(index),
           ]"
           :class="[dialog.options?.classModal, dialog.options.transition]"
         >
