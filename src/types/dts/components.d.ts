@@ -28,6 +28,7 @@ declare module 'vue' {
     UInput: typeof import('./../../components/01.kit/UInput/index.ts')['default']
     UMarker: typeof import('./../../components/01.kit/UMarker/index.ts')['default']
     UModalWrapper: typeof import('./../../components/01.kit/UModalWrapper/index.ts')['default']
+    UNotificationItem: typeof import('./../../components/01.kit/UNotificationItem/index.ts')['default']
     UPloader: typeof import('./../../components/01.kit/UPloader/index.ts')['default']
     UseInput: typeof import('./../../components/01.kit/UInput/models/useInput.ts')['default']
     USelect: typeof import('./../../components/01.kit/USelect/index.ts')['default']

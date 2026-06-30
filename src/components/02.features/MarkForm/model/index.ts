@@ -1,8 +1,8 @@
 import type { MapPoint } from '@/types/shared/map'
 import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
-import { useMessage } from 'naive-ui'
 import { useGeocoding } from '@/composables/useGeocoding'
 import { useDialogStore } from '@/shared/stores/dialog'
+import { useNotificationStore } from '@/shared/stores/notification'
 import { markApi } from '@/utils/mark'
 
 export function useMarkAdd(coords: MapPoint) {
@@ -10,7 +10,7 @@ export function useMarkAdd(coords: MapPoint) {
 
   // --- Stores & Hooks ---
   const { close } = useDialogStore()
-  const message = useMessage()
+  const notify = useNotificationStore()
 
   // --- State ---
   const markName = ref('')
@@ -49,7 +49,11 @@ export function useMarkAdd(coords: MapPoint) {
     }
     catch (err) {
       console.error('Error fetching mark creation data:', err)
-      message.error('Не удалось загрузить списки категорий')
+      notify.add({
+        title: 'Нет категорий',
+        description: 'Не удалось загрузить списки категорий',
+        type: 'error',
+      })
     }
     finally {
       isLoadingData.value = false
@@ -59,16 +63,29 @@ export function useMarkAdd(coords: MapPoint) {
   // --- Handlers ---
   async function handleSubmit() {
     if (!coords) {
-      message.error('Координаты метки не найдены')
+      notify.add({
+        title: 'Ошибка',
+        description: 'Координаты не определены',
+        type: 'error',
+      })
       return
     }
 
     if (!markName.value) {
-      message.warning('Пожалуйста, введите название метки')
+      notify.add({
+        title: 'Внимание',
+        description: 'Введите название метки',
+        type: 'warning',
+      })
       return
     }
+
     if (!selectedCategoryId.value) {
-      message.warning('Пожалуйста, выберите категорию')
+      notify.add({
+        title: 'Внимание',
+        description: 'Выберите категорию',
+        type: 'warning',
+      })
       return
     }
 
@@ -102,12 +119,20 @@ export function useMarkAdd(coords: MapPoint) {
 
       await markApi.postMarkAdd(formData)
 
-      message.success('Метка успешно создана')
+      notify.add({
+        title: 'Метка опубликована',
+        description: 'Ваша история теперь видна всем пользователям на карте',
+        type: 'success',
+      })
       close()
     }
     catch (e) {
       console.error(e)
-      message.error('Ошибка при создании метки')
+      notify.add({
+        title: 'Не удалось создать метку',
+        description: 'Проверьте соединение и попробуйте снова',
+        type: 'error',
+      })
     }
     finally {
       isSubmitting.value = false
