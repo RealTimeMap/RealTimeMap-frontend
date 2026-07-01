@@ -10,6 +10,7 @@ import {
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useSettingsStore } from './components/02.features/AppSettings/model/settings'
+import { useNotificationStore } from './shared/stores/notification'
 
 const layouts = {
   empty: EmptyLayout,
@@ -20,6 +21,12 @@ const route = useRoute()
 const layoutComponent = computed(() => {
   const layoutName = route.meta.layout as keyof typeof layouts || 'empty'
   return layouts[layoutName] || EmptyLayout
+})
+
+const notificationStore = useNotificationStore()
+
+onMounted(async () => {
+  await notificationStore.requestPermissions()
 })
 
 const settingsStore = useSettingsStore()

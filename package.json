@@ -26,6 +26,7 @@
     "@capacitor/android": "^8.4.1",
     "@capacitor/core": "^8.4.1",
     "@capacitor/ios": "^8.4.1",
+    "@capacitor/local-notifications": "^8.2.0",
     "@iconify/vue": "^5.0.0",
     "@types/maplibre-gl": "^1.14.0",
     "@vicons/ionicons5": "^0.13.0",
