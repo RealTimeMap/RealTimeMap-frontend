@@ -113,12 +113,10 @@ onMounted(() => {
         </div>
       </div>
 
-      <div class="">
-        <mark-period
-          :date="mark.date"
-          :meta="mark.meta"
-        />
-      </div>
+      <mark-period
+        :date="mark.date"
+        :meta="mark.meta"
+      />
 
       <div class="block owner-block">
         <img

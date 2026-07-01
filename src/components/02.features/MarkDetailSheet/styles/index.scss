@@ -332,7 +332,7 @@
 }
 
 .action-item {
-  @include glass-panel(999px, 8px 14px);
+  @include glass-panel(999px, 8px 14px, false);
   background: none;
   border: none;
   display: flex;
@@ -344,11 +344,6 @@
 
   span {
     @include value-text();
-  }
-
-  &:hover {
-    opacity: 0.7;
-    transform: scale(1.05);
   }
 
   &:active {

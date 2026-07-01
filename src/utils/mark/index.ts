@@ -6,6 +6,8 @@ import type {
   MarkCommentResponse,
   MarkCreateResponse,
   MarkFull,
+  MyMarkPayload,
+  MyMarkResponse,
 } from './index.type'
 import { getCookie } from '@/shared/lib/cookie'
 
@@ -19,14 +21,18 @@ export const markApi = {
   postMarkAdd: (payload: MarkAddPayload | FormData) =>
     apiService.post<Mark>('/marks/create', payload, {
       headers: {
-        // 'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${getCookie('token')}`,
       },
     }),
 
   getMarkComments: (id: number) =>
-    apiService.get<MarkCommentResponse>(`/${id}/comments/?entity=mark`),
+    apiService.get<MarkCommentResponse>(`/${id}/comments/`, {
+      params: { entity: 'mark' },
+    }),
 
   postMarkComment: (payload: MarkCommentPayload) =>
     apiService.post<MarkComment>(`/comments`, payload),
+
+  getMyMark: ({ userid, ...params }: MyMarkPayload) =>
+    apiService.get<MyMarkResponse>(`/marks/${userid}/list`, { params }),
 }

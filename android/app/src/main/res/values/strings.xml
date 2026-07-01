@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">realtime-map</string>
+    <string name="title_activity_main">realtime-map</string>
+    <string name="package_name">app.vercel.realtimemap</string>
+    <string name="custom_url_scheme">app.vercel.realtimemap</string>
+</resources>

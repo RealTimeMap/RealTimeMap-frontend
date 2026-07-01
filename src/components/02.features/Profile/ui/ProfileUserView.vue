@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { NAvatar } from 'naive-ui'
+// import { markApi } from '@/utils/mark'
 import { useAuthStore } from '../../Authentication/models/auth'
 import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
@@ -13,6 +14,24 @@ const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
   return gameStats.value?.progressPercent
 })
+
+// const myMarks = ref()
+
+// async function getMyMark() {
+//   try {
+//     const data = await markApi.getMyMark({
+//       userid: user.value?.userId,
+//       page: 1,
+//       pageSize: 4,
+//     })
+//     myMarks.value = data.items
+//   }
+//   catch (e) {
+//     console.error(e)
+//   }
+// }
+
+// getMyMark()
 </script>
 
 <template>
@@ -66,6 +85,10 @@ const maxVal = computed(() => {
         :user-id="user?.userId"
       />
     </div>
+
+    <!-- <div class="">
+      {{ myMarks }}
+    </div> -->
 
     <div class="button-logout">
       <u-icon

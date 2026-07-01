@@ -29,6 +29,22 @@ interface Author {
   tag: string
 }
 
+export interface MyMarkPayload {
+  userid: number
+  page: number
+  pageSize: number
+}
+
+export interface MyMarkResponse {
+  items: Mark[]
+  page: number
+  pageSize: number
+  totalPages: number
+  total: number
+  hasNext: boolean
+  hasPrev: boolean
+}
+
 export interface Mark {
   id: number
   markName: string

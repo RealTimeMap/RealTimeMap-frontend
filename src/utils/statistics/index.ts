@@ -4,6 +4,7 @@ interface Endpoints {
   summary: StatsSummary
   monthly: StatsMonthy[]
   heatmap: StatsHeatmap
+  // categories: StatsCategories
 }
 
 export const statisticsApi = {

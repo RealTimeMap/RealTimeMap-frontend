@@ -14,6 +14,7 @@
     "preview": "vite preview",
     "build-only": "vite build",
     "type-check": "vue-tsc --build",
+    "apk-build": "bun run build && bunx cap sync",
     "--------------------------------------------------------------------------------": "",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -22,6 +23,9 @@
     "postinstall": "simple-git-hooks"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/ios": "^8.4.1",
     "@iconify/vue": "^5.0.0",
     "@types/maplibre-gl": "^1.14.0",
     "@vicons/ionicons5": "^0.13.0",
@@ -39,6 +43,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^8.2.0",
+    "@capacitor/cli": "^8.4.1",
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "^25.6.0",
     "@unocss/eslint-plugin": "^66.6.8",
