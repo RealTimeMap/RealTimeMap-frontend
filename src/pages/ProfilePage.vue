@@ -15,12 +15,12 @@ import ProfileUserView from '@/components/02.features/Profile/ui/ProfileUserView
 .profile {
   min-height: 100dvh;
   width: 100%;
-  display: flex;
-  flex-direction: column;
-  // justify-content: center;
-  align-items: center;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+
   inset: 0px;
-  overflow: auto;
   background: linear-gradient(oklch(0.16 0.04 220) 0%, oklch(0.09 0.02 220) 60%);
   color: rgb(255, 255, 255);
 
@@ -39,6 +39,7 @@ import ProfileUserView from '@/components/02.features/Profile/ui/ProfileUserView
 
   &-container {
     padding-top: 60px;
+    padding-bottom: 140px;
     width: 100%;
   }
 }

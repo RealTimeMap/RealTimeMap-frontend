@@ -102,9 +102,11 @@ const maxVal = computed(() => {
 
 <style lang="scss" scoped>
 .user-profile-view {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-width: 400px;
 
   &__header {
     display: flex;
