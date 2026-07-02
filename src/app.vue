@@ -12,6 +12,7 @@ import NotificationProvider from '@/components/02.features/NotificationProvider/
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useSettingsStore } from './components/02.features/AppSettings/model/settings'
+import { initUpdateChecker } from './components/02.features/AppUpdate'
 import { useNotificationStore } from './shared/stores/notification'
 
 const layouts = {
@@ -29,6 +30,7 @@ const notificationStore = useNotificationStore()
 
 onMounted(async () => {
   await notificationStore.requestPermissions()
+  initUpdateChecker()
 })
 
 const settingsStore = useSettingsStore()

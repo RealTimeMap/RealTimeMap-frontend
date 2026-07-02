@@ -10,6 +10,10 @@ export interface Notification {
   icon?: string
   type: NotificationType
   duration?: number
+  action?: {
+    callback: () => void
+    text: string
+  }
 }
 
 export const useNotificationStore = defineStore('notification', () => {

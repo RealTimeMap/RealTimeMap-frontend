@@ -62,6 +62,17 @@ const defaultIcons = {
       >
         {{ item.description }}
       </p>
+      <div
+        v-if="item.action"
+        class="action-wrapper"
+      >
+        <button
+          class="action-btn"
+          @click="item.action.callback"
+        >
+          {{ item.action.text }}
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -136,6 +147,31 @@ const defaultIcons = {
       @include label-text(12px, none, rgba(255, 255, 255, 0.6));
       line-height: 1.3;
     }
+  }
+}
+
+.action-wrapper {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.action-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  &:active {
+    transform: scale(0.95);
   }
 }
 </style>

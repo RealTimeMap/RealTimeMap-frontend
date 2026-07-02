@@ -23,8 +23,11 @@
     "postinstall": "simple-git-hooks"
   },
   "dependencies": {
+    "@capacitor-community/file-opener": "^8.0.1",
     "@capacitor/android": "^8.4.1",
     "@capacitor/core": "^8.4.1",
+    "@capacitor/file-transfer": "^2.0.4",
+    "@capacitor/filesystem": "^8.1.2",
     "@capacitor/ios": "^8.4.1",
     "@capacitor/local-notifications": "^8.2.0",
     "@iconify/vue": "^5.0.0",
