@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import BottomNavigation from '@/components/02.features/ButtonNavigation'
 import { useAuthStore } from '../02.features/Authentication/models/auth'
-import NotificationProvider from '../02.features/NotificationProvider/index'
 import ShareRender from '../02.features/Share/index'
 
 const authStore = useAuthStore()
@@ -38,7 +37,6 @@ onMounted(() => {
       <bottom-navigation />
     </footer>
 
-    <notification-provider />
     <u-modal-wrapper />
     <share-render />
   </div>

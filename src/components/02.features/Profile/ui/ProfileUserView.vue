@@ -106,7 +106,9 @@ const maxVal = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 90%;
   max-width: 400px;
+  margin: 0 auto;
 
   &__header {
     display: flex;

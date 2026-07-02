@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ProfileFormView from '@/components/02.features/Authentication/ui/ProfileFormView.vue'
+import ProfileFormView from '@/components/02.features/Authentication/index'
 </script>
 
 <template>
@@ -17,12 +17,12 @@ import ProfileFormView from '@/components/02.features/Authentication/ui/ProfileF
       </div>
       <profile-form-view />
 
-      <!-- <div class="">
+      <div class="">
         Нет аккаунта?
         <router-link to="/registration">
           Зарегистрироваться
         </router-link>
-      </div> -->
+      </div>
     </div>
   </div>
 </template>
@@ -91,22 +91,21 @@ import ProfileFormView from '@/components/02.features/Authentication/ui/ProfileF
   height: 100%;
   min-height: 100dvh;
   gap: 30px;
+  max-width: 400px;
+  width: 90%;
+  margin: 0 auto;
 
   &__heading {
     text-align: center;
     max-width: 340px;
 
     h1 {
-      font-size: 28px;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      color: white;
+      @include value-text(28px, white);
     }
 
     span {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.6);
-      line-height: 1.4;
+      @include label-text(14px, none, rgba(255, 255, 255, 0.6));
+      letter-spacing: normal;
     }
   }
 }

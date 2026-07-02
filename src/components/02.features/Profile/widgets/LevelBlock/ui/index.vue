@@ -70,8 +70,7 @@ const remainingXp = computed(() => {
 <style scoped lang="scss">
 .level-card {
   @include glass-panel(20px, 14px);
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 12px;

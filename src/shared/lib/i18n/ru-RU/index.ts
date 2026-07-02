@@ -64,7 +64,7 @@ export default {
 
   validation: {
     required: 'Поле обязательно для заполнения',
-    minLength: 'Минимум 6 символов',
+    minLength: 'Минимум {count} символов',
     invalidEmail: 'Пожалуйста, введите действительный адрес электронной почты',
   },
 

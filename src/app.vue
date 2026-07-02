@@ -7,6 +7,8 @@ import {
   NMessageProvider,
   NNotificationProvider,
 } from 'naive-ui'
+
+import NotificationProvider from '@/components/02.features/NotificationProvider/index'
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useSettingsStore } from './components/02.features/AppSettings/model/settings'
@@ -50,5 +52,6 @@ const settingsStore = useSettingsStore()
       </n-message-provider>
     </n-loading-bar-provider>
     <n-global-style />
+    <notification-provider />
   </n-config-provider>
 </template>

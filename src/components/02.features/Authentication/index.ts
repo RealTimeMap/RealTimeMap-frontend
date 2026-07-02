@@ -1,1 +1,1 @@
-export { default } from './ui/ProfileFormView.vue'
+export { default } from './ui/LoginForm/index.vue'

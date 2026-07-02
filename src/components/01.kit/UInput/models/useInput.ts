@@ -7,6 +7,7 @@ export interface UInputProps {
   errorMessage?: string
   loading?: boolean
   disabled?: boolean
+  icon?: string
 }
 
 export function useInput(

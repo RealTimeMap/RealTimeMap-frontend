@@ -41,8 +41,7 @@ function handleOpenStats() {
 
 <style lang="scss" scoped>
 .stats-container {
-  width: 90%;
-  max-width: 400px;
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 8px;

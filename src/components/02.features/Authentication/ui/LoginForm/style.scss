@@ -1,0 +1,22 @@
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+  width: 100%;
+
+  &__body {
+    @include glass-panel(22px, 6px 14px);
+    :deep(.u-input) {
+      padding: 14px 2px;
+    }
+  }
+
+  .button__link {
+    width: max-content;
+    margin-left: auto;
+    background: none;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+}

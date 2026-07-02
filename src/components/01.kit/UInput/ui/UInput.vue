@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<UInputProps>(), {
   errorMessage: '',
   loading: false,
   disabled: false,
+  icon: undefined,
 })
 
 const emit = defineEmits<{
@@ -45,6 +46,13 @@ const {
         'is-disabled': isDisabled,
       }"
     >
+      <u-icon
+        v-if="icon"
+        :icon="icon"
+        class="left-icon"
+        height="18"
+        width="18"
+      />
       <input
         v-bind="attrs"
         :id="inputId"
@@ -123,14 +131,17 @@ const {
   position: relative;
   width: 100%;
   font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .left-icon {
+    color: rgba(255, 255, 255, 0.5);
+  }
 
   &.has-error {
     .u-input {
-      border: 1px solid var(--error-color, #e74c3c);
-
-      &:focus {
-        border: 1px solid var(--error-color, #e74c3c);
-      }
+      color: var(--error-color, #e74c3c);
     }
 
     .u-input-label {
@@ -222,12 +233,12 @@ const {
 .u-input-loading {
   position: absolute;
   right: 0;
-  bottom: 8px;
+  bottom: 15px;
   background: none;
   border: none;
   cursor: pointer;
   padding: 0;
-  color: var(--n-text-color-disabled, #aaa);
+  color: rgba(255, 255, 255, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;

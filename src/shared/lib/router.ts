@@ -28,7 +28,7 @@ const routes = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/pages/LoginPage.vue'),
+    component: () => import('@/pages/AuthPage.vue'),
     meta: {
       layout: 'default',
       guestOnly: true,
