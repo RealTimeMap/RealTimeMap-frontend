@@ -1,7 +1,7 @@
 {
   "name": "realtime-map",
   "type": "module",
-  "version": "0.0.2",
+  "version": "0.0.2-0.0.1",
   "private": true,
   "description": "A public map where users can leave anonymous or signed messages that are displayed in real time. All events are associated with coordinates and are visible to other users on the map.",
   "productName": "RealTime Map",
