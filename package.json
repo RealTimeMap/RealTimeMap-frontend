@@ -1,7 +1,7 @@
 {
   "name": "realtime-map",
   "type": "module",
-  "version": "0.0.1-0.1",
+  "version": "0.0.2",
   "private": true,
   "description": "A public map where users can leave anonymous or signed messages that are displayed in real time. All events are associated with coordinates and are visible to other users on the map.",
   "productName": "RealTime Map",
@@ -35,6 +35,7 @@
     "@vicons/ionicons5": "^0.13.0",
     "@vueuse/core": "^14.2.1",
     "axios": "^1.13.4",
+    "compare-versions": "^6.1.1",
     "html-to-image": "^1.11.13",
     "lint-staged": "^16.2.7",
     "maplibre-gl": "^5.24.0",

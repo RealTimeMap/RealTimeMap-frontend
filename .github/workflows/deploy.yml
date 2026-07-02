@@ -43,7 +43,7 @@ jobs:
           cd android && ./gradlew assembleDebug
 
       - name: Extract Version from package.json
-        id: get_version
+        id: read_version
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "APP_VERSION=$VERSION" >> $GITHUB_OUTPUT
@@ -51,9 +51,9 @@ jobs:
       - name: Create GitHub Release
         uses: ncipollo/release-action@v1
         with:
+          tag: v${{ steps.read_version.outputs.APP_VERSION }}
+          name: Release v${{ steps.read_version.outputs.APP_VERSION }}
           artifacts: android/app/build/outputs/apk/debug/app-debug.apk
-          tag: 'v${{ steps.get_version.outputs.APP_VERSION }}'
-          name: 'Release v${{ steps.get_version.outputs.APP_VERSION }}'
           body: Новая версия приложения. Что-то исправили, что-то сломали!
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true

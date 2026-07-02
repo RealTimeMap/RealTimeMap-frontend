@@ -4,6 +4,7 @@ import autoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
+import pkg from './package.json'
 
 export default defineConfig({
   plugins: [
@@ -40,6 +41,10 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+
+  define: {
+    __APP_VERSION__: JSON.stringify(pkg.version),
   },
 
   css: {

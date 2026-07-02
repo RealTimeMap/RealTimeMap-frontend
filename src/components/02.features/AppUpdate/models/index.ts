@@ -1,8 +1,9 @@
 import { FileOpener } from '@capacitor-community/file-opener'
 import { Directory, Filesystem } from '@capacitor/filesystem'
+import { compareVersions } from 'compare-versions'
 import { useNotificationStore } from '@/shared/stores/notification'
 
-const CURRENT_VERSION = '1.0.0'
+declare const __APP_VERSION__: string
 const GITHUB_REPO = 'RealTimeMap/RealTimeMap-frontend'
 
 export async function initUpdateChecker() {
@@ -14,11 +15,11 @@ export async function initUpdateChecker() {
       return
 
     const latestRelease = await response.json()
-    const latestVersion = latestRelease.tag_name.replace('v', '')
+    const latestVersion = latestRelease.tag_name.replace(/[^\d.]/g, '')
 
-    if (latestVersion === CURRENT_VERSION)
+    if (!compareVersions(latestVersion, __APP_VERSION__)) {
       return
-
+    }
     const apkAsset = latestRelease.assets.find((asset: any) => asset.name.endsWith('.apk'))
     if (!apkAsset)
       return
