@@ -20,15 +20,18 @@ export async function initUpdateChecker() {
     if (!compareVersions(latestVersion, __APP_VERSION__)) {
       return
     }
-    const apkAsset = latestRelease.assets.find((asset: any) => asset.name.endsWith('.apk'))
+    const apkAsset = latestRelease.assets.find(
+      (asset: any) => asset.name.endsWith('.apk'),
+    )
     if (!apkAsset)
       return
 
     notify.add({
       title: `Доступно обновление v${latestVersion}`,
       description: latestRelease.body || 'Установите новую версию приложения для стабильной работы.',
-      type: 'info',
+      type: 'default',
       icon: 'solar:download-square-bold',
+      duration: 0,
       action: {
         text: 'Обновить',
         callback: () => {

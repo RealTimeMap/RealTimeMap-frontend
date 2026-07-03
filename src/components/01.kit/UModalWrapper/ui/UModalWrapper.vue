@@ -1,35 +1,17 @@
 <script setup lang="ts">
 import { Close } from '@vicons/ionicons5'
-import { useSwipe } from '@vueuse/core'
 import { NIcon } from 'naive-ui'
 import { useDialog } from '../models'
+
+const swipeZoneRef = ref<HTMLElement | null>(null)
 
 const {
   dialogs,
   close,
   handleOverlayClick,
-} = useDialog()
-
-const containerRef = ref<HTMLElement | null>(null)
-
-const { lengthY, isSwiping, direction } = useSwipe(containerRef, {
-  onSwipeEnd() {
-    if (direction.value === 'down' && lengthY.value < -150) {
-      close()
-    }
-  },
-})
-
-function getSwipeStyle(index: number) {
-  const isLast = index === dialogs.value.length - 1
-  if (isLast && isSwiping.value && lengthY.value < 0) {
-    return {
-      transform: `translateY(${Math.abs(lengthY.value)}px)`,
-      transition: 'none',
-    }
-  }
-  return {}
-}
+  getSwipeStyle,
+  handleBodyScroll,
+} = useDialog(swipeZoneRef)
 </script>
 
 <template>
@@ -51,7 +33,7 @@ function getSwipeStyle(index: number) {
         <div
           :ref="(el) => {
             if (index === dialogs.length - 1)
-              containerRef = el as HTMLElement
+              swipeZoneRef = el as HTMLElement
           }"
           class="modal-wrapper__container"
           :style="[
@@ -64,33 +46,38 @@ function getSwipeStyle(index: number) {
           :class="[dialog.options?.classModal, dialog.options.transition]"
         >
           <div
-            class="modal-wrapper__swipe-handle"
-            @click="close"
-          />
-
-          <header
-            v-if="dialog.options?.headerModal"
-            class="modal-wrapper__header"
+            class="modal-wrapper__swipe-zone"
           >
-            <h3 class="modal-wrapper__title">
-              {{ dialog.options?.title }}
-            </h3>
-            <button
-              v-if="dialog.options?.closeable"
-              class="modal-wrapper__close-btn"
-              aria-label="Закрыть модальное окно"
+            <div
+              class="modal-wrapper__heading"
               @click="close"
+            />
+
+            <header
+              v-if="dialog.options?.headerModal"
+              class="modal-wrapper__header"
             >
-              <n-icon
-                :component="Close"
-                size="24"
-              />
-            </button>
-          </header>
+              <h3 class="modal-wrapper__title">
+                {{ dialog.options?.title }}
+              </h3>
+              <button
+                v-if="dialog.options?.closeable"
+                class="modal-wrapper__close-btn"
+                aria-label="Закрыть модальное окно"
+                @click="close"
+              >
+                <n-icon
+                  :component="Close"
+                  size="24"
+                />
+              </button>
+            </header>
+          </div>
 
-          <div class="modal-wrapper__heading" />
-
-          <main class="modal-wrapper__body">
+          <main
+            class="modal-wrapper__body"
+            @scroll="handleBodyScroll"
+          >
             <component
               :is="dialog.component"
               v-bind="dialog.props"
@@ -129,7 +116,7 @@ function getSwipeStyle(index: number) {
     max-width: var(--modal-width);
     height: var(--modal-height);
 
-    touch-action: none;
+    touch-action: pan-y;
   }
 
   &__header {
@@ -156,6 +143,20 @@ function getSwipeStyle(index: number) {
 
     &:hover {
       color: #333;
+    }
+  }
+
+  &__swipe-zone {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    flex-shrink: 0;
+
+    &:active {
+      cursor: grabbing;
     }
   }
 
