@@ -1,5 +1,7 @@
 import type { MarksRequestPayload } from '@/types/socketEvents'
 import type { Cluster, Mark, MarksOrClusterResponse } from '@/utils/mark/index.type'
+import { Network } from '@capacitor/network'
+import { Preferences } from '@capacitor/preferences'
 import { useWebSocket } from '@/composables/useWebSocket'
 
 const MARKS_NAMESPACE = '/marks'
@@ -13,8 +15,56 @@ export function useMarksSocket() {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  const fetchMarks = (params: MarksRequestPayload) => {
+  const generateCacheKey = (screen: MarksRequestPayload['screen'], zoom: number) => {
+    if (!screen)
+      return null
+    const ltLat = screen.leftTop.lat.toFixed(2)
+    const ltLon = screen.leftTop.lon.toFixed(2)
+    const rbLat = screen.rightBottom.lat.toFixed(2)
+    const rbLon = screen.rightBottom.lon.toFixed(2)
+    return `map_cache_${ltLat}_${ltLon}_${rbLat}_${rbLon}_z${zoom}`
+  }
+
+  const fetchMarks = async (params: MarksRequestPayload) => {
     const socketState = getSocketState(MARKS_NAMESPACE)
+    const networkStatus = await Network.getStatus()
+
+    const isOffline = !socketState?.isConnected || networkStatus.connectionType === 'none' || networkStatus.connectionType === 'unknown'
+    const cacheKey = generateCacheKey(params.screen, params.zoomLevel)
+    if (isOffline) {
+      if (!cacheKey)
+        return
+
+      isLoading.value = true
+      try {
+        const { value } = await Preferences.get({ key: cacheKey })
+        if (value) {
+          const cachedData = JSON.parse(value)
+          marks.value = cachedData.marks || []
+          clusters.value = cachedData.clusters || []
+          error.value = null
+        }
+        else {
+          const { value: lastGlobal } = await Preferences.get({ key: 'map_last_visible_marks' })
+          if (lastGlobal) {
+            const globalData = JSON.parse(lastGlobal)
+            marks.value = globalData.marks || []
+            clusters.value = globalData.clusters || []
+          }
+          else {
+            error.value = 'Данные карты недоступны без интернета.'
+          }
+        }
+      }
+      catch (e) {
+        console.error('[Cache Read Error]', e)
+      }
+      finally {
+        isLoading.value = false
+      }
+      return
+    }
+
     if (!socketState?.isConnected) {
       const errorMessage = '[Marks] Невозможно запросить метки: сокет не подключен.'
       console.error(errorMessage)
@@ -24,7 +74,7 @@ export function useMarksSocket() {
 
     isLoading.value = true
     error.value = null
-    emit(MARKS_NAMESPACE, 'message', params, (res: MarksOrClusterResponse) => {
+    emit(MARKS_NAMESPACE, 'message', params, async (res: MarksOrClusterResponse) => {
       isLoading.value = false
 
       if ('marks' in res) {
@@ -34,6 +84,24 @@ export function useMarksSocket() {
       else if ('cluster' in res) {
         clusters.value = res.cluster
         marks.value = []
+      }
+
+      if (cacheKey) {
+        const dataToCache = { marks: marks.value, clusters: clusters.value }
+
+        try {
+          await Preferences.set({
+            key: cacheKey,
+            value: JSON.stringify(dataToCache),
+          })
+          await Preferences.set({
+            key: 'map_last_visible_marks',
+            value: JSON.stringify(dataToCache),
+          })
+        }
+        catch (e) {
+          console.error('[Cache Write Error]', e)
+        }
       }
     })
   }
@@ -45,11 +113,6 @@ export function useMarksSocket() {
       marks.value.push(newMark)
     }
   }
-
-  // const handleGetMarks = (receivedMarks: Mark[]) => {
-  //   marks.value = receivedMarks
-  //   isLoading.value = false
-  // }
 
   const unsubscribes = [
     // on(MARKS_NAMESPACE, 'marksGet', handleGetMarks),

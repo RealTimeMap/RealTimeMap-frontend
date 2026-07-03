@@ -3,6 +3,7 @@ import vue from '@vitejs/plugin-vue'
 import autoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import pkg from './package.json'
 
@@ -35,6 +36,28 @@ export default defineConfig({
         /[\\/]\.git[\\/]/,
         /[\\/]models[\\/]/,
       ],
+    }),
+
+    VitePWA({
+      registerType: 'autoUpdate',
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/basemaps\.cartocdn\.com\/.*$/,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'carto-map-tiles',
+              expiration: {
+                maxEntries: 500,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
+      },
     }),
   ],
   resolve: {

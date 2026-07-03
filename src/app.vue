@@ -13,6 +13,7 @@ import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useSettingsStore } from './components/02.features/AppSettings/model/settings'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
+import { useNetworkWatch } from './composables/useNetworkWatch'
 import { useNotificationStore } from './shared/stores/notification'
 
 const layouts = {
@@ -27,10 +28,12 @@ const layoutComponent = computed(() => {
 })
 
 const notificationStore = useNotificationStore()
+const { initNetworkListener } = useNetworkWatch()
 
 onMounted(async () => {
   await notificationStore.requestPermissions()
   initUpdateChecker()
+  initNetworkListener()
 })
 
 const settingsStore = useSettingsStore()

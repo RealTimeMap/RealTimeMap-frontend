@@ -3,7 +3,6 @@ import type { Map } from 'maplibre-gl'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useDialogStore } from '@/shared/stores/dialog'
-// import { AddMarkMode } from '../components/02.features/AddMarkMode'
 import { useAuthStore } from '../components/02.features/Authentication/models/auth'
 import { GeolocationFeedback } from '../components/02.features/Geolocation'
 import { useGeolocation } from '../components/02.features/Geolocation/composables/useGeolocation'
@@ -90,7 +89,6 @@ watch(userPosition, (newPos) => {
         :draggable="false"
         :media="user?.avatar || 'https://avatars.githubusercontent.com/u/71484693?v=4'"
       />
-      <!-- <add-mark-mode /> -->
     </base-map-view>
 
     <locate-button

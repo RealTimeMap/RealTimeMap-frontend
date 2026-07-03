@@ -58,6 +58,6 @@ jobs:
           tag: v${{ steps.read_version.outputs.APP_VERSION }}
           name: Release v${{ steps.read_version.outputs.APP_VERSION }}
           artifacts: android/app/build/outputs/apk/debug/app-debug.apk
-          body: Новая версия приложения. Что-то исправили, что-то сломали!
+          body: Добавлено кэширование меток и карты. Что-то точно могло сломаться!
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true

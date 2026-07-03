@@ -1,6 +1,6 @@
 import type { Ref } from 'vue'
 import type { MarkComment, MarkCommentPayload, MarkFull } from '@/utils/mark/index.type'
-import { useMessage } from 'naive-ui'
+import { Preferences } from '@capacitor/preferences'
 import { useGeocoding } from '@/composables/useGeocoding'
 import { markApi } from '@/utils/mark'
 
@@ -8,7 +8,6 @@ export function useMarkDetail(
   markId: number,
   scrollContainerRef: Ref<HTMLElement | null>,
 ) {
-  const message = useMessage()
   const { address, fetchAddress } = useGeocoding()
 
   // --- Data State ---
@@ -22,6 +21,8 @@ export function useMarkDetail(
   const commentText = ref('')
   const isSending = ref(false)
 
+  const cacheKey = `mark_detail_${markId}`
+
   async function fetchData() {
     error.value = null
     comments.value = []
@@ -31,8 +32,8 @@ export function useMarkDetail(
     }
 
     try {
+      isLoading.value = true
       if (!mark.value) {
-        isLoading.value = true
         const data = await markApi.getMarkFull(markId)
         marksCache.set(markId, data)
         mark.value = data
@@ -44,10 +45,37 @@ export function useMarkDetail(
 
       const dataComments = await markApi.getMarkComments(markId)
       comments.value = dataComments.items.reverse()
+
+      await Preferences.set({
+        key: cacheKey,
+        value: JSON.stringify({
+          mark: mark.value,
+          comments: comments.value,
+        }),
+      })
     }
     catch (e) {
-      console.error(e)
-      error.value = 'Ошибка загрузки данных.'
+      console.error('[Mark Detail] Сеть недоступна, пытаемся поднять локальный кэш...', e)
+
+      try {
+        const { value } = await Preferences.get({ key: cacheKey })
+        if (value) {
+          const cached = JSON.parse(value)
+          mark.value = cached.mark
+          comments.value = cached.comments
+
+          if (mark.value?.geom?.coordinates) {
+            fetchAddress(mark.value.geom.coordinates).catch(() => {})
+          }
+        }
+        else {
+          error.value = 'Данные метки недоступны без интернета.'
+        }
+      }
+      catch (cacheError) {
+        console.error('[Mark Detail Cache Error]', cacheError)
+        error.value = 'Ошибка загрузки данных.'
+      }
     }
     finally {
       isLoading.value = false
@@ -81,15 +109,21 @@ export function useMarkDetail(
 
       comments.value.push(newComment)
 
+      await Preferences.set({
+        key: cacheKey,
+        value: JSON.stringify({
+          mark: mark.value,
+          comments: comments.value,
+        }),
+      })
+
       commentText.value = ''
-      message.success('Комментарий отправлен')
 
       await nextTick()
       scrollToBottom()
     }
     catch (e) {
       console.error(e)
-      message.error('Не удалось отправить комментарий')
     }
     finally {
       isSending.value = false
