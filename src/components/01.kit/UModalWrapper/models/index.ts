@@ -78,17 +78,22 @@ export function useDialog(swipeZoneRef: Ref<HTMLElement | null>) {
           transition: 'transform 0.2s cubic-bezier(0.32, 0.94, 0.6, 1)',
         }
       }
+
       if (isSwiping.value && translateY.value > 0) {
         return {
           transform: `translateY(${translateY.value}px)`,
           transition: 'none',
         }
       }
-      return {
-        transform: 'translateY(0px)',
-        transition: 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)',
+
+      if (translateY.value > 0) {
+        return {
+          transform: 'translateY(0px)',
+          transition: 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1)',
+        }
       }
     }
+
     return {}
   }
 
