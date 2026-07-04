@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { NAvatar } from 'naive-ui'
 // import { markApi } from '@/utils/mark'
 import { useAuthStore } from '../../Authentication/models/auth'
 import Achievements from '../widgets/Achievements/index'
@@ -11,27 +10,12 @@ const emit = defineEmits<{
 }>()
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
-// --- БИЗНЕС-ЛОГИКА ---
+
 const gameStats = computed(() => user.value?.gamification)
 const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
   return gameStats.value?.progressPercent
 })
-
-function extractAverageColor(imgElement: HTMLImageElement) {
-  const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-  if (!ctx)
-    return
-
-  canvas.width = 1
-  canvas.height = 1
-
-  ctx.drawImage(imgElement, 0, 0, 1, 1)
-  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
-
-  emit('colorExtracted', `rgb(${r}, ${g}, ${b})`)
-}
 
 // const myMarks = ref()
 
@@ -62,17 +46,12 @@ function extractAverageColor(imgElement: HTMLImageElement) {
         :level="gameStats ? currentLevel : undefined"
         :show-ring="false"
       >
-        <n-avatar
-          :size="88"
-          class="avatar-user"
-          round
+        <u-avatar
+          :size="96"
+          rounded
+          :alt-text="user?.username"
           :src="user?.avatar"
-          :fallback-src="undefined"
-
-          :img-props="{
-            crossorigin: 'anonymous',
-            onLoad: (e) => extractAverageColor(e.target as HTMLImageElement),
-          }"
+          @color-extracted="(color) => emit('colorExtracted', color)"
         />
       </u-experience-ring>
 
