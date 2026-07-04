@@ -1,104 +1,146 @@
 import type { LoginPayload, RegistrationPayload } from '@/utils/auth/index.type'
 import type { User } from '@/utils/user/index.type'
+import { Preferences } from '@capacitor/preferences'
 import { defineStore } from 'pinia'
 import { getCookie, setCookie } from '@/shared/lib/cookie'
 import router from '@/shared/lib/router'
 import { authApi } from '@/utils/auth'
 import { userApi } from '@/utils/user'
 
-interface AuthState {
-  user: User | null
-  token: string | null
-}
+const USER_CACHE_KEY = 'map_cached_user'
 
-export const useAuthStore = defineStore('auth', {
-  state: (): AuthState => ({
-    user: null,
-    token: (typeof document !== 'undefined') ? getCookie('token') : null,
-  }),
+export const useAuthStore = defineStore('auth', () => {
+  // --- STATE ---
+  const user = ref<User | null>(null)
+  const token = ref<string | null>((typeof document !== 'undefined') ? getCookie('token') : null)
 
-  getters: {
-    isAuthenticated: state => !!state.token,
-  },
+  // --- GETTERS ---
+  const isAuthenticated = computed(() => !!token.value)
 
-  actions: {
-    setToken(token: string) {
-      setCookie('token', token, 7)
-      this.token = token
-      api.defaults.headers.common.Authorization = `Bearer ${token}`
-    },
-    getToken() {
-      if (this.token)
-        return this.token
-      this.token = localStorage.getItem('token')
-      return this.token
-    },
-    removeToken() {
-      setCookie('token', '', -1)
-      this.token = null
-      delete api.defaults.headers.common.Authorization
-    },
+  // --- ACTIONS ---
+  const setToken = (newToken: string) => {
+    setCookie('token', newToken, 7)
+    token.value = newToken
+    api.defaults.headers.common.Authorization = `Bearer ${newToken}`
+  }
 
-    setUser(userData: User | null) {
-      this.user = userData
-    },
+  const getToken = () => {
+    if (token.value)
+      return token.value
+    token.value = localStorage.getItem('token')
+    return token.value
+  }
 
-    async googleAuth() {
+  const removeToken = () => {
+    setCookie('token', '', -1)
+    token.value = null
+    delete api.defaults.headers.common.Authorization
+  }
+
+  const setUser = async (userData: User | null) => {
+    user.value = userData
+    if (userData) {
+      await Preferences.set({
+        key: USER_CACHE_KEY,
+        value: JSON.stringify(userData),
+      })
+    }
+  }
+
+  const googleAuth = async () => {
+    try {
+      const response = await authApi.googleAuth()
+      window.location.href = response.authorization_url
+    }
+    catch (error) {
+      console.error('Google Auth Error:', error)
+    }
+  }
+  const logout = async () => {
+    try {
+      await authApi.logout()
+      router.push('/login')
+    }
+    catch (error) {
+      console.error('Logout request failed', error)
+    }
+    finally {
+      await setUser(null)
+      removeToken()
+      await Preferences.remove({ key: USER_CACHE_KEY })
+    }
+  }
+
+  const fetchUser = async () => {
+    try {
+      const userData = await userApi.getProfile({
+        include: ['ban', 'gamefication', 'subscription'],
+      })
+      await setUser(userData)
+    }
+    catch (error: any) {
+      console.error('[Fetch User Error]', error)
+
+      if (error?.code === 'ERR_NETWORK' || !navigator.onLine) {
+        return
+      }
+
+      // await logout()
+      throw error
+    }
+  }
+
+  const login = async (payload: LoginPayload) => {
+    const response = await authApi.login(payload)
+    setToken(response.access_token)
+    await fetchUser()
+  }
+
+  const registration = async (payload: RegistrationPayload) => {
+    await authApi.registration(payload)
+  }
+
+  const initAuth = async () => {
+    const cookieToken = (typeof document !== 'undefined') ? getCookie('token') : null
+
+    if (cookieToken) {
+      token.value = cookieToken
+      api.defaults.headers.common.Authorization = `Bearer ${cookieToken}`
+
       try {
-        const response = await authApi.googleAuth()
-        window.location.href = response.authorization_url
+        const { value } = await Preferences.get({ key: USER_CACHE_KEY })
+        if (value) {
+          user.value = JSON.parse(value)
+        }
       }
-      catch (error) {
-        console.error('Google Auth Error:', error)
+      catch (e) {
+        console.error('[Cache Read Error in initAuth]', e)
       }
-    },
 
-    async login(payload: LoginPayload) {
-      const response = await authApi.login(payload)
-      this.setToken(response.access_token)
-      await this.fetchUser()
-    },
+      await fetchUser()
+    }
+  }
 
-    async registration(payload: RegistrationPayload) {
-      await authApi.registration(payload)
-    },
+  return {
+    // State
+    user,
+    token,
 
-    async fetchUser() {
-      try {
-        const user = await userApi.getProfile({
-          include: ['ban', 'gamefication', 'subscription'],
-        })
-        this.setUser(user)
-      }
-      catch (error) {
-        this.logout()
-        throw error
-      }
-    },
+    // Getters
+    isAuthenticated,
 
-    async logout() {
-      try {
-        await authApi.logout()
-        router.push('/login')
-      }
-      catch (error) {
-        console.error('Logout request failed', error)
-      }
-      finally {
-        this.setUser(null)
-        this.removeToken()
-      }
-    },
-
-    initAuth() {
-      const cookieToken = (typeof document !== 'undefined') ? getCookie('token') : null
-      if (cookieToken) {
-        this.token = cookieToken
-        api.defaults.headers.common.Authorization = `Bearer ${cookieToken}`
-        this.fetchUser()
-      }
-    },
-  },
+    // Actions
+    setToken,
+    getToken,
+    removeToken,
+    setUser,
+    googleAuth,
+    login,
+    registration,
+    fetchUser,
+    logout,
+    initAuth,
+  }
 })
 
 export type { LoginPayload, RegistrationPayload }
