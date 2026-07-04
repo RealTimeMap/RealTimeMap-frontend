@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import ProfileUserView from '@/components/02.features/Profile/ui/ProfileUserView.vue'
+
+const dynamicColor = ref('oklch(0.62 0.22 220)')
+
+function handleColorExtracted(color: string) {
+  dynamicColor.value = color
+}
 </script>
 
 <template>
-  <div class="profile">
+  <div
+    class="profile"
+    :style="{ '--user-color': dynamicColor }"
+  >
     <div class="profile-blum" />
     <div class="profile-container">
-      <profile-user-view />
+      <profile-user-view @color-extracted="handleColorExtracted" />
     </div>
   </div>
 </template>
@@ -16,8 +25,8 @@ import ProfileUserView from '@/components/02.features/Profile/ui/ProfileUserView
   min-height: 100dvh;
   width: 100%;
 
-  overflow-x: hidden;
-  overflow-y: auto;
+  /* overflow-x: hidden; */
+  /* overflow-y: auto; */
   -webkit-overflow-scrolling: touch;
 
   inset: 0px;
@@ -32,7 +41,8 @@ import ProfileUserView from '@/components/02.features/Profile/ui/ProfileUserView
     width: 400px;
     height: 320px;
     border-radius: 50%;
-    background: radial-gradient(circle, oklch(0.62 0.22 220 / 0.27), transparent 70%);
+    background: radial-gradient(circle, var(--user-color), transparent 70%);
+
     filter: blur(60px);
     pointer-events: none;
   }
