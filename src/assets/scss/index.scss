@@ -2,6 +2,20 @@
 @use 'button.scss';
 @use 'theme.scss';
 
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button,
+a,
+[role='button'],
+div[onclick] {
+  &:focus,
+  &:active {
+    outline: none;
+  }
+}
+
 html,
 body {
   height: 100dvh;
