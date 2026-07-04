@@ -215,6 +215,7 @@ const {
 .u-input-label {
   position: absolute;
   left: 0;
+  top: 0;
   pointer-events: none;
   transition: all 0.2s ease;
 }

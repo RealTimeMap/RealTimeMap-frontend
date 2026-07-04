@@ -65,21 +65,23 @@ onMounted(loadAchievements)
         ...
       </div>
 
-      <div
-        v-for="item in achievements"
-        :key="item.achievement.id"
-        class="achive-card"
-        :class="{ 'is-active': activeItem?.achievement.id === item.achievement.id }"
-        @click="handleItemClick($event, item)"
-      >
-        <div class="icon-container">
-          <img
-            :src="item.achievement.icon"
-            :alt="item.achievement.title"
-          >
+      <template v-else>
+        <div
+          v-for="item in achievements"
+          :key="item.achievement.id"
+          class="achive-card"
+          :class="{ 'is-active': activeItem?.achievement.id === item.achievement.id }"
+          @click="handleItemClick($event, item)"
+        >
+          <div class="icon-container">
+            <img
+              :src="item.achievement.icon"
+              :alt="item.achievement.title"
+            >
+          </div>
+          <span class="short-title">{{ item.achievement.title }}</span>
         </div>
-        <span class="short-title">{{ item.achievement.title }}</span>
-      </div>
+      </template>
     </div>
 
     <u-tooltip
@@ -117,6 +119,7 @@ onMounted(loadAchievements)
 .achievements-widget {
   min-height: 80px;
   @include glass-panel(20px, 14px);
+  width: 100%;
 
   .header {
     display: flex;
