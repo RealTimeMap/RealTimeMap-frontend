@@ -118,9 +118,9 @@ const dashOffset = computed(() => {
   justify-content: center;
   align-items: center;
 
-  :deep(*) {
+  /* :deep(*) {
     display: block;
-  }
+  } */
 }
 
 .xp-level-badge {
