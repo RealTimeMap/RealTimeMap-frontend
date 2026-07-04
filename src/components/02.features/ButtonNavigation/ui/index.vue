@@ -1,15 +1,9 @@
 <script setup lang="ts">
-import {
-  ChatboxOutline,
-  MapOutline,
-  PersonOutline,
-} from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
 import { useAuthStore } from '../../Authentication/models/auth'
 
 interface NavItem {
   id: string
-  icon: Component
+  icon: string
   label: string
   routeName: string[]
 }
@@ -25,19 +19,19 @@ const router = useRouter()
 const navItems: NavItem[] = ([
   {
     id: 'Map',
-    icon: MapOutline,
+    icon: 'line-md:map-marker-alt-loop',
     label: 'Карта',
     routeName: ['home-map'],
   },
   {
     id: 'Chatbox',
-    icon: ChatboxOutline,
+    icon: 'line-md:chat-bubble',
     label: 'Чаты',
     routeName: ['test'],
   },
   {
     id: 'Person',
-    icon: PersonOutline,
+    icon: 'line-md:account',
     label: 'Профиль',
     routeName: ['login', 'profile'],
   },
@@ -110,9 +104,10 @@ onUnmounted(() => window.removeEventListener('resize', handleResize))
         :class="{ 'bottom-nav__item--active': activeItemId === item.id }"
         @click="handleNavClick(item)"
       >
-        <n-icon
-          size="24"
-          :component="item.icon"
+        <u-icon
+          :icon="item.icon"
+          height="24"
+          width="24"
           class="bottom-nav__icon"
         />
         <span class="bottom-nav__label">{{ item.label }}</span>

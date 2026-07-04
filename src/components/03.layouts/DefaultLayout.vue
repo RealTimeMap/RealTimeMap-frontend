@@ -52,9 +52,11 @@ onMounted(() => {
     flex-grow: 1;
     position: relative;
     overflow: hidden;
+    z-index: 1;
   }
 
   &__footer {
+    z-index: 1;
     svg {
       color: var(--primary-color);
     }

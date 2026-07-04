@@ -1,17 +1,7 @@
 <script setup lang="ts">
-import {
-  NConfigProvider,
-  NDialogProvider,
-  NGlobalStyle,
-  NLoadingBarProvider,
-  NMessageProvider,
-  NNotificationProvider,
-} from 'naive-ui'
-
 import NotificationProvider from '@/components/02.features/NotificationProvider/index'
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
-import { useSettingsStore } from './components/02.features/AppSettings/model/settings'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
 import { useNetworkWatch } from './composables/useNetworkWatch'
 import { useNotificationStore } from './shared/stores/notification'
@@ -35,28 +25,16 @@ onMounted(async () => {
   initUpdateChecker()
   initNetworkListener()
 })
-
-const settingsStore = useSettingsStore()
 </script>
 
 <template>
-  <n-config-provider
-    :theme="settingsStore.theme"
-    :theme-overrides="settingsStore.themeOverrides"
-    :style="settingsStore.customThemeVars"
+  <div
+    class="app-wrapper"
   >
-    <n-loading-bar-provider>
-      <n-message-provider>
-        <n-notification-provider>
-          <n-dialog-provider>
-            <component :is="layoutComponent">
-              <router-view />
-            </component>
-          </n-dialog-provider>
-        </n-notification-provider>
-      </n-message-provider>
-    </n-loading-bar-provider>
-    <n-global-style />
+    <component :is="layoutComponent">
+      <router-view />
+    </component>
+
     <notification-provider />
-  </n-config-provider>
+  </div>
 </template>

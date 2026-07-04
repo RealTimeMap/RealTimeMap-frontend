@@ -1,5 +1,3 @@
-import type { GlobalThemeOverrides } from 'naive-ui'
-import { darkTheme } from 'naive-ui'
 import { getCookie, setCookie } from '@/shared/lib/cookie'
 
 export type ThemeName = 'light' | 'dark'
@@ -9,24 +7,8 @@ export function useTheme() {
   const savedTheme = getCookie(THEME_COOKIE_NAME)
   const initialTheme: ThemeName
     = savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : 'dark'
-  const currentTheme = ref<ThemeName>(initialTheme)
-  const theme = computed(() => {
-    return currentTheme.value === 'dark' ? darkTheme : null
-  })
 
-  const themeOverrides = computed<GlobalThemeOverrides>(() => {
-    return {
-      common: {
-        primaryColor: '#7aafeb',
-        primaryColorHover: '#357ABD',
-        primaryColorPressed: '#2A629A',
-        primaryColorSuppl: '#4A90E2',
-      },
-      Button: {
-        textColorPrimary: '#FFFFFF',
-      },
-    }
-  })
+  const currentTheme = ref<ThemeName>(initialTheme)
 
   const customThemeVars = computed(() => {
     if (currentTheme.value === 'dark') {
@@ -79,8 +61,6 @@ export function useTheme() {
   })
 
   return {
-    theme,
-    themeOverrides,
     toggleTheme,
     currentTheme,
     customThemeVars,

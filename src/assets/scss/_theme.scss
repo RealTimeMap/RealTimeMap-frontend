@@ -1,0 +1,23 @@
+:root {
+  --border-radius-md: 20px;
+}
+
+:root,
+.theme-dark {
+  --primary-color: #7aafeb;
+  --red-color: #ff5a5f;
+  --access-color: #82f00d;
+  --text-color: #e9ecef;
+  --bg-color-soft: rgba(0, 0, 0, 0.55);
+  --u-modal-wrapper-bg: rgba(18, 24, 38, 0.45);
+  --bg-color-block: rgba(18, 24, 38, 0.45);
+
+  --glass-background: rgba(40, 40, 40, 0.6);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-tint: rgba(0, 0, 0, 0.2);
+  --glass-shine: rgba(255, 255, 255, 0.1);
+
+  --orb-background: var(--primary-color);
+  --nav-icon-inactive: rgba(255, 255, 255, 0.6);
+  --nav-icon-active: var(--primary-color);
+}

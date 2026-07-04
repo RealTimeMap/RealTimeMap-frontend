@@ -1,13 +1,4 @@
 <script setup lang="ts">
-import {
-  WarningOutline as WarningIcon,
-} from '@vicons/ionicons5'
-import {
-  NAlert,
-  NIcon,
-  NSpin,
-} from 'naive-ui'
-
 interface Props {
   isLoading: boolean
   error: string | null
@@ -56,16 +47,16 @@ onUnmounted(() => {
 
 <template>
   <div
-    v-if="isLoading || error"
     class="map-state-indicator"
   >
     <div
       v-if="isLoading"
       class="state-content"
     >
-      <n-spin
-        size="large"
-        stroke="#4A90E2"
+      <u-icon
+        icon="line-md:loading-twotone-loop"
+        height="30"
+        width="30"
       />
       <p
         :key="phraseKey"
@@ -77,19 +68,24 @@ onUnmounted(() => {
 
     <div
       v-else-if="error"
-      class="state-content"
+      class="state-content state-content--error"
     >
-      <n-alert
-        title="Произошла ошибка"
-        type="error"
-        :bordered="false"
-        class="state-alert"
-      >
-        <template #icon>
-          <n-icon :component="WarningIcon" />
-        </template>
-        {{ error }}
-      </n-alert>
+      <div class="error-alert">
+        <div class="error-alert__header">
+          <u-icon
+            icon="line-md:alert-loop"
+            height="24"
+            width="24"
+            class="error-alert__icon"
+          />
+          <h3 class="error-alert__title">
+            Произошла ошибка
+          </h3>
+        </div>
+        <p class="error-alert__description">
+          {{ error }}
+        </p>
+      </div>
     </div>
   </div>
 </template>
@@ -104,14 +100,10 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background-color: var(--bg-color-soft);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   z-index: 1000;
-
-  @media (prefers-color-scheme: dark) {
-    background-color: rgba(0, 0, 0, 0.5);
-  }
 }
 
 .state-content {
@@ -144,6 +136,43 @@ onUnmounted(() => {
 
 .state-alert {
   background-color: var(--n-color-embedded);
+}
+
+.error-alert {
+  background: var(--bg-color-block);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--border-radius-md);
+  padding: 20px;
+  width: 100%;
+  box-shadow: rgba(0, 0, 0, 0.2) 0px 10px 30px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  &__icon {
+    color: var(--red-color);
+  }
+
+  &__title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-color);
+    margin: 0;
+  }
+
+  &__description {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    opacity: 0.8;
+    margin: 0;
+    line-height: 1.4;
+  }
 }
 
 @keyframes fadeIn {

@@ -58,7 +58,7 @@ watch(userPosition, (newPos) => {
 </script>
 
 <template>
-  <main
+  <div
     class="column items-stretch"
     style="height: 100dvh;"
   >
@@ -95,5 +95,5 @@ watch(userPosition, (newPos) => {
       :user-position="userPosition"
       :map-api="mapApi"
     />
-  </main>
+  </div>
 </template>
