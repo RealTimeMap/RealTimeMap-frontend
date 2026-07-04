@@ -6,6 +6,9 @@ import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
 import { StatsFull, StatsSummary } from '../widgets/ProfileStats/index'
 
+const emit = defineEmits<{
+  (e: 'colorExtracted', color: string): void
+}>()
 const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
 // --- БИЗНЕС-ЛОГИКА ---
@@ -14,6 +17,21 @@ const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
   return gameStats.value?.progressPercent
 })
+
+function extractAverageColor(imgElement: HTMLImageElement) {
+  const canvas = document.createElement('canvas')
+  const ctx = canvas.getContext('2d')
+  if (!ctx)
+    return
+
+  canvas.width = 1
+  canvas.height = 1
+
+  ctx.drawImage(imgElement, 0, 0, 1, 1)
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
+
+  emit('colorExtracted', `rgb(${r}, ${g}, ${b})`)
+}
 
 // const myMarks = ref()
 
@@ -50,6 +68,11 @@ const maxVal = computed(() => {
           round
           :src="user?.avatar"
           :fallback-src="undefined"
+
+          :img-props="{
+            crossorigin: 'anonymous',
+            onLoad: (e) => extractAverageColor(e.target as HTMLImageElement),
+          }"
         />
       </u-experience-ring>
 

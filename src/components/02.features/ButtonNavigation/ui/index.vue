@@ -33,7 +33,7 @@ const navItems: NavItem[] = ([
     id: 'Chatbox',
     icon: ChatboxOutline,
     label: 'Чаты',
-    routeName: ['chats'],
+    routeName: ['test'],
   },
   {
     id: 'Person',

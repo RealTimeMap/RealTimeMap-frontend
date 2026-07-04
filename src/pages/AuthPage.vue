@@ -16,13 +16,6 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
         </span>
       </div>
       <profile-form-view />
-
-      <div class="">
-        Нет аккаунта?
-        <router-link to="/registration">
-          Зарегистрироваться
-        </router-link>
-      </div>
     </div>
   </div>
 </template>

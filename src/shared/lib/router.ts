@@ -56,6 +56,15 @@ const routes = [
   },
 
   {
+    path: '/test',
+    name: 'test',
+    component: () => import('@/pages/TestPage.vue'),
+    meta: {
+      layout: 'default',
+    },
+  },
+
+  {
     path: '/oauth/google',
     name: 'google-auth-callback',
     component: AuthProcessingComponent,

@@ -10,7 +10,9 @@ const {
   isButtonDisabled,
   submit,
   clearError,
+  isRegister,
   googleAuth,
+  toggleMode,
 } = useAuth()
 </script>
 
@@ -28,6 +30,17 @@ const {
         :error="!!formErrors.username"
         icon="line-md:account"
         @input="clearError('username')"
+      />
+
+      <u-input
+        v-if="isRegister"
+        v-model="formValue.email"
+        :placeholder="t('form.email.title', 'Email')"
+        :disabled="isLoading"
+        :loading="isLoading"
+        :error="!!formErrors.email"
+        icon="solar:letter-outline"
+        @input="clearError('email')"
       />
 
       <u-input
@@ -54,7 +67,8 @@ const {
       :class="{ disable: isButtonDisabled }"
       :disabled="isButtonDisabled || isLoading"
     >
-      {{ isLoading ? '...' : 'Войти' }}
+      <span v-if="isLoading">...</span>
+      <span v-else>{{ isRegister ? 'Создать аккаунт' : 'Войти' }}</span>
     </button>
 
     <u-drawer text="или" />
@@ -71,6 +85,16 @@ const {
           height="16"
         />
         Google
+      </button>
+    </div>
+
+    <div class="auth-form__footer">
+      {{ isRegister ? 'Уже есть аккаунт?' : 'Нет аккаунта?' }}
+      <button
+        type="button"
+        @click="toggleMode"
+      >
+        {{ isRegister ? 'Войти' : 'Зарегистрироваться' }}
       </button>
     </div>
   </form>

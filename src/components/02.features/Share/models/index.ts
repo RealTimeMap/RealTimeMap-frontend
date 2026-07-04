@@ -1,4 +1,7 @@
 import type { Map } from 'maplibre-gl'
+import { Capacitor } from '@capacitor/core'
+import { Directory, Filesystem } from '@capacitor/filesystem'
+import { Share } from '@capacitor/share'
 import { toPng } from 'html-to-image'
 import { defineStore } from 'pinia'
 
@@ -55,23 +58,46 @@ export const useShareStore = defineStore('share', () => {
 
       const dataUrl = await toPng(rendererRef.value, { cacheBust: true, pixelRatio: 2 })
       mapInstance.value.jumpTo({ center: originalCenter, zoom: originalZoom })
-      const response = await fetch(dataUrl)
-      const blob = await response.blob()
-      const file = new File([blob], `mark-${data.id}.png`, { type: 'image/png' })
 
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: data.title,
-          text: data.description,
-          url: data.url,
-          files: [file],
-        })
+      if (Capacitor.isNativePlatform()) {
+        try {
+          const fileName = `share-mark-${data.id}.png`
+          const savedFile = await Filesystem.writeFile({
+            path: fileName,
+            data: dataUrl,
+            directory: Directory.Cache,
+          })
+
+          await Share.share({
+            title: data.title,
+            text: data.description,
+            url: savedFile.uri,
+            dialogTitle: 'Поделиться меткой',
+          })
+        }
+        catch (fsError) {
+          console.error('[Native Share Error]', fsError)
+        }
       }
       else {
-        const link = document.createElement('a')
-        link.download = `mark-${data.id}.png`
-        link.href = dataUrl
-        link.click()
+        const response = await fetch(dataUrl)
+        const blob = await response.blob()
+        const file = new File([blob], `mark-${data.id}.png`, { type: 'image/png' })
+
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: data.title,
+            text: data.description,
+            url: data.url,
+            files: [file],
+          })
+        }
+        else {
+          const link = document.createElement('a')
+          link.download = `mark-${data.id}.png`
+          link.href = dataUrl
+          link.click()
+        }
       }
     }
     catch (e) {

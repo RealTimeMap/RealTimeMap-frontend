@@ -1,5 +1,6 @@
-import type { LoginPayload } from '@/components/02.features/Authentication/models/auth'
+import type { LoginPayload, RegistrationPayload } from '@/components/02.features/Authentication/models/auth'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/components/02.features/Authentication/models/auth'
 import { useNotificationStore } from '@/shared/stores/notification'
 
@@ -10,31 +11,59 @@ export function useAuth() {
   const router = useRouter()
 
   const isLoading = ref(false)
-  const formValue = reactive<LoginPayload>({
+  const isRegister = ref(false)
+  const isPasswordVisible = ref(false)
+
+  const formValue = reactive<RegistrationPayload>({
     username: '',
     password: '',
+    email: '',
   })
 
-  const formErrors = ref<Partial<Record<keyof LoginPayload, string>>>({})
+  const formErrors = ref<Partial<Record<keyof RegistrationPayload, string>>>({})
 
-  const isButtonDisabled = computed(() =>
-    !formValue.username || !formValue.password || isLoading.value,
-  )
+  const isButtonDisabled = computed(() => {
+    if (isLoading.value)
+      return true
+    const baseFields = !formValue.username || !formValue.password
+    if (isRegister.value) {
+      return baseFields || !formValue.email
+    }
+    return baseFields
+  })
 
-  const clearError = (field: keyof LoginPayload): void => {
+  const toggleMode = () => {
+    isRegister.value = !isRegister.value
+    formErrors.value = {}
+    formValue.username = ''
+    formValue.password = ''
+    formValue.email = ''
+  }
+
+  const clearError = (field: keyof RegistrationPayload): void => {
     if (formErrors.value[field]) {
       formErrors.value[field] = undefined
     }
   }
 
   const validate = (): boolean => {
-    const errors: Partial<Record<keyof LoginPayload, string>> = {}
+    const errors: Partial<Record<keyof RegistrationPayload, string>> = {}
 
     if (!formValue.username) {
       errors.username = t('validation.required')
     }
     else if (formValue.username.length < 3) {
       errors.username = t('validation.minLength', { count: 3 })
+    }
+
+    if (isRegister.value) {
+      const emailRegex = /^[^\s@]+@[^\s@][^\s.@]*\.[^\s@]+$/
+      if (!formValue.email) {
+        errors.email = t('validation.required')
+      }
+      else if (!emailRegex.test(formValue.email)) {
+        errors.email = t('validation.invalidEmail', 'Некорректный формат email')
+      }
     }
 
     if (!formValue.password) {
@@ -49,7 +78,7 @@ export function useAuth() {
     Object.entries(errors).forEach(([field, message]) => {
       if (message) {
         notify.add({
-          title: t(`form.${field}.title`),
+          title: t(`form.${field}.title`, field.toUpperCase()),
           description: message,
           type: 'warning',
         })
@@ -66,26 +95,64 @@ export function useAuth() {
     isLoading.value = true
 
     try {
-      await authStore.login(formValue)
+      if (isRegister.value) {
+        const registerData: RegistrationPayload = {
+          username: formValue.username,
+          password: formValue.password,
+          email: formValue.email,
+        }
+        await authStore.registration(registerData)
 
-      notify.add({
-        title: 'Успешно!',
-        description: 'Добро пожаловать',
-        type: 'success',
-      })
+        try {
+          await authStore.login({
+            username: registerData.username,
+            password: registerData.password,
+          })
+        }
+        catch (loginErr) {
+          console.error('[Auto-Login Failed]', loginErr)
+          notify.add({
+            title: 'Аккаунт создан',
+            description: 'Не удалось войти автоматически. Пожалуйста, войдите вручную.',
+            type: 'warning',
+          })
+          isRegister.value = false
+          return
+        }
+
+        notify.add({
+          title: 'Успешно!',
+          description: 'Аккаунт создан. Добро пожаловать!',
+          type: 'success',
+        })
+      }
+      else {
+        const loginData: LoginPayload = {
+          username: formValue.username,
+          password: formValue.password,
+        }
+        await authStore.login(loginData)
+
+        notify.add({
+          title: 'Успешно!',
+          description: 'Добро пожаловать обратно',
+          type: 'success',
+        })
+      }
 
       await router.push('/profile')
     }
     catch (err: unknown) {
       console.error(err)
       notify.add({
-        title: t('notify.errors.unauthorized'),
+        title: isRegister.value ? 'Ошибка регистрации' : t('notify.errors.unauthorized'),
         type: 'error',
       })
 
       formErrors.value = {
         username: ' ',
         password: ' ',
+        ...(isRegister.value && { email: ' ' }),
       }
     }
     finally {
@@ -97,7 +164,10 @@ export function useAuth() {
     formValue,
     formErrors,
     isLoading,
+    isRegister,
     isButtonDisabled,
+    isPasswordVisible,
+    toggleMode,
     submit,
     clearError,
     googleAuth: authStore.googleAuth,

@@ -8,23 +8,52 @@ const emit = defineEmits<{
 }>()
 
 const containerRef = ref<HTMLElement | null>(null)
+const isAnimatingOut = ref(false)
+const translateX = ref(0)
 
-const { lengthX, isSwiping } = useSwipe(containerRef, {
+const { isSwiping, lengthX } = useSwipe(containerRef, {
+  onSwipe() {
+    if (lengthX.value < 0) {
+      translateX.value = Math.abs(lengthX.value)
+    }
+  },
   onSwipeEnd(e, direction) {
-    if (direction === 'right' && lengthX.value < -100) {
-      emit('close')
+    if ((direction === 'right' && lengthX.value < -60) || translateX.value > 100) {
+      isAnimatingOut.value = true
+      translateX.value = window.innerWidth
+
+      setTimeout(() => {
+        emit('close')
+      }, 200)
+    }
+    else {
+      translateX.value = 0
     }
   },
 })
 
 const swipeStyle = computed(() => {
-  if (isSwiping.value && lengthX.value < 0) {
+  if (isAnimatingOut.value) {
     return {
-      transform: `translateX(${Math.abs(lengthX.value)}px)`,
-      opacity: 1 - Math.abs(lengthX.value) / 300,
+      transform: 'translateX(120%)',
+      opacity: '0',
+      transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease-out',
     }
   }
-  return {}
+
+  if (isSwiping.value && translateX.value > 0) {
+    return {
+      transform: `translateX(${translateX.value}px)`,
+      opacity: `${1 - translateX.value / 350}`,
+      transition: 'none',
+    }
+  }
+
+  return {
+    transform: 'translateX(0px)',
+    opacity: '1',
+    transition: 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease',
+  }
 })
 
 const defaultIcons = {
@@ -40,7 +69,9 @@ const defaultIcons = {
   <div
     ref="containerRef"
     class="notification-item"
-    :class="[`type-${item.type}`]"
+    :class="[`type-${item.type}`, {
+      'is-swiping': isSwiping || isAnimatingOut,
+    }]"
     :style="swipeStyle"
   >
     <div class="icon-wrapper">
@@ -88,6 +119,11 @@ const defaultIcons = {
   cursor: grab;
   touch-action: pan-y;
   will-change: transform, opacity;
+
+  &.is-swiping {
+    cursor: grabbing;
+    user-select: none;
+  }
 
   &.type-info {
     border-color: rgba(0, 163, 255, 0.4);

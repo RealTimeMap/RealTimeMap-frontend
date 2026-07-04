@@ -1,7 +1,8 @@
 import { Capacitor } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
 
-export type NotificationType = 'info' | 'error' | 'success' | 'warning' | 'default'
+export type NotificationType
+  = 'info' | 'error' | 'success' | 'warning' | 'default'
 
 export interface Notification {
   id: string
