@@ -29,8 +29,12 @@ export function useMarksSocket() {
     const socketState = getSocketState(MARKS_NAMESPACE)
     const networkStatus = await Network.getStatus()
 
-    const isOffline = !socketState?.isConnected || networkStatus.connectionType === 'none' || networkStatus.connectionType === 'unknown'
+    const hasNetwork = networkStatus.connected
+    const isSocketConnected = socketState?.isConnected || false
+    const isOffline = !hasNetwork || !isSocketConnected
+
     const cacheKey = generateCacheKey(params.screen, params.zoomLevel)
+
     if (isOffline) {
       if (!cacheKey)
         return
@@ -62,13 +66,6 @@ export function useMarksSocket() {
       finally {
         isLoading.value = false
       }
-      return
-    }
-
-    if (!socketState?.isConnected) {
-      const errorMessage = '[Marks] Невозможно запросить метки: сокет не подключен.'
-      console.error(errorMessage)
-      error.value = errorMessage
       return
     }
 
