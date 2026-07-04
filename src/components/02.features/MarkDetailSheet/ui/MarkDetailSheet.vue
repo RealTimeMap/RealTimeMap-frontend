@@ -119,11 +119,12 @@ onMounted(() => {
       />
 
       <div class="block owner-block">
-        <img
-          :src="mark.owner.avatar || '/default-avatar.png'"
-          class="avatar"
-          :alt="mark.owner.username.slice(0, 2).toUpperCase()"
-        >
+        <u-avatar
+          rounded
+          :size="40"
+          :src="mark.owner.avatar"
+          :alt-text="mark.owner.username"
+        />
         <div class="owner-info">
           <div class="owner-info__name">
             {{ mark.owner.username }}
@@ -192,11 +193,12 @@ onMounted(() => {
             class="comment-wrapper"
           >
             <div class="comment-item">
-              <img
-                :src="comment.author.avatar || '/default-avatar.png'"
-                class="avatar"
-                :alt="comment.author.username.slice(0, 2).toUpperCase()"
-              >
+              <u-avatar
+                rounded
+                :size="34"
+                :src="comment.author.avatar"
+                :alt-text="comment.author.username"
+              />
               <div class="comment-content">
                 <span class="comment-author">{{ comment.author?.username }}</span>
                 <div class="comment-text">
@@ -235,11 +237,12 @@ onMounted(() => {
         class="comment-form"
       >
         <div class="comment-form__wrapper">
-          <img
+          <u-avatar
+            rounded
+            :size="40"
             :src="user?.avatar"
-            class="avatar"
-            :alt="user?.username.slice(0, 2).toUpperCase()"
-          >
+            :alt-text="user?.username"
+          />
           <u-input
             v-model="commentText"
             placeholder="Написать комментарий..."

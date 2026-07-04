@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { Close } from '@vicons/ionicons5'
-import { NIcon } from 'naive-ui'
 import { useDialog } from '../models'
 
 const swipeZoneRef = ref<HTMLElement | null>(null)
@@ -15,7 +13,7 @@ const {
 </script>
 
 <template>
-  <teleport to=".n-config-provider">
+  <teleport to="body">
     <transition-group
       name="modal-fade"
       tag="div"
@@ -66,9 +64,9 @@ const {
                 aria-label="Закрыть модальное окно"
                 @click="close"
               >
-                <n-icon
-                  :component="Close"
-                  size="24"
+                <u-icon
+                  icon="material-symbols:close"
+                  height="24"
                 />
               </button>
             </header>
