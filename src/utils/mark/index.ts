@@ -1,10 +1,10 @@
 import type {
   Mark,
   MarkAddPayload,
+  MarkCategory,
   MarkComment,
   MarkCommentPayload,
   MarkCommentResponse,
-  MarkCreateResponse,
   MarkFull,
   MyMarkPayload,
   MyMarkResponse,
@@ -16,7 +16,7 @@ export const markApi = {
     apiService.get<MarkFull>(`/marks/${id}`),
 
   getMarkCreate: () =>
-    apiService.get<MarkCreateResponse>('/marks/create-data'),
+    apiService.get<MarkCategory[]>('/category/all'),
 
   postMarkAdd: (payload: MarkAddPayload | FormData) =>
     apiService.post<Mark>('/marks/create', payload, {

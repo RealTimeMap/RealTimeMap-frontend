@@ -1,5 +1,5 @@
 import type { MapPoint } from '@/types/shared/map'
-import type { MarkAddPayload, MarkCreateResponse } from '@/utils/mark/index.type'
+import type { MarkAddPayload, MarkCategory } from '@/utils/mark/index.type'
 import { useGeocoding } from '@/composables/useGeocoding'
 import { useDialogStore } from '@/shared/stores/dialog'
 import { useNotificationStore } from '@/shared/stores/notification'
@@ -22,13 +22,13 @@ export function useMarkAdd(coords: MapPoint) {
   const selectedCategoryId = ref<number | null>(null)
   const fileList = ref<File[]>([])
 
-  const markCreateData = ref<MarkCreateResponse>()
+  const markCreateData = ref<MarkCategory[]>()
   const isLoadingData = ref(false)
   const isSubmitting = ref(false)
 
   // --- Computed Options для NSelect ---
   const categoryOptions = computed(() => {
-    return markCreateData.value?.allowedCategories.map(cat => ({
+    return markCreateData.value?.map(cat => ({
       icon: cat.icon,
       color: cat.color,
       label: cat.categoryName,
@@ -43,8 +43,8 @@ export function useMarkAdd(coords: MapPoint) {
       const response = await markApi.getMarkCreate()
       markCreateData.value = response
 
-      if (response.allowedCategories.length > 0) {
-        selectedCategoryId.value = response.allowedCategories[0].id
+      if (response.length > 0) {
+        selectedCategoryId.value = response[0].id
       }
     }
     catch (err) {

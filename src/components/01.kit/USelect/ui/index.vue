@@ -62,10 +62,9 @@ onClickOutside(selectRef, () => {
         class="u-select__icon"
         :style="{ '--color-icon-bg': activeOption.color }"
       >
-        <img
-          :alt="activeOption.label"
-          :src="activeOption.icon"
-        >
+        <u-icon
+          :icon="activeOption.icon"
+        />
       </div>
     </div>
 
@@ -104,10 +103,9 @@ onClickOutside(selectRef, () => {
               class="u-select__icon"
               :style="{ '--color-icon-bg': item.color }"
             >
-              <img
-                :alt="item.label"
-                :src="item.icon"
-              >
+              <u-icon
+                :icon="item.icon!"
+              />
             </div>
             <span>{{ item.label }}</span>
           </div>
