@@ -52,9 +52,9 @@ const slides = [
 
 const isLastSlide = computed(() => currentIndex.value === totalSlides - 1)
 
-function handleNext() {
+async function handleNext() {
   if (isLastSlide.value) {
-    completeOnboarding()
+    await completeOnboarding()
   }
   else {
     currentIndex.value++

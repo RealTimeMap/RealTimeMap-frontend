@@ -113,7 +113,7 @@ router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   const { hasSeenOnboarding } = useOnboarding()
 
-  const seen = hasSeenOnboarding()
+  const seen = await hasSeenOnboarding()
   const isAuthenticated = authStore.isAuthenticated
   const isWelcomePage = to.name === 'Welcome'
 
