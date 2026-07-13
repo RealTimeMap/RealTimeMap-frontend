@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import maplibregl from 'maplibre-gl'
-import { useShareStore } from '../../Share/models'
+import { useShareStore } from '../../Share/model'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const props = defineProps<{

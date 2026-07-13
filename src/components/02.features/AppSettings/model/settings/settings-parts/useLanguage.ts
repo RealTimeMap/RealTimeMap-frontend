@@ -1,7 +1,7 @@
-import type { MessageLanguages } from '@/providers/withI18n'
+import type { MessageLanguages } from '@/components/06.app/withI18n'
 import { useI18n } from 'vue-i18n'
-import { getCookie, setCookie } from '@/shared/lib/cookie'
-import messages from '@/shared/lib/i18n'
+import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
+import messages from '@/components/00.shared/lib/i18n'
 
 const LANG_COOKIE_NAME = 'app_lang'
 

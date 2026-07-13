@@ -1,1 +1,1 @@
-export { default } from './ui/MarkForm.vue'
+export { default } from './ui/index.vue'

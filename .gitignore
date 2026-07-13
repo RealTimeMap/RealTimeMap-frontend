@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 .DS_Store
+.claude
 dist
 dist-ssr
 coverage
@@ -30,4 +31,3 @@ coverage
 *.tsbuildinfo
 
 .env
-

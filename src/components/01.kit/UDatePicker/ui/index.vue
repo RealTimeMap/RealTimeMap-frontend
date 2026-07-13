@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useDialogStore } from '@/shared/stores/dialog'
-import UDatePickerModal from './datePicker.vue'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import UDatePickerModal from './DatePickerModal.vue'
 
 const startAt = defineModel<Date>('startAt', { required: true })
 const endAt = defineModel<Date | null>('endAt', { required: true })

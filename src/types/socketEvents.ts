@@ -3,7 +3,7 @@
 // Описываем основные сущности, которые передаются по сокету.
 // =================================================================
 
-import type { Mark, MarksOrClusterResponse } from '@/utils/mark/index.type'
+import type { Mark, MarksOrClusterResponse } from '@/components/00.shared/services/mark/index.type'
 
 export interface Message {
   id: string

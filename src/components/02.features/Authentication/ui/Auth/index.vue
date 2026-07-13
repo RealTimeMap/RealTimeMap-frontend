@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { useAuth } from '../../models/useAuth'
+import { useAuth } from '../../model/useAuth'
 
 const { t } = useI18n()
 const {
@@ -100,4 +100,4 @@ const {
   </form>
 </template>
 
-<style lang="scss" scoped src="./style.scss" />
+<style lang="scss" scoped src="./Auth.scss" />

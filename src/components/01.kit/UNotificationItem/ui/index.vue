@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { Notification } from '@/shared/stores/notification'
+import type { Notification } from '@/components/00.shared/stores/notification'
 import { useSwipe } from '@vueuse/core'
 
 defineProps<{ item: Notification }>()

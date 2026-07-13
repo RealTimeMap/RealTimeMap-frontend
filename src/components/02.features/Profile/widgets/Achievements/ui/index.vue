@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import type { NearestAchievementItem } from '@/utils/achievement/index.type'
-// import { useDialogStore } from '@/shared/stores/dialog'
-import { achievementApi } from '@/utils/achievement'
+import type { NearestAchievementItem } from '@/components/00.shared/services/achievement/index.type'
+// import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { achievementApi } from '@/components/00.shared/services/achievement'
 
 const props = defineProps<{
   userId: number

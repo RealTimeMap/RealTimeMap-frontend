@@ -1,9 +1,9 @@
+import type { MarkAddPayload, MarkCategory } from '@/components/00.shared/services/mark/index.type'
 import type { MapPoint } from '@/types/shared/map'
-import type { MarkAddPayload, MarkCategory } from '@/utils/mark/index.type'
-import { useGeocoding } from '@/composables/useGeocoding'
-import { useDialogStore } from '@/shared/stores/dialog'
-import { useNotificationStore } from '@/shared/stores/notification'
-import { markApi } from '@/utils/mark'
+import { useGeocoding } from '@/components/00.shared/composables/useGeocoding'
+import { markApi } from '@/components/00.shared/services/mark'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
 export function useMarkAdd(coords: MapPoint) {
   const { address, fetchAddress } = useGeocoding()

@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDebounceFn } from '@vueuse/core'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
-import { useDialogStore } from '@/shared/stores/dialog'
-import { useMarksSocket } from '../composables/useMarksSocket'
+import { useMarksSocket } from '../model/useMarksSocket'
 
 const props = defineProps<{
   userCoordinates: MapPoint

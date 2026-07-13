@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuthStore } from '../../Authentication/models/auth'
+import { useAuthStore } from '../../Authentication/model/auth'
 
 interface NavItem {
   id: string

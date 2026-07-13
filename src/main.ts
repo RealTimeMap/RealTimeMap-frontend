@@ -1,7 +1,7 @@
 import App from './app.vue'
-import websocketPlugin from './plugins/websocket'
-import { withI18n } from './providers/withI18n'
-import router from './shared/lib/router.ts'
+import router from './components/00.shared/lib/router'
+import websocketPlugin from './components/06.app/websocket'
+import { withI18n } from './components/06.app/withI18n'
 import './assets/scss/index.scss'
 
 // import 'vfonts/Lato.css'
