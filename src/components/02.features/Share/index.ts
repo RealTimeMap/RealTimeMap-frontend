@@ -1,1 +1,1 @@
-export { default } from './ui/ShareRender.vue'
+export { default } from './ui/index.vue'

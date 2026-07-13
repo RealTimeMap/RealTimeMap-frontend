@@ -19,7 +19,7 @@ export default defineConfig({
         'pinia',
       ],
       dirs: [
-        './src/shared/services/api',
+        './src/components/00.shared/api',
         './src/components/01.kit/*',
       ],
 
@@ -31,10 +31,11 @@ export default defineConfig({
       extensions: ['ts'],
       deep: true,
       dts: 'src/types/dts/components.d.ts',
+      globs: ['src/components/01.kit/**/index.ts'],
       exclude: [
         /[\\/]node_modules[\\/]/,
         /[\\/]\.git[\\/]/,
-        /[\\/]models[\\/]/,
+        /[\\/]model[\\/]/,
       ],
     }),
 

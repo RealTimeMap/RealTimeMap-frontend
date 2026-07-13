@@ -11,7 +11,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    Models: typeof import('./../../components/01.kit/UModalWrapper/models/index.ts')['default']
+    Model: typeof import('./../../components/01.kit/UModalWrapper/model/index.ts')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     UAppPanel: typeof import('./../../components/01.kit/UAppPanel/index.ts')['default']
@@ -29,7 +29,6 @@ declare module 'vue' {
     UModalWrapper: typeof import('./../../components/01.kit/UModalWrapper/index.ts')['default']
     UNotificationItem: typeof import('./../../components/01.kit/UNotificationItem/index.ts')['default']
     UPloader: typeof import('./../../components/01.kit/UPloader/index.ts')['default']
-    UseInput: typeof import('./../../components/01.kit/UInput/models/useInput.ts')['default']
     USelect: typeof import('./../../components/01.kit/USelect/index.ts')['default']
     UTextArea: typeof import('./../../components/01.kit/UTextArea/index.ts')['default']
     UTooltip: typeof import('./../../components/01.kit/UTooltip/index.ts')['default']

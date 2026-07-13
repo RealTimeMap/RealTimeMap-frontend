@@ -1,1 +1,1 @@
-export { default } from './ui/UMarker.vue'
+export { default } from './ui/index.vue'

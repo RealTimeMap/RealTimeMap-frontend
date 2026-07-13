@@ -1,19 +1,35 @@
+import { Preferences } from '@capacitor/preferences'
 import { useRouter } from 'vue-router'
-import { getCookie, setCookie } from '@/shared/lib/cookie'
 
-const STORAGE_COOKIE_NAME = 'rtm_welcome_seen'
+const STORAGE_KEY = 'rtm_welcome_seen'
 
 export function useOnboarding() {
   const router = useRouter()
 
-  const hasSeenOnboarding = () => {
-    return Boolean(getCookie(STORAGE_COOKIE_NAME)) === true
+  const hasSeenOnboarding = async (): Promise<boolean> => {
+    try {
+      const { value } = await Preferences.get({ key: STORAGE_KEY })
+      return value === 'true'
+    }
+    catch (e) {
+      console.error('[Onboarding Check Error]', e)
+      return false
+    }
   }
 
-  const completeOnboarding = () => {
-    setCookie(STORAGE_COOKIE_NAME, 'true', 30)
-
-    router.push('/')
+  const completeOnboarding = async (): Promise<void> => {
+    try {
+      await Preferences.set({
+        key: STORAGE_KEY,
+        value: 'true',
+      })
+    }
+    catch (e) {
+      console.error('[Onboarding Save Error]', e)
+    }
+    finally {
+      await router.push('/')
+    }
   }
 
   return {

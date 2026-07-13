@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { UserGemefication } from '@/utils/user/index.type'
+import type { UserGemefication } from '@/components/00.shared/services/user/index.type'
 
 const props = defineProps<{
   gamification: UserGemefication

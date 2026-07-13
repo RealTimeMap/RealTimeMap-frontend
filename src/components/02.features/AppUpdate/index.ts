@@ -1,1 +1,1 @@
-export { initUpdateChecker } from './models/index'
+export { initUpdateChecker } from './model/index'

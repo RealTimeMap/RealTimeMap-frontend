@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from '@/shared/lib/cookie'
+import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
 
 export type ThemeName = 'light' | 'dark'
 const THEME_COOKIE_NAME = 'app_theme'

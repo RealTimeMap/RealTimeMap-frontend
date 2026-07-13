@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { pluralize } from '@/helpers/date/FormatDate'
+import { pluralize } from '@/components/00.shared/lib/date/FormatDate'
 
 const props = defineProps<{
   date: {

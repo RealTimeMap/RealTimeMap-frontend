@@ -5,6 +5,11 @@ export default antfu({
   vue: true,
   typescript: true,
 
+  ignores: [
+    'ios/**',
+    'android/**',
+  ],
+
   rules: {
     'unicorn/filename-case': [
       'error',
@@ -161,4 +166,5 @@ export default antfu({
     'no-debugger': 'error',
     'unused-imports/no-unused-imports': 'error',
   },
-})
+},
+)

@@ -1,1 +1,1 @@
-export { default } from './ui/MarkDetailSheet.vue'
+export { default } from './ui/index.vue'

@@ -2,9 +2,9 @@
 import NotificationProvider from '@/components/02.features/NotificationProvider/index'
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
+import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
+import { useNotificationStore } from './components/00.shared/stores/notification'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
-import { useNetworkWatch } from './composables/useNetworkWatch'
-import { useNotificationStore } from './shared/stores/notification'
 
 const layouts = {
   empty: EmptyLayout,
