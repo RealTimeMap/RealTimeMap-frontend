@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { useAuthStore } from '../../Authentication/model/auth'
 
 interface NavItem {
@@ -9,6 +10,8 @@ interface NavItem {
 }
 
 const auth = useAuthStore()
+const chatsStore = useChatsStore()
+const { unreadTotal } = storeToRefs(chatsStore)
 const activeItemId = ref<string>('')
 const itemRefs = shallowRef<HTMLElement[]>([])
 const navList = ref<HTMLUListElement | null>(null)
@@ -27,7 +30,7 @@ const navItems: NavItem[] = ([
     id: 'Chatbox',
     icon: 'line-md:chat-bubble',
     label: 'Чаты',
-    routeName: ['test'],
+    routeName: ['chats', 'chat-room'],
   },
   {
     id: 'Person',
@@ -104,12 +107,19 @@ onUnmounted(() => window.removeEventListener('resize', handleResize))
         :class="{ 'bottom-nav__item--active': activeItemId === item.id }"
         @click="handleNavClick(item)"
       >
-        <u-icon
-          :icon="item.icon"
-          height="24"
-          width="24"
-          class="bottom-nav__icon"
-        />
+        <span class="bottom-nav__icon-wrap">
+          <u-icon
+            :icon="item.icon"
+            height="24"
+            width="24"
+            class="bottom-nav__icon"
+          />
+          <u-badge
+            v-if="item.id === 'Chatbox'"
+            :count="unreadTotal"
+            class="bottom-nav__badge"
+          />
+        </span>
         <span class="bottom-nav__label">{{ item.label }}</span>
       </li>
     </ul>
@@ -123,7 +133,7 @@ $nav-icon-active: var(--nav-icon-active);
 
 .bottom-nav {
   position: fixed;
-  bottom: 40px;
+  bottom: calc(40px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
@@ -162,6 +172,17 @@ $nav-icon-active: var(--nav-icon-active);
   justify-content: center;
   flex-direction: column;
   align-items: center;
+}
+
+.bottom-nav__icon-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.bottom-nav__badge {
+  position: absolute;
+  top: -4px;
+  left: 14px;
 }
 
 .bottom-nav__icon,

@@ -19,7 +19,7 @@ defineProps<{
 .u-chip {
   position: absolute;
   left: 50%;
-  bottom: 122px;
+  bottom: calc(122px + var(--safe-bottom));
   transform: translateX(-50%);
   z-index: 10;
   animation: 4s ease-in-out infinite hintFloat;

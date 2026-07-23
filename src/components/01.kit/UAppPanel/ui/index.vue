@@ -19,7 +19,7 @@ defineProps<{
 <style lang="scss" scoped>
 .app-panel {
   position: fixed !important;
-  bottom: 130px;
+  bottom: calc(130px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   width: 90%;

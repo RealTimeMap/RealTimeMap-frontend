@@ -82,7 +82,7 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
   align-items: center;
   justify-content: center;
   height: 100%;
-  min-height: 100dvh;
+  min-height: calc(100dvh - var(--safe-top));
   gap: 30px;
   max-width: 400px;
   width: 90%;
