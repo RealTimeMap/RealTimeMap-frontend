@@ -58,6 +58,6 @@ jobs:
           tag: v${{ steps.read_version.outputs.APP_VERSION }}
           name: Release v${{ steps.read_version.outputs.APP_VERSION }}
           artifacts: android/app/build/outputs/apk/debug/app-debug.apk
-          body: Это просто прикол бэка! Что-то точно могло сломаться!
+          body: Работа чатов, но только готовых! Что-то точно могло сломаться!
           token: ${{ secrets.GITHUB_TOKEN }}
           allowUpdates: true

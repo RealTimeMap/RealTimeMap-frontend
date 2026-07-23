@@ -16,6 +16,7 @@ declare module 'vue' {
     RouterView: typeof import('vue-router')['RouterView']
     UAppPanel: typeof import('./../../components/01.kit/UAppPanel/index.ts')['default']
     UAvatar: typeof import('./../../components/01.kit/UAvatar/index.ts')['default']
+    UBadge: typeof import('./../../components/01.kit/UBadge/index.ts')['default']
     UChip: typeof import('./../../components/01.kit/UChip/index.ts')['default']
     UCluster: typeof import('./../../components/01.kit/UCluster/index.ts')['default']
     UDatePicker: typeof import('./../../components/01.kit/UDatePicker/index.ts')['default']

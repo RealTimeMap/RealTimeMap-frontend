@@ -3,6 +3,7 @@
 // Описываем основные сущности, которые передаются по сокету.
 // =================================================================
 
+import type { Message as ChatMessage } from '@/components/00.shared/services/chats/index.type'
 import type { Mark, MarksOrClusterResponse } from '@/components/00.shared/services/mark/index.type'
 
 export interface Message {
@@ -80,8 +81,10 @@ export interface ServerToClientEvents {
   'marks_updated': (payload: Partial<Mark> & { id: string }) => void
   'marks_deleted': (payload: { id: string }) => void
 
-  // --- События для сообщений (неймспейс /messages) ---
-  'message:new': (payload: Message) => void
+  /**
+   * Новое сообщение в любом из чатов пользователя.
+   */
+  'message.new': (payload: ChatMessage) => void
 
   // --- Общие события об ошибках ---
   'error': (payload: { message: string, code?: number }) => void

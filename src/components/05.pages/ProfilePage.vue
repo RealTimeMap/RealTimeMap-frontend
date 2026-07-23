@@ -22,7 +22,7 @@ function handleColorExtracted(color: string) {
 
 <style lang="scss" scoped>
 .profile {
-  min-height: 100dvh;
+  min-height: calc(100dvh - var(--safe-top));
   width: 100%;
 
   /* overflow-x: hidden; */

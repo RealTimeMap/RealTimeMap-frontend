@@ -22,7 +22,7 @@ const store = useNotificationStore()
 <style scoped lang="scss">
 .notifications-container {
   position: fixed;
-  top: 20px;
+  top: calc(20px + var(--safe-top));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10000;

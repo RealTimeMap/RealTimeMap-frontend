@@ -284,7 +284,8 @@ function openGithub() {
   align-items: center;
   justify-content: center;
   min-height: 100dvh;
-  padding: 16px;
+  padding: calc(16px + var(--safe-top)) calc(16px + var(--safe-right)) calc(16px + var(--safe-bottom))
+    calc(16px + var(--safe-left));
   overflow: hidden;
 }
 

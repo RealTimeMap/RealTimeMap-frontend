@@ -9,8 +9,23 @@ interface WebSocketState {
 
 type AppSocket = Socket<ServerToClientEvents, ClientToServerEvents>
 
+export interface ConnectOptions {
+  /** Передаётся в handshake через поле `auth` */
+  auth?: { token: string } | null
+  /** HTTP-путь Socket.IO. У меток свой (`/marks/socket.io`), у чатов дефолтный */
+  path?: string
+  /**
+   * Порядок транспортов. Если авторизация едет в `extraHeaders`, polling
+   * обязан быть первым: в браузере заголовки уходят только с ним,
+   * а websocket подключается уже апгрейдом.
+   */
+  transports?: ('polling' | 'websocket')[]
+  extraHeaders?: Record<string, string>
+  withCredentials?: boolean
+}
+
 export interface UseWebSocketReturn {
-  connect: (namespace: string, auth?: { token: string } | null) => void
+  connect: (namespace: string, options?: ConnectOptions) => void
   disconnect: (namespace: string) => void
   on: <Ev extends keyof ServerToClientEvents & string>(
     namespace: string,
@@ -30,7 +45,7 @@ type SocketMap = Map<string, { instance: AppSocket, state: WebSocketState }>
 const sockets = reactive<SocketMap>(new Map())
 
 export function useWebSocket(): UseWebSocketReturn {
-  const connect = (namespace: string, auth: { token: string } | null = null) => {
+  const connect = (namespace: string, options: ConnectOptions = {}) => {
     if (sockets.has(namespace)) {
       console.warn(`[WebSocket] Connection to namespace "${namespace}" already exists.`)
       return
@@ -45,11 +60,21 @@ export function useWebSocket(): UseWebSocketReturn {
     const fullUrl = `${WEBSOCKET_URL}${namespace}`
     console.warn(`[WebSocket] Attempting to connect to ${fullUrl}`)
 
+    const {
+      auth = null,
+      path = '/socket.io',
+      transports = ['websocket', 'polling'],
+      extraHeaders,
+      withCredentials,
+    } = options
+
     const socket = io(fullUrl, {
-      path: '/marks/socket.io',
+      path,
+      transports,
       ...(auth && { auth }),
+      ...(extraHeaders && { extraHeaders }),
+      ...(withCredentials !== undefined && { withCredentials }),
       autoConnect: false,
-      transports: ['websocket', 'polling'],
     })
 
     const state: WebSocketState = reactive({ isConnected: false })
@@ -69,7 +94,6 @@ export function useWebSocket(): UseWebSocketReturn {
     socket.on('connect_error', (error) => {
       console.error(`[WebSocket] Connection Error for "${namespace}":`, error.message)
       state.isConnected = false
-      sockets.delete(namespace)
     })
 
     socket.connect()

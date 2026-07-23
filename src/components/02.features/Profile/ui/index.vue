@@ -138,9 +138,8 @@ const maxVal = computed(() => {
 
 .button-logout {
   position: absolute;
-  top: 20px;
-  right: 20px;
-  margin-left: auto;
+  top: 0;
+  right: 0;
   color: var(--red-color);
 }
 

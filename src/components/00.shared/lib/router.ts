@@ -1,4 +1,4 @@
-import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
+import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
@@ -7,7 +7,7 @@ const AuthProcessingComponent = {
   template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>',
 }
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: '/welcome',
     name: 'Welcome',
@@ -23,6 +23,7 @@ const routes = [
     component: () => import('@/components/05.pages/HomeMapPage.vue'),
     meta: {
       layout: 'default',
+      fullBleed: true,
     },
   },
   {
@@ -47,12 +48,28 @@ const routes = [
 
   {
     path: '/chats',
-    name: 'chats',
     component: () => import('@/components/05.pages/ChatsPage.vue'),
     meta: {
       layout: 'default',
       requiresAuth: true,
+      fullBleed: true,
     },
+    children: [
+      {
+        path: '',
+        name: 'chats',
+        component: () => import('@/components/05.pages/Chats/ChatListPage.vue'),
+      },
+      {
+        path: ':chatId(\\d+)',
+        name: 'chat-room',
+        component: () => import('@/components/05.pages/Chats/ChatRoomPage.vue'),
+        props: route => ({ chatId: Number(route.params.chatId) }),
+        meta: {
+          hideBottomNav: true,
+        },
+      },
+    ],
   },
 
   {
