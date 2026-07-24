@@ -5,6 +5,17 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      bump:
+        description: 'Размер шага версии. Пусто — посчитать по коммитам. Помни: пока версия 0.x, шаг сдвигается на разряд вниз, поэтому 0.1.0 из 0.0.x даёт major'
+        required: false
+        type: choice
+        default: ''
+        options:
+          - ''
+          - patch
+          - minor
+          - major
 
 jobs:
   build-apk:
@@ -42,13 +53,25 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # версия «до» — из последнего тега, package.json источником не является
-          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          # Берём самый свежий тег по версии, а не ближайший по истории:
+          # describe вернул бы предыдущий релиз, если поверх него лёг мердж.
+          LAST_TAG=$(git tag --sort=-v:refname | head -1)
           PREV_VERSION="${LAST_TAG#v}"
 
-          # changelogen берёт базу из последнего тега; package.json он тоже
-          # правит, но этот файл мы не коммитим — см. следующий шаг
-          bunx changelogen --bump
+          # changelogen считает следующую версию от той, что лежит в package.json,
+          # а там намеренная заглушка 0.0.0 — без этой строки он выдал бы 0.0.1.
+          # Файл всё равно не коммитим, правка живёт только внутри раннера.
+          if [ -n "$PREV_VERSION" ]; then
+            npm pkg set version="$PREV_VERSION"
+          fi
+
+          # при ручном запуске можно навязать размер шага
+          BUMP_FLAG=""
+          if [ -n "${{ inputs.bump }}" ]; then
+            BUMP_FLAG="--${{ inputs.bump }}"
+          fi
+
+          bunx changelogen --bump $BUMP_FLAG
 
           VERSION=$(node -p "require('./package.json').version")
           echo "APP_VERSION=$VERSION" >> $GITHUB_OUTPUT
