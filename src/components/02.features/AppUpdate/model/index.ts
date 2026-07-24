@@ -2,6 +2,7 @@ import { FileOpener } from '@capacitor-community/file-opener'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { compareVersions } from 'compare-versions'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
+import { summarizeRelease } from './summarizeRelease'
 
 declare const __APP_VERSION__: string
 const GITHUB_REPO = 'RealTimeMap/RealTimeMap-frontend'
@@ -28,7 +29,7 @@ export async function initUpdateChecker() {
 
     notify.add({
       title: `Доступно обновление v${latestVersion}`,
-      description: latestRelease.body || 'Установите новую версию приложения для стабильной работы.',
+      description: summarizeRelease(latestRelease.body),
       type: 'default',
       icon: 'solar:download-square-bold',
       duration: 0,
