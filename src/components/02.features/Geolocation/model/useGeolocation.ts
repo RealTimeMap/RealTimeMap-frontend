@@ -2,6 +2,7 @@ import type { MapPoint } from '@/types/shared/map'
 import { Geolocation } from '@capacitor/geolocation'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useDevPosition } from '@/components/00.shared/composables/useDevPosition'
+import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions'
 
 export function useGeolocation() {
   const { devPosition, isDev } = useDevPosition()
@@ -24,9 +25,9 @@ export function useGeolocation() {
 
     if (isNativeCapacitor.value) {
       try {
-        const permissions = await Geolocation.requestPermissions({
-          permissions: ['location'],
-        })
+        const permissions = await requestPermissionInQueue(() =>
+          Geolocation.requestPermissions({ permissions: ['location'] }),
+        )
 
         if (permissions.location !== 'granted') {
           error.value = 'Доступ к геопозиции отклонен на устройстве.'

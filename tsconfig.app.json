@@ -12,7 +12,8 @@
       "vite/client",
       "vite",
       "node",
-      "vue"
+      "vue",
+      "vite-plugin-pwa/client"
     ]
   },
   "include": [

@@ -1,7 +1,8 @@
 {
   "name": "realtime-map",
   "type": "module",
-  "version": "0.0.12",
+  "_version_note": "Не источник правды: реальная версия берётся из git-тега (см. RELEASING.md). Поле оставлено, потому что его требует npm-схема.",
+  "version": "0.0.0",
   "private": true,
   "description": "A public real-time map where users drop marks with messages, photos and a lifespan. Marks appear for everyone instantly and can be discussed in comments. Around the map: profiles with levels and achievements, direct chats and push notifications. Ships as a PWA and as native Android/iOS builds via Capacitor.",
   "productName": "RealTime Map",

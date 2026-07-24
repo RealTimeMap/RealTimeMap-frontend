@@ -1,9 +1,30 @@
 apply plugin: 'com.android.application'
 
-// Версия — единый источник правды в package.json, руками здесь ничего не правим.
-def appVersionName = new groovy.json.JsonSlurper()
-        .parseText(file('../../package.json').text)
-        .version
+// Источник правды для версии — git-тег, руками здесь ничего не правим.
+// Приоритет: APP_VERSION из окружения (подставляет CI) -> последний git-тег -> 0.0.0.
+def resolveAppVersion = {
+    def fromEnv = System.getenv('APP_VERSION')
+    if (fromEnv) {
+        return fromEnv.replaceFirst(/^v/, '')
+    }
+
+    try {
+        def process = ['git', 'describe', '--tags', '--abbrev=0'].execute(null, rootDir)
+        process.waitFor()
+        if (process.exitValue() == 0) {
+            def tag = process.text.trim()
+            if (tag) {
+                return tag.replaceFirst(/^v/, '')
+            }
+        }
+    } catch (ignored) {
+        // git недоступен — падаем на заглушку ниже
+    }
+
+    return '0.0.0'
+}
+
+def appVersionName = resolveAppVersion()
 
 // versionCode обязан быть целым и монотонно расти: 0.1.12 -> 10112.
 // Пре-релизные суффиксы (0.1.12-beta.1) отбрасываем — в число они не влезают.

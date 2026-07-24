@@ -1,5 +1,6 @@
 import { Capacitor } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
+import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions'
 
 export type NotificationType
   = 'info' | 'error' | 'success' | 'warning' | 'default'
@@ -21,12 +22,14 @@ export const useNotificationStore = defineStore('notification', () => {
   const notifications = ref<Notification[]>([])
 
   async function requestPermissions() {
-    if (Capacitor.isNativePlatform()) {
-      const perm = await LocalNotifications.checkPermissions()
-      if (perm.display !== 'granted') {
-        await LocalNotifications.requestPermissions()
-      }
-    }
+    if (!Capacitor.isNativePlatform())
+      return
+
+    const perm = await LocalNotifications.checkPermissions()
+    if (perm.display === 'granted')
+      return
+
+    await requestPermissionInQueue(() => LocalNotifications.requestPermissions())
   }
 
   async function add(notification: Omit<Notification, 'id'>) {
