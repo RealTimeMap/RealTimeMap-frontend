@@ -28,10 +28,18 @@ export const chatApi = {
       },
     }),
 
-  postMessage: (chatId: number, content: string) =>
-    apiService.post<Message>(`/chats/${chatId}/messages`, {
-      content,
-    }, {
+  postMessage: (chatId: number, payload: {
+    content: string
+    clientMessageId: string
+  }) =>
+    apiService.post<Message>(`/chats/${chatId}/messages`, payload, {
+      headers: {
+        Authorization: `Bearer ${getCookie('token')}`,
+      },
+    }),
+
+  postReadChat: (chatId: number) =>
+    apiService.post<void>(`/chats/${chatId}/read`, {}, {
       headers: {
         Authorization: `Bearer ${getCookie('token')}`,
       },

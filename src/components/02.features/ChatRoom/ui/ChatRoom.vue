@@ -24,7 +24,9 @@ const {
   error,
   hasMore,
   isLoadingMore,
+  peerLastReadId,
   sendMessage,
+  retryMessage,
   loadMore,
 } = useChatMessages(
   toRef(props, 'chatId'),
@@ -61,7 +63,9 @@ function goBack() {
       :is-loading="isLoading"
       :has-more="hasMore"
       :is-loading-more="isLoadingMore"
+      :peer-last-read-id="peerLastReadId"
       @load-more="loadMore"
+      @retry="retryMessage"
     />
 
     <span
