@@ -13,6 +13,7 @@ const {
   address,
   categoryOptions,
   selectedCategoryId,
+  isSubmitting,
 
   startAt,
   endAt,
@@ -45,6 +46,7 @@ onMounted(() => {
       <button
         type="button"
         class="mark-form__header-btn mark-form__header-btn--submit"
+        :disabled="isSubmitting"
         @click="handleSubmit"
       >
         Готово
