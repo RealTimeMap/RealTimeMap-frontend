@@ -13,6 +13,10 @@ function toChronological(list: Message[]): Message[] {
 
 export function useChatMessages(chatId: Ref<number>) {
   const messages = shallowRef<Message[]>([])
+
+  const isLoadingMore = ref(false)
+  const hasMore = ref(true)
+
   const isLoading = ref(true)
   const isSending = ref(false)
   const error = ref<Error | null>(null)
@@ -20,6 +24,7 @@ export function useChatMessages(chatId: Ref<number>) {
   const fetchMessages = async () => {
     isLoading.value = true
     error.value = null
+    hasMore.value = true
 
     try {
       const response = await chatApi.getHistoryChat(chatId.value)
@@ -51,6 +56,41 @@ export function useChatMessages(chatId: Ref<number>) {
     }
     finally {
       isSending.value = false
+    }
+  }
+
+  const loadMore = async () => {
+    if (isLoadingMore.value || isLoading.value || !hasMore.value)
+      return
+
+    const cursor = messages.value[0]?.id
+    if (!cursor)
+      return
+
+    isLoadingMore.value = true
+
+    try {
+      const response = await chatApi.getHistoryChat(chatId.value, {
+        lastMessageId: cursor,
+      })
+
+      const known = new Set(messages.value.map(m => m.id))
+      const older = toChronological(response.messages).filter(m => !known.has(m.id))
+
+      // бэк не принимает limit, поэтому конец истории определяем
+      // по отсутствию новых сообщений в ответе
+      if (!older.length) {
+        hasMore.value = false
+        return
+      }
+
+      messages.value = [...older, ...messages.value]
+    }
+    catch (err) {
+      console.error('[ChatRoom] Ошибка загрузки более ранних сообщений:', err)
+    }
+    finally {
+      isLoadingMore.value = false
     }
   }
 
@@ -103,7 +143,10 @@ export function useChatMessages(chatId: Ref<number>) {
     isLoading,
     isSending,
     error,
+    hasMore,
+    isLoadingMore,
     fetchMessages,
     sendMessage,
+    loadMore,
   }
 }

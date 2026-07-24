@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { Message } from '@/components/00.shared/services/chats/index.type'
+import { useInfiniteScroll } from '@vueuse/core'
 import { formatDayLabel } from '@/components/00.shared/lib/date/FormatDate'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import MessageBubble from './MessageBubble.vue'
@@ -7,7 +8,11 @@ import MessageBubble from './MessageBubble.vue'
 const props = defineProps<{
   messages: readonly Message[]
   isLoading: boolean
+  hasMore: boolean
+  isLoadingMore: boolean
 }>()
+
+const emit = defineEmits<{ loadMore: [] }>()
 
 interface FeedItem {
   message: Message
@@ -45,8 +50,37 @@ async function scrollToBottom() {
       el.scrollTop = el.scrollHeight
   })
 }
+let pendingRestore: { height: number, top: number } | null = null
 
-watch(() => props.messages, scrollToBottom)
+useInfiniteScroll(feedEl, () => {
+  const el = feedEl.value
+  if (el)
+    pendingRestore = { height: el.scrollHeight, top: el.scrollTop }
+
+  emit('loadMore')
+}, {
+  distance: 200,
+  direction: 'top',
+  canLoadMore: () => props.hasMore && !props.isLoadingMore,
+})
+
+watch(() => props.messages, async () => {
+  if (!pendingRestore)
+    return scrollToBottom()
+
+  const { height, top } = pendingRestore
+  pendingRestore = null
+
+  await nextTick()
+  const el = feedEl.value
+  if (el)
+    el.scrollTop = el.scrollHeight - height + top
+})
+
+watch(() => props.isLoadingMore, (loading) => {
+  if (!loading)
+    pendingRestore = null
+})
 
 onMounted(() => {
   scrollToBottom()

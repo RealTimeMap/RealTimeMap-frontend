@@ -18,8 +18,11 @@ export const chatApi = {
       },
     }),
 
-  getHistoryChat: (chatId: number) =>
+  getHistoryChat: (chatId: number, params?: {
+    lastMessageId?: number
+  }) =>
     apiService.get<HistoryResponse>(`/chats/${chatId}/history`, {
+      params,
       headers: {
         Authorization: `Bearer ${getCookie('token')}`,
       },
