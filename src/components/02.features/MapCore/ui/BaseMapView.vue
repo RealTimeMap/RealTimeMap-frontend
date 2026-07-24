@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { useShareStore } from '../../Share/model'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
@@ -7,13 +8,17 @@ const props = defineProps<{
   centerCoordinates: [number, number]
   zoomLevel: number
 }>()
+
 const emit = defineEmits<MapEmits>()
+
+maplibregl.setWorkerUrl(maplibreWorkerUrl)
+
 const shareStore = useShareStore()
 interface MapEmits {
   (e: 'mapReady', mapInstance: maplibregl.Map): void
   (e: 'update:bounds', bounds: [[number, number], [number, number]]): void
   (e: 'dblClickMarker', coordinates: [number, number]): void
-  (e: 'update:zoom-level', zoomLevel: number): void
+  (e: 'update:zoomLevel', zoomLevel: number): void
 }
 
 const mapContainer = ref<HTMLElement | null>(null)
@@ -46,7 +51,7 @@ onMounted(() => {
     emit('dblClickMarker', [e.lngLat.lng, e.lngLat.lat])
   })
   mapInstance.on('zoomend', () => {
-    emit('update:zoom-level', mapInstance.getZoom())
+    emit('update:zoomLevel', mapInstance.getZoom())
   })
 
   shareStore.registerMap(mapInstance)

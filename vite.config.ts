@@ -10,6 +10,7 @@ import pkg from './package.json'
 export default defineConfig({
   plugins: [
     vue(),
+
     vueDevTools(),
 
     autoImport({
@@ -64,6 +65,24 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+    },
+  },
+
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
+
+  build: {
+    chunkSizeWarningLimit: 1000,
+    reportCompressedSize: false,
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'maplibre', test: /node_modules[\\/]maplibre-gl/, priority: 30 },
+          ],
+        },
+      },
     },
   },
 

@@ -36,7 +36,7 @@ const navItems: NavItem[] = ([
     id: 'Person',
     icon: 'line-md:account',
     label: 'Профиль',
-    routeName: ['login', 'profile'],
+    routeName: ['login', 'profile', 'user-profile'],
   },
 ])
 

@@ -1,5 +1,6 @@
+import type { ModelRef } from 'vue'
+
 export interface UInputProps {
-  modelValue: string | number | null
   label?: string
   placeholder?: string
   type?: 'text' | 'password' | 'email' | 'tel' | 'textarea'
@@ -10,21 +11,30 @@ export interface UInputProps {
   icon?: string
 }
 
+export type UInputModel = string | number | null
+
+type UInputState = Required<
+  Pick<UInputProps, 'type' | 'error' | 'errorMessage' | 'loading' | 'disabled'>
+>
+
 export function useInput(
-  props: UInputProps,
-  emit: (event: 'update:modelValue', ...args: any[]) => void,
+  model: ModelRef<UInputModel>,
+  getState: () => UInputState,
 ) {
   const attrs = useAttrs()
+  const state = computed(getState)
 
   const inputId = computed(
     () => (attrs.id as string) || `u-input-${Math.random().toString(36).slice(2, 7)}`,
   )
 
+  const isDisabled = computed(() => state.value.disabled || state.value.loading)
+
   const value = computed({
-    get: () => props.modelValue,
+    get: () => model.value,
     set: (val) => {
-      if (!props.disabled && !props.loading) {
-        emit('update:modelValue', val)
+      if (!isDisabled.value) {
+        model.value = val
       }
     },
   })
@@ -32,25 +42,23 @@ export function useInput(
   const isPasswordVisible = ref(false)
 
   const togglePasswordVisibility = () => {
-    if (!props.disabled && !props.loading) {
+    if (!isDisabled.value) {
       isPasswordVisible.value = !isPasswordVisible.value
     }
   }
 
   const inputType = computed(() => {
-    if (props.type === 'password') {
+    if (state.value.type === 'password') {
       return isPasswordVisible.value ? 'text' : 'password'
     }
-    return props.type || 'text'
+    return state.value.type
   })
 
-  const showPasswordToggle = computed(() => props.type === 'password')
+  const showPasswordToggle = computed(() => state.value.type === 'password')
 
-  const isFilled = computed(() => !!props.modelValue)
+  const isFilled = computed(() => !!model.value)
 
-  const hasError = computed(() => props.error || !!props.errorMessage)
-
-  const isDisabled = computed(() => props.disabled || props.loading)
+  const hasError = computed(() => state.value.error || !!state.value.errorMessage)
 
   return {
     attrs,

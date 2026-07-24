@@ -9,7 +9,6 @@ export function useMarkDetail(
   scrollContainerRef: Ref<HTMLElement | null>,
 ) {
   const { address, fetchAddress } = useGeocoding()
-
   // --- Data State ---
   const marksCache = new Map<number, MarkFull>()
   const mark = ref<MarkFull | null>(null)
@@ -65,7 +64,7 @@ export function useMarkDetail(
           comments.value = cached.comments
 
           if (mark.value?.geom?.coordinates) {
-            fetchAddress(mark.value.geom.coordinates).catch(() => {})
+            fetchAddress(mark.value.geom.coordinates).catch(() => { })
           }
         }
         else {

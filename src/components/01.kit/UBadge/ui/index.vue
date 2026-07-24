@@ -1,13 +1,11 @@
 <script lang="ts" setup>
-const props = withDefaults(defineProps<{
+const { count, max = 99 } = defineProps<{
   count: number
   max?: number
-}>(), {
-  max: 99,
-})
+}>()
 
 const label = computed(() =>
-  props.count > props.max ? `${props.max}+` : String(props.count),
+  count > max ? `${max}+` : String(count),
 )
 </script>
 

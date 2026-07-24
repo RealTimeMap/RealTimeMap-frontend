@@ -93,13 +93,12 @@ const remainingXp = computed(() => {
   height: 50px;
   flex-shrink: 0;
   border-radius: 16px;
-  background: linear-gradient(135deg, #5370f9 0%, #7c4dff 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 20px rgba(83, 112, 249, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @include gradient();
 
   &__label {
     @include label-text(9px);

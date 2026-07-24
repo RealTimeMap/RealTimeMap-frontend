@@ -49,6 +49,7 @@ function goBack() {
     <chat-room-header
       :title="title"
       :avatar="avatar"
+      :user-id="peer?.id!"
       @back="goBack"
     />
 
@@ -75,7 +76,6 @@ function goBack() {
 .chat-room {
   display: flex;
   flex-direction: column;
-  /* dvh — только запасной вариант до первого замера: он не учитывает клавиатуру */
   height: var(--viewport-height, 100dvh);
 
   max-width: 400px;

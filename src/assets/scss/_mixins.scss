@@ -27,6 +27,11 @@
   }
 }
 
+@mixin gradient() {
+  background: linear-gradient(135deg, oklch(0.62 0.22 265), oklch(0.48 0.2 285));
+  box-shadow: oklch(0.62 0.22 265 / 0.35) 0px 6px 18px;
+}
+
 @mixin label-text($font-size: 12px, $text-transform: uppercase, $color: rgba(255, 255, 255, 0.5)) {
   font-size: $font-size;
   color: $color;
@@ -35,8 +40,9 @@
   letter-spacing: 0.5px;
 }
 
-@mixin value-text($font-size: 16px, $color: rgb(255, 255, 255)) {
+@mixin value-text($font-size: 16px, $color: rgb(255, 255, 255), $font-width: 400) {
   color: $color;
+  font-weight: $font-width;
   font-size: $font-size;
   line-height: 1.4;
 }

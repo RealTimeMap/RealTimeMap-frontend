@@ -90,7 +90,6 @@ watch(userPosition, (newPos) => {
         :media="user?.avatar || 'https://avatars.githubusercontent.com/u/71484693?v=4'"
       />
     </base-map-view>
-
     <locate-button
       :user-position="userPosition"
       :map-api="mapApi"
