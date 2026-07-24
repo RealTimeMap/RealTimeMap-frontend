@@ -7,11 +7,9 @@ interface Props {
   width?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  width: 200,
-})
+const { show, target, width = 200 } = defineProps<Props>()
 
-const emit = defineEmits<{ (e: 'close'): void }>()
+const emit = defineEmits<{ close: [] }>()
 
 const tooltipRef = ref<HTMLElement | null>(null)
 const coords = ref({ x: 0, y: 0 })
@@ -21,12 +19,12 @@ const align = ref<'left' | 'center' | 'right'>('center')
  * Логика умного позиционирования
  */
 function updatePosition() {
-  if (!props.target)
+  if (!target)
     return
 
-  const rect = props.target.getBoundingClientRect()
+  const rect = target.getBoundingClientRect()
   const { width: vw } = useWindowSize()
-  const halfWidth = props.width / 2
+  const halfWidth = width / 2
 
   coords.value = {
     x: rect.left + rect.width / 2,
@@ -49,15 +47,15 @@ function updatePosition() {
 onClickOutside(
   tooltipRef,
   () => emit('close'),
-  { ignore: [computed(() => props.target)] },
+  { ignore: [computed(() => target)] },
 )
 
 useEventListener('scroll', () => emit('close'), { capture: true, passive: true })
 
 useEventListener('resize', updatePosition)
 
-watch(() => props.target, () => {
-  if (props.show)
+watch(() => target, () => {
+  if (show)
     updatePosition()
 })
 </script>

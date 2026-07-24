@@ -8,18 +8,18 @@ interface Props {
   showRing?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  size: 60,
-  strokeWidth: 4,
-  progress: 0,
-  color: '#7aafeb',
-  level: undefined,
-  showRing: true,
-})
+const {
+  size = 60,
+  strokeWidth = 4,
+  progress = 0,
+  color = '#7aafeb',
+  level = undefined,
+  showRing = true,
+} = defineProps<Props>()
 
 // --- ГЕОМЕТРИЯ ---
-const ringSize = computed(() => props.size + 12)
-const radius = computed(() => (ringSize.value - props.strokeWidth) / 2)
+const ringSize = computed(() => size + 12)
+const radius = computed(() => (ringSize.value - strokeWidth) / 2)
 const circumference = computed(() => 2 * Math.PI * radius.value)
 
 // --- АНИМАЦИЯ ---
@@ -35,7 +35,7 @@ const dashOffset = computed(() => {
   if (!isAnimated.value) {
     return circumference.value
   }
-  return circumference.value - (props.progress / 100) * circumference.value
+  return circumference.value - (progress / 100) * circumference.value
 })
 </script>
 

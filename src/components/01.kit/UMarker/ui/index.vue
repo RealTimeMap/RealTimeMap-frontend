@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { ShallowRef } from 'vue'
 import type { MapPoint } from '@/types/shared/map'
-import maplibregl from 'maplibre-gl'
+import * as maplibregl from 'maplibre-gl'
 
 interface Props {
   coordinates: MapPoint
@@ -10,13 +10,14 @@ interface Props {
   media?: string | null
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  draggable: false,
-  color: '#fff',
-  media: null,
-})
+const {
+  coordinates,
+  draggable = false,
+  color = '#fff',
+  media = null,
+} = defineProps<Props>()
 
-const emit = defineEmits<{ (e: 'click'): void }>()
+const emit = defineEmits<{ click: [] }>()
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const marker = shallowRef<maplibregl.Marker | null>(null)
@@ -30,16 +31,16 @@ onMounted(() => {
 
   marker.value = new maplibregl.Marker({
     element: el,
-    draggable: props.draggable,
+    draggable,
     anchor: 'bottom',
   })
-    .setLngLat(props.coordinates)
+    .setLngLat(coordinates)
     .addTo(map.value)
 
   isReady.value = true
 })
 
-watch(() => props.coordinates, (newCoords) => {
+watch(() => coordinates, (newCoords) => {
   marker.value?.setLngLat(newCoords)
 })
 
@@ -58,15 +59,15 @@ onUnmounted(() => {
   >
     <div
       class="custom-map-marker"
-      :class="{ draggable: props.draggable }"
+      :class="{ draggable }"
       @click="emit('click')"
     >
-      <template v-if="props.media">
+      <template v-if="media">
         <div class="marker__block">
           <img
-            :src="props.media"
+            :src="media"
             class="marker-photo"
-            :style="{ borderColor: props.color }"
+            :style="{ borderColor: color }"
             alt="photo"
           >
         </div>

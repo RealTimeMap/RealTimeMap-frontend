@@ -33,7 +33,7 @@ onMounted(() => {
       >
         <u-icon
           icon="tabler:hand-click"
-          width="34"
+          width="20"
         />
         <span class="chip--content">
           Двойное касание — новая метка
@@ -51,8 +51,6 @@ onMounted(() => {
 .default-layout {
   display: flex;
   flex-direction: column;
-  /* dvh, а не vh: иначе на мобильном layout выше вьюпорта
-     на высоту адресной строки и страница уезжает под скролл */
   min-height: 100dvh;
 
   &__main {
@@ -63,8 +61,6 @@ onMounted(() => {
     box-sizing: border-box;
     padding-top: var(--safe-top);
 
-    /* Карта и комната чата занимают экран целиком и отбивают
-       безопасную зону сами — внутри своих плавающих элементов */
     &--full-bleed {
       padding-top: 0;
     }

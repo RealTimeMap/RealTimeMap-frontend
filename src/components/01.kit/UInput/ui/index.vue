@@ -1,24 +1,20 @@
 <script setup lang="ts">
-import type { UInputProps } from '../model/useInput'
+import type { UInputModel, UInputProps } from '../model/useInput'
 import { useInput } from '../model/useInput'
 
 defineOptions({
   inheritAttrs: false,
 })
 
-const props = withDefaults(defineProps<UInputProps>(), {
-  modelValue: '',
-  label: undefined,
-  error: false,
-  errorMessage: '',
-  loading: false,
-  disabled: false,
-  icon: undefined,
-})
+const {
+  type = 'text',
+  error = false,
+  errorMessage = '',
+  loading = false,
+  disabled = false,
+} = defineProps<UInputProps>()
 
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-}>()
+const model = defineModel<UInputModel>({ default: '' })
 
 const {
   attrs,
@@ -31,7 +27,7 @@ const {
   togglePasswordVisibility,
   hasError,
   isDisabled,
-} = useInput(props, emit)
+} = useInput(model, () => ({ type, error, errorMessage, loading, disabled }))
 </script>
 
 <template>

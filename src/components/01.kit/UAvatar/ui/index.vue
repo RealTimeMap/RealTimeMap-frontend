@@ -7,18 +7,19 @@ interface Props {
   backgroundColor?: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  altText: 'User Avatar',
-  backgroundColor: 'linear-gradient(135deg, oklch(0.7 0.14 200), oklch(0.45 0.12 250))',
-  src: undefined,
-})
+const {
+  size,
+  src = undefined,
+  altText = 'User Avatar',
+  backgroundColor = 'linear-gradient(135deg, oklch(0.7 0.14 200), oklch(0.45 0.12 250))',
+} = defineProps<Props>()
 
 const emit = defineEmits<{
-  (e: 'colorExtracted', color: string): void
+  colorExtracted: [color: string]
 }>()
 
 const fontSize = computed(() => {
-  return `${Math.round(props.size * 0.38)}px`
+  return `${Math.round(size * 0.38)}px`
 })
 
 function handleImageLoad(event: Event) {

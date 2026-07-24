@@ -6,10 +6,7 @@ interface Props {
   enabledGlass?: boolean
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  scale: 40,
-  enabledGlass: true,
-})
+const { scale = 40, enabledGlass = true } = defineProps<Props>()
 
 let uid = 0
 const getUid = () => uid++
@@ -22,7 +19,7 @@ const wrapperStyle = computed(() => ({
 const settingsStore = useSettingsStore()
 
 const showGlassEffect = computed(() => {
-  return settingsStore.isGlassEffectEnabled && props.enabledGlass
+  return settingsStore.isGlassEffectEnabled && enabledGlass
 })
 </script>
 
@@ -72,7 +69,7 @@ const showGlassEffect = computed(() => {
           <feDisplacementMap
             in="SourceGraphic"
             in2="softMap"
-            :scale="props.scale"
+            :scale="scale"
             xChannelSelector="R"
             yChannelSelector="G"
           />

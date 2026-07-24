@@ -10,10 +10,7 @@ interface FilePreview {
   url: string
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  max: 4,
-  maxSizeMb: 20,
-})
+const { max = 4, maxSizeMb = 20 } = defineProps<Props>()
 
 const emit = defineEmits<{
   'update:files': [files: File[]]
@@ -36,11 +33,11 @@ function handleFiles(files: FileList | null) {
   const newEntries: FilePreview[] = []
 
   for (const file of incomingFiles) {
-    if (fileList.value.length + newEntries.length >= props.max)
+    if (fileList.value.length + newEntries.length >= max)
       break
 
     const isImage = file.type.startsWith('image/') || file.name.endsWith('.heic')
-    const isLtSize = file.size / 1024 / 1024 < props.maxSizeMb
+    const isLtSize = file.size / 1024 / 1024 < maxSizeMb
 
     if (isImage && isLtSize) {
       newEntries.push({

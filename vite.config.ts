@@ -67,6 +67,10 @@ export default defineConfig({
     },
   },
 
+  optimizeDeps: {
+    exclude: ['maplibre-gl'],
+  },
+
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
   },

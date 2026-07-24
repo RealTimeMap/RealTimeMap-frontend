@@ -14,21 +14,19 @@ interface Props {
   parentPadding?: number
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  parentPadding: 0,
-})
+const { options, parentPadding = 0 } = defineProps<Props>()
 
 const modal = defineModel<number | null>()
 const selectRef = ref<HTMLElement | null>(null)
 const dropDown = ref(false)
 const activeOption = computed<UOption | undefined>(() => {
-  return props.options.find(
+  return options.find(
     option => option.value === modal.value,
   )
 })
 
 const value = computed(() => {
-  return props.options.find(
+  return options.find(
     option => option.value === modal.value,
   )?.label ?? 'Выберите категорию'
 })
@@ -52,7 +50,7 @@ onClickOutside(selectRef, () => {
     ref="selectRef"
     class="u-select"
     :class="{ 'is-open': dropDown }"
-    :style="{ '--u-select-offset': `${props.parentPadding}px` }"
+    :style="{ '--u-select-offset': `${parentPadding}px` }"
     @click="visibleSelect"
   >
     <div
