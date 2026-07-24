@@ -1,11 +1,9 @@
 import App from './app.vue'
 import router from './components/00.shared/lib/router'
+import { setupPWA } from './components/06.app/pwa'
 import websocketPlugin from './components/06.app/websocket'
 import { withI18n } from './components/06.app/withI18n'
 import './assets/scss/index.scss'
-
-// import 'vfonts/Lato.css'
-// import 'vfonts/FiraCode.css'
 
 const app = createApp(App)
 
@@ -15,3 +13,5 @@ app.use(router)
 app.use(websocketPlugin)
 
 app.mount('#app')
+
+setupPWA()

@@ -1,3 +1,5 @@
+import { execSync } from 'node:child_process'
+import process from 'node:process'
 import { fileURLToPath, URL } from 'node:url'
 import vue from '@vitejs/plugin-vue'
 import autoImport from 'unplugin-auto-import/vite'
@@ -5,7 +7,21 @@ import Components from 'unplugin-vue-components/vite'
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import vueDevTools from 'vite-plugin-vue-devtools'
-import pkg from './package.json'
+
+function resolveAppVersion(): string {
+  if (process.env.APP_VERSION)
+    return process.env.APP_VERSION.replace(/^v/, '')
+
+  try {
+    return execSync('git describe --tags --abbrev=0', { stdio: ['ignore', 'pipe', 'ignore'] })
+      .toString()
+      .trim()
+      .replace(/^v/, '')
+  }
+  catch {
+    return '0.0.0'
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -42,6 +58,7 @@ export default defineConfig({
 
     VitePWA({
       registerType: 'autoUpdate',
+      injectRegister: null,
       workbox: {
         runtimeCaching: [
           {
@@ -87,7 +104,7 @@ export default defineConfig({
   },
 
   define: {
-    __APP_VERSION__: JSON.stringify(pkg.version),
+    __APP_VERSION__: JSON.stringify(resolveAppVersion()),
   },
 
   css: {
