@@ -42,9 +42,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          PREV_VERSION=$(node -p "require('./package.json').version")
+          # версия «до» — из последнего тега, package.json источником не является
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          PREV_VERSION="${LAST_TAG#v}"
 
-          # обновляет version в package.json и дописывает CHANGELOG.md
+          # changelogen берёт базу из последнего тега; package.json он тоже
+          # правит, но этот файл мы не коммитим — см. следующий шаг
           bunx changelogen --bump
 
           VERSION=$(node -p "require('./package.json').version")
@@ -58,22 +61,40 @@ jobs:
 
           echo "CHANGED=true" >> $GITHUB_OUTPUT
 
-          # описание релиза = верхняя секция свежесгенерированного CHANGELOG.md
-          # (повторный вызов changelogen не знал бы о только что поднятой версии)
-          awk '/^## /{ n++ } n == 1' CHANGELOG.md > release-notes.md
+          # Строки «Release-note: ...» из тел коммитов — человеческое описание
+          # для пользователей. Тег этой версии ещё не создан, поэтому
+          # диапазон от предыдущего тега получается верным.
+          RANGE="${LAST_TAG:+$LAST_TAG..}HEAD"
+          NOTES=$(git log "$RANGE" --format=%B | sed -n 's/^[Rr]elease-note:[[:space:]]*//p')
 
-      - name: Commit Version and Changelog
+          # описание релиза = ручные заметки (если есть) + верхняя секция
+          # свежесгенерированного CHANGELOG.md
+          {
+            if [ -n "$NOTES" ]; then
+              echo "## Что нового"
+              echo
+              echo "$NOTES" | sed 's/^/- /'
+              echo
+            fi
+            awk '/^## /{ n++ } n == 1' CHANGELOG.md
+          } > release-notes.md
+
+      - name: Commit Changelog and Tag
         if: steps.bump.outputs.CHANGED == 'true'
         run: |
-          git add package.json CHANGELOG.md
+          # package.json намеренно НЕ коммитим: версия живёт в теге.
+          # Иначе main уходил бы вперёд по версии, а develop отставал.
+          git checkout -- package.json
+          git add CHANGELOG.md
           # [skip ci] обязателен: иначе пуш обратно в main запустит этот же workflow
-          git commit -m "chore(release): v${{ steps.bump.outputs.APP_VERSION }} [skip ci]"
+          git commit -m "docs(changelog): v${{ steps.bump.outputs.APP_VERSION }} [skip ci]"
           git tag "v${{ steps.bump.outputs.APP_VERSION }}"
           git push origin main --follow-tags
 
       - name: Build Web Application
         if: steps.bump.outputs.CHANGED == 'true'
         env:
+          APP_VERSION: ${{ steps.bump.outputs.APP_VERSION }}
           VITE_WS_URL: ${{ secrets.VITE_WS_URL }}
           VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
           VITE_YANDEX_GEOCODER_KEY: ${{ secrets.VITE_YANDEX_GEOCODER_KEY }}
@@ -85,6 +106,8 @@ jobs:
 
       - name: Build Android Debug APK
         if: steps.bump.outputs.CHANGED == 'true'
+        env:
+          APP_VERSION: ${{ steps.bump.outputs.APP_VERSION }}
         run: |
           cd android && ./gradlew assembleDebug
 
