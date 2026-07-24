@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.0
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.0.1...v0.1.0)
+
+### 🤖 CI
+
+- **release:** [skip ci] база версии из тега и ручной выбор шага ([1889f4d](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1889f4d))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.0.1
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.0.12...v0.0.1)
