@@ -1,7 +1,8 @@
-import type { Chat, Message } from '@/components/00.shared/services/chats/index.type'
+import type { Chat, ChatReadPayload, Message } from '@/components/00.shared/services/chats/index.type'
 import { defineStore } from 'pinia'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { chatApi } from '@/components/00.shared/services/chats'
+import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 
 export const useChatsStore = defineStore('chats', () => {
   const chats = shallowRef<Chat[]>([])
@@ -97,18 +98,36 @@ export const useChatsStore = defineStore('chats', () => {
     }
   }
 
-  const { isConnected, onChatMessage } = useChatSocket()
-  let unsubscribe: (() => void) | null = null
+  /**
+   * Чат прочитан с другого устройства текущего пользователя —
+   * синхронно гасим счётчик. Чужие прочтения к unread не относятся:
+   * их обрабатывает useChatMessages ради галочек.
+   */
+  function applyRead(payload: ChatReadPayload) {
+    if (payload.userId !== useAuthStore().user?.userId)
+      return
+
+    markAsRead(payload.chatId)
+  }
+
+  const { isConnected, onChatMessage, onChatRead } = useChatSocket()
+  let unsubscribers: (() => void)[] = []
+
+  const unsubscribeAll = () => {
+    unsubscribers.forEach(off => off())
+    unsubscribers = []
+  }
 
   watch(isConnected, (connected) => {
-    if (!connected) {
-      unsubscribe?.()
-      unsubscribe = null
-      return
-    }
+    unsubscribeAll()
 
-    unsubscribe?.()
-    unsubscribe = onChatMessage(applyIncoming)
+    if (!connected)
+      return
+
+    unsubscribers = [
+      onChatMessage(applyIncoming),
+      onChatRead(applyRead),
+    ]
 
     fetchChats()
   }, { immediate: true })

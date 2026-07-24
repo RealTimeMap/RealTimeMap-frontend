@@ -1,19 +1,29 @@
 <script lang="ts" setup>
-import type { Message } from '@/components/00.shared/services/chats/index.type'
+import type { ChatMessage } from '@/components/00.shared/services/chats/index.type'
+import { useInfiniteScroll } from '@vueuse/core'
 import { formatDayLabel } from '@/components/00.shared/lib/date/FormatDate'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import MessageBubble from './MessageBubble.vue'
 
 const props = defineProps<{
-  messages: readonly Message[]
+  messages: readonly ChatMessage[]
   isLoading: boolean
+  hasMore: boolean
+  isLoadingMore: boolean
+  peerLastReadId: number
+}>()
+
+const emit = defineEmits<{
+  loadMore: []
+  retry: [clientMessageId: string]
 }>()
 
 interface FeedItem {
-  message: Message
+  message: ChatMessage
   dayLabel: string | null
   isOwn: boolean
   showSender: boolean
+  isRead: boolean
 }
 
 const auth = useAuthStore()
@@ -32,6 +42,8 @@ const items = computed<FeedItem[]>(() => {
       dayLabel: isNewDay ? formatDayLabel(message.createdAt) : null,
       isOwn: message.sender.id === currentUserId,
       showSender: isNewDay || prev?.sender.id !== message.sender.id,
+      // курсор прочтения собеседника монотонный: всё до него включительно прочитано
+      isRead: message.id > 0 && message.id <= props.peerLastReadId,
     }
   })
 })
@@ -45,8 +57,37 @@ async function scrollToBottom() {
       el.scrollTop = el.scrollHeight
   })
 }
+let pendingRestore: { height: number, top: number } | null = null
 
-watch(() => props.messages, scrollToBottom)
+useInfiniteScroll(feedEl, () => {
+  const el = feedEl.value
+  if (el)
+    pendingRestore = { height: el.scrollHeight, top: el.scrollTop }
+
+  emit('loadMore')
+}, {
+  distance: 200,
+  direction: 'top',
+  canLoadMore: () => props.hasMore && !props.isLoadingMore,
+})
+
+watch(() => props.messages, async () => {
+  if (!pendingRestore)
+    return scrollToBottom()
+
+  const { height, top } = pendingRestore
+  pendingRestore = null
+
+  await nextTick()
+  const el = feedEl.value
+  if (el)
+    el.scrollTop = el.scrollHeight - height + top
+})
+
+watch(() => props.isLoadingMore, (loading) => {
+  if (!loading)
+    pendingRestore = null
+})
 
 onMounted(() => {
   scrollToBottom()
@@ -96,6 +137,8 @@ onUnmounted(() => {
           :message="item.message"
           :is-own="item.isOwn"
           :show-sender="item.showSender"
+          :is-read="item.isRead"
+          @retry="(id) => emit('retry', id)"
         />
       </template>
     </div>

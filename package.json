@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.11",
   "private": true,
-  "description": "A public map where users can leave anonymous or signed messages that are displayed in real time. All events are associated with coordinates and are visible to other users on the map.",
+  "description": "A public real-time map where users drop marks with messages, photos and a lifespan. Marks appear for everyone instantly and can be discussed in comments. Around the map: profiles with levels and achievements, direct chats and push notifications. Ships as a PWA and as native Android/iOS builds via Capacitor.",
   "productName": "RealTime Map",
   "engines": {
     "node": "^20.19.0 || >=22.12.0"
@@ -20,6 +20,9 @@
     "lint:fix": "eslint . --fix",
     "typecheck": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
     "---------------------------------------------------------------------------------": "",
+    "bump": "changelogen --bump",
+    "release": "changelogen --release --push",
+    "----------------------------------------------------------------------------------": "",
     "postinstall": "simple-git-hooks"
   },
   "dependencies": {
@@ -52,6 +55,8 @@
   "devDependencies": {
     "@antfu/eslint-config": "^8.3.0",
     "@capacitor/cli": "^8.4.2",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
     "@iconify-json/fe": "^1.2.4",
     "@iconify-json/line-md": "^1.2.16",
     "@iconify-json/lucide": "^1.2.119",
@@ -63,6 +68,7 @@
     "@vue/eslint-config-typescript": "^14.9.0",
     "@vue/tsconfig": "^0.9.1",
     "baseline-browser-mapping": "^2.11.1",
+    "changelogen": "^0.6.2",
     "eslint": "^10.7.0",
     "eslint-plugin-format": "^2.0.1",
     "eslint-plugin-vue": "~10.10.0",
@@ -80,6 +86,7 @@
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged",
+    "commit-msg": "npx commitlint --edit $1",
     "pre-push": "bun run typecheck"
   },
   "lint-staged": {

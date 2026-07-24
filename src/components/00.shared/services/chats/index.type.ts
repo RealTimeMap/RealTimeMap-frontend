@@ -42,10 +42,18 @@ export interface HistoryResponse {
   lastMessageId: number
 }
 
+export interface ChatReadPayload {
+  chatId: number
+  userId: number
+  lastReadMessageId: number
+}
+
 export interface Message {
   id: number
   type: string
   content: string
+  /** Ключ идемпотентности от клиента. У сообщений из старой истории отсутствует */
+  clientMessageId?: string
   /** Время отправки (ISO 8601) */
   createdAt: string
   chatId: number
@@ -54,4 +62,10 @@ export interface Message {
     username: string
     avatar?: string
   }
+}
+
+export type MessageStatus = 'sending' | 'sent' | 'failed'
+
+export interface ChatMessage extends Message {
+  status?: MessageStatus
 }

@@ -3,7 +3,7 @@
 // Описываем основные сущности, которые передаются по сокету.
 // =================================================================
 
-import type { Message as ChatMessage } from '@/components/00.shared/services/chats/index.type'
+import type { Message as ChatMessage, ChatReadPayload } from '@/components/00.shared/services/chats/index.type'
 import type { Mark, MarksOrClusterResponse } from '@/components/00.shared/services/mark/index.type'
 
 export interface Message {
@@ -85,6 +85,8 @@ export interface ServerToClientEvents {
    * Новое сообщение в любом из чатов пользователя.
    */
   'message.new': (payload: ChatMessage) => void
+
+  'chat.read': (payload: ChatReadPayload) => void
 
   // --- Общие события об ошибках ---
   'error': (payload: { message: string, code?: number }) => void

@@ -1,5 +1,17 @@
 apply plugin: 'com.android.application'
 
+// Версия — единый источник правды в package.json, руками здесь ничего не правим.
+def appVersionName = new groovy.json.JsonSlurper()
+        .parseText(file('../../package.json').text)
+        .version
+
+// versionCode обязан быть целым и монотонно расти: 0.1.12 -> 10112.
+// Пре-релизные суффиксы (0.1.12-beta.1) отбрасываем — в число они не влезают.
+def versionMatch = (appVersionName =~ /^(\d+)\.(\d+)\.(\d+)/)
+def appVersionCode = versionMatch[0][1].toInteger() * 10000 +
+        versionMatch[0][2].toInteger() * 100 +
+        versionMatch[0][3].toInteger()
+
 android {
     namespace = "app.vercel.realtimemap"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -7,8 +19,8 @@ android {
         applicationId "app.vercel.realtimemap"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode appVersionCode
+        versionName appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

@@ -1,4 +1,4 @@
-import type { Message } from '@/components/00.shared/services/chats/index.type'
+import type { ChatReadPayload, Message } from '@/components/00.shared/services/chats/index.type'
 import { useWebSocket } from './useWebSocket'
 
 export const CHATS_NAMESPACE = '/chats'
@@ -21,10 +21,14 @@ export function useChatSocket() {
   const onChatMessage = (handler: (message: Message) => void) =>
     on(CHATS_NAMESPACE, 'message.new', handler)
 
+  const onChatRead = (handler: (payload: ChatReadPayload) => void) =>
+    on(CHATS_NAMESPACE, 'chat.read', handler)
+
   return {
     isConnected,
     connectChats,
     disconnectChats,
     onChatMessage,
+    onChatRead,
   }
 }
