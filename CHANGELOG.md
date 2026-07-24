@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v0.0.1
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.0.12...v0.0.1)
+
+### 🩹 Исправления
+
+- **update:** Не регистрировать service worker в нативной сборке ([0b09d2c](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/0b09d2c))
+- **permissions:** Очередь запросов разрешений ([96c031f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/96c031f))
+- **update:** Краткая сводка вместо полного changelog в уведомлении ([b18620d](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b18620d))
+
+### 📖 Документация
+
+- **releasing:** Описал схему с версией в теге ([87f9203](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/87f9203))
+
+### 🏡 Разное
+
+- **git:** Исключил рабочие планы из репозитория ([290c8e0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/290c8e0))
+
+### 🤖 CI
+
+- **release:** Версия из git-тега вместо package.json ([ab1076a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ab1076a))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.0.12
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.0.11...v0.0.12)
