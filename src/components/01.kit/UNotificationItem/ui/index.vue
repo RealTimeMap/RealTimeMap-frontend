@@ -182,6 +182,12 @@ const defaultIcons = {
     .description {
       @include label-text(12px, none, rgba(255, 255, 255, 0.6));
       line-height: 1.3;
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 4;
+      line-clamp: 4;
+      overflow: hidden;
+      overflow-wrap: anywhere;
     }
   }
 }
