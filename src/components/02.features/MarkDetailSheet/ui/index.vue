@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation.ts'
 import { formatRelativeDate } from '@/components/00.shared/lib/date/FormatRelativeDate'
 import { useAuthStore } from '../../Authentication/model/auth'
 import { useShareStore } from '../../Share/model'
@@ -13,6 +14,8 @@ const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
 const shareStore = useShareStore()
 const { user } = useAuthStore()
+
+const { openProfile } = useProfileNavigation()
 
 const {
   commentText,
@@ -118,12 +121,15 @@ onMounted(() => {
         :meta="mark.meta"
       />
 
-      <div class="block owner-block">
+      <div
+        class="block owner-block"
+      >
         <u-avatar
           rounded
           :size="40"
           :src="mark.owner.avatar"
           :alt-text="mark.owner.username"
+          @click="openProfile(mark.owner.id)"
         />
         <div class="owner-info">
           <div class="owner-info__name">
@@ -192,12 +198,15 @@ onMounted(() => {
             :key="comment.id"
             class="comment-wrapper"
           >
-            <div class="comment-item">
+            <div
+              class="comment-item"
+            >
               <u-avatar
                 rounded
                 :size="34"
                 :src="comment.author.avatar"
                 :alt-text="comment.author.username"
+                @click="openProfile(comment.author.id)"
               />
               <div class="comment-content">
                 <span class="comment-author">{{ comment.author?.username }}</span>

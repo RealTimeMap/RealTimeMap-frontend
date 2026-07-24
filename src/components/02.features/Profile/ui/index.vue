@@ -1,17 +1,24 @@
 <script setup lang="ts">
+import type { User } from '@/components/00.shared/services/user/index.type'
+import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
 // import { markApi } from '@/components/00.shared/services/mark'
 import { useAuthStore } from '../../Authentication/model/auth'
 import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
 
+const props = defineProps<{
+  user: User | null
+  isOwn?: boolean
+}>()
+
 const emit = defineEmits<{
   (e: 'colorExtracted', color: string): void
 }>()
-const authStore = useAuthStore()
-const { user } = storeToRefs(authStore)
 
-const gameStats = computed(() => user.value?.gamification)
+const authStore = useAuthStore()
+const chatsStore = useChatsStore()
+const gameStats = computed(() => props.user?.gamification)
 const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
   return gameStats.value?.progressPercent
@@ -63,6 +70,24 @@ const maxVal = computed(() => {
       </div>
     </div>
 
+    <div
+      v-if="!isOwn && user"
+      class="user-action"
+    >
+      <button class="button-sub">
+        Подписаться
+      </button>
+      <button
+        class="button-message"
+        @click="chatsStore.newChat(user.userId)"
+      >
+        <u-icon
+          icon="line-md:chat-round"
+          height="20"
+        />
+      </button>
+    </div>
+
     <div class="user-profile-view__level">
       <level-block
         v-if="user?.gamification"
@@ -92,7 +117,10 @@ const maxVal = computed(() => {
       {{ myMarks }}
     </div> -->
 
-    <div class="button-logout">
+    <div
+      v-if="isOwn"
+      class="button-logout"
+    >
       <u-icon
         icon="material-symbols:logout"
         height="20"
@@ -159,5 +187,27 @@ const maxVal = computed(() => {
   &__tag {
     @include label-text(14px, none);
   }
+}
+
+.user-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.button-sub {
+  height: 44px;
+  @include glass-panel(14px, 11px, false);
+  @include gradient();
+  @include value-text(14px, var(--text-color), 700);
+  width: 100%;
+  border: none;
+}
+
+.button-message {
+  @include glass-panel(14px, 11px);
+  color: var(--text-color);
+  height: 44px;
+  min-width: 44px;
 }
 </style>

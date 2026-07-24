@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import ProfileUserView from '@/components/02.features/Profile'
+// import ProfileUserView from '@/components/02.features/Profile'
 
 const dynamicColor = ref('oklch(0.62 0.22 220)')
 
@@ -15,7 +15,13 @@ function handleColorExtracted(color: string) {
   >
     <div class="profile-blum" />
     <div class="profile-container">
-      <profile-user-view @color-extracted="handleColorExtracted" />
+      <router-view v-slot="{ Component }">
+        <component
+          :is="Component"
+          @color-extracted="handleColorExtracted"
+        />
+      </router-view>
+      <!-- <profile-user-view @color-extracted="handleColorExtracted" /> -->
     </div>
   </div>
 </template>

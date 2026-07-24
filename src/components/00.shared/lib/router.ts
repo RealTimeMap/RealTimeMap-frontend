@@ -38,12 +38,28 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: '/profile',
-    name: 'profile',
     component: () => import('@/components/05.pages/ProfilePage.vue'),
     meta: {
       layout: 'default',
       requiresAuth: true,
     },
+    children: [
+      {
+        path: '',
+        redirect: { name: 'profile' },
+      },
+      {
+        path: 'me',
+        name: 'profile',
+        component: () => import('@/components/05.pages/Profile/MyProfilePage.vue'),
+      },
+      {
+        path: ':userId(\\d+)',
+        name: 'user-profile',
+        component: () => import('@/components/05.pages/Profile/UserProfilePage.vue'),
+        props: route => ({ userId: Number(route.params.userId) }),
+      },
+    ],
   },
 
   {

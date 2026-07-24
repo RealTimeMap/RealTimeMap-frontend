@@ -1,13 +1,18 @@
 <script lang="ts" setup>
+import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation'
+
 defineProps<{
   title: string
   avatar?: string
   isOnline?: boolean
+  userId: number
 }>()
 
 const emit = defineEmits<{
   (e: 'back'): void
 }>()
+
+const { openProfile } = useProfileNavigation()
 </script>
 
 <template>
@@ -24,27 +29,32 @@ const emit = defineEmits<{
       />
     </button>
 
-    <div class="chat-header__avatar">
-      <u-avatar
-        :size="42"
-        rounded
-        :src="avatar"
-        :alt-text="title"
-      />
-      <span
-        v-if="isOnline"
-        class="chat-header__dot"
-      />
-    </div>
+    <div
+      class="chat-header__wrapper"
+      @click="openProfile(userId)"
+    >
+      <div class="chat-header__avatar">
+        <u-avatar
+          :size="42"
+          rounded
+          :src="avatar"
+          :alt-text="title"
+        />
+        <span
+          v-if="isOnline"
+          class="chat-header__dot"
+        />
+      </div>
 
-    <div class="chat-header__info">
-      <span class="chat-header__title">{{ title }}</span>
-      <span
-        v-if="isOnline"
-        class="chat-header__status"
-      >
-        в сети
-      </span>
+      <div class="chat-header__info">
+        <span class="chat-header__title">{{ title }}</span>
+        <span
+          v-if="isOnline"
+          class="chat-header__status"
+        >
+          в сети
+        </span>
+      </div>
     </div>
   </header>
 </template>
@@ -68,6 +78,12 @@ const emit = defineEmits<{
     cursor: pointer;
     color: var(--text-color);
     background: rgba(255, 255, 255, 0.08);
+  }
+
+  &__wrapper {
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
 
   &__avatar {
