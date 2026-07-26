@@ -2,6 +2,7 @@
 import * as maplibregl from 'maplibre-gl'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import { useShareStore } from '../../Share/model'
+import { onDoubleTap } from '../model/useDoubleTap'
 import 'maplibre-gl/dist/maplibre-gl.css'
 
 const props = defineProps<{
@@ -23,6 +24,7 @@ interface MapEmits {
 
 const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
+let offDoubleTap: (() => void) | null = null
 
 onMounted(() => {
   const mapInstance = new maplibregl.Map({
@@ -47,7 +49,7 @@ onMounted(() => {
     const bounds = mapInstance.getBounds().toArray() as [[number, number], [number, number]]
     emit('update:bounds', bounds)
   })
-  mapInstance.on('dblclick', (e) => {
+  offDoubleTap = onDoubleTap(mapInstance, (e) => {
     emit('dblClickMarker', [e.lngLat.lng, e.lngLat.lat])
   })
   mapInstance.on('zoomend', () => {
@@ -57,7 +59,10 @@ onMounted(() => {
   shareStore.registerMap(mapInstance)
 })
 
-onUnmounted(() => map.value?.remove())
+onUnmounted(() => {
+  offDoubleTap?.()
+  map.value?.remove()
+})
 
 provide('map', map)
 </script>
