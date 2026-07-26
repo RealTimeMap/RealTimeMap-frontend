@@ -1,4 +1,5 @@
 import { FileOpener } from '@capacitor-community/file-opener'
+import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { compareVersions } from 'compare-versions'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
@@ -7,7 +8,43 @@ import { summarizeRelease } from './summarizeRelease'
 declare const __APP_VERSION__: string
 const GITHUB_REPO = 'RealTimeMap/RealTimeMap-frontend'
 
+interface UpdateAction {
+  text: string
+  callback: () => void
+}
+
+function resolveUpdateAction(latestRelease: any): UpdateAction | null {
+  switch (Capacitor.getPlatform()) {
+    case 'android': {
+      const apkAsset = latestRelease.assets?.find(
+        (asset: any) => asset.name.endsWith('.apk'),
+      )
+      if (!apkAsset)
+        return null
+
+      return {
+        text: 'Обновить',
+        callback: () => downloadAndInstall(apkAsset.browser_download_url),
+      }
+    }
+
+    case 'ios':
+      // сборки в App Store пока нет — ведём на страницу релиза как заглушку
+      return {
+        text: 'Открыть',
+        callback: () => window.open(latestRelease.html_url, '_blank'),
+      }
+
+    // web сюда не доходит (отсечён в initUpdateChecker), обновляется через SW
+    default:
+      return null
+  }
+}
+
 export async function initUpdateChecker() {
+  if (!Capacitor.isNativePlatform())
+    return
+
   const notify = useNotificationStore()
 
   try {
@@ -18,13 +55,12 @@ export async function initUpdateChecker() {
     const latestRelease = await response.json()
     const latestVersion = latestRelease.tag_name.replace(/[^\d.]/g, '')
 
-    if (!compareVersions(latestVersion, __APP_VERSION__)) {
+    // показываем, только если релиз строго новее установленной версии
+    if (compareVersions(latestVersion, __APP_VERSION__) <= 0)
       return
-    }
-    const apkAsset = latestRelease.assets.find(
-      (asset: any) => asset.name.endsWith('.apk'),
-    )
-    if (!apkAsset)
+
+    const action = resolveUpdateAction(latestRelease)
+    if (!action)
       return
 
     notify.add({
@@ -33,12 +69,7 @@ export async function initUpdateChecker() {
       type: 'default',
       icon: 'solar:download-square-bold',
       duration: 0,
-      action: {
-        text: 'Обновить',
-        callback: () => {
-          downloadAndInstall(apkAsset.browser_download_url)
-        },
-      },
+      action,
     })
   }
   catch (error) {

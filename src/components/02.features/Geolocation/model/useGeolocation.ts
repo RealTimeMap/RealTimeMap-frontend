@@ -19,6 +19,28 @@ export function useGeolocation() {
     return !!(cap && cap.isNativePlatform())
   })
 
+  interface Coords { coords: { longitude: number, latitude: number } }
+
+  const applyPosition = (position: Coords) => {
+    userPosition.value = [position.coords.longitude, position.coords.latitude]
+    error.value = null
+    isLoading.value = false
+  }
+
+  /**
+   * Ошибку показываем, только пока не получили ни одной позиции.
+   * Иначе временный сбой watchPosition (частый на iOS: потеря сигнала,
+   * таймаут высокой точности) убрал бы уже работающую карту.
+   */
+  const handleError = (message: string) => {
+    if (userPosition.value) {
+      console.warn('[geolocation]', message)
+      return
+    }
+    error.value = message
+    isLoading.value = false
+  }
+
   const fetchGeolocation = async () => {
     isLoading.value = true
     error.value = null
@@ -35,6 +57,21 @@ export function useGeolocation() {
           return
         }
 
+        // Быстрый первый fix: разрешаем недавнюю кэшированную позицию и низкую
+        // точность, чтобы карта появилась сразу, не дожидаясь GPS. На iOS
+        // холодный высокоточный fix в помещении может тянуться дольше таймаута.
+        try {
+          const first = await Geolocation.getCurrentPosition({
+            enableHighAccuracy: false,
+            timeout: 10000,
+            maximumAge: 60000,
+          })
+          applyPosition(first)
+        }
+        catch {
+          // не страшно — точную позицию добудет watchPosition ниже
+        }
+
         capWatchId = await Geolocation.watchPosition(
           {
             enableHighAccuracy: true,
@@ -43,37 +80,37 @@ export function useGeolocation() {
           },
           (position, err) => {
             if (err) {
-              error.value = `Ошибка мобильной геолокации: ${err.message}`
-              isLoading.value = false
+              handleError(`Ошибка мобильной геолокации: ${err.message}`)
               return
             }
-            if (position) {
-              userPosition.value = [position.coords.longitude, position.coords.latitude]
-              isLoading.value = false
-            }
+            if (position)
+              applyPosition(position)
           },
         )
       }
       catch (err: any) {
-        error.value = `Не удалось запустить мобильный трекинг: ${err.message || err}`
-        isLoading.value = false
+        handleError(`Не удалось запустить мобильный трекинг: ${err.message || err}`)
       }
     }
     else {
       if ('geolocation' in navigator) {
+        // быстрый первый fix из кэша — карта появляется сразу
+        navigator.geolocation.getCurrentPosition(
+          applyPosition,
+          () => { /* нет кэша — уточнит watchPosition */ },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 },
+        )
+
         webWatchId = navigator.geolocation.watchPosition(
-          (position) => {
-            userPosition.value = [position.coords.longitude, position.coords.latitude]
-            isLoading.value = false
-          },
+          applyPosition,
           (err) => {
             if (isDev) {
               userPosition.value = devPosition
+              isLoading.value = false
             }
             else {
-              error.value = `Ошибка браузерной геолокации: ${err.message}`
+              handleError(`Ошибка браузерной геолокации: ${err.message}`)
             }
-            isLoading.value = false
           },
           {
             enableHighAccuracy: true,

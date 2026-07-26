@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core'
+import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
 async function unregisterServiceWorkers() {
   if (!('serviceWorker' in navigator))
@@ -25,5 +26,22 @@ export async function setupPWA() {
   }
 
   const { registerSW } = await import('virtual:pwa-register')
-  registerSW({ immediate: true })
+
+  const updateSW = registerSW({
+    immediate: true,
+    onNeedRefresh() {
+      const notify = useNotificationStore()
+      notify.add({
+        title: 'Доступно обновление',
+        description: 'Перезагрузите страницу, чтобы применить новую версию.',
+        type: 'default',
+        icon: 'solar:refresh-bold',
+        duration: 0,
+        action: {
+          text: 'Обновить',
+          callback: () => updateSW(true),
+        },
+      })
+    },
+  })
 }
