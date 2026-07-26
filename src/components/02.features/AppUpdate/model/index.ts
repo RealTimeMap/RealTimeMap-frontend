@@ -29,20 +29,22 @@ function resolveUpdateAction(latestRelease: any): UpdateAction | null {
     }
 
     case 'ios':
+      // сборки в App Store пока нет — ведём на страницу релиза как заглушку
       return {
-        text: 'Обновить',
-        callback: () => window.location.reload(),
+        text: 'Открыть',
+        callback: () => window.open(latestRelease.html_url, '_blank'),
       }
 
+    // web сюда не доходит (отсечён в initUpdateChecker), обновляется через SW
     default:
-      return {
-        text: 'Обновить',
-        callback: () => window.location.reload(),
-      }
+      return null
   }
 }
 
 export async function initUpdateChecker() {
+  if (!Capacitor.isNativePlatform())
+    return
+
   const notify = useNotificationStore()
 
   try {
