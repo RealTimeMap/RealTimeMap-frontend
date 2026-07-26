@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.3
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.2...v0.1.3)
+
+### 🚀 Функциональность
+
+- **update:** Кнопка обновления по платформе — reload, APK или релиз ([1f87a97](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1f87a97))
+
+### 🩹 Исправления
+
+- **update:** Развёл обновление веба и APK по платформам ([d09b41a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d09b41a))
+- **geo:** Быстрый первый fix и устойчивость к сбоям watch ([0bbe963](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/0bbe963))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.2
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.1...v0.1.2)
