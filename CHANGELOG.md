@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.2
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.1...v0.1.2)
+
+### 🩹 Исправления
+
+- **map:** Двойной тап по карте на iOS ([51166de](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/51166de))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.1
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.0...v0.1.1)
