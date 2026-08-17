@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import { useViewportHeight } from '@/components/00.shared/composables/useViewportHeight'
+import { formatLastSeen } from '@/components/00.shared/lib/lastSeen/index.ts'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { useChatMessages } from '../model/useChatMessages'
+import { useChatTyping } from '../model/useChatTyping.ts'
 import ChatComposer from './ChatComposer.vue'
 import ChatRoomHeader from './ChatRoomHeader.vue'
 import MessageFeed from './MessageFeed.vue'
@@ -31,6 +33,9 @@ const {
 } = useChatMessages(
   toRef(props, 'chatId'),
 )
+const { typingUsers, notifyTyping, notifyStopped } = useChatTyping(
+  toRef(props, 'chatId'),
+)
 
 const chatInfo = computed(() =>
   chatsStore.chats.find(chat => chat.chatId === props.chatId),
@@ -43,9 +48,24 @@ const peer = computed(() => {
 
 const title = computed(() => chatInfo.value?.title || peer.value?.username || 'Чат')
 const avatar = computed(() => chatInfo.value?.avatar || peer.value?.avatar || undefined)
+const isPeerOnline = computed(() => chatsStore.isPeerOnline(peer.value?.id))
+const isPeerTyping = computed(() => typingUsers.value.length > 0)
+
+const peerStatusText = computed(() => {
+  if (isPeerTyping.value)
+    return 'печатает...'
+  if (isPeerOnline.value)
+    return 'в сети'
+  return formatLastSeen(chatsStore.getLastSeenAt(peer.value?.id))
+})
 
 function goBack() {
   router.push({ name: 'chats' })
+}
+
+async function onSend(text: string) {
+  notifyStopped()
+  await sendMessage(text)
 }
 </script>
 
@@ -55,6 +75,9 @@ function goBack() {
       :title="title"
       :avatar="avatar"
       :user-id="peer?.id!"
+      :is-online="isPeerOnline"
+      :status-text="peerStatusText"
+      :is-typing="isPeerTyping"
       @back="goBack"
     />
 
@@ -77,7 +100,9 @@ function goBack() {
 
     <chat-composer
       :is-sending="isSending"
-      @send="sendMessage"
+      @send="onSend"
+      @typing="notifyTyping"
+      @stop-typing="notifyStopped"
     />
   </div>
 </template>

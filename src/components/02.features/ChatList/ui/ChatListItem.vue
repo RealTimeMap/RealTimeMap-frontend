@@ -1,10 +1,15 @@
 <script lang="ts" setup>
 import type { Chat } from '@/components/00.shared/services/chats/index.type'
 import { formatChatTimestamp } from '@/components/00.shared/lib/date/FormatDate'
+import { useChatsStore } from '@/components/00.shared/stores/chats'
 
-defineProps<{
+const props = defineProps<{
   chat: Chat
 }>()
+
+const chatsStore = useChatsStore()
+
+const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
 </script>
 
 <template>
@@ -17,12 +22,18 @@ defineProps<{
       },
     }"
   >
-    <u-avatar
-      :size="52"
-      rounded
-      :src="chat.avatar || undefined"
-      :alt-text="chat.title"
-    />
+    <div class="chat-avatar">
+      <u-avatar
+        :size="52"
+        rounded
+        :src="chat.avatar || undefined"
+        :alt-text="chat.title"
+      />
+      <span
+        v-if="isOnline"
+        class="chat-avatar__dot"
+      />
+    </div>
     <div class="chat-content">
       <span class="name">{{ chat.title }}</span>
       <span class="content">{{ chat.lastMessage?.content }}</span>
@@ -46,12 +57,27 @@ defineProps<{
   text-decoration: none;
   color: inherit;
 
+  &-avatar {
+    position: relative;
+    flex-shrink: 0;
+    line-height: 0;
+
+    &__dot {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--access-color);
+      border: 2px solid #0b0b10;
+    }
+  }
+
   &-content {
     display: flex;
     flex-direction: column;
     gap: 3px;
-    /* flex-basis: 0 не даёт колонке раздуться по контенту,
-       min-width: 0 разрешает ужиматься до многоточия, а не ломать слова в столбик */
     flex: 1;
     min-width: 0;
 

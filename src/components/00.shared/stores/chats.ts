@@ -1,4 +1,10 @@
-import type { Chat, ChatReadPayload, Message } from '@/components/00.shared/services/chats/index.type'
+import type {
+  Chat,
+  ChatReadPayload,
+  Message,
+  PresenceSnapshotPayload,
+  PresenceUserPayload,
+} from '@/components/00.shared/services/chats/index.type'
 import { defineStore } from 'pinia'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { chatApi } from '@/components/00.shared/services/chats'
@@ -8,10 +14,37 @@ export const useChatsStore = defineStore('chats', () => {
   const chats = shallowRef<Chat[]>([])
   const isLoading = ref(false)
   const error = ref<Error | null>(null)
+  const onlineUserIds = ref(new Set<number>())
+  const lastSeenAt = ref(new Map<number, string>())
+  const activeChatId = ref<number | null>(null)
 
   const router = useRouter()
 
-  const activeChatId = ref<number | null>(null)
+  const isPeerOnline = (userId?: number) =>
+    userId != null && onlineUserIds.value.has(userId)
+
+  const getLastSeenAt = (userId?: number) =>
+    userId != null ? lastSeenAt.value.get(userId) : undefined
+
+  const applySnapshot = (payload: PresenceSnapshotPayload) => {
+    onlineUserIds.value = new Set(payload.online)
+  }
+
+  const applyOnline = (payload: PresenceUserPayload) => {
+    if (onlineUserIds.value.has(payload.userId))
+      return
+    onlineUserIds.value = new Set(onlineUserIds.value).add(payload.userId)
+  }
+
+  const applyOffline = (payload: PresenceUserPayload) => {
+    if (onlineUserIds.value.has(payload.userId)) {
+      const next = new Set(onlineUserIds.value)
+      next.delete(payload.userId)
+      onlineUserIds.value = next
+    }
+
+    lastSeenAt.value = new Map(lastSeenAt.value).set(payload.userId, payload.at)
+  }
 
   const unreadTotal = computed(() =>
     chats.value.reduce((sum, chat) => sum + (chat.unreadCount || 0), 0),
@@ -86,6 +119,7 @@ export const useChatsStore = defineStore('chats', () => {
             avatar: direct.peer.avatar,
             unreadCount: 0,
             updatedAt: direct.createdAt,
+            peerId,
           },
           ...chats.value,
         ]
@@ -132,17 +166,57 @@ export const useChatsStore = defineStore('chats', () => {
     fetchChats()
   }, { immediate: true })
 
+  let presenceUnsubscribers: (() => void)[] = []
+  let isPresenceSubscribed = false
+
+  const initPresence = () => {
+    if (isPresenceSubscribed)
+      return
+    isPresenceSubscribed = true
+
+    const {
+      isConnected,
+      onPresenceSnapshot,
+      onPresenceOnline,
+      onPresenceOffline,
+    } = useChatSocket()
+
+    watch(
+      isConnected,
+      (connected) => {
+        presenceUnsubscribers.forEach(off => off())
+        presenceUnsubscribers = []
+
+        if (!connected) {
+          onlineUserIds.value = new Set()
+          return
+        }
+
+        presenceUnsubscribers = [
+          onPresenceSnapshot(applySnapshot),
+          onPresenceOnline(applyOnline),
+          onPresenceOffline(applyOffline),
+        ]
+      },
+      { immediate: true },
+    )
+  }
+
   return {
     chats,
     isLoading,
     error,
     activeChatId,
     unreadTotal,
+    onlineUserIds,
 
     newChat,
     fetchChats,
     setActiveChat,
     markAsRead,
     applyIncoming,
+    isPeerOnline,
+    initPresence,
+    getLastSeenAt,
   }
 })

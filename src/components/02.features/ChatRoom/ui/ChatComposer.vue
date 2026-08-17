@@ -6,6 +6,8 @@ defineProps<{
 const emit = defineEmits<{
   (e: 'send', content: string): void
   (e: 'attach'): void
+  (e: 'typing'): void
+  (e: 'stopTyping'): void
 }>()
 
 const MAX_HEIGHT = 120
@@ -24,11 +26,21 @@ function autoGrow() {
   el.style.height = `${Math.min(el.scrollHeight, MAX_HEIGHT)}px`
 }
 
+function handleInput() {
+  autoGrow()
+
+  if (text.value.trim().length > 0)
+    emit('typing')
+  else
+    emit('stopTyping')
+}
+
 function handleSend() {
   if (!canSend.value)
     return
 
   emit('send', text.value)
+  emit('stopTyping')
   text.value = ''
   nextTick(autoGrow)
 }
@@ -64,7 +76,7 @@ function handleKeydown(event: KeyboardEvent) {
         rows="1"
         placeholder="Сообщение..."
         class="composer__input"
-        @input="autoGrow"
+        @input="handleInput"
         @keydown="handleKeydown"
       />
 

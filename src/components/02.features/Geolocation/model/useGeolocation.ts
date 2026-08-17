@@ -57,9 +57,6 @@ export function useGeolocation() {
           return
         }
 
-        // Быстрый первый fix: разрешаем недавнюю кэшированную позицию и низкую
-        // точность, чтобы карта появилась сразу, не дожидаясь GPS. На iOS
-        // холодный высокоточный fix в помещении может тянуться дольше таймаута.
         try {
           const first = await Geolocation.getCurrentPosition({
             enableHighAccuracy: false,
@@ -68,9 +65,7 @@ export function useGeolocation() {
           })
           applyPosition(first)
         }
-        catch {
-          // не страшно — точную позицию добудет watchPosition ниже
-        }
+        catch { }
 
         capWatchId = await Geolocation.watchPosition(
           {
@@ -94,7 +89,6 @@ export function useGeolocation() {
     }
     else {
       if ('geolocation' in navigator) {
-        // быстрый первый fix из кэша — карта появляется сразу
         navigator.geolocation.getCurrentPosition(
           applyPosition,
           () => { /* нет кэша — уточнит watchPosition */ },
