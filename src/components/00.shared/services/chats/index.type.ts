@@ -22,6 +22,8 @@ export interface Chat {
   unreadCount: number
   /** Время последнего обновления чата (ISO 8601) */
   updatedAt: string
+
+  peerId: number
 }
 
 export interface DirectChat {
@@ -68,4 +70,30 @@ export type MessageStatus = 'sending' | 'sent' | 'failed'
 
 export interface ChatMessage extends Message {
   status?: MessageStatus
+}
+
+export interface TypingPayload {
+  chatId: number
+}
+
+export interface ChatTypingPayload {
+  chatId: number
+  userId: number
+  username?: string
+  isTyping: boolean
+}
+
+export interface PresenceUserPayload {
+  userId: number
+  at: string
+}
+
+export interface PresenceSnapshotEntry {
+  userId: number
+  online: boolean
+  at: string
+}
+
+export interface PresenceSnapshotPayload {
+  online: number[]
 }

@@ -11,6 +11,7 @@ export default {
   install: (_app: App) => {
     const { connect, sockets } = useWebSocket()
     const { connectChats, disconnectChats } = useChatSocket()
+    const chatsStore = useChatsStore()
 
     connect(MARKS_NAMESPACE, { path: '/marks/socket.io' })
 
@@ -21,10 +22,13 @@ export default {
     watch(
       () => auth.token,
       (token) => {
-        if (token)
+        if (token) {
           connectChats(token)
-        else
+          chatsStore.initPresence()
+        }
+        else {
           disconnectChats()
+        }
       },
       { immediate: true },
     )

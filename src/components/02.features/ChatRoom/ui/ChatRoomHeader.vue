@@ -4,7 +4,9 @@ import { useProfileNavigation } from '@/components/00.shared/composables/useProf
 defineProps<{
   title: string
   avatar?: string
+  statusText?: string
   isOnline?: boolean
+  isTyping?: boolean
   userId: number
 }>()
 
@@ -49,10 +51,11 @@ const { openProfile } = useProfileNavigation()
       <div class="chat-header__info">
         <span class="chat-header__title">{{ title }}</span>
         <span
-          v-if="isOnline"
+          v-if="statusText"
           class="chat-header__status"
+          :class="{ 'chat-header__status--typing': isTyping }"
         >
-          в сети
+          {{ statusText }}
         </span>
       </div>
     </div>
@@ -121,6 +124,11 @@ const { openProfile } = useProfileNavigation()
   &__status {
     font-size: 13px;
     color: var(--primary-color);
+
+    &--typing {
+      color: var(--primary-color);
+      font-style: italic;
+    }
   }
 }
 </style>

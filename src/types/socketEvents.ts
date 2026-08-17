@@ -1,10 +1,15 @@
-// =================================================================
-//* МОДЕЛИ ДАННЫХ (Data Models)
-// Описываем основные сущности, которые передаются по сокету.
-// =================================================================
-
-import type { Message as ChatMessage, ChatReadPayload } from '@/components/00.shared/services/chats/index.type'
-import type { Mark, MarksOrClusterResponse } from '@/components/00.shared/services/mark/index.type'
+import type {
+  Message as ChatMessage,
+  ChatReadPayload,
+  ChatTypingPayload,
+  PresenceSnapshotPayload,
+  PresenceUserPayload,
+  TypingPayload,
+} from '@/components/00.shared/services/chats/index.type'
+import type {
+  Mark,
+  MarksOrClusterResponse,
+} from '@/components/00.shared/services/mark/index.type'
 
 export interface Message {
   id: string
@@ -60,6 +65,19 @@ export interface ClientToServerEvents {
 
   // --- Приватные события (неймспейс /messages) ---
   'message:send': (payload: { text: string }) => void
+
+  /**
+   * Троттлинг ~2 сек на клиенте, НЕ на каждое нажатие.
+   * Повторный start не создаёт новое chat.typing у собеседников —
+   * лишь сдвигает автосброс индикатора (~6 сек после последнего start на сервере).
+   */
+  'typing.start': (payload: TypingPayload) => void
+  /**
+   * Необязательно для корректности (индикатор гаснет автосбросом через ~6 сек
+   * или при разрыве соединения), но делает UI отзывчивее.
+   * Повторный/лишний stop сервером молча игнорируется. Ack отсутствует.
+   */
+  'typing.stop': (payload: TypingPayload) => void
 }
 
 // =================================================================
@@ -87,6 +105,15 @@ export interface ServerToClientEvents {
   'message.new': (payload: ChatMessage) => void
 
   'chat.read': (payload: ChatReadPayload) => void
+
+  /** Снимок онлайн-собеседников, приходит один раз при подключении к /chats */
+  'presence.snapshot': (payload: PresenceSnapshotPayload) => void
+  /** Собеседник появился в сети */
+  'presence.online': (payload: PresenceUserPayload) => void
+  /** Собеседник ушёл из сети */
+  'presence.offline': (payload: PresenceUserPayload) => void
+  /** Ретранслируется из typing.start/typing.stop как isTyping true/false */
+  'chat.typing': (payload: ChatTypingPayload) => void
 
   // --- Общие события об ошибках ---
   'error': (payload: { message: string, code?: number }) => void
