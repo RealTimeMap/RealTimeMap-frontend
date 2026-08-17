@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.5
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.4...v0.1.5)
+
+### 🩹 Исправления
+
+- **chats:** Дисконект и смена статуса при сворачивании приложения или смены вкладки сайта ([fb5af93](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fb5af93))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.4
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.3...v0.1.4)
