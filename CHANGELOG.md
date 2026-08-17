@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.4
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.3...v0.1.4)
+
+### 🚀 Функциональность
+
+- **chats:** Статус "печатает" и "в сети" у собеседника ([769355f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/769355f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.3
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.2...v0.1.3)
