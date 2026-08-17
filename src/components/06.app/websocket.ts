@@ -1,5 +1,6 @@
 import type { App } from 'vue'
 import { App as CapacitorApp } from '@capacitor/app'
+import { Capacitor } from '@capacitor/core'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { useWebSocket } from '@/components/00.shared/composables/useWebSocket'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
@@ -33,14 +34,42 @@ export default {
       { immediate: true },
     )
 
-    CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-      if (isActive) {
-        sockets.forEach((socketData) => {
-          if (!socketData.instance.connected) {
-            socketData.instance.connect()
-          }
-        })
-      }
-    })
+    function reconnectOtherNamespaces() {
+      sockets.forEach((socketData, namespace) => {
+        if (namespace !== '/chats' && !socketData.instance.connected)
+          socketData.instance.connect()
+      })
+    }
+
+    if (Capacitor.isNativePlatform()) {
+      CapacitorApp.addListener('appStateChange', ({ isActive }) => {
+        if (isActive) {
+          if (auth.token)
+            connectChats(auth.token)
+
+          reconnectOtherNamespaces()
+        }
+        else {
+          disconnectChats()
+        }
+      })
+    }
+    else {
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          disconnectChats()
+        }
+        else {
+          if (auth.token)
+            connectChats(auth.token)
+
+          reconnectOtherNamespaces()
+        }
+      })
+
+      window.addEventListener('pagehide', () => {
+        disconnectChats()
+      })
+    }
   },
 }
