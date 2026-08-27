@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.6
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.5...v0.1.6)
+
+### 🚀 Функциональность
+
+- **settings:** Добавлены настройки ([44c8fb9](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/44c8fb9))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.5
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.4...v0.1.5)
