@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.1.7
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.6...v0.1.7)
+
+### 🚀 Функциональность
+
+- **cache:** Кеширование карты ([99ff5a0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/99ff5a0))
+
+### 🩹 Исправления
+
+- **settings:** Отступ сверху на телефоне ([9ae702c](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/9ae702c))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.6
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.5...v0.1.6)
