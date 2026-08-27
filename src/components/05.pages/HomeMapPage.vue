@@ -9,6 +9,7 @@ import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
 import LocateButton from '@/components/02.features/LocateButton'
 import { BaseMapView } from '@/components/02.features/MapCore'
 import MarkForm from '@/components/02.features/MarkForm'
+import SearchUsers from '@/components/02.features/SearchUsers'
 
 const {
   userPosition,
@@ -90,6 +91,9 @@ watch(userPosition, (newPos) => {
         :media="user?.avatar || 'https://avatars.githubusercontent.com/u/71484693?v=4'"
       />
     </base-map-view>
+    <search-users
+      v-if="!isLoadingGeolocation && !geolocationError"
+    />
     <locate-button
       :user-position="userPosition"
       :map-api="mapApi"

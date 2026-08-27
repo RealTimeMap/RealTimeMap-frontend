@@ -1,4 +1,10 @@
-import type { GetProfileParams, UpdateProfilePayload, User } from './index.type'
+import type {
+  GetProfileParams,
+  SearchProfilesParams,
+  SearchProfilesResponse,
+  UpdateProfilePayload,
+  User,
+} from './index.type'
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
 export const userApi = {
@@ -42,6 +48,19 @@ export const userApi = {
       headers: {
         Authorization: `Bearer ${getCookie('token')}`,
       },
+    })
+  },
+
+  searchProfiles(params: SearchProfilesParams): Promise<SearchProfilesResponse> {
+    const queryParams = new URLSearchParams()
+
+    if (params.q)
+      queryParams.append('q', params.q)
+    queryParams.append('page', String(params.page ?? 1))
+    queryParams.append('pageSize', String(params.pageSize ?? 10))
+
+    return apiService.get<SearchProfilesResponse>('/profile/search', {
+      params: queryParams,
     })
   },
 }
