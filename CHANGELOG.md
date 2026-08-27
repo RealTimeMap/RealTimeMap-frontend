@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.9
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.8...v0.1.9)
+
+### 🚀 Функциональность
+
+- **ui:** Заглушка для пустых чатов ([6bce5f7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6bce5f7))
+- **ui:** Поиск по людям ([6fe1cb0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6fe1cb0))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.8
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.7...v0.1.8)
