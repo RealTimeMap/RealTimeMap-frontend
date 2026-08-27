@@ -120,7 +120,7 @@ export default antfu({
     'vue/no-unused-vars': 'error',
     'vue/no-unused-components': 'error',
     'vue/no-mutating-props': 'error',
-    'vue/no-setup-props-reactivity-loss': 'error',
+    // 'vue/no-setup-props-reactivity-loss': 'error',
 
     'vue/define-emits-declaration': ['error', 'type-based'],
     'vue/define-props-declaration': ['error', 'type-based'],

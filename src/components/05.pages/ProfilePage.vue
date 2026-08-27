@@ -54,7 +54,7 @@ function handleColorExtracted(color: string) {
   }
 
   &-container {
-    padding-top: 60px;
+    padding-top: calc(60px - var(--safe-top));
     padding-bottom: 140px;
     width: 100%;
   }

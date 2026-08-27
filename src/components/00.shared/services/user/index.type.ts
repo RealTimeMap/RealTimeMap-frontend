@@ -57,3 +57,9 @@ export type UserIncludeType = 'ban' | 'gamefication' | 'subscription'
 export interface GetProfileParams {
   include?: UserIncludeType[]
 }
+
+export interface UpdateProfilePayload {
+  username?: string
+  tag?: string
+  avatar?: File
+}

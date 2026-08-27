@@ -35,6 +35,7 @@ defineProps<{
   display: flex;
   flex-direction: column;
   justify-content: center;
+  align-items: flex-start;
   gap: 2px;
 
   .name {
