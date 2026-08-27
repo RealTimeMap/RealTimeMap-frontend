@@ -181,7 +181,7 @@ function openSettings() {
 
 .button-settings {
   position: absolute;
-  top: calc(-30px + var(--safe-bottom));
+  top: 0;
   right: 0;
   width: 38px;
   height: 38px;
