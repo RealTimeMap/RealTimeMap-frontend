@@ -3,6 +3,7 @@ import type { User } from '@/components/00.shared/services/user/index.type'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import AppSettings from '@/components/02.features/AppSetting'
+import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
 // import { markApi } from '@/components/00.shared/services/mark'
 import Achievements from '../widgets/Achievements/index'
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 }>()
 
 const chatsStore = useChatsStore()
+const authStore = useAuthStore()
 const gameStats = computed(() => props.user?.gamification)
 const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
@@ -86,7 +88,7 @@ function openSettings() {
     </div>
 
     <div
-      v-if="!isOwn && user"
+      v-if="!isOwn && user && authStore.isAuthenticated"
       class="user-action"
     >
       <button class="button-sub">

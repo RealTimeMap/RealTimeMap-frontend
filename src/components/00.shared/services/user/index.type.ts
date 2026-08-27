@@ -63,3 +63,27 @@ export interface UpdateProfilePayload {
   tag?: string
   avatar?: File
 }
+
+export interface SearchProfileItem {
+  userId: number
+  username: string
+  tag: string
+  avatar?: string
+  isPrivate: boolean
+}
+
+export interface SearchProfilesParams {
+  q?: string
+  page?: number
+  pageSize?: number
+}
+
+export interface SearchProfilesResponse {
+  items: SearchProfileItem[]
+  page: number
+  pageSize: number
+  totalPages: number
+  total: number
+  hasNext: boolean
+  hasPrev: boolean
+}
