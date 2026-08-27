@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import type { User } from '@/components/00.shared/services/user/index.type'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import AppSettings from '@/components/02.features/AppSetting'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
 // import { markApi } from '@/components/00.shared/services/mark'
-import { useAuthStore } from '../../Authentication/model/auth'
 import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
 
@@ -16,13 +17,27 @@ const emit = defineEmits<{
   (e: 'colorExtracted', color: string): void
 }>()
 
-const authStore = useAuthStore()
 const chatsStore = useChatsStore()
 const gameStats = computed(() => props.user?.gamification)
 const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
   return gameStats.value?.progressPercent
 })
+const { open } = useDialogStore()
+
+function openSettings() {
+  open(AppSettings, {
+    user: props.user,
+  }, {
+    height: '100%',
+    width: '400px',
+    headerModal: false,
+    transition: 'slide-right',
+    classModal: 'modal-settings',
+    position: 'center end',
+    swipeable: false,
+  })
+}
 
 // const myMarks = ref()
 
@@ -119,12 +134,12 @@ const maxVal = computed(() => {
 
     <div
       v-if="isOwn"
-      class="button-logout"
+      class="button-settings"
     >
       <u-icon
-        icon="material-symbols:logout"
+        icon="line-md:cog-loop"
         height="20"
-        @click="authStore.logout()"
+        @click="openSettings()"
       />
     </div>
   </div>
@@ -164,11 +179,21 @@ const maxVal = computed(() => {
   }
 }
 
-.button-logout {
+.button-settings {
   position: absolute;
-  top: 0;
+  top: calc(-30px + var(--safe-bottom));
   right: 0;
-  color: var(--red-color);
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  color: rgb(201, 204, 211);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
 }
 
 .user-info {

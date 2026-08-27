@@ -69,7 +69,7 @@ function openMarkModal(markId: number) {
     { markId },
     {
       headerModal: false,
-      position: 'flex-end',
+      position: 'end center',
       onClose: () => {
         const currentQuery = { ...route.query }
         delete currentQuery.id

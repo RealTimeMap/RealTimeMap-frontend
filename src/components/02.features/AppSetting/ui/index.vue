@@ -1,0 +1,188 @@
+<script setup lang="ts">
+import { storeToRefs } from 'pinia'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { useAuthStore } from '@/components/02.features/Authentication/model/auth/index.ts'
+import Profile from './profile.vue'
+
+declare const __APP_VERSION__: string
+const appVersion = __APP_VERSION__
+
+const { user, logout } = useAuthStore()
+const { close } = useDialogStore()
+
+const settings = useSettingsStore()
+const {
+  isAppNotificationsEnabled,
+  isSystemNotificationsEnabled,
+  formattedCacheSize,
+  isCalculating,
+  isClearing,
+} = storeToRefs(settings)
+
+onMounted(() => {
+  settings.calculateCacheSize()
+})
+</script>
+
+<template>
+  <div class="settings">
+    <div class="settings-header">
+      <button
+        class="button-back"
+        @click="close"
+      >
+        <u-icon icon="line-md:arrow-small-left" />
+      </button>
+      <h2>Настройки</h2>
+    </div>
+    <profile :user="user" />
+
+    <section class="settings-section">
+      <h3 class="settings-section__title">
+        Уведомления
+      </h3>
+      <div class="settings-row">
+        <div class="settings-row__text">
+          <span class="settings-row__label">Уведомления приложения</span>
+          <span class="settings-row__hint">Всплывающие сообщения внутри приложения</span>
+        </div>
+        <u-switch v-model="isAppNotificationsEnabled" />
+      </div>
+      <div class="settings-row">
+        <div class="settings-row__text">
+          <span class="settings-row__label">Системные уведомления</span>
+          <span class="settings-row__hint">Пуши на устройстве</span>
+        </div>
+        <u-switch v-model="isSystemNotificationsEnabled" />
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h3 class="settings-section__title">
+        Кеш приложения
+      </h3>
+      <div class="settings-row">
+        <div class="settings-row__text">
+          <span class="settings-row__label">Занято на устройстве</span>
+          <span class="settings-row__hint">
+            {{ isCalculating ? 'Подсчёт…' : formattedCacheSize }}
+          </span>
+        </div>
+        <button
+          class="button-clear"
+          :disabled="isClearing"
+          @click="settings.clearCache()"
+        >
+          {{ isClearing ? 'Очистка…' : 'Очистить' }}
+        </button>
+      </div>
+    </section>
+
+    <button
+      class="button-logout"
+      @click="logout"
+    >
+      <u-icon icon="line-md:logout" />
+      Выйти из аккаунта
+    </button>
+    <span class="version">
+      RealTimeMap · версия {{ appVersion }}
+    </span>
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.settings {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  height: 100%;
+  padding-bottom: 20px;
+}
+
+.settings-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+
+  .button-back {
+    @include glass-panel(12px, 10px, false);
+  }
+
+  h2 {
+    @include value-text(24px, var(--text-color), 700);
+  }
+}
+
+.settings-section {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  &__title {
+    @include label-text(12px, uppercase);
+  }
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  @include glass-panel(16px, 14px, false);
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__label {
+    @include value-text(15px, var(--text-color), 600);
+  }
+
+  &__hint {
+    @include label-text(12px, none);
+  }
+}
+
+.button-clear {
+  flex-shrink: 0;
+  padding: 9px 16px;
+  border-radius: 12px;
+  background: rgba(229, 72, 77, 0.1);
+  border: 1px solid rgba(229, 72, 77, 0.3);
+  @include value-text(14px, rgb(255, 113, 118), 600);
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.button-logout {
+  width: 100%;
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: rgba(229, 72, 77, 0.1);
+  border: 1px solid rgba(229, 72, 77, 0.3);
+  border-radius: 16px;
+  padding: 16px;
+  @include value-text(16px, rgb(255, 113, 118), 600);
+  cursor: pointer;
+}
+
+.version {
+  @include label-text(12px, none);
+}
+</style>
