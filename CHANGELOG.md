@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.8
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.7...v0.1.8)
+
+### 🚀 Функциональность
+
+- **core:** Закрытие модалок свайпо назад ([e256ce5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e256ce5))
+- **ui:** Добавлен редактор профиля ([6f1d1b3](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6f1d1b3))
+
+### 🎨 Стили
+
+- **ui:** Отступы сверху на телефоне на странице профиля ([fbc8729](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fbc8729))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.7
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.6...v0.1.7)
