@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import * as maplibregl from 'maplibre-gl'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+import { buildTransformRequest, registerOfflineMapProtocol } from '@/components/02.features/OfflineMap'
 import { useShareStore } from '../../Share/model'
 import { onDoubleTap } from '../model/useDoubleTap'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -27,6 +28,8 @@ const map = shallowRef<maplibregl.Map | null>(null)
 let offDoubleTap: (() => void) | null = null
 
 onMounted(() => {
+  registerOfflineMapProtocol()
+
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
     style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
@@ -34,6 +37,7 @@ onMounted(() => {
     zoom: props.zoomLevel,
     doubleClickZoom: false,
     attributionControl: false,
+    transformRequest: buildTransformRequest(),
     canvasContextAttributes: {
       preserveDrawingBuffer: true,
     },

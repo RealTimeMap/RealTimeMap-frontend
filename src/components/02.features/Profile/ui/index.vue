@@ -30,7 +30,7 @@ function openSettings() {
     user: props.user,
   }, {
     height: '100%',
-    width: '400px',
+    width: '500px',
     headerModal: false,
     transition: 'slide-right',
     classModal: 'modal-settings',

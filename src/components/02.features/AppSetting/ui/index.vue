@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Capacitor } from '@capacitor/core'
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
@@ -7,6 +8,7 @@ import Profile from './profile.vue'
 
 declare const __APP_VERSION__: string
 const appVersion = __APP_VERSION__
+const isNative = Capacitor.isNativePlatform()
 
 const { user, logout } = useAuthStore()
 const { close } = useDialogStore()
@@ -18,10 +20,15 @@ const {
   formattedCacheSize,
   isCalculating,
   isClearing,
+  formattedMapCacheSize,
+  isCalculatingMap,
+  isClearingMap,
 } = storeToRefs(settings)
 
 onMounted(() => {
   settings.calculateCacheSize()
+  if (isNative)
+    settings.calculateMapCacheSize()
 })
 </script>
 
@@ -60,11 +67,11 @@ onMounted(() => {
 
     <section class="settings-section">
       <h3 class="settings-section__title">
-        Кеш приложения
+        Кеш
       </h3>
       <div class="settings-row">
         <div class="settings-row__text">
-          <span class="settings-row__label">Занято на устройстве</span>
+          <span class="settings-row__label">Приложение</span>
           <span class="settings-row__hint">
             {{ isCalculating ? 'Подсчёт…' : formattedCacheSize }}
           </span>
@@ -75,6 +82,25 @@ onMounted(() => {
           @click="settings.clearCache()"
         >
           {{ isClearing ? 'Очистка…' : 'Очистить' }}
+        </button>
+      </div>
+
+      <div
+        v-if="isNative"
+        class="settings-row"
+      >
+        <div class="settings-row__text">
+          <span class="settings-row__label">Карта</span>
+          <span class="settings-row__hint">
+            {{ isCalculatingMap ? 'Подсчёт…' : formattedMapCacheSize }}
+          </span>
+        </div>
+        <button
+          class="button-clear"
+          :disabled="isClearingMap"
+          @click="settings.clearMapCache()"
+        >
+          {{ isClearingMap ? 'Очистка…' : 'Очистить' }}
         </button>
       </div>
     </section>
@@ -149,11 +175,14 @@ onMounted(() => {
 
   &__hint {
     @include label-text(12px, none);
+    font-variant-numeric: tabular-nums;
   }
 }
 
 .button-clear {
   flex-shrink: 0;
+  min-width: 104px;
+  text-align: center;
   padding: 9px 16px;
   border-radius: 12px;
   background: rgba(229, 72, 77, 0.1);
