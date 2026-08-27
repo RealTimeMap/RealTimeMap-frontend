@@ -4,14 +4,34 @@ import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth/index.ts'
+import EditProfile from '@/components/02.features/EditProfile'
 import Profile from './profile.vue'
 
 declare const __APP_VERSION__: string
 const appVersion = __APP_VERSION__
 const isNative = Capacitor.isNativePlatform()
 
-const { user, logout } = useAuthStore()
-const { close } = useDialogStore()
+const authStore = useAuthStore()
+const { user } = storeToRefs(authStore)
+const { logout } = authStore
+const { close, open } = useDialogStore()
+
+function openEditProfile() {
+  if (!user.value)
+    return
+
+  open(EditProfile, {
+    user: user.value,
+  }, {
+    height: '100%',
+    width: '500px',
+    headerModal: false,
+    transition: 'slide-right',
+    classModal: 'modal-settings',
+    position: 'center end',
+    swipeable: false,
+  })
+}
 
 const settings = useSettingsStore()
 const {
@@ -43,7 +63,18 @@ onMounted(() => {
       </button>
       <h2>Настройки</h2>
     </div>
-    <profile :user="user" />
+    <button
+      class="profile-button"
+      type="button"
+      @click="openEditProfile"
+    >
+      <profile :user="user" />
+      <u-icon
+        class="profile-button__chevron"
+        icon="line-md:chevron-right"
+        height="20"
+      />
+    </button>
 
     <section class="settings-section">
       <h3 class="settings-section__title">
@@ -141,6 +172,26 @@ onMounted(() => {
 
   h2 {
     @include value-text(24px, var(--text-color), 700);
+  }
+}
+
+.profile-button {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  cursor: pointer;
+
+  :deep(.profile) {
+    flex: 1;
+    padding-right: 40px;
+  }
+
+  &__chevron {
+    position: absolute;
+    right: 14px;
+    color: var(--text-color-secondary, rgba(255, 255, 255, 0.4));
+    pointer-events: none;
   }
 }
 

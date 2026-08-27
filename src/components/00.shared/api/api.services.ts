@@ -68,6 +68,10 @@ export const apiService = {
     return request<T>('PUT', url, config, data)
   },
 
+  patch<T>(url: string, data?: any, config?: RequestConfig): Promise<T> {
+    return request<T>('PATCH', url, config, data)
+  },
+
   delete<T>(url: string, config?: RequestConfig): Promise<T> {
     return request<T>('DELETE', url, config)
   },
