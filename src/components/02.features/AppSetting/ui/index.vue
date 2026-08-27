@@ -16,6 +16,11 @@ const { user } = storeToRefs(authStore)
 const { logout } = authStore
 const { close, open } = useDialogStore()
 
+function logoutProfile() {
+  close()
+  logout()
+}
+
 function openEditProfile() {
   if (!user.value)
     return
@@ -138,7 +143,7 @@ onMounted(() => {
 
     <button
       class="button-logout"
-      @click="logout"
+      @click="logoutProfile"
     >
       <u-icon icon="line-md:logout" />
       Выйти из аккаунта
