@@ -1,6 +1,7 @@
 @use 'normalize';
 @use 'button.scss';
 @use 'theme.scss';
+@use 'reset.scss';
 
 * {
   -webkit-tap-highlight-color: transparent;

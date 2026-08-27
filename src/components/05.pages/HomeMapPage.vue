@@ -36,7 +36,7 @@ function handleMapClick(coordinates: MapPoint) {
   open(MarkForm, {
     coords: coordinates,
   }, {
-    position: 'flex-end',
+    position: 'end center',
     headerModal: false,
   })
 }

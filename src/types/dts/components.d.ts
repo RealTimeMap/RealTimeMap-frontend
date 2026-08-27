@@ -31,6 +31,7 @@ declare module 'vue' {
     UNotificationItem: typeof import('./../../components/01.kit/UNotificationItem/index.ts')['default']
     UPloader: typeof import('./../../components/01.kit/UPloader/index.ts')['default']
     USelect: typeof import('./../../components/01.kit/USelect/index.ts')['default']
+    USwitch: typeof import('./../../components/01.kit/USwitch/index.ts')['default']
     UTextArea: typeof import('./../../components/01.kit/UTextArea/index.ts')['default']
     UTooltip: typeof import('./../../components/01.kit/UTooltip/index.ts')['default']
   }

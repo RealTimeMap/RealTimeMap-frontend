@@ -13,7 +13,7 @@ function handleOpenStats() {
     userId,
   }, {
     width: '400px',
-    position: 'flex-end',
+    position: 'end center',
     headerModal: false,
   })
 }

@@ -39,7 +39,7 @@ const {
               '--modal-width': dialog.options?.width,
               '--modal-height': dialog.options?.height,
             },
-            getSwipeStyle(index),
+            dialog.options.swipeable ? getSwipeStyle(index) : {},
           ]"
           :class="[dialog.options?.classModal, dialog.options.transition]"
         >
@@ -47,6 +47,7 @@ const {
             class="modal-wrapper__swipe-zone"
           >
             <div
+              v-if="dialog.options.swipeable"
               class="modal-wrapper__heading"
               @click="close"
             />
@@ -87,120 +88,4 @@ const {
   </teleport>
 </template>
 
-<style lang="scss" scoped>
-.modal-wrapper {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: var(--modal-position, center);
-  justify-content: center;
-
-  &__container {
-    background: var(--u-modal-wrapper-bg);
-    border: 0.5px solid rgba(255, 255, 255, 0.12);
-
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-
-    will-change: transform;
-    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    overflow: hidden;
-
-    max-width: var(--modal-width);
-    height: var(--modal-height);
-
-    touch-action: pan-y;
-  }
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.2rem;
-    /* border-bottom: 1px solid #eee; */
-  }
-
-  &__title {
-    font-size: 1.25rem;
-    font-weight: 600;
-    margin: 0;
-  }
-
-  &__close-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0;
-    color: #888;
-    transition: color 0.2s ease;
-
-    &:hover {
-      color: #333;
-    }
-  }
-
-  &__swipe-zone {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
-    flex-shrink: 0;
-
-    &:active {
-      cursor: grabbing;
-    }
-  }
-
-  &__heading {
-    width: 36px;
-    height: 5px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.25);
-    margin: 8px auto 0px;
-    flex-shrink: 0;
-  }
-
-  &__body {
-    padding: 1.2rem;
-    overflow-y: auto;
-    flex-grow: 1;
-    max-height: 90dvh;
-    touch-action: pan-y;
-  }
-
-  &__footer {
-    padding: 1.5rem;
-    border-top: 1px solid #eee;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-
-    &:empty {
-      display: none;
-    }
-  }
-}
-
-.modal-fade-enter-active,
-.modal-fade-leave-active {
-  transition: opacity 0.3s ease;
-  .modal-wrapper__container {
-    transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
-  }
-}
-
-.modal-fade-enter-from,
-.modal-fade-leave-to {
-  opacity: 0;
-  .modal-wrapper__container.slide-up {
-    transform: translateY(100%);
-  }
-}
-</style>
+<style lang="scss" scoped src="../styles/index.scss" />

@@ -1,6 +1,7 @@
 import { Capacitor } from '@capacitor/core'
 import { LocalNotifications } from '@capacitor/local-notifications'
 import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 
 export type NotificationType
   = 'info' | 'error' | 'success' | 'warning' | 'default'
@@ -33,15 +34,21 @@ export const useNotificationStore = defineStore('notification', () => {
   }
 
   async function add(notification: Omit<Notification, 'id'>) {
-    const id = Math.random().toString(36).substring(2, 9)
-    const newNotification = { ...notification, id }
-    notifications.value.push(newNotification)
+    const settings = useSettingsStore()
 
-    if (notification.duration !== 0) {
-      setTimeout(remove, notification.duration || 5000, id)
+    // Внутренние тосты приложения
+    if (settings.isAppNotificationsEnabled) {
+      const id = Math.random().toString(36).substring(2, 9)
+      const newNotification = { ...notification, id }
+      notifications.value.push(newNotification)
+
+      if (notification.duration !== 0) {
+        setTimeout(remove, notification.duration || 5000, id)
+      }
     }
 
-    if (Capacitor.isNativePlatform()) {
+    // Системные (нативные) уведомления
+    if (settings.isSystemNotificationsEnabled && Capacitor.isNativePlatform()) {
       try {
         await LocalNotifications.schedule({
           notifications: [

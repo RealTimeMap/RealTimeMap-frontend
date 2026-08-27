@@ -30,7 +30,7 @@ function openStartModal() {
     },
     {
       headerModal: false,
-      position: 'flex-end',
+      position: 'end center',
       transition: 'scale',
     },
   )
@@ -49,7 +49,7 @@ function openEndModal() {
     },
     {
       headerModal: false,
-      position: 'flex-end',
+      position: 'end center',
       transition: 'scale',
     },
   )

@@ -4,7 +4,13 @@ type ComponentProps<C extends Component> = C extends new (...args: any) => any
   ? Omit<InstanceType<C>['$props'], keyof VNodeProps | keyof AllowedComponentProps>
   : never
 
-export type TransitionType = 'slide-up' | 'slide-left' | 'scale'
+export type TransitionType = 'slide-up' | 'slide-right' | 'scale'
+export type DialogPosition
+  = | 'center'
+    | 'center end' // справа, по центру вертикали
+    | 'center start' // слева, по центру вертикали
+    | 'end center' // снизу, по центру горизонтали
+    | 'start center' // сверху, по центру горизонтали
 
 export interface DialogOptions {
   title?: string
@@ -15,8 +21,8 @@ export interface DialogOptions {
   closeable?: boolean
   closeOnOverlayClick?: boolean
   transition?: TransitionType
-  position?: 'center' | 'right' | 'left' | 'flex-end'
-
+  position?: DialogPosition
+  swipeable?: boolean
   onClose?: () => void
 }
 
@@ -40,6 +46,7 @@ export const useDialogStore = defineStore('dialog', () => {
     closeOnOverlayClick: true,
     transition: 'slide-up',
     position: 'center',
+    swipeable: true,
     onClose: () => { },
   }
 

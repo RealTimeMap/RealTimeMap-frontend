@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useSettingsStore } from '@/components/02.features/AppSettings/model/settings'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 
 interface Props {
   scale?: number

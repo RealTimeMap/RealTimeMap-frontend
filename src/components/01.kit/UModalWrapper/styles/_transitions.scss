@@ -1,0 +1,18 @@
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s ease;
+  .modal-wrapper__container {
+    transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+  }
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+  .modal-wrapper__container.slide-up {
+    transform: translateY(100%);
+  }
+  .modal-wrapper__container.slide-right {
+    transform: translateX(100%);
+  }
+}
