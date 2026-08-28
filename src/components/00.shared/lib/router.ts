@@ -41,7 +41,6 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/components/05.pages/ProfilePage.vue'),
     meta: {
       layout: 'default',
-      requiresAuth: true,
     },
     children: [
       {
@@ -51,6 +50,9 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'me',
         name: 'profile',
+        meta: {
+          requiresAuth: true,
+        },
         component: () => import('@/components/05.pages/Profile/MyProfilePage.vue'),
       },
       {
