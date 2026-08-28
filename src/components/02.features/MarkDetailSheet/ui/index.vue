@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation.ts'
 import { formatRelativeDate } from '@/components/00.shared/lib/date/FormatRelativeDate'
+import { useDialogStore } from '@/components/00.shared/stores/dialog.ts'
+import { useRouteStore } from '@/components/02.features/RouteToMark'
 import { useAuthStore } from '../../Authentication/model/auth'
 import { useShareStore } from '../../Share/model'
 import { useMarkDetail } from '../model/useMarkDetail'
@@ -13,7 +15,9 @@ const props = defineProps<{
 const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
 const shareStore = useShareStore()
+const routeStore = useRouteStore()
 const { user } = useAuthStore()
+const { close } = useDialogStore()
 
 const { openProfile } = useProfileNavigation()
 
@@ -32,6 +36,13 @@ const {
   markIdRef.value,
   scrollContainerRef,
 )
+
+function handleRoute() {
+  if (!mark.value)
+    return
+  routeStore.buildRoute(props.markId, mark.value.geom.coordinates)
+  close()
+}
 
 watch(markIdRef, fetchData)
 
@@ -172,6 +183,18 @@ onMounted(() => {
             width="16"
           />
           <span>0</span>
+        </span>
+
+        <span
+          class="action-item"
+          :class="{ 'action-item--active': routeStore.activeMarkId === markId }"
+          @click="handleRoute()"
+        >
+          <u-icon
+            :icon="routeStore.isBuilding ? 'line-md:loading-twotone-loop' : 'solar:route-bold'"
+            width="16"
+          />
+          <span>{{ routeStore.activeMarkId === markId ? 'Показать маршрут' : 'Маршрут' }}</span>
         </span>
       </div>
 

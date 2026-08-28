@@ -9,6 +9,7 @@ import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
 import LocateButton from '@/components/02.features/LocateButton'
 import { BaseMapView } from '@/components/02.features/MapCore'
 import MarkForm from '@/components/02.features/MarkForm'
+import { RouteBanner, useRouteStore } from '@/components/02.features/RouteToMark'
 import SearchUsers from '@/components/02.features/SearchUsers'
 
 const {
@@ -19,6 +20,7 @@ const {
 
 const { open } = useDialogStore()
 const authStore = useAuthStore()
+const routeStore = useRouteStore()
 const { user } = storeToRefs(authStore)
 
 const mapApi = shallowRef<null | Map>(null)
@@ -94,6 +96,7 @@ watch(userPosition, (newPos) => {
     <search-users
       v-if="!isLoadingGeolocation && !geolocationError"
     />
+    <route-banner v-if="routeStore.hasRoute" />
     <locate-button
       :user-position="userPosition"
       :map-api="mapApi"

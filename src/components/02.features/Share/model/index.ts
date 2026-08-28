@@ -115,6 +115,7 @@ export const useShareStore = defineStore('share', () => {
 
   return {
     registerMap,
+    mapInstance,
     shareMark,
     shareData,
     mapScreenshot,
