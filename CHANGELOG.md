@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.11
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.10...v0.1.11)
+
+### 🩹 Исправления
+
+- **core:** Исправление билда ([577f1b2](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/577f1b2))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.10
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.9...v0.1.10)
