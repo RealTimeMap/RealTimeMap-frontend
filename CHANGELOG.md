@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.1.10
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.9...v0.1.10)
+
+### 🚀 Функциональность
+
+- **ui:** Построение маршрута ([86bae89](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/86bae89))
+
+### 🩹 Исправления
+
+- **core:** Закрытие модалки при выходе и открытие профиле без авторизации ([b2a0cf0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b2a0cf0))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.9
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.8...v0.1.9)
