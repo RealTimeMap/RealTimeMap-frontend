@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.15
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.14...v0.1.15)
+
+### 🩹 Исправления
+
+- **ui:** Live capsula ([bcacebc](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bcacebc))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.14
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.13...v0.1.14)
