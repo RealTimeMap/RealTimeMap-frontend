@@ -66,10 +66,21 @@ export const useRouteStore = defineStore('routeToMark', () => {
   const pinnedMark = ref<Mark | null>(null)
   // Последний построенный geojson маршрута — для перерисовки на новой карте
   const lastGeojson = ref<Feature<LineString> | null>(null)
+  // Полная длина маршрута при построении — база для прогресса в лайв-капсуле
+  const routeTotalDistance = ref<number | null>(null)
 
   const hasRoute = computed(() => activeMarkId.value !== null)
   const formattedDistance = computed(() => formatDistance(distance.value))
   const formattedDuration = computed(() => formatDuration(duration.value))
+
+  // Прогресс маршрута 0–100 (доля пройденного от исходной длины)
+  const routeProgress = computed(() => {
+    const total = routeTotalDistance.value
+    if (!total || total <= 0)
+      return 0
+    const passed = (1 - distance.value / total) * 100
+    return Math.min(100, Math.max(0, Math.round(passed)))
+  })
 
   function syncNotification() {
     if (settings.isSystemNotificationsEnabled) {
@@ -77,6 +88,7 @@ export const useRouteStore = defineStore('routeToMark', () => {
       showRouteNotification(
         `${formattedDistance.value} · ${formattedDuration.value} · ${label}`,
         formattedDuration.value,
+        routeProgress.value,
       )
     }
     else {
@@ -154,6 +166,9 @@ export const useRouteStore = defineStore('routeToMark', () => {
 
       currentStart.value = start
       distance.value = route.distance
+      // Исходную длину берём при первом построении (fit) — от неё считаем прогресс
+      if (fit || routeTotalDistance.value === null)
+        routeTotalDistance.value = route.distance
       duration.value = route.duration
       activeMarkId.value = markId
       destination.value = dest
@@ -189,6 +204,7 @@ export const useRouteStore = defineStore('routeToMark', () => {
     currentStart.value = null
     pinnedMark.value = null
     lastGeojson.value = null
+    routeTotalDistance.value = null
     distance.value = 0
     duration.value = 0
     hideRouteNotification()
@@ -229,6 +245,8 @@ export const useRouteStore = defineStore('routeToMark', () => {
     if (profile.value === next)
       return
     profile.value = next
+    // Другой профиль — другая длина маршрута, пересчитываем базу прогресса
+    routeTotalDistance.value = null
     if (activeMarkId.value !== null && destination.value)
       run(activeMarkId.value, destination.value, false, currentStart.value ?? undefined)
   }
