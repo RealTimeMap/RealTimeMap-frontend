@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.14
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.13...v0.1.14)
+
+### 🩹 Исправления
+
+- **ui:** Доработка зеленой темы ([70e0ae4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/70e0ae4))
+- **ui:** Новая иконка стата и фикс закрытия боковых модалок ([d9f5aa4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d9f5aa4))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.13
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.12...v0.1.13)
