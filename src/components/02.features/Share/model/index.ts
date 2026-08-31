@@ -4,6 +4,7 @@ import { Directory, Filesystem } from '@capacitor/filesystem'
 import { Share } from '@capacitor/share'
 import { toPng } from 'html-to-image'
 import { defineStore } from 'pinia'
+import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
 interface ShareData {
   id: number
@@ -17,6 +18,7 @@ interface ShareData {
 }
 
 export const useShareStore = defineStore('share', () => {
+  const notify = useNotificationStore()
   const mapInstance = shallowRef<Map | null>(null)
   const isGenerating = ref(false)
   const shareData = ref<ShareData | null>(null)
@@ -27,10 +29,11 @@ export const useShareStore = defineStore('share', () => {
     mapInstance.value = map
   }
 
-  const shareMark = async (data: ShareData) => {
+  const shareMark = async (data: ShareData): Promise<boolean> => {
     if (!mapInstance.value)
-      return
+      return false
     isGenerating.value = true
+    let didShare = false
 
     const originalCenter = mapInstance.value.getCenter()
     const originalZoom = mapInstance.value.getZoom()
@@ -54,7 +57,7 @@ export const useShareStore = defineStore('share', () => {
       await new Promise(r => setTimeout(r, 400))
 
       if (!rendererRef.value)
-        return
+        return false
 
       const dataUrl = await toPng(rendererRef.value, { cacheBust: true, pixelRatio: 2 })
       mapInstance.value.jumpTo({ center: originalCenter, zoom: originalZoom })
@@ -74,6 +77,7 @@ export const useShareStore = defineStore('share', () => {
             url: savedFile.uri,
             dialogTitle: 'Поделиться меткой',
           })
+          didShare = true
         }
         catch (fsError) {
           console.error('[Native Share Error]', fsError)
@@ -84,24 +88,46 @@ export const useShareStore = defineStore('share', () => {
         const blob = await response.blob()
         const file = new File([blob], `mark-${data.id}.png`, { type: 'image/png' })
 
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            title: data.title,
-            text: data.description,
-            url: data.url,
-            files: [file],
-          })
+        const canWebShare
+          = typeof navigator.share === 'function'
+            && typeof navigator.canShare === 'function'
+            && navigator.canShare({ files: [file] })
+
+        if (canWebShare) {
+          try {
+            const shareText = [data.description, data.url].filter(Boolean).join('\n\n')
+            await navigator.share({
+              title: data.title,
+              text: shareText,
+              files: [file],
+            })
+            didShare = true
+          }
+          catch (shareError) {
+            if ((shareError as Error).name !== 'AbortError')
+              throw shareError
+          }
         }
         else {
           const link = document.createElement('a')
           link.download = `mark-${data.id}.png`
           link.href = dataUrl
           link.click()
+
+          try {
+            await navigator.clipboard?.writeText(data.url)
+            notify.add({ title: 'Изображение скачано, ссылка скопирована', type: 'success' })
+          }
+          catch {
+            notify.add({ title: 'Изображение метки скачано', type: 'success' })
+          }
+          didShare = true
         }
       }
     }
     catch (e) {
       console.error(e)
+      notify.add({ title: 'Не удалось поделиться меткой', type: 'error' })
       mapInstance.value.jumpTo({ center: originalCenter, zoom: originalZoom })
     }
     finally {
@@ -111,6 +137,8 @@ export const useShareStore = defineStore('share', () => {
         mapScreenshot.value = ''
       }, 1000)
     }
+
+    return didShare
   }
 
   return {

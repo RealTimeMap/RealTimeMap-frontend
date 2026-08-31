@@ -323,9 +323,18 @@
 
   span {
     @include value-text();
+    font-variant-numeric: tabular-nums;
   }
 
   &:active {
     transform: scale(0.95);
+  }
+
+  &--active {
+    color: var(--secondary-color, rgb(169, 140, 255));
+
+    span {
+      color: var(--secondary-color, rgb(169, 140, 255));
+    }
   }
 }
