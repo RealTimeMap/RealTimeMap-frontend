@@ -5,6 +5,7 @@ import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth/index.ts'
 import EditProfile from '@/components/02.features/EditProfile'
+import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import Profile from './profile.vue'
 
 declare const __APP_VERSION__: string
@@ -141,6 +142,27 @@ onMounted(() => {
       </div>
     </section>
 
+    <section class="settings-section">
+      <h3 class="settings-section__title">
+        Правовая информация
+      </h3>
+      <button
+        class="settings-row settings-row--link"
+        type="button"
+        @click="openPrivacyPolicy()"
+      >
+        <div class="settings-row__text">
+          <span class="settings-row__label">Политика конфиденциальности</span>
+          <span class="settings-row__hint">Обработка персональных данных (152-ФЗ)</span>
+        </div>
+        <u-icon
+          class="settings-row__chevron"
+          icon="line-md:chevron-right"
+          height="20"
+        />
+      </button>
+    </section>
+
     <button
       class="button-logout"
       @click="logoutProfile"
@@ -232,6 +254,17 @@ onMounted(() => {
   &__hint {
     @include label-text(12px, none);
     font-variant-numeric: tabular-nums;
+  }
+
+  &--link {
+    width: 100%;
+    cursor: pointer;
+    text-align: left;
+  }
+
+  &__chevron {
+    flex-shrink: 0;
+    color: var(--text-color-secondary, rgba(255, 255, 255, 0.4));
   }
 }
 

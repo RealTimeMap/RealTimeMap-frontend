@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import { useAuth } from '../../model/useAuth'
 
 const { t } = useI18n()
@@ -11,6 +12,7 @@ const {
   submit,
   clearError,
   isRegister,
+  isConsentGiven,
   googleAuth,
   toggleMode,
 } = useAuth()
@@ -55,11 +57,42 @@ const {
       />
     </div>
     <button
+      v-if="!isRegister"
       type="button"
       class="button__link"
     >
       Забыли пароль?
     </button>
+
+    <label
+      v-if="isRegister"
+      class="auth-form__consent"
+      :class="{ 'auth-form__consent--checked': isConsentGiven }"
+    >
+      <input
+        v-model="isConsentGiven"
+        type="checkbox"
+        class="auth-form__consent-input"
+      >
+      <span class="auth-form__consent-box">
+        <u-icon
+          class="auth-form__consent-check"
+          icon="material-symbols:check-rounded"
+          height="15"
+        />
+      </span>
+      <span class="auth-form__consent-text">
+        Я принимаю
+        <button
+          type="button"
+          class="auth-form__consent-link"
+          @click="openPrivacyPolicy()"
+        >
+          Политику конфиденциальности
+        </button>
+        и даю согласие на обработку персональных данных
+      </span>
+    </label>
 
     <button
       type="submit"
