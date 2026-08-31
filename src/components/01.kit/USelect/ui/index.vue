@@ -154,7 +154,7 @@ onClickOutside(selectRef, () => {
 
     z-index: 100;
     overflow: hidden;
-    background: rgba(18, 24, 38, 1);
+    background: var(--popover-bg);
 
     &-wrapper {
       display: grid;
@@ -171,8 +171,8 @@ onClickOutside(selectRef, () => {
       cursor: pointer;
       transition: 150ms;
 
-      background: rgba(255, 255, 255, 0.04);
-      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      background: var(--surface-subtle);
+      border: 0.5px solid var(--border-subtle);
 
       &.is-active {
         border: none;
@@ -195,6 +195,8 @@ onClickOutside(selectRef, () => {
     width: 24px;
     height: 24px;
     border-radius: 6px;
+    /* Глиф на цветном квадрате всегда белый (в обеих темах) */
+    color: #fff;
 
     border: 1px solid var(--color-icon-bg);
     display: flex;

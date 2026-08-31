@@ -80,7 +80,7 @@ const { openProfile } = useProfileNavigation()
     border-radius: 50%;
     cursor: pointer;
     color: var(--text-color);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-subtle);
   }
 
   &__wrapper {
@@ -103,7 +103,7 @@ const { openProfile } = useProfileNavigation()
     height: 11px;
     border-radius: 50%;
     background: var(--access-color);
-    border: 2px solid #0b0b10;
+    border: 2px solid var(--bg-color-block);
   }
 
   &__info {

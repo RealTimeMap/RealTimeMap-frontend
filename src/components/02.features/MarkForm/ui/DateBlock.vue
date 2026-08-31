@@ -46,7 +46,7 @@ const endAt = defineModel<Date | null>('endAt', { required: true })
 
   &__note {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-color-secondary);
     margin-top: 8px;
     line-height: 1.4;
   }

@@ -96,13 +96,18 @@ function handleRetry() {
   max-width: 78%;
   padding: 10px 14px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.07);
+  background: var(--surface-subtle);
+  border: 0.5px solid var(--border-subtle);
+  color: var(--text-color);
   font-size: 15px;
   line-height: 1.35;
   word-break: break-word;
 
   &--own {
     background: linear-gradient(120deg, #4a5bf7 0%, #8b3df0 100%);
+    border-color: transparent;
+    /* На акцентном градиенте текст всегда белый в обеих темах */
+    color: #fff;
   }
 
   &__sender {
@@ -125,7 +130,7 @@ function handleRetry() {
     margin: 6px 0 0 8px;
     font-size: 11px;
     line-height: 1;
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-color-muted);
     user-select: none;
   }
 
@@ -180,7 +185,7 @@ function handleRetry() {
 
   // уходит — кольцо расходится бесконечно
   &--sending {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.85);
 
     &::after {
       animation: radar-ping 1.4s ease-out infinite;

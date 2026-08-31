@@ -28,7 +28,7 @@ defineProps<{
   &__content {
     position: relative;
     overflow: hidden;
-    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border: 0.5px solid var(--border-subtle);
     box-shadow:
       rgba(255, 255, 255, 0.06) 0px 1px 0px inset,
       rgba(0, 0, 0, 0.35) 0px 10px 30px;

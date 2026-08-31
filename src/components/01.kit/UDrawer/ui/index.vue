@@ -30,7 +30,7 @@ defineProps<{
   content: '';
   flex: 1;
   height: 1px;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-subtle);
 }
 
 .u-drawer:not(.u-drawer--has-text)::after {
@@ -39,7 +39,7 @@ defineProps<{
 
 .u-drawer__text {
   padding: 0 12px;
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-color-muted);
   font-size: 13px;
   font-weight: 500;
   text-transform: lowercase;

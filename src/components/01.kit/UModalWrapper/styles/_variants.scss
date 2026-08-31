@@ -1,6 +1,6 @@
 .modal-settings {
   border-radius: 0;
-  background: linear-gradient(oklch(16% 0.04 220deg) 0%, oklch(9% 0.02 220deg) 60%);
+  background: var(--profile-bg);
   backdrop-filter: none;
   border: none;
   padding-top: var(--safe-top, 20px);

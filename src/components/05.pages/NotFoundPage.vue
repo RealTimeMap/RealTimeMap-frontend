@@ -131,7 +131,7 @@ function goHome() {
     }
 
     p {
-      @include label-text(14px, none, rgba(255, 255, 255, 0.6));
+      @include label-text(14px, none, var(--text-color-secondary));
       line-height: 1.5;
       margin: 0;
     }

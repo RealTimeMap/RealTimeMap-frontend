@@ -7,7 +7,7 @@
 
   &__container {
     background: var(--u-modal-wrapper-bg);
-    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border: 0.5px solid var(--border-subtle);
 
     -webkit-backdrop-filter: blur(16px);
     backdrop-filter: blur(16px);
@@ -45,11 +45,11 @@
     border: none;
     cursor: pointer;
     padding: 0;
-    color: #888;
+    color: var(--text-color-muted);
     transition: color 0.2s ease;
 
     &:hover {
-      color: #333;
+      color: var(--text-color);
     }
   }
 
@@ -71,7 +71,7 @@
     width: 36px;
     height: 5px;
     border-radius: 3px;
-    background: rgba(255, 255, 255, 0.25);
+    background: var(--surface-strong);
     margin: 8px auto 0px;
     flex-shrink: 0;
   }

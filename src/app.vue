@@ -32,7 +32,11 @@ onMounted(async () => {
     class="app-wrapper"
   >
     <component :is="layoutComponent">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <keep-alive :include="['HomeMapPage']">
+          <component :is="Component" />
+        </keep-alive>
+      </router-view>
     </component>
 
     <notification-provider />

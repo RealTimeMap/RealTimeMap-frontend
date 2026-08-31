@@ -1,0 +1,43 @@
+/* Зелёная тема — светлая, мягкий мятный оттенок с зелёным акцентом */
+:root.theme-green,
+.theme-green {
+  --primary-color: oklch(0.62 0.13 155);
+  --secondary-color: oklch(0.7 0.12 155);
+  --red-color: #e5484d;
+  --access-color: #16a34a;
+
+  --bg-body: #eef5ef;
+  --profile-bg: linear-gradient(#f4faf5 0%, #e2eee4 60%);
+  --auth-bg:
+    radial-gradient(at 20% 15%, oklch(0.75 0.13 155 / 0.2) 0%, transparent 45%),
+    radial-gradient(at 90% 70%, oklch(0.78 0.1 175 / 0.18) 0%, transparent 55%),
+    linear-gradient(#f5faf6 0%, #e3ece4 100%);
+  --photo-placeholder-bg:
+    linear-gradient(135deg, #dfeae1 0%, #d3e2d6 100%),
+    repeating-linear-gradient(135deg, #e8f1e9 0px, #e8f1e9 12px, #dde9df 12px, #dde9df 24px);
+  --text-color: #14231a;
+  --text-color-secondary: rgba(20, 35, 26, 0.62);
+  --text-color-muted: rgba(20, 35, 26, 0.42);
+
+  --bg-color-soft: rgba(255, 255, 255, 0.82);
+  --u-modal-wrapper-bg: rgba(244, 250, 245, 0.94);
+  --bg-color-block: rgba(255, 255, 255, 0.85);
+  --popover-bg: #f4faf5;
+
+  --glass-background: rgba(244, 250, 245, 0.85);
+  --glass-border: rgba(20, 35, 26, 0.08);
+  --glass-tint: rgba(255, 255, 255, 0.4);
+  --glass-shine: rgba(255, 255, 255, 0.9);
+  --glass-shadow-inset: rgba(255, 255, 255, 0.9);
+  --glass-shadow: rgba(30, 66, 44, 0.14);
+  --glass-shine-gradient: rgba(20, 35, 26, 0.06);
+
+  --surface-subtle: rgba(20, 35, 26, 0.04);
+  --surface-hover: rgba(20, 35, 26, 0.07);
+  --surface-strong: rgba(20, 35, 26, 0.1);
+  --border-subtle: rgba(20, 35, 26, 0.08);
+
+  --orb-background: var(--primary-color);
+  --nav-icon-inactive: rgba(20, 35, 26, 0.5);
+  --nav-icon-active: var(--primary-color);
+}

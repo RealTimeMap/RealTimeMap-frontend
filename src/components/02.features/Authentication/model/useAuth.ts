@@ -13,6 +13,7 @@ export function useAuth() {
   const isLoading = ref(false)
   const isRegister = ref(false)
   const isPasswordVisible = ref(false)
+  const isConsentGiven = ref(false)
 
   const formValue = reactive<RegistrationPayload>({
     username: '',
@@ -27,7 +28,7 @@ export function useAuth() {
       return true
     const baseFields = !formValue.username || !formValue.password
     if (isRegister.value) {
-      return baseFields || !formValue.email
+      return baseFields || !formValue.email || !isConsentGiven.value
     }
     return baseFields
   })
@@ -38,6 +39,7 @@ export function useAuth() {
     formValue.username = ''
     formValue.password = ''
     formValue.email = ''
+    isConsentGiven.value = false
   }
 
   const clearError = (field: keyof RegistrationPayload): void => {
@@ -167,6 +169,7 @@ export function useAuth() {
     isRegister,
     isButtonDisabled,
     isPasswordVisible,
+    isConsentGiven,
     toggleMode,
     submit,
     clearError,

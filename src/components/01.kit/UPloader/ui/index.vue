@@ -185,7 +185,7 @@ onUnmounted(() => {
     width: 100%;
     height: 180px;
     background-color: var(--bg-color-block);
-    border: 0.5px solid rgba(255, 255, 255, 0.12);
+    border: 0.5px solid var(--border-subtle);
     border-radius: 24px;
     position: relative;
     cursor: pointer;
@@ -239,12 +239,12 @@ onUnmounted(() => {
 
   &__title {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color);
     margin-bottom: 6px;
   }
 
   &__tip {
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--text-color);
     font-size: 11px;
   }
 }

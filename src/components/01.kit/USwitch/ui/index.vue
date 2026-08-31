@@ -33,8 +33,8 @@ function toggle() {
   height: 28px;
   padding-left: 2px;
   border-radius: 999px;
-  border: 0.5px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid var(--border-subtle);
+  background: var(--surface-subtle);
   cursor: pointer;
   transition: background 0.25s ease;
 

@@ -188,9 +188,9 @@ function openSettings() {
   width: 38px;
   height: 38px;
   border-radius: 13px;
-  background: rgba(255, 255, 255, 0.07);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  color: rgb(201, 204, 211);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-color-secondary);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -226,7 +226,8 @@ function openSettings() {
   height: 44px;
   @include glass-panel(14px, 11px, false);
   @include gradient();
-  @include value-text(14px, var(--text-color), 700);
+  /* Текст на акцентном градиенте — всегда белый */
+  @include value-text(14px, #fff, 700);
   width: 100%;
   border: none;
 }

@@ -321,7 +321,7 @@ function openGithub() {
   max-height: 90vh;
   border-radius: 32px;
   background: var(--glass-background);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-subtle);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
@@ -404,8 +404,8 @@ function openGithub() {
   gap: 16px;
   padding: 12px 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
 
   .feature-icon {
     font-size: 22px;
@@ -462,9 +462,9 @@ function openGithub() {
   border-radius: 12px;
   font-size: 12px;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--surface-subtle);
   color: var(--text-color);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
 
   &--success {
     color: #18a058;

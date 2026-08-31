@@ -220,7 +220,7 @@ watch(model, (newVal) => {
 
 <style lang="scss" scoped>
 .dp-modal {
-  color: #fff;
+  color: var(--text-color);
   width: 100%;
   font-family:
     system-ui,
@@ -248,7 +248,7 @@ watch(model, (newVal) => {
   padding: 0;
 
   &.text-gray {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color-secondary);
   }
   &.text-blue {
     color: #3b82f6;
@@ -280,7 +280,7 @@ watch(model, (newVal) => {
   .btn-clear {
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-color-secondary);
     font-size: 13px;
     cursor: pointer;
   }
@@ -298,9 +298,9 @@ watch(model, (newVal) => {
 
   .chip {
     white-space: nowrap;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.8);
+    background: var(--surface-subtle);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-color);
     padding: 8px 12px;
     border-radius: 10px;
     font-size: 13px;
@@ -308,7 +308,7 @@ watch(model, (newVal) => {
     transition: 0.2s;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--surface-hover);
     }
   }
 }
@@ -327,17 +327,17 @@ watch(model, (newVal) => {
     font-size: 16px;
 
     .chevron {
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-color-secondary);
     }
   }
 
   .nav-btn {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-subtle);
     border: none;
     width: 32px;
     height: 32px;
     border-radius: 8px;
-    color: #fff;
+    color: var(--text-color);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -353,7 +353,7 @@ watch(model, (newVal) => {
 
   .weekday {
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-color-muted);
     margin-bottom: 12px;
     font-weight: 500;
   }
@@ -365,7 +365,7 @@ watch(model, (newVal) => {
     justify-content: center;
     background: none;
     border: none;
-    color: #fff;
+    color: var(--text-color);
     font-size: 15px;
     cursor: pointer;
     border-radius: 12px;
@@ -376,7 +376,7 @@ watch(model, (newVal) => {
     }
 
     &:hover:not(.is-selected) {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--surface-hover);
     }
 
     &.is-selected {

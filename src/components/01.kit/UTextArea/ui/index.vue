@@ -40,14 +40,14 @@ const model = defineModel<string>()
     width: 100%;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.35);
+      color: var(--text-color-muted);
     }
 
     &::-webkit-scrollbar {
       width: 4px;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--surface-hover);
       border-radius: 10px;
     }
   }

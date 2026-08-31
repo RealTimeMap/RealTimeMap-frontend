@@ -32,6 +32,11 @@ const {
   error,
   mark,
   address,
+  likeCount,
+  isLiked,
+  toggleLike,
+  shareCount,
+  registerShare,
 } = useMarkDetail(
   markIdRef.value,
   scrollContainerRef,
@@ -40,7 +45,7 @@ const {
 function handleRoute() {
   if (!mark.value)
     return
-  routeStore.buildRoute(props.markId, mark.value.geom.coordinates)
+  routeStore.buildRoute(mark.value)
   close()
 }
 
@@ -63,19 +68,23 @@ watch(() => mark.value?.additionalInfo, () => {
   nextTick(checkClamping)
 })
 
-function onShareClick() {
-  if (mark.value && !shareStore.isGenerating) {
-    shareStore.shareMark({
-      id: mark.value.id,
-      title: mark.value.markName,
-      description: mark.value.additionalInfo || '',
-      url: window.location.href,
-      date: formatDate(mark.value.date.startAt),
-      markImg: mark.value.photos[0] || '',
-      likes: 124,
-      coordinates: mark.value.geom.coordinates,
-    })
-  }
+async function onShareClick() {
+  if (!mark.value || shareStore.isGenerating)
+    return
+
+  const shared = await shareStore.shareMark({
+    id: mark.value.id,
+    title: mark.value.markName,
+    description: mark.value.additionalInfo || '',
+    url: window.location.href,
+    date: formatDate(mark.value.date.startAt),
+    markImg: mark.value.photos?.[0] || '',
+    likes: likeCount.value,
+    coordinates: mark.value.geom.coordinates,
+  })
+
+  if (shared)
+    registerShare()
 }
 
 onMounted(() => {
@@ -176,13 +185,25 @@ onMounted(() => {
       <div class="actions-bar">
         <span
           class="action-item"
+          :class="{ 'action-item--active': isLiked }"
+          @click="toggleLike()"
+        >
+          <u-icon
+            :icon="isLiked ? 'line-md:heart-filled' : 'line-md:heart'"
+            width="16"
+          />
+          <span>{{ likeCount }}</span>
+        </span>
+
+        <span
+          class="action-item"
           @click="onShareClick()"
         >
           <u-icon
             icon="line-md:arrow-down"
             width="16"
           />
-          <span>0</span>
+          <span>{{ shareCount }}</span>
         </span>
 
         <span

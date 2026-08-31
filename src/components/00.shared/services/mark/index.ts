@@ -6,6 +6,8 @@ import type {
   MarkCommentPayload,
   MarkCommentResponse,
   MarkFull,
+  MarkLike,
+  MarkShare,
   MyMarkPayload,
   MyMarkResponse,
 } from './index.type'
@@ -32,6 +34,15 @@ export const markApi = {
 
   postMarkComment: (payload: MarkCommentPayload) =>
     apiService.post<MarkComment>(`/comments`, payload),
+
+  postMarkLike: (id: number) =>
+    apiService.post<MarkLike>(`accrual/${id}/like`),
+
+  deleteMarkLike: (id: number) =>
+    apiService.delete<MarkLike>(`accrual/${id}/like`),
+
+  postMarkShare: (id: number) =>
+    apiService.post<MarkShare>(`accrual/${id}/share`),
 
   getMyMark: ({ userid, ...params }: MyMarkPayload) =>
     apiService.get<MyMarkResponse>(`/marks/${userid}/list`, { params }),

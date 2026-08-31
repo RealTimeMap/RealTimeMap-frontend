@@ -159,7 +159,7 @@ const defaultIcons = {
     width: 32px;
     height: 33px;
     border-radius: 10px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-subtle);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -176,11 +176,11 @@ const defaultIcons = {
         font-weight: 800;
       }
       .time {
-        @include label-text(10px, none, rgba(255, 255, 255, 0.3));
+        @include label-text(10px, none, var(--text-color-muted));
       }
     }
     .description {
-      @include label-text(12px, none, rgba(255, 255, 255, 0.6));
+      @include label-text(12px, none, var(--text-color-secondary));
       line-height: 1.3;
       display: -webkit-box;
       -webkit-box-orient: vertical;
@@ -201,16 +201,16 @@ const defaultIcons = {
 .action-btn {
   padding: 6px 14px;
   border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border: 1px solid var(--border-subtle);
+  background: var(--surface-hover);
+  color: var(--text-color);
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--surface-hover);
   }
   &:active {
     transform: scale(0.95);

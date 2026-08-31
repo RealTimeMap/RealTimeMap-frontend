@@ -70,6 +70,16 @@ export interface Cluster {
   count: number
 }
 
+export interface MarkLike {
+  count: number
+  isLiked: boolean
+  canLike: boolean
+}
+
+export interface MarkShare {
+  count: number
+}
+
 export interface MarkFull extends Mark {
   additionalInfo?: string
   category: MarkCategory
@@ -85,6 +95,10 @@ export interface MarkFull extends Mark {
     status: string
     markType: 'user'
   }
+  /** Начальное состояние лайков (count, isLiked, canLike). */
+  like?: MarkLike
+  /** Начальное состояние репостов (count). */
+  share?: MarkShare
 }
 
 export interface MarkCreateResponse {

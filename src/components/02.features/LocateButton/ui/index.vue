@@ -57,7 +57,7 @@ function centerOnUser() {
     background: transparent;
     border-radius: 20px;
     svg {
-      color: white;
+      color: var(--text-color);
     }
   }
 }

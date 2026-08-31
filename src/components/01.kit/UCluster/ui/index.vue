@@ -2,6 +2,7 @@
 import type { ShallowRef } from 'vue'
 import type { MapPoint } from '@/types/shared/map'
 import * as maplibregl from 'maplibre-gl'
+import { patchMarkerOpacity } from '@/components/00.shared/lib/patchMarker'
 
 interface Props {
   coordinates: MapPoint
@@ -19,13 +20,15 @@ onMounted(() => {
   if (!map?.value)
     return
 
-  marker.value = new maplibregl.Marker({
+  const instance = new maplibregl.Marker({
     element: el,
     anchor: 'center',
   })
-    .setLngLat(props.coordinates)
-    .addTo(map.value)
 
+  patchMarkerOpacity(instance)
+
+  instance.setLngLat(props.coordinates).addTo(map.value)
+  marker.value = instance
   isReady.value = true
 })
 
@@ -72,7 +75,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background: var(--primary-color);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--border-subtle);
   border-radius: 50%;
   color: white;
   font-weight: 600;

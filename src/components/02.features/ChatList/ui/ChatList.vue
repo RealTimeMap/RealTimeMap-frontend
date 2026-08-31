@@ -95,7 +95,7 @@ const { chats } = useChatList()
     border-radius: 15px;
     padding: 13px 22px;
     @include gradient();
-    @include value-text(14px, var(--color-text), 700);
+    @include value-text(14px, #fff, 700);
   }
 }
 </style>

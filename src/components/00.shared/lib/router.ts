@@ -1,4 +1,4 @@
-import type { NavigationGuardNext, RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
+import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
@@ -94,11 +94,7 @@ const routes: RouteRecordRaw[] = [
     path: '/oauth/google',
     name: 'google-auth-callback',
     component: AuthProcessingComponent,
-    beforeEnter: async (
-      to: RouteLocationNormalized,
-      _from: RouteLocationNormalized,
-      next: NavigationGuardNext,
-    ) => {
+    beforeEnter: async (to: RouteLocationNormalized) => {
       const authStore = useAuthStore()
       const token = to.query.token as string
 
@@ -107,16 +103,13 @@ const routes: RouteRecordRaw[] = [
           authStore.setToken(token)
 
           await authStore.fetchUser()
-
-          return next({ name: 'home-map', replace: true })
         }
         catch (e) {
           console.error('Ошибка Google Auth:', e)
-          return next({ name: 'home-map' })
         }
       }
 
-      next({ name: 'home-map' })
+      return { name: 'home-map' }
     },
   },
 
@@ -135,7 +128,7 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore()
   const { hasSeenOnboarding } = useOnboarding()
 
@@ -144,24 +137,24 @@ router.beforeEach(async (to, from, next) => {
   const isWelcomePage = to.name === 'Welcome'
 
   if (!seen && !isWelcomePage) {
-    return next({ name: 'Welcome' })
+    return { name: 'Welcome' }
   }
   if (seen && isWelcomePage) {
-    return next({ name: 'home-map' })
+    return { name: 'home-map' }
   }
 
   if (to.meta.guestOnly && isAuthenticated) {
-    return next({ name: 'profile' })
+    return { name: 'profile' }
   }
 
   if (to.meta.requiresAuth && !isAuthenticated) {
-    return next({
+    return {
       name: 'login',
       query: { redirect: to.fullPath },
-    })
+    }
   }
 
-  next()
+  return true
 })
 
 export default router
