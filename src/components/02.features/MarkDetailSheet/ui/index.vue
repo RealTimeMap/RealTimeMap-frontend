@@ -45,7 +45,7 @@ const {
 function handleRoute() {
   if (!mark.value)
     return
-  routeStore.buildRoute(props.markId, mark.value.geom.coordinates)
+  routeStore.buildRoute(mark.value)
   close()
 }
 

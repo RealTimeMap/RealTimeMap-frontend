@@ -68,6 +68,10 @@ onUnmounted(() => {
   map.value?.remove()
 })
 
+onActivated(() => {
+  map.value?.resize()
+})
+
 provide('map', map)
 </script>
 

@@ -2,6 +2,7 @@ import type { Feature, LineString } from 'geojson'
 import type { GeoJSONSource } from 'maplibre-gl'
 import type { RouteProfile } from './fetchRoute'
 import type { PositionWatcher } from './watchPosition'
+import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { MapPoint } from '@/types/shared/map'
 import { defineStore } from 'pinia'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
@@ -54,6 +55,10 @@ export const useRouteStore = defineStore('routeToMark', () => {
   // Последняя позиция, из которой строился маршрут, и активный вотчер геолокации
   const currentStart = ref<MapPoint | null>(null)
   let positionWatcher: PositionWatcher | null = null
+  // Метка-цель, закреплённая на карте на время маршрута (чтобы не пропадала при зуме/пане)
+  const pinnedMark = ref<Mark | null>(null)
+  // Последний построенный geojson маршрута — для перерисовки на новой карте
+  const lastGeojson = ref<Feature<LineString> | null>(null)
 
   const hasRoute = computed(() => activeMarkId.value !== null)
   const formattedDistance = computed(() => formatDistance(distance.value))
@@ -76,6 +81,13 @@ export const useRouteStore = defineStore('routeToMark', () => {
     const map = share.mapInstance
     if (!map)
       return
+
+    // Карта могла ещё не догрузить стиль (например, сразу после пересоздания) —
+    // добавлять source/layer можно только после загрузки
+    if (!map.isStyleLoaded()) {
+      map.once('load', () => drawRoute(geojson))
+      return
+    }
 
     const existing = map.getSource(SOURCE_ID) as GeoJSONSource | undefined
     if (existing) {
@@ -126,6 +138,7 @@ export const useRouteStore = defineStore('routeToMark', () => {
       }
 
       const route = await fetchRoute(start, dest, profile.value)
+      lastGeojson.value = route.geojson
       drawRoute(route.geojson)
       if (fit)
         fitToRoute(route.geojson)
@@ -165,6 +178,8 @@ export const useRouteStore = defineStore('routeToMark', () => {
     activeMarkId.value = null
     destination.value = null
     currentStart.value = null
+    pinnedMark.value = null
+    lastGeojson.value = null
     distance.value = 0
     duration.value = 0
     hideRouteNotification()
@@ -192,10 +207,13 @@ export const useRouteStore = defineStore('routeToMark', () => {
     positionWatcher = await watchPosition(onPositionUpdate)
   }
 
-  async function buildRoute(markId: number, dest: MapPoint) {
-    await run(markId, dest, true)
+  async function buildRoute(mark: Mark) {
+    pinnedMark.value = mark
+    await run(mark.id, mark.geom.coordinates as MapPoint, true)
     if (activeMarkId.value !== null)
       startWatching()
+    else
+      pinnedMark.value = null
   }
 
   function setProfile(next: RouteProfile) {
@@ -206,11 +224,17 @@ export const useRouteStore = defineStore('routeToMark', () => {
       run(activeMarkId.value, destination.value, false, currentStart.value ?? undefined)
   }
 
+  watch(() => share.mapInstance, (map) => {
+    if (map && activeMarkId.value !== null && lastGeojson.value)
+      drawRoute(lastGeojson.value)
+  })
+
   return {
     activeMarkId,
     profile,
     hasRoute,
     isBuilding,
+    pinnedMark,
     formattedDistance,
     formattedDuration,
     buildRoute,

@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDebounceFn } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
+import { useRouteStore } from '@/components/02.features/RouteToMark'
 import { useMarksSocket } from '../model/useMarksSocket'
 
 const props = defineProps<{
@@ -13,8 +16,27 @@ const props = defineProps<{
 
 const dialogStore = useDialogStore()
 const { marks, clusters, fetchMarks } = useMarksSocket()
+
+const { pinnedMark } = storeToRefs(useRouteStore())
+
+const displayMarks = computed<Mark[]>(() => {
+  const base = [...marks.value] as Mark[]
+  const pin = pinnedMark.value
+  if (!pin || base.some(m => m.id === pin.id))
+    return base
+  return [...base, pin]
+})
 const router = useRouter()
 const route = useRoute()
+
+let lastFetchKey = ''
+const isActive = ref(true)
+onActivated(() => {
+  isActive.value = true
+})
+onDeactivated(() => {
+  isActive.value = false
+})
 
 const debounceFetchMark = useDebounceFn((
   userCoordinates: MapPoint,
@@ -23,6 +45,20 @@ const debounceFetchMark = useDebounceFn((
 ) => {
   if (!screenBounds || !userCoordinates)
     return
+
+  const fetchKey = [
+    userCoordinates[0].toFixed(4),
+    userCoordinates[1].toFixed(4),
+    screenBounds[0][0].toFixed(4),
+    screenBounds[0][1].toFixed(4),
+    screenBounds[1][0].toFixed(4),
+    screenBounds[1][1].toFixed(4),
+    zoomLevel.toFixed(2),
+  ].join('_')
+
+  if (fetchKey === lastFetchKey)
+    return
+  lastFetchKey = fetchKey
 
   const yesterday = new Date()
   yesterday.setDate(yesterday.getDate() - 1)
@@ -57,6 +93,8 @@ const debounceFetchMark = useDebounceFn((
 watch(
   [() => props.userCoordinates, () => props.screenBounds, () => props.zoomLevel],
   ([newCord, newBounds, newZoomLevel]) => {
+    if (!isActive.value)
+      return
     if (newCord && newBounds && newZoomLevel)
       debounceFetchMark(newCord, newBounds, newZoomLevel)
   },
@@ -107,7 +145,7 @@ onMounted(() => {
 <template>
   <div class="markers-overlay">
     <u-marker
-      v-for="mark in marks"
+      v-for="mark in displayMarks"
       :key="mark.id"
       v-memo="[mark.geom.coordinates, mark.photos?.[0]]"
       :coordinates="mark.geom.coordinates as MapPoint"

@@ -12,6 +12,8 @@ import MarkForm from '@/components/02.features/MarkForm'
 import { RouteBanner, useRouteStore } from '@/components/02.features/RouteToMark'
 import SearchUsers from '@/components/02.features/SearchUsers'
 
+defineOptions({ name: 'HomeMapPage' })
+
 const {
   userPosition,
   error: geolocationError,
