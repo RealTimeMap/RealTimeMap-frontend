@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.1.13
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.12...v0.1.13)
+
+### 🚀 Функциональность
+
+- **ui:** Добавлена политика ([d619fbd](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d619fbd))
+- **ui:** Социалка ([a913bba](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/a913bba))
+- **core:** Добавлен кеш для карты, чтобы она не грузилась каждый раз при смене таба ([b9b80b6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b9b80b6))
+- **ui:** Темы ([c1ef78e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c1ef78e))
+
+### 🩹 Исправления
+
+- **core:** Автоматизация маршрутов ([92d5b47](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/92d5b47))
+- **core:** Убрал варнинги на роут ([65c92c9](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/65c92c9))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.12
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.11...v0.1.12)
