@@ -131,7 +131,7 @@ function goToProfile(userId: number) {
   }
 
   &__icon {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color-secondary);
     flex-shrink: 0;
   }
 
@@ -145,13 +145,13 @@ function goToProfile(userId: number) {
     @include value-text(16px, var(--text-color), 500);
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.4);
+      color: var(--text-color-secondary);
     }
   }
 
   &__clear {
     display: flex;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color-secondary);
     cursor: pointer;
     flex-shrink: 0;
   }
@@ -185,7 +185,7 @@ function goToProfile(userId: number) {
     justify-content: center;
     gap: 4px;
     padding: 18px 16px;
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color-secondary);
 
     &--empty {
       gap: 6px;
@@ -246,11 +246,11 @@ function goToProfile(userId: number) {
   padding: 10px 14px;
   cursor: pointer;
   transition: background 0.15s ease;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-subtle);
 
   &:hover,
   &:active {
-    background: rgba(255, 255, 255, 0.06);
+    background: var(--surface-subtle);
   }
 
   &__info {
@@ -273,7 +273,7 @@ function goToProfile(userId: number) {
   }
 
   &__chevron {
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-color-muted);
     flex-shrink: 0;
   }
 }

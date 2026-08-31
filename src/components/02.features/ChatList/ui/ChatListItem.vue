@@ -53,7 +53,7 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
   gap: 12px;
   padding: 12px 2px;
   cursor: pointer;
-  border-bottom: 0.5px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 0.5px solid var(--border-subtle);
   text-decoration: none;
   color: inherit;
 
@@ -70,7 +70,7 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
       height: 12px;
       border-radius: 50%;
       background: var(--access-color);
-      border: 2px solid #0b0b10;
+      border: 2px solid var(--bg-color-block);
     }
   }
 

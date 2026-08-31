@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import * as maplibregl from 'maplibre-gl'
 import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
+import { storeToRefs } from 'pinia'
+import { themeBase } from '@/components/00.shared/lib/theme'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { buildTransformRequest, registerOfflineMapProtocol } from '@/components/02.features/OfflineMap'
 import { useShareStore } from '../../Share/model'
 import { onDoubleTap } from '../model/useDoubleTap'
@@ -12,6 +15,11 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<MapEmits>()
+
+const MAP_STYLES = {
+  dark: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+  light: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+} as const
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl)
 
@@ -27,12 +35,14 @@ const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
 let offDoubleTap: (() => void) | null = null
 
+const { theme } = storeToRefs(useSettingsStore())
+
 onMounted(() => {
   registerOfflineMapProtocol()
 
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
-    style: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
+    style: MAP_STYLES[themeBase(theme.value)],
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
     doubleClickZoom: false,
@@ -61,6 +71,11 @@ onMounted(() => {
   })
 
   shareStore.registerMap(mapInstance)
+})
+
+// Переключение базового стиля карты вслед за темой приложения
+watch(theme, (next) => {
+  map.value?.setStyle(MAP_STYLES[themeBase(next)])
 })
 
 onUnmounted(() => {

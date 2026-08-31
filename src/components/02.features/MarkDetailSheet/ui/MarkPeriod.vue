@@ -149,7 +149,7 @@ function formatTime(dateStr: string) {
 
   &__time {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.25);
+    color: var(--text-color-muted);
     margin-top: 2px;
     font-weight: 500;
   }
@@ -172,7 +172,7 @@ function formatTime(dateStr: string) {
   .progress-track {
     flex-grow: 1;
     height: 4px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-subtle);
     border-radius: 10px;
     position: relative;
   }
@@ -189,7 +189,7 @@ function formatTime(dateStr: string) {
   .end-ring {
     width: 8px;
     height: 8px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid var(--border-subtle);
     background: transparent;
     border-radius: 50%;
   }
@@ -204,10 +204,10 @@ function formatTime(dateStr: string) {
 .footer-stats {
   font-size: 13px;
   &__text {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-color-muted);
   }
   &__value {
-    color: #fff;
+    color: var(--text-color);
     font-weight: 700;
     &.primary {
       color: #00a3ff;

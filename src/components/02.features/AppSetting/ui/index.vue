@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { Capacitor } from '@capacitor/core'
 import { storeToRefs } from 'pinia'
+import { themeMeta } from '@/components/00.shared/lib/theme'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth/index.ts'
 import EditProfile from '@/components/02.features/EditProfile'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
+import { openThemePicker } from '@/components/02.features/ThemePicker'
 import Profile from './profile.vue'
 
 declare const __APP_VERSION__: string
@@ -41,6 +43,7 @@ function openEditProfile() {
 
 const settings = useSettingsStore()
 const {
+  theme,
   isAppNotificationsEnabled,
   isSystemNotificationsEnabled,
   formattedCacheSize,
@@ -81,6 +84,27 @@ onMounted(() => {
         height="20"
       />
     </button>
+
+    <section class="settings-section">
+      <h3 class="settings-section__title">
+        Оформление
+      </h3>
+      <button
+        class="settings-row settings-row--link"
+        type="button"
+        @click="openThemePicker()"
+      >
+        <div class="settings-row__text">
+          <span class="settings-row__label">Тема оформления</span>
+          <span class="settings-row__hint">{{ themeMeta(theme).label }}</span>
+        </div>
+        <u-icon
+          class="settings-row__chevron"
+          icon="line-md:chevron-right"
+          height="20"
+        />
+      </button>
+    </section>
 
     <section class="settings-section">
       <h3 class="settings-section__title">
@@ -217,7 +241,7 @@ onMounted(() => {
   &__chevron {
     position: absolute;
     right: 14px;
-    color: var(--text-color-secondary, rgba(255, 255, 255, 0.4));
+    color: var(--text-color-secondary, var(--text-color-secondary));
     pointer-events: none;
   }
 }
@@ -264,7 +288,7 @@ onMounted(() => {
 
   &__chevron {
     flex-shrink: 0;
-    color: var(--text-color-secondary, rgba(255, 255, 255, 0.4));
+    color: var(--text-color-secondary, var(--text-color-secondary));
   }
 }
 

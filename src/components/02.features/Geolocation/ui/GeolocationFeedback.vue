@@ -140,7 +140,7 @@ onUnmounted(() => {
 
 .error-alert {
   background: var(--bg-color-block);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--border-radius-md);
   padding: 20px;
   width: 100%;

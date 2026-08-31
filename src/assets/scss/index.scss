@@ -26,8 +26,8 @@ body {
   /* overflow: hidden; */
   overscroll-behavior: none;
 
-  background-color: rgb(16, 16, 20);
-  color: rgba(255, 255, 255, 0.82);
+  background-color: var(--bg-body);
+  color: var(--text-color);
 
   font-family:
     v-sans,
@@ -52,14 +52,14 @@ main {
 
 .label-text {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-color-muted);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .value-text {
-  color: rgb(255, 255, 255);
+  color: var(--text-color);
   font-size: 16px;
   line-height: 1.4;
 }

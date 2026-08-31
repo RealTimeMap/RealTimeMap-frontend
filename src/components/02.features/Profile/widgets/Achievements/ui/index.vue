@@ -136,10 +136,10 @@ onMounted(loadAchievements)
       }
       .badge {
         font-size: 10px;
-        color: rgba(255, 255, 255, 0.4);
+        color: var(--text-color-secondary);
         padding: 1px 7px;
         border-radius: 6px;
-        background: rgba(255, 255, 255, 0.06);
+        background: var(--surface-subtle);
       }
     }
     .all-link {
@@ -175,7 +175,7 @@ onMounted(loadAchievements)
   cursor: pointer;
   transition: all 0.2s ease-in-out;
   background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--border-subtle);
 
   filter: grayscale(1);
   opacity: 0.8;
@@ -187,7 +187,7 @@ onMounted(loadAchievements)
   &.is-active {
     opacity: 1;
     filter: grayscale(0.2);
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-subtle);
     border-color: rgba(83, 112, 249, 0.5);
   }
 
@@ -200,7 +200,7 @@ onMounted(loadAchievements)
   .short-title {
     width: 100%;
     text-align: center;
-    @include label-text(10px, none, rgba(255, 255, 255, 0.3));
+    @include label-text(10px, none, var(--text-color-muted));
     display: block;
     white-space: nowrap;
     overflow: hidden;
@@ -211,13 +211,13 @@ onMounted(loadAchievements)
 .tooltip-title {
   font-size: 12px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-color);
   margin-bottom: 2px;
   text-align: center;
 }
 .tooltip-desc {
   font-size: 10px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-color-secondary);
   line-height: 1.3;
   margin-bottom: 10px;
   text-align: center;
@@ -234,7 +234,7 @@ onMounted(loadAchievements)
   }
   .progress-bar {
     height: 4px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-subtle);
     border-radius: 2px;
     overflow: hidden;
     .progress-fill {
@@ -248,6 +248,6 @@ onMounted(loadAchievements)
 .loader {
   grid-column: span 5;
   text-align: center;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-color-muted);
 }
 </style>

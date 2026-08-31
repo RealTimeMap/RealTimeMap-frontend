@@ -25,10 +25,7 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
   position: fixed;
   inset: 0;
   z-index: -1;
-  background:
-    radial-gradient(at 20% 15%, oklch(0.62 0.22 220 / 0.35) 0%, transparent 45%),
-    radial-gradient(at 90% 70%, oklch(0.4 0.2 290 / 0.5) 0%, transparent 55%),
-    linear-gradient(oklch(0.14 0.05 220) 0%, oklch(0.08 0.03 220) 100%);
+  background: var(--auth-bg);
   overflow: hidden;
 }
 
@@ -93,11 +90,11 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
     max-width: 340px;
 
     h1 {
-      @include value-text(28px, white);
+      @include value-text(28px, var(--text-color));
     }
 
     span {
-      @include label-text(14px, none, rgba(255, 255, 255, 0.6));
+      @include label-text(14px, none, var(--text-color-secondary));
       letter-spacing: normal;
     }
   }

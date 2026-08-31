@@ -102,12 +102,15 @@ const remainingXp = computed(() => {
 
   &__label {
     @include label-text(9px);
+    /* Бейдж на акцентном градиенте — текст всегда белый */
+    color: rgba(255, 255, 255, 0.85);
     font-weight: 800;
     letter-spacing: 0.5px;
   }
 
   &__value {
     @include value-text(22px);
+    color: #fff;
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.5px;
@@ -127,8 +130,8 @@ const remainingXp = computed(() => {
     }
 
     .rank-tag {
-      background: rgba(255, 255, 255, 0.06);
-      border: 0.5px solid rgba(255, 255, 255, 0.08);
+      background: var(--surface-subtle);
+      border: 0.5px solid var(--border-subtle);
       padding: 2px 6px;
       border-radius: 5px;
       @include label-text(9px);
@@ -138,13 +141,13 @@ const remainingXp = computed(() => {
 
 .xp-stats {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.3);
+  color: var(--text-color-muted);
   font-weight: 600;
   display: flex;
   gap: 6px;
 
   &__current {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color-secondary);
   }
 }
 
@@ -153,7 +156,7 @@ const remainingXp = computed(() => {
 
   .progress-track {
     height: 6px;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--surface-subtle);
     border-radius: 10px;
     overflow: hidden;
   }
@@ -169,7 +172,7 @@ const remainingXp = computed(() => {
 
 .footer-label {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--text-color-muted);
   font-weight: 500;
 }
 
@@ -177,10 +180,10 @@ const remainingXp = computed(() => {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-color);
 
   svg {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-color-muted);
   }
 
   &__name {
@@ -189,7 +192,7 @@ const remainingXp = computed(() => {
   }
 
   &__level {
-    color: rgba(255, 255, 255, 0.3);
+    color: var(--text-color-muted);
     font-weight: 500;
   }
 }

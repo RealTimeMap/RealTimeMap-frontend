@@ -75,7 +75,7 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   background: var(--primary-color);
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--border-subtle);
   border-radius: 50%;
   color: white;
   font-weight: 600;

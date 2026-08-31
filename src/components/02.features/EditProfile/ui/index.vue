@@ -185,7 +185,7 @@ onUnmounted(dispose)
   }
 
   &__prefix {
-    @include value-text(16px, rgba(255, 255, 255, 0.4), 500);
+    @include value-text(16px, var(--text-color-secondary), 500);
   }
 
   &__input {
@@ -197,7 +197,7 @@ onUnmounted(dispose)
     @include value-text(16px, var(--text-color), 500);
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.3);
+      color: var(--text-color-muted);
     }
   }
 
@@ -208,7 +208,7 @@ onUnmounted(dispose)
   &__divider {
     height: 1px;
     margin: 0 16px;
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-subtle);
   }
 }
 
@@ -217,7 +217,7 @@ onUnmounted(dispose)
   padding: 10px 18px;
   border-radius: 14px;
   @include gradient();
-  @include value-text(15px, var(--text-color), 700);
+  @include value-text(15px, #fff, 700);
   cursor: pointer;
 
   &:disabled {
@@ -243,7 +243,7 @@ onUnmounted(dispose)
     border-radius: 50%;
     color: var(--text-color);
     background: var(--bg-color-block);
-    border: 0.5px solid rgba(255, 255, 255, 0.15);
+    border: 0.5px solid var(--border-subtle);
     backdrop-filter: blur(12px);
   }
 }

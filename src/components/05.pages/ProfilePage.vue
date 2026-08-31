@@ -36,8 +36,8 @@ function handleColorExtracted(color: string) {
   -webkit-overflow-scrolling: touch;
 
   inset: 0px;
-  background: linear-gradient(oklch(0.16 0.04 220) 0%, oklch(0.09 0.02 220) 60%);
-  color: rgb(255, 255, 255);
+  background: var(--profile-bg);
+  color: var(--text-color);
 
   &-blum {
     position: absolute;

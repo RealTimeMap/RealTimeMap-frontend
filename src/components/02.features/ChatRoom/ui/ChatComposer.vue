@@ -114,7 +114,7 @@ function handleKeydown(event: KeyboardEvent) {
     border-radius: 50%;
     cursor: pointer;
     color: var(--text-color);
-    background: rgba(255, 255, 255, 0.08);
+    background: var(--surface-subtle);
   }
 
   &__field {
@@ -139,14 +139,14 @@ function handleKeydown(event: KeyboardEvent) {
     background: transparent;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.35);
+      color: var(--text-color-muted);
     }
 
     &::-webkit-scrollbar {
       width: 4px;
     }
     &::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.1);
+      background: var(--surface-hover);
       border-radius: 10px;
     }
   }
@@ -160,8 +160,8 @@ function handleKeydown(event: KeyboardEvent) {
     border: none;
     border-radius: 50%;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.4);
-    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-color-secondary);
+    background: var(--surface-subtle);
     transition:
       background 0.2s ease,
       color 0.2s ease;

@@ -132,7 +132,7 @@ const {
   gap: 10px;
 
   .left-icon {
-    color: rgba(255, 255, 255, 0.5);
+    color: var(--text-color-secondary);
   }
 
   &.has-error {
@@ -204,7 +204,7 @@ const {
   }
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: var(--text-color-muted);
   }
 }
 
@@ -235,7 +235,7 @@ const {
   border: none;
   cursor: pointer;
   padding: 0;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-color-secondary);
   display: flex;
   align-items: center;
   justify-content: center;

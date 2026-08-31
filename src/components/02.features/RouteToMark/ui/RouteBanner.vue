@@ -143,7 +143,7 @@ const activeMode = computed(() => modes.find(m => m.id === profile.value) ?? mod
   }
 
   &__chevron {
-    color: rgba(255, 255, 255, 0.4);
+    color: var(--text-color-secondary);
     flex-shrink: 0;
     transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
   }
@@ -196,8 +196,8 @@ const activeMode = computed(() => modes.find(m => m.id === profile.value) ?? mod
   gap: 5px;
   padding: 12px 4px;
   border-radius: 14px;
-  color: rgba(255, 255, 255, 0.6);
-  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-color-secondary);
+  background: var(--surface-subtle);
   cursor: pointer;
   border: none;
   font-size: 12px;

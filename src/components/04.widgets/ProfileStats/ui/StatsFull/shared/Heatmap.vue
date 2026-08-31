@@ -265,7 +265,7 @@ loadStats()
 
 .month-label {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--text-color-muted);
   font-weight: 600;
 }
 
@@ -285,7 +285,7 @@ loadStats()
 
 .day-label {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-color-muted);
   height: 18px;
   display: flex;
   align-items: center;
@@ -301,7 +301,7 @@ loadStats()
 .day-cell {
   width: 18px;
   height: 18px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--surface-subtle);
   border-radius: 3px;
   cursor: pointer;
   transition: 0.2s;
@@ -351,7 +351,7 @@ loadStats()
 
 .meta-text {
   font-size: 9px;
-  color: rgba(255, 255, 255, 0.15);
+  color: var(--text-color-muted);
   text-transform: uppercase;
   font-weight: 700;
 }

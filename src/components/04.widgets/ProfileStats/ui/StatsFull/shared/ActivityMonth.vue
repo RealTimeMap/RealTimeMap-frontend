@@ -184,7 +184,7 @@ function selectBar(index: number) {
   top: -24px;
   font-size: 12px;
   font-weight: 800;
-  color: #fff;
+  color: var(--text-color);
   text-shadow: 0 0 10px rgba(83, 112, 249, 0.8);
 }
 
@@ -192,11 +192,11 @@ function selectBar(index: number) {
   position: absolute;
   bottom: -24px;
   font-size: 11px;
-  color: rgba(255, 255, 255, 0.2);
+  color: var(--text-color-muted);
   transition: color 0.3s ease;
 
   &.is-active {
-    color: #fff;
+    color: var(--text-color);
     font-weight: 700;
   }
 }

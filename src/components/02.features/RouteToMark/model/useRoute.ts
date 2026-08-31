@@ -224,10 +224,19 @@ export const useRouteStore = defineStore('routeToMark', () => {
       run(activeMarkId.value, destination.value, false, currentStart.value ?? undefined)
   }
 
-  watch(() => share.mapInstance, (map) => {
-    if (map && activeMarkId.value !== null && lastGeojson.value)
+  function redrawActiveRoute() {
+    if (activeMarkId.value !== null && lastGeojson.value)
       drawRoute(lastGeojson.value)
-  })
+  }
+
+  // Перерисовываем активный маршрут при пересоздании карты (возврат из чатов)
+  // и при смене базового стиля карты (переключение темы — setStyle сбрасывает слои)
+  watch(() => share.mapInstance, (map) => {
+    if (!map)
+      return
+    map.on('style.load', redrawActiveRoute)
+    redrawActiveRoute()
+  }, { immediate: true })
 
   return {
     activeMarkId,
