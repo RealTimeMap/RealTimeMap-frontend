@@ -26,8 +26,8 @@ function handleOpenStats() {
   >
     <u-icon
       class="icon"
-      icon="arcticons:stats-royale"
-      width="16"
+      icon="gridicons:stats-up"
+      width="20"
     />
     Подробная статистика
     <u-icon
