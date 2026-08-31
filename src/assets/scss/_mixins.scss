@@ -28,8 +28,8 @@
 }
 
 @mixin gradient() {
-  background: linear-gradient(135deg, oklch(0.62 0.22 265), oklch(0.48 0.2 285));
-  box-shadow: oklch(0.62 0.22 265 / 0.35) 0px 6px 18px;
+  background: var(--accent-gradient, linear-gradient(135deg, oklch(0.62 0.22 265), oklch(0.48 0.2 285)));
+  box-shadow: var(--accent-gradient-shadow, oklch(0.62 0.22 265 / 0.35)) 0px 6px 18px;
 }
 
 @mixin label-text($font-size: 12px, $text-transform: uppercase, $color: var(--text-color-muted)) {

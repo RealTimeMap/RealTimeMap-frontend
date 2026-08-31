@@ -60,8 +60,8 @@
   }
 
   &__consent--checked &__consent-box {
-    background: rgba(169, 140, 255, 0.18);
-    border-color: rgba(169, 140, 255, 0.55);
+    background: color-mix(in srgb, var(--primary-color) 18%, transparent);
+    border-color: color-mix(in srgb, var(--primary-color) 55%, transparent);
   }
 
   &__consent--checked &__consent-check {
@@ -78,7 +78,7 @@
     background: transparent;
     border: none;
     padding: 0;
-    color: oklch(0.62 0.22 265);
+    color: var(--primary-color);
     font-weight: 600;
     cursor: pointer;
   }
@@ -91,7 +91,7 @@
     button {
       background: transparent;
       border: none;
-      color: oklch(0.62 0.22 265);
+      color: var(--primary-color);
       font-weight: 600;
     }
   }

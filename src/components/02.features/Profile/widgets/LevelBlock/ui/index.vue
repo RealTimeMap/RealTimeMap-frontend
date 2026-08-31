@@ -163,9 +163,9 @@ const remainingXp = computed(() => {
 
   .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #5370f9 0%, #7c4dff 100%);
+    background: var(--accent-gradient, linear-gradient(90deg, #5370f9 0%, #7c4dff 100%));
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(83, 112, 249, 0.5);
+    box-shadow: 0 0 10px var(--accent-gradient-shadow, rgba(83, 112, 249, 0.5));
     transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 }

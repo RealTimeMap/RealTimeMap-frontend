@@ -314,17 +314,17 @@ loadStats()
   }
 
   &.level-1 {
-    background: rgba(83, 112, 249, 0.15);
+    background: color-mix(in srgb, var(--primary-color) 15%, transparent);
   }
   &.level-2 {
-    background: rgba(83, 112, 249, 0.35);
+    background: color-mix(in srgb, var(--primary-color) 35%, transparent);
   }
   &.level-3 {
-    background: rgba(83, 112, 249, 0.6);
+    background: color-mix(in srgb, var(--primary-color) 60%, transparent);
   }
   &.level-4 {
-    background: #5370f9;
-    box-shadow: 0 0 10px rgba(83, 112, 249, 0.4);
+    background: var(--primary-color);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--primary-color) 40%, transparent);
   }
 }
 

@@ -92,7 +92,7 @@ watch(() => target, () => {
   &__content {
     @include glass-panel(14px, 12px, false);
     background: var(--popover-bg);
-    border: 1px solid rgba(83, 112, 249, 0.4);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 40%, transparent);
   }
 
   &__arrow {
@@ -102,7 +102,7 @@ watch(() => target, () => {
     height: 0;
     border-left: 6px solid transparent;
     border-right: 6px solid transparent;
-    border-top: 6px solid rgba(83, 112, 249, 0.4);
+    border-top: 6px solid color-mix(in srgb, var(--primary-color) 40%, transparent);
   }
 
   &.align-center {

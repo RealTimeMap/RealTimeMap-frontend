@@ -39,7 +39,7 @@ function toggle() {
   transition: background 0.25s ease;
 
   &.is-on {
-    background: linear-gradient(90deg, #5370f9 0%, #7c4dff 100%);
+    background: var(--accent-gradient, linear-gradient(90deg, #5370f9 0%, #7c4dff 100%));
     box-shadow: none;
     padding: 0;
   }

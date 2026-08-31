@@ -107,7 +107,7 @@ onUnmounted(() => {
     width: 0;
     height: 0;
     border: 6px solid transparent;
-    border-top-color: #3399ff;
+    border-top-color: var(--marker-accent, #3399ff);
     z-index: 1;
   }
 }
@@ -116,7 +116,7 @@ onUnmounted(() => {
   height: 36px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1px solid #3399ff;
+  border: 1px solid var(--marker-accent, #3399ff);
   box-shadow: rgba(0, 0, 0, 0.5) 0px 6px 14px;
   background-color: white;
   position: relative;
@@ -125,7 +125,7 @@ onUnmounted(() => {
 .marker-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(145deg, #66ccff, #0066cc);
+  background: var(--marker-gradient, linear-gradient(145deg, #66ccff, #0066cc));
   border: 3px solid white;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
@@ -137,7 +137,7 @@ onUnmounted(() => {
   left: 12px;
   width: 24px;
   height: 24px;
-  background: rgba(0, 153, 255, 0.3);
+  background: var(--marker-pulse, rgba(0, 153, 255, 0.3));
   border-radius: 50%;
   animation: pulse 2s infinite;
 }

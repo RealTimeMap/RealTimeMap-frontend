@@ -49,15 +49,15 @@ function handleOpenStats() {
 
   @include glass-panel(12px, 8px 14px, false);
 
-  background: oklch(0.62 0.22 265 / 0.12);
-  border: 0.5px solid oklch(0.62 0.22 265 / 0.3);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--primary-color) 30%, transparent);
 
   .arrow {
     margin-left: auto;
   }
 
   .icon {
-    color: rgb(83, 112, 249);
+    color: var(--primary-color);
   }
 }
 </style>

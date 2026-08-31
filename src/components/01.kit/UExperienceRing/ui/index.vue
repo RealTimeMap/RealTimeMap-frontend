@@ -12,7 +12,7 @@ const {
   size = 60,
   strokeWidth = 4,
   progress = 0,
-  color = '#7aafeb',
+  color = 'var(--primary-color)',
   level = undefined,
   showRing = true,
 } = defineProps<Props>()
@@ -102,7 +102,7 @@ const dashOffset = computed(() => {
   z-index: 1;
 
   .xp-ring__track {
-    stroke: oklch(0.12 0.03 220);
+    stroke: var(--surface-strong);
   }
 
   .xp-ring__progress {
@@ -131,15 +131,15 @@ const dashOffset = computed(() => {
   height: 30px;
   padding: 0px 8px;
   border-radius: 15px;
-  background: linear-gradient(135deg, oklch(0.62 0.22 220), oklch(0.45 0.2 290));
-  border: 2.5px solid oklch(0.12 0.03 220);
+  background: var(--accent-gradient, linear-gradient(135deg, oklch(0.62 0.22 220), oklch(0.45 0.2 290)));
+  border: 2.5px solid var(--bg-body);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 12px;
   font-weight: 800;
   color: rgb(255, 255, 255);
-  box-shadow: oklch(0.62 0.22 220 / 0.5) 0px 4px 12px;
+  box-shadow: var(--accent-gradient-shadow, oklch(0.62 0.22 220 / 0.5)) 0px 4px 12px;
   z-index: 2;
 }
 </style>
