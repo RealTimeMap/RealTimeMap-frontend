@@ -106,7 +106,7 @@ function formatTime(dateStr: string) {
     gap: 10px;
 
     .header-icon {
-      color: #00a3ff;
+      color: var(--primary-color);
       width: 18px;
       height: 18px;
     }
@@ -164,9 +164,9 @@ function formatTime(dateStr: string) {
   .glow-dot {
     width: 7px;
     height: 7px;
-    background: #00a3ff;
+    background: var(--primary-color);
     border-radius: 50%;
-    box-shadow: 0 0 15px 2px rgba(0, 163, 255, 0.5);
+    box-shadow: 0 0 15px 2px color-mix(in srgb, var(--primary-color) 50%, transparent);
   }
 
   .progress-track {
@@ -182,7 +182,7 @@ function formatTime(dateStr: string) {
     left: 0;
     top: 0;
     height: 100%;
-    background: #00a3ff;
+    background: var(--primary-color);
     border-radius: 10px;
   }
 
@@ -210,7 +210,7 @@ function formatTime(dateStr: string) {
     color: var(--text-color);
     font-weight: 700;
     &.primary {
-      color: #00a3ff;
+      color: var(--primary-color);
     }
   }
 }

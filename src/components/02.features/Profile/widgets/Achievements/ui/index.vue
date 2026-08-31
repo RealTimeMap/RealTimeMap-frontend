@@ -148,7 +148,7 @@ onMounted(loadAchievements)
       background: none;
       gap: 4px;
       border: none;
-      color: #5370f9;
+      color: var(--primary-color);
       font-weight: 700;
       font-size: 13px;
       cursor: pointer;
@@ -188,7 +188,7 @@ onMounted(loadAchievements)
     opacity: 1;
     filter: grayscale(0.2);
     background: var(--surface-subtle);
-    border-color: rgba(83, 112, 249, 0.5);
+    border-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
   }
 
   img {
@@ -228,7 +228,7 @@ onMounted(loadAchievements)
     justify-content: space-between;
     font-size: 9px;
     font-weight: 700;
-    color: #5370f9;
+    color: var(--primary-color);
     margin-bottom: 4px;
     text-transform: uppercase;
   }
@@ -239,8 +239,8 @@ onMounted(loadAchievements)
     overflow: hidden;
     .progress-fill {
       height: 100%;
-      background: #5370f9;
-      box-shadow: 0 0 8px #5370f9;
+      background: var(--primary-color);
+      box-shadow: 0 0 8px var(--primary-color);
     }
   }
 }

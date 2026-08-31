@@ -150,7 +150,7 @@ function selectBar(index: number) {
   width: 100%;
   max-width: 24px;
   border-radius: 4px;
-  background: rgba(83, 112, 249, 0.2);
+  background: color-mix(in srgb, var(--primary-color) 20%, transparent);
   transition:
     height 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
     background 0.3s ease,
@@ -158,8 +158,8 @@ function selectBar(index: number) {
   position: relative;
 
   &.is-active {
-    background: linear-gradient(180deg, #5370f9 0%, #7c4dff 100%);
-    box-shadow: 0 0 15px rgba(83, 112, 249, 0.6);
+    background: var(--accent-gradient, linear-gradient(180deg, #5370f9 0%, #7c4dff 100%));
+    box-shadow: 0 0 15px color-mix(in srgb, var(--primary-color) 60%, transparent);
 
     &::after {
       content: '';
@@ -174,8 +174,8 @@ function selectBar(index: number) {
   }
 
   &.is-today:not(.is-active) {
-    background: rgba(83, 112, 249, 0.4);
-    border: 1px solid rgba(83, 112, 249, 0.6);
+    background: color-mix(in srgb, var(--primary-color) 40%, transparent);
+    border: 1px solid color-mix(in srgb, var(--primary-color) 60%, transparent);
   }
 }
 
@@ -185,7 +185,7 @@ function selectBar(index: number) {
   font-size: 12px;
   font-weight: 800;
   color: var(--text-color);
-  text-shadow: 0 0 10px rgba(83, 112, 249, 0.8);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--primary-color) 80%, transparent);
 }
 
 .bar-label {

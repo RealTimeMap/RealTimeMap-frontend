@@ -40,4 +40,16 @@
   --orb-background: var(--primary-color);
   --nav-icon-inactive: rgba(20, 35, 26, 0.5);
   --nav-icon-active: var(--primary-color);
+
+  /* Метка на карте без фото */
+  --marker-gradient: linear-gradient(145deg, #5fd6a0, #12794a);
+  --marker-accent: #1f9d63;
+  --marker-pulse: rgba(31, 157, 99, 0.3);
+
+  /* Линия маршрута на карте (maplibre paint — только rgb/hex) */
+  --route-line-color: #12915a;
+
+  /* Акцентный градиент (бейджи уровня, кнопки, прогресс-бар XP) */
+  --accent-gradient: linear-gradient(135deg, oklch(0.64 0.14 155), oklch(0.5 0.12 165));
+  --accent-gradient-shadow: oklch(0.6 0.14 155 / 0.35);
 }

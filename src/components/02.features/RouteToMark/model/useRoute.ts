@@ -40,6 +40,13 @@ const SOURCE_ID = 'route-to-mark'
 const CASING_ID = 'route-to-mark-casing'
 const LINE_ID = 'route-to-mark-line'
 
+function routeLineColor(): string {
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue('--route-line-color')
+    .trim()
+  return value || 'rgb(169, 140, 255)'
+}
+
 export const useRouteStore = defineStore('routeToMark', () => {
   const share = useShareStore()
   const notify = useNotificationStore()
@@ -92,6 +99,8 @@ export const useRouteStore = defineStore('routeToMark', () => {
     const existing = map.getSource(SOURCE_ID) as GeoJSONSource | undefined
     if (existing) {
       existing.setData(geojson)
+      if (map.getLayer(LINE_ID))
+        map.setPaintProperty(LINE_ID, 'line-color', routeLineColor())
       return
     }
 
@@ -101,7 +110,7 @@ export const useRouteStore = defineStore('routeToMark', () => {
       type: 'line',
       source: SOURCE_ID,
       layout: { 'line-cap': 'round', 'line-join': 'round' },
-      paint: { 'line-color': 'rgb(169, 140, 255)', 'line-width': 5 },
+      paint: { 'line-color': routeLineColor(), 'line-width': 5 },
     })
   }
 

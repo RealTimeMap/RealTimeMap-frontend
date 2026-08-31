@@ -20,6 +20,11 @@ export function useDialog(swipeZoneRef: Ref<HTMLElement | null>) {
 
   let scrollTopAtGestureStart = 0
 
+  const canSwipeClose = computed(() => {
+    const top = dialogs.value[dialogs.value.length - 1]
+    return (top?.options.swipeable ?? false) && top?.options.transition !== 'slide-right'
+  })
+
   function handleBodyScroll(e: Event) {
     const target = e.target as HTMLElement
     isBodyAtTop.value = target.scrollTop <= 0
@@ -31,6 +36,8 @@ export function useDialog(swipeZoneRef: Ref<HTMLElement | null>) {
       scrollTopAtGestureStart = scrollBody ? scrollBody.scrollTop : 0
     },
     onSwipe(e) {
+      if (!canSwipeClose.value)
+        return
       if (scrollTopAtGestureStart > 0) {
         return
       }
@@ -42,6 +49,8 @@ export function useDialog(swipeZoneRef: Ref<HTMLElement | null>) {
       }
     },
     onSwipeEnd(e, direction) {
+      if (!canSwipeClose.value)
+        return
       if (scrollTopAtGestureStart > 0) {
         translateY.value = 0
         return

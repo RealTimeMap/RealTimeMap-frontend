@@ -4,13 +4,13 @@
   &.primary {
     height: 52px;
     border-radius: 16px;
-    background: linear-gradient(135deg, oklch(0.62 0.22 220), oklch(0.48 0.22 270));
+    background: var(--accent-gradient, linear-gradient(135deg, oklch(0.62 0.22 220), oklch(0.48 0.22 270)));
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     box-shadow:
-      oklch(0.62 0.22 220 / 0.4) 0px 8px 24px,
+      var(--accent-gradient-shadow, oklch(0.62 0.22 220 / 0.4)) 0px 8px 24px,
       rgba(255, 255, 255, 0.3) 0px 1px 0px inset;
 
     color: #fff;
