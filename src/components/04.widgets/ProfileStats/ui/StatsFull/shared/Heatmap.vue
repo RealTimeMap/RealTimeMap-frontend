@@ -67,20 +67,14 @@ const monthLabels = computed<MonthLabel[]>(() => {
   if (!stats.value)
     return []
   const labels: MonthLabel[] = []
-  const seenMonths = new Set<string>()
-
   stats.value.items.forEach((item: DayItem, index: number) => {
     const date = new Date(item.day)
-    const monthKey = `${date.getFullYear()}-${date.getMonth()}`
-    const column = Math.floor(index / 7)
-
-    if (!seenMonths.has(monthKey)) {
-      seenMonths.add(monthKey)
-      labels.push({
-        name: date.toLocaleString('en-US', { month: 'short' }),
-        col: column,
-      })
-    }
+    if (date.getDate() !== 1)
+      return
+    labels.push({
+      name: date.toLocaleString('en-US', { month: 'short' }),
+      col: Math.floor(index / 7),
+    })
   })
   return labels
 })
@@ -259,7 +253,7 @@ loadStats()
   display: grid;
   grid-template-columns: repeat(54, 18px);
   gap: 4px;
-  margin-left: 36px;
+  margin-left: 32px;
   height: 14px;
 }
 
