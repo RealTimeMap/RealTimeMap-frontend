@@ -69,12 +69,16 @@ const { chats } = useChatList()
     width: 78px;
     height: 78px;
     border-radius: 26px;
-    background: linear-gradient(135deg, rgba(59, 157, 230, 0.22), rgba(140, 107, 255, 0.22));
-    border: 1px solid rgba(140, 107, 255, 0.28);
+    background: linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--primary-color) 24%, transparent),
+      color-mix(in srgb, var(--primary-color) 12%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, var(--primary-color) 28%, transparent);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: rgb(169, 140, 255);
+    color: var(--primary-color);
   }
 
   .chats-content {

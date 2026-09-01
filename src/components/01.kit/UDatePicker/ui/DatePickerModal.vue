@@ -251,7 +251,7 @@ watch(model, (newVal) => {
     color: var(--text-color-secondary);
   }
   &.text-blue {
-    color: #3b82f6;
+    color: var(--primary-color);
     font-weight: 500;
   }
 }
@@ -263,13 +263,13 @@ watch(model, (newVal) => {
 .dp-input {
   display: flex;
   align-items: center;
-  background: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.2);
+  background: color-mix(in srgb, var(--primary-color) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--primary-color) 20%, transparent);
   border-radius: 12px;
   padding: 12px 16px;
 
   .icon-cal {
-    color: #3b82f6;
+    color: var(--primary-color);
     margin-right: 12px;
   }
   .dp-input-text {
@@ -380,8 +380,8 @@ watch(model, (newVal) => {
     }
 
     &.is-selected {
-      background: linear-gradient(135deg, #4f46e5, #3b82f6);
-      box-shadow: 0 4px 20px rgba(59, 130, 246, 0.4);
+      background: var(--accent-gradient, linear-gradient(135deg, #4f46e5, #3b82f6));
+      box-shadow: 0 4px 20px color-mix(in srgb, var(--primary-color) 40%, transparent);
       font-weight: 600;
     }
   }
