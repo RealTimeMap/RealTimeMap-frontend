@@ -29,13 +29,13 @@ interface Author {
   tag: string
 }
 
-export interface MyMarkPayload {
+export interface AllMarksPayload {
   userid: number
   page: number
   pageSize: number
 }
 
-export interface MyMarkResponse {
+export interface AllMarksResponse {
   items: Mark[]
   page: number
   pageSize: number

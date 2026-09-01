@@ -1,4 +1,6 @@
 import type {
+  AllMarksPayload,
+  AllMarksResponse,
   Mark,
   MarkAddPayload,
   MarkCategory,
@@ -8,8 +10,6 @@ import type {
   MarkFull,
   MarkLike,
   MarkShare,
-  MyMarkPayload,
-  MyMarkResponse,
 } from './index.type'
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
@@ -44,6 +44,6 @@ export const markApi = {
   postMarkShare: (id: number) =>
     apiService.post<MarkShare>(`accrual/${id}/share`),
 
-  getMyMark: ({ userid, ...params }: MyMarkPayload) =>
-    apiService.get<MyMarkResponse>(`/marks/${userid}/list`, { params }),
+  getAllMarks: ({ userid, ...params }: AllMarksPayload) =>
+    apiService.get<AllMarksResponse>(`/marks/${userid}/list`, { params }),
 }
