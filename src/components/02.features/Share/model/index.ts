@@ -13,7 +13,7 @@ interface ShareData {
   url: string
   date: string
   markImg: string
-  likes: number
+  likes: string | number
   coordinates: [number, number]
 }
 
