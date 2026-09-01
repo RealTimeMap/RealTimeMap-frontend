@@ -46,6 +46,8 @@ const {
   theme,
   isAppNotificationsEnabled,
   isSystemNotificationsEnabled,
+  showInSearch,
+  privateProfile,
   formattedCacheSize,
   isCalculating,
   isClearing,
@@ -58,6 +60,8 @@ onMounted(() => {
   settings.calculateCacheSize()
   if (isNative)
     settings.calculateMapCacheSize()
+  if (user.value)
+    settings.loadProfileSettings()
 })
 </script>
 
@@ -104,6 +108,35 @@ onMounted(() => {
           height="20"
         />
       </button>
+    </section>
+
+    <section
+      v-if="user"
+      class="settings-section"
+    >
+      <h3 class="settings-section__title">
+        Приватность
+      </h3>
+      <div class="settings-row">
+        <div class="settings-row__text">
+          <span class="settings-row__label">Показывать в поиске</span>
+          <span class="settings-row__hint">Профиль виден в результатах поиска</span>
+        </div>
+        <u-switch
+          :model-value="showInSearch"
+          @update:model-value="settings.setShowInSearch"
+        />
+      </div>
+      <div class="settings-row">
+        <div class="settings-row__text">
+          <span class="settings-row__label">Закрытый профиль</span>
+          <span class="settings-row__hint">Содержимое доступно только друзьям</span>
+        </div>
+        <u-switch
+          :model-value="privateProfile"
+          @update:model-value="settings.setPrivateProfile"
+        />
+      </div>
     </section>
 
     <section class="settings-section">
@@ -207,7 +240,7 @@ onMounted(() => {
   align-items: center;
   gap: 20px;
   width: 100%;
-  height: 100%;
+  // height: 100%;
   padding-bottom: 20px;
 }
 

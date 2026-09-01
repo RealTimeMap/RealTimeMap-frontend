@@ -118,7 +118,11 @@ const remainingXp = computed(() => {
 }
 
 .level-info {
+  display: flex;
   flex-grow: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
 
   &__header {
     display: flex;
@@ -127,6 +131,7 @@ const remainingXp = computed(() => {
 
     .current-rank {
       @include value-text(20px);
+      line-height: 100%;
     }
 
     .rank-tag {

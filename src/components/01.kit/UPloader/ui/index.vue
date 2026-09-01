@@ -194,6 +194,9 @@ onUnmounted(() => {
     justify-content: center;
     transition: all 0.2s ease-in-out;
     overflow: hidden;
+    box-shadow:
+      var(--glass-shadow-inset) 0px 1px 0px inset,
+      var(--glass-shadow) 0px 10px 30px;
 
     // Эффект диагональных полосок
     &::after {

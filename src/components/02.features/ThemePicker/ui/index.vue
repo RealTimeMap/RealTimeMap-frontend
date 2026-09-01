@@ -73,5 +73,20 @@ const { close } = useDialogStore()
 .theme-picker__row {
   display: flex;
   gap: 12px;
+  overflow-x: auto;
+  padding: 4px 18px 8px;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+
+  mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 22px, #000 calc(100% - 22px), transparent 100%);
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  > * {
+    flex: 0 0 auto;
+  }
 }
 </style>

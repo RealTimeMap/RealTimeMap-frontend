@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type * as maplibregl from 'maplibre-gl'
+import type { ShallowRef } from 'vue'
 import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDebounceFn } from '@vueuse/core'
@@ -14,7 +16,11 @@ const props = defineProps<{
   zoomLevel: number
 }>()
 
+const CLUSTER_ZOOM_STEP = 2
+const CLUSTER_MAX_ZOOM = 18
+
 const dialogStore = useDialogStore()
+const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const { marks, clusters, fetchMarks } = useMarksSocket()
 
 const { pinnedMark } = storeToRefs(useRouteStore())
@@ -117,6 +123,18 @@ function openMarkModal(markId: number) {
   )
 }
 
+function handleClusterClick(coordinates: MapPoint) {
+  const instance = map?.value
+  if (!instance)
+    return
+
+  instance.easeTo({
+    center: coordinates,
+    zoom: Math.min(instance.getZoom() + CLUSTER_ZOOM_STEP, CLUSTER_MAX_ZOOM),
+    duration: 500,
+  })
+}
+
 function handleMarkClick(markId: number) {
   router.replace({
     query: {
@@ -159,6 +177,7 @@ onMounted(() => {
       v-memo="[cluster.center.coordinates, cluster.count]"
       :coordinates="cluster.center.coordinates as MapPoint"
       :count="cluster.count"
+      @click="handleClusterClick(cluster.center.coordinates as MapPoint)"
     />
   </div>
 </template>

@@ -168,7 +168,7 @@ function handleKeydown(event: KeyboardEvent) {
 
     &--active {
       color: #fff;
-      background: linear-gradient(120deg, #4a5bf7 0%, #8b3df0 100%);
+      background: var(--accent-gradient, linear-gradient(120deg, #4a5bf7 0%, #8b3df0 100%));
     }
 
     &:disabled {

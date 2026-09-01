@@ -42,7 +42,7 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
   left: -5%;
   width: 70vw;
   height: 70vw;
-  background: radial-gradient(circle, rgba(6, 182, 212, 0.5) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--secondary-color) 45%, transparent) 0%, transparent 70%);
   animation: move-cyan 18s infinite alternate ease-in-out;
 }
 
@@ -51,7 +51,7 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
   right: -5%;
   width: 80vw;
   height: 80vw;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, color-mix(in srgb, var(--primary-color) 40%, transparent) 0%, transparent 70%);
   animation: move-purple 22s infinite alternate-reverse ease-in-out;
 }
 
