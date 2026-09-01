@@ -10,6 +10,7 @@ import type {
   MarkFull,
   MarkLike,
   MarkShare,
+  MarkStat,
 } from './index.type'
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
@@ -43,6 +44,14 @@ export const markApi = {
 
   postMarkShare: (id: number) =>
     apiService.post<MarkShare>(`accrual/${id}/share`),
+
+  getMarkStat: (id: number) => {
+    const token = getCookie('token')
+    return apiService.get<MarkStat>(
+      `accrual/${id}/stat`,
+      token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
+    )
+  },
 
   getAllMarks: ({ userid, ...params }: AllMarksPayload) =>
     apiService.get<AllMarksResponse>(`/marks/${userid}/list`, { params }),

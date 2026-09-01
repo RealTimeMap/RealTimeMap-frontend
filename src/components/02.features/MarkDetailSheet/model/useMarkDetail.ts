@@ -1,11 +1,31 @@
 import type { Ref } from 'vue'
-import type { MarkComment, MarkCommentPayload, MarkFull } from '@/components/00.shared/services/mark/index.type'
+import type { MarkComment, MarkCommentPayload, MarkFull, MarkStat } from '@/components/00.shared/services/mark/index.type'
 import { Preferences } from '@capacitor/preferences'
 import { useDebounceFn } from '@vueuse/core'
 import { useGeocoding } from '@/components/00.shared/composables/useGeocoding'
 import { markApi } from '@/components/00.shared/services/mark'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+
+function parseCount(value: string | number): number {
+  if (typeof value === 'number')
+    return value
+  const s = value.trim().toUpperCase()
+  const num = Number.parseFloat(s.replace(/[^\d.]/g, '')) || 0
+  if (s.includes('M'))
+    return Math.round(num * 1e6)
+  if (s.includes('K'))
+    return Math.round(num * 1e3)
+  return Math.round(num)
+}
+
+function formatCount(n: number): string {
+  if (n >= 1e6)
+    return `${(n / 1e6).toFixed(1).replace(/\.0$/, '')} M`
+  if (n >= 1e3)
+    return `${(n / 1e3).toFixed(1).replace(/\.0$/, '')} K`
+  return String(n)
+}
 
 export function useMarkDetail(
   markId: number,
@@ -35,6 +55,9 @@ export function useMarkDetail(
   const serverLiked = ref(false)
   const serverCount = ref(0)
 
+  const likeDisplay = computed(() => formatCount(likeCount.value))
+  const shareDisplay = computed(() => formatCount(shareCount.value))
+
   function applyReactions(m: MarkFull | null) {
     likeCount.value = m?.like?.count ?? 0
     isLiked.value = m?.like?.isLiked ?? false
@@ -42,6 +65,15 @@ export function useMarkDetail(
     serverLiked.value = isLiked.value
     serverCount.value = likeCount.value
     shareCount.value = m?.share?.count ?? 0
+  }
+
+  function applyStat(stat: MarkStat) {
+    likeCount.value = parseCount(stat.likes)
+    shareCount.value = parseCount(stat.shares)
+    isLiked.value = stat.isLiked
+    canLike.value = stat.canLike
+    serverLiked.value = stat.isLiked
+    serverCount.value = likeCount.value
   }
 
   const cacheKey = `mark_detail_${markId}`
@@ -68,14 +100,29 @@ export function useMarkDetail(
         fetchAddress(mark.value.geom.coordinates)
       }
 
-      const dataComments = await markApi.getMarkComments(markId)
-      comments.value = dataComments.items.reverse()
+      let stat: MarkStat | null = null
+      try {
+        stat = await markApi.getMarkStat(markId)
+        applyStat(stat)
+      }
+      catch (statError) {
+        console.error('[Mark Stat]', statError)
+      }
+
+      try {
+        const dataComments = await markApi.getMarkComments(markId)
+        comments.value = dataComments.items.reverse()
+      }
+      catch (commentsError) {
+        console.error('[Mark Comments]', commentsError)
+      }
 
       await Preferences.set({
         key: cacheKey,
         value: JSON.stringify({
           mark: mark.value,
           comments: comments.value,
+          stat,
         }),
       })
     }
@@ -89,6 +136,8 @@ export function useMarkDetail(
           mark.value = cached.mark
           comments.value = cached.comments
           applyReactions(mark.value)
+          if (cached.stat)
+            applyStat(cached.stat)
 
           if (mark.value?.geom?.coordinates) {
             fetchAddress(mark.value.geom.coordinates).catch(() => { })
@@ -244,10 +293,12 @@ export function useMarkDetail(
     fetchAddress,
 
     likeCount,
+    likeDisplay,
     isLiked,
     canLike,
     toggleLike,
     shareCount,
+    shareDisplay,
     isSharing,
     registerShare,
   }

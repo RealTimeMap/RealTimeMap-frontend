@@ -32,10 +32,10 @@ const {
   error,
   mark,
   address,
-  likeCount,
+  likeDisplay,
   isLiked,
   toggleLike,
-  shareCount,
+  shareDisplay,
   registerShare,
 } = useMarkDetail(
   markIdRef.value,
@@ -79,7 +79,7 @@ async function onShareClick() {
     url: window.location.href,
     date: formatDate(mark.value.date.startAt),
     markImg: mark.value.photos?.[0] || '',
-    likes: likeCount.value,
+    likes: likeDisplay.value,
     coordinates: mark.value.geom.coordinates,
   })
 
@@ -192,7 +192,7 @@ onMounted(() => {
             :icon="isLiked ? 'line-md:heart-filled' : 'line-md:heart'"
             width="16"
           />
-          <span>{{ likeCount }}</span>
+          <span>{{ likeDisplay }}</span>
         </span>
 
         <span
@@ -203,7 +203,7 @@ onMounted(() => {
             icon="line-md:arrow-down"
             width="16"
           />
-          <span>{{ shareCount }}</span>
+          <span>{{ shareDisplay }}</span>
         </span>
 
         <span

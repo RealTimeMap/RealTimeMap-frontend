@@ -80,6 +80,13 @@ export interface MarkShare {
   count: number
 }
 
+export interface MarkStat {
+  likes: string
+  shares: string
+  isLiked: boolean
+  canLike: boolean
+}
+
 export interface MarkFull extends Mark {
   additionalInfo?: string
   category: MarkCategory
