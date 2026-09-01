@@ -10,6 +10,7 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+const emit = defineEmits<{ click: [] }>()
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const marker = shallowRef<maplibregl.Marker | null>(null)
 
@@ -48,7 +49,10 @@ onUnmounted(() => {
     v-if="isReady"
     :to="el"
   >
-    <div class="cluster-marker">
+    <div
+      class="cluster-marker"
+      @click="emit('click')"
+    >
       <div class="cluster-body">
         {{ count }}
       </div>
