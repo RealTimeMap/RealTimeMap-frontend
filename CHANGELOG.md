@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.17
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.16...v0.1.17)
+
+### 🚀 Функциональность
+
+- **ui:** Метки пользователей в профиле ([883d7b0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/883d7b0))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.16
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.15...v0.1.16)
