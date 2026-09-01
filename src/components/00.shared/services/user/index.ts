@@ -3,7 +3,9 @@ import type {
   SearchProfilesParams,
   SearchProfilesResponse,
   UpdateProfilePayload,
+  UpdateUserSettings,
   User,
+  UserSettings,
 } from './index.type'
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
@@ -45,6 +47,22 @@ export const userApi = {
       formData.append('avatar', payload.avatar)
 
     return apiService.patch<User>('/profile/me', formData, {
+      headers: {
+        Authorization: `Bearer ${getCookie('token')}`,
+      },
+    })
+  },
+
+  settingsProfile() {
+    return apiService.get<UserSettings>(`/profile/settings`, {
+      headers: {
+        Authorization: `Bearer ${getCookie('token')}`,
+      },
+    })
+  },
+
+  updateSettingsProfile(payload: UpdateUserSettings) {
+    return apiService.patch<UserSettings>(`/profile/settings`, payload, {
       headers: {
         Authorization: `Bearer ${getCookie('token')}`,
       },

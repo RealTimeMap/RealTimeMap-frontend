@@ -4,12 +4,19 @@ export interface User {
   avatar?: string
   tag: string
   settings: {
-    showInSearc: boolean
+    showInSearch: boolean
   }
   // subscription?: UserSubscription
   // ban?: UserBan
   gamification?: UserGemefication
 }
+
+export interface UserSettings {
+  showInSearch: boolean
+  privateProfile: boolean
+}
+
+export interface UpdateUserSettings extends UserSettings { }
 
 interface _UserSubscription {
   payment_provider_id?: string
