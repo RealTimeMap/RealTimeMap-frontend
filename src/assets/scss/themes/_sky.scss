@@ -1,0 +1,55 @@
+/* Небо — светлая тема, мягкий небесно-голубой акцент */
+:root.theme-sky,
+.theme-sky {
+  --primary-color: oklch(0.6 0.11 240);
+  --secondary-color: oklch(0.68 0.1 235);
+  --red-color: #e5484d;
+  --access-color: #16a34a;
+
+  --bg-body: #f2f6fc;
+  --profile-bg: linear-gradient(#ffffff 0%, #e6eefa 60%);
+  --auth-bg:
+    radial-gradient(at 20% 15%, oklch(0.72 0.12 240 / 0.16) 0%, transparent 45%),
+    radial-gradient(at 90% 70%, oklch(0.74 0.1 210 / 0.16) 0%, transparent 55%),
+    linear-gradient(#ffffff 0%, #e4edf8 100%);
+  --photo-placeholder-bg:
+    linear-gradient(135deg, #e2eaf5 0%, #d6e1f0 100%),
+    repeating-linear-gradient(135deg, #ecf2fa 0px, #ecf2fa 12px, #e0e8f4 12px, #e0e8f4 24px);
+  --text-color: #0f1824;
+  --text-color-secondary: rgba(15, 24, 36, 0.62);
+  --text-color-muted: rgba(15, 24, 36, 0.42);
+
+  --bg-color-soft: rgba(255, 255, 255, 0.82);
+  --u-modal-wrapper-bg: rgba(255, 255, 255, 0.92);
+  --bg-color-block: rgba(255, 255, 255, 0.88);
+  --popover-bg: #ffffff;
+
+  --glass-background: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(15, 24, 36, 0.08);
+  --glass-tint: rgba(255, 255, 255, 0.4);
+  --glass-shine: rgba(255, 255, 255, 0.9);
+  --glass-shadow-inset: rgba(255, 255, 255, 0.9);
+  --glass-shadow: rgba(40, 66, 100, 0.16);
+  --glass-shine-gradient: rgba(15, 24, 36, 0.06);
+
+  --surface-subtle: rgba(15, 24, 36, 0.04);
+  --surface-hover: rgba(15, 24, 36, 0.07);
+  --surface-strong: rgba(15, 24, 36, 0.1);
+  --border-subtle: rgba(15, 24, 36, 0.08);
+
+  --orb-background: var(--primary-color);
+  --nav-icon-inactive: rgba(15, 24, 36, 0.5);
+  --nav-icon-active: var(--primary-color);
+
+  /* Метка на карте без фото */
+  --marker-gradient: linear-gradient(145deg, #7cc4ff, #2f7fd6);
+  --marker-accent: #4a9be8;
+  --marker-pulse: rgba(74, 155, 232, 0.3);
+
+  /* Линия маршрута на карте (maplibre paint — только rgb/hex) */
+  --route-line-color: #3f8fdd;
+
+  /* Акцентный градиент (бейджи уровня, кнопки, прогресс-бар XP) */
+  --accent-gradient: linear-gradient(135deg, oklch(0.68 0.12 235), oklch(0.58 0.13 258));
+  --accent-gradient-shadow: oklch(0.64 0.13 245 / 0.32);
+}

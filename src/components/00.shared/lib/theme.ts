@@ -1,6 +1,6 @@
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
-export type ThemeName = 'dark' | 'light' | 'green'
+export type ThemeName = 'dark' | 'light' | 'green' | 'ocean' | 'dusk' | 'sky'
 
 export type ThemeBase = 'dark' | 'light'
 
@@ -14,6 +14,9 @@ export const THEMES: ThemeMeta[] = [
   { id: 'dark', label: 'Тёмная', base: 'dark' },
   { id: 'light', label: 'Светлая', base: 'light' },
   { id: 'green', label: 'Зелёная', base: 'light' },
+  { id: 'ocean', label: 'Океан', base: 'dark' },
+  { id: 'dusk', label: 'Сумерки', base: 'dark' },
+  { id: 'sky', label: 'Небо', base: 'light' },
 ]
 
 export const THEME_COOKIE_NAME = 'app_theme'

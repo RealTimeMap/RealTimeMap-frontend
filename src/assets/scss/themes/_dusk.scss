@@ -1,0 +1,62 @@
+/* Сумерки — мягкая тёмная тема, тёплый угольный фон и приглушённый персиковый акцент */
+:root.theme-dusk,
+.theme-dusk {
+  --primary-color: oklch(0.73 0.05 45);
+  --secondary-color: oklch(0.79 0.04 50);
+  --red-color: #e8686d;
+  --access-color: #6bbf87;
+
+  --bg-body: oklch(0.19 0.012 60);
+  --profile-bg: linear-gradient(oklch(0.23 0.02 55) 0%, oklch(0.16 0.014 60) 60%);
+  --auth-bg:
+    radial-gradient(at 20% 15%, oklch(0.72 0.05 45 / 0.18) 0%, transparent 45%),
+    radial-gradient(at 90% 70%, oklch(0.6 0.045 30 / 0.22) 0%, transparent 55%),
+    linear-gradient(oklch(0.2 0.016 58) 0%, oklch(0.15 0.012 60) 100%);
+  --photo-placeholder-bg:
+    linear-gradient(135deg, oklch(0.26 0.02 55) 0%, oklch(0.22 0.018 45) 100%),
+    repeating-linear-gradient(
+      135deg,
+      oklch(0.29 0.02 58) 0px,
+      oklch(0.29 0.02 58) 12px,
+      oklch(0.25 0.016 55) 12px,
+      oklch(0.25 0.016 55) 24px
+    );
+  --text-color: oklch(0.9 0.02 70);
+  --text-color-secondary: oklch(0.9 0.02 70 / 0.6);
+  --text-color-muted: oklch(0.9 0.02 70 / 0.45);
+
+  --bg-color-soft: rgba(18, 14, 10, 0.55);
+  --u-modal-wrapper-bg: rgba(38, 30, 24, 0.5);
+  --bg-color-block: rgba(38, 30, 24, 0.5);
+  --popover-bg: oklch(0.24 0.018 55);
+
+  --glass-background: rgba(48, 40, 32, 0.6);
+  --glass-border: rgba(240, 228, 214, 0.12);
+  --glass-tint: rgba(20, 14, 8, 0.22);
+  --glass-shine: rgba(245, 235, 222, 0.1);
+  --glass-shadow-inset: rgba(245, 235, 222, 0.06);
+  --glass-shadow: rgba(10, 6, 2, 0.38);
+  --glass-shine-gradient: rgba(245, 235, 222, 0.18);
+
+  /* Вложенные поверхности (кнопки, ячейки, hover) поверх стекла/фона */
+  --surface-subtle: rgba(245, 235, 222, 0.05);
+  --surface-hover: rgba(245, 235, 222, 0.09);
+  --surface-strong: rgba(245, 235, 222, 0.13);
+  --border-subtle: rgba(245, 235, 222, 0.09);
+
+  --orb-background: var(--primary-color);
+  --nav-icon-inactive: oklch(0.9 0.02 70 / 0.55);
+  --nav-icon-active: var(--primary-color);
+
+  /* Метка на карте без фото */
+  --marker-gradient: linear-gradient(145deg, #d6b6a6, #a67e6a);
+  --marker-accent: #c39a86;
+  --marker-pulse: rgba(195, 154, 134, 0.3);
+
+  /* Линия маршрута на карте (maplibre paint — только rgb/hex) */
+  --route-line-color: #c39a86;
+
+  /* Акцентный градиент (бейджи уровня, кнопки, прогресс-бар XP) */
+  --accent-gradient: linear-gradient(135deg, oklch(0.75 0.05 50), oklch(0.67 0.055 35));
+  --accent-gradient-shadow: oklch(0.71 0.05 42 / 0.3);
+}
