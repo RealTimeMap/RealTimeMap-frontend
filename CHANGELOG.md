@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.1.16
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.15...v0.1.16)
+
+### 🚀 Функциональность
+
+- **ui:** Приватность ([7ee81a5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/7ee81a5))
+- **ui:** Доработан дейтпикер для времени ([8650f5f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/8650f5f))
+- **ui:** Приближение по клику на кластер ([1462f97](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1462f97))
+
+### 🩹 Исправления
+
+- **ui:** Еще смена цветов ([24633f1](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/24633f1))
+
+### 🎨 Стили
+
+- **theme:** Новые темы ([963028f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/963028f))
+- **ui:** Мелкие правки цветов ([6cf34a4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6cf34a4))
+- **ui:** Дефолтный аватар и новая метка пользователя ([2275198](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/2275198))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.15
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.14...v0.1.15)
