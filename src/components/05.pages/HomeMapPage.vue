@@ -23,7 +23,7 @@ const {
 const { open } = useDialogStore()
 const authStore = useAuthStore()
 const routeStore = useRouteStore()
-const { user } = storeToRefs(authStore)
+const { user, isAuthenticated } = storeToRefs(authStore)
 
 const mapApi = shallowRef<null | Map>(null)
 const markAddCoords = ref<null | MapPoint>(null)
@@ -35,8 +35,8 @@ function handleMapReady(map: Map) {
 }
 
 function handleMapClick(coordinates: MapPoint) {
-  // if (isAuthenticated)
-  //   return
+  if (!isAuthenticated.value)
+    return
   markAddCoords.value = coordinates
   open(MarkForm, {
     coords: coordinates,
@@ -92,7 +92,8 @@ watch(userPosition, (newPos) => {
       <u-marker
         :coordinates="userPosition"
         :draggable="false"
-        :media="user?.avatar || 'https://avatars.githubusercontent.com/u/71484693?v=4'"
+        variant="user"
+        :media="user?.avatar || null"
       />
     </base-map-view>
     <search-users
