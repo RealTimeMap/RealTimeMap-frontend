@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { User } from '@/components/00.shared/services/user/index.type'
+import { markApi } from '@/components/00.shared/services/mark'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import AppSettings from '@/components/02.features/AppSetting'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
-// import { markApi } from '@/components/00.shared/services/mark'
 import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
 
@@ -41,23 +43,36 @@ function openSettings() {
   })
 }
 
-// const myMarks = ref()
+const myMarks = ref<Mark[]>()
+async function getMyMark() {
+  const userId = props.user?.userId
+  if (!userId)
+    return
 
-// async function getMyMark() {
-//   try {
-//     const data = await markApi.getMyMark({
-//       userid: user.value?.userId,
-//       page: 1,
-//       pageSize: 4,
-//     })
-//     myMarks.value = data.items
-//   }
-//   catch (e) {
-//     console.error(e)
-//   }
-// }
+  try {
+    const data = await markApi.getAllMarks({
+      userid: userId,
+      page: 1,
+      pageSize: 4,
+    })
+    myMarks.value = data.items
+  }
+  catch (e) {
+    console.error(e)
+  }
+}
 
-// getMyMark()
+watch(() => props.user?.userId, (id) => {
+  if (id)
+    getMyMark()
+}, { immediate: true })
+
+function openMark(markId: number) {
+  open(MarkDetailsSheet, { markId }, {
+    headerModal: false,
+    position: 'end center',
+  })
+}
 </script>
 
 <template>
@@ -130,9 +145,22 @@ function openSettings() {
       />
     </div>
 
-    <!-- <div class="">
-      {{ myMarks }}
-    </div> -->
+    <div
+      v-if="myMarks && myMarks.length"
+      class="user-profile-view__marks"
+    >
+      <!-- <h3 class="user-profile-view__marks-title">
+        Метки
+      </h3> -->
+      <div class="user-profile-view__marks-grid">
+        <u-mark-card
+          v-for="item in myMarks"
+          :key="item.id"
+          :mark="item"
+          @click="openMark(item.id)"
+        />
+      </div>
+    </div>
 
     <div
       v-if="isOwn"
@@ -179,6 +207,23 @@ function openSettings() {
     gap: 8px;
     width: 100%;
   }
+
+  &__marks {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__marks-title {
+    @include label-text(12px, uppercase);
+  }
+
+  &__marks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
 }
 
 .button-settings {
@@ -188,7 +233,7 @@ function openSettings() {
   width: 38px;
   height: 38px;
   border-radius: 13px;
-  background: var(--surface-subtle);
+  background: var(--bg-color-block);
   border: 1px solid var(--border-subtle);
   color: var(--text-color-secondary);
   cursor: pointer;

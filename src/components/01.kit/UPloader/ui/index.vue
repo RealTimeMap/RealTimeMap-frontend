@@ -207,8 +207,8 @@ onUnmounted(() => {
         -45deg,
         transparent,
         transparent 10px,
-        rgba(255, 255, 255, 0.015) 10px,
-        rgba(255, 255, 255, 0.015) 20px
+        color-mix(in srgb, var(--text-color) 4%, transparent) 10px,
+        color-mix(in srgb, var(--text-color) 4%, transparent) 20px
       );
       pointer-events: none;
     }

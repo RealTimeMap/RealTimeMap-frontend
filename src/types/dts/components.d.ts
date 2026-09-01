@@ -26,6 +26,7 @@ declare module 'vue' {
     UGlassWrapper: typeof import('./../../components/01.kit/UGlassWrapper/index.ts')['default']
     UIcon: typeof import('./../../components/01.kit/UIcon/index.ts')['default']
     UInput: typeof import('./../../components/01.kit/UInput/index.ts')['default']
+    UMarkCard: typeof import('./../../components/01.kit/UMarkCard/index.ts')['default']
     UMarker: typeof import('./../../components/01.kit/UMarker/index.ts')['default']
     UModalWrapper: typeof import('./../../components/01.kit/UModalWrapper/index.ts')['default']
     UNotificationItem: typeof import('./../../components/01.kit/UNotificationItem/index.ts')['default']
