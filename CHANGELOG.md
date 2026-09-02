@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.20
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.19...v0.1.20)
+
+### 🚀 Функциональность
+
+- **ui:** Новые обучалки и empty текста ([b031a5d](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b031a5d))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.19
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.18...v0.1.19)
