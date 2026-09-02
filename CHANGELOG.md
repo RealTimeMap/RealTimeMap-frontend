@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.1.19
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.18...v0.1.19)
+
+### 🚀 Функциональность
+
+- **ui:** Багрепорт ([246faa5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/246faa5))
+- **ui:** Мини обучение для меток ([63436f5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/63436f5))
+- **ui:** Обучение в профиле ([4291d46](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4291d46))
+
+### 🩹 Исправления
+
+- **ui:** Скролл при модалке ([6135bcf](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6135bcf))
+- **core:** Больше задержка при обновление приватки ([bf97162](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bf97162))
+- **core:** Ошибка сокета при конекте к чатам ([1709d1f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1709d1f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.18
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.17...v0.1.18)
