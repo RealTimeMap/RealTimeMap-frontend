@@ -7,6 +7,8 @@ import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import AppSettings from '@/components/02.features/AppSetting'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
+import { useCoachOnView } from '@/components/02.features/Onboarding/model/useCoachOnView'
+import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
 import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
@@ -67,6 +69,34 @@ watch(() => props.user?.userId, (id) => {
     getMyMark()
 }, { immediate: true })
 
+const levelRef = ref<HTMLElement | null>(null)
+const achiveRef = ref<HTMLElement | null>(null)
+const statsRef = ref<HTMLElement | null>(null)
+
+const { activeTip: profileTip, dismiss: dismissProfileTip } = useCoachOnView(
+  [
+    {
+      id: 'profile_level',
+      el: levelRef,
+      icon: 'solar:medal-ribbons-star-bold-duotone',
+      text: 'Это ваш уровень — растёт за активность на карте',
+    },
+    {
+      id: 'profile_achievements',
+      el: achiveRef,
+      icon: 'solar:cup-star-bold-duotone',
+      text: 'Достижения открываются за ваши действия — вот бейджи',
+    },
+    {
+      id: 'profile_stats',
+      el: statsRef,
+      icon: 'solar:chart-2-bold-duotone',
+      text: 'Статистика — ваша активность в цифрах',
+    },
+  ],
+  { enabled: () => !!props.isOwn && authStore.isAuthenticated },
+)
+
 function openMark(markId: number) {
   open(MarkDetailsSheet, { markId }, {
     headerModal: false,
@@ -120,21 +150,33 @@ function openMark(markId: number) {
       </button>
     </div>
 
-    <div class="user-profile-view__level">
+    <div
+      ref="levelRef"
+      class="user-profile-view__level"
+      :class="{ 'coach-highlight': profileTip?.id === 'profile_level' }"
+    >
       <level-block
         v-if="user?.gamification"
         :gamification="user.gamification"
       />
     </div>
 
-    <div class="user-profile-view__achive">
+    <div
+      ref="achiveRef"
+      class="user-profile-view__achive"
+      :class="{ 'coach-highlight': profileTip?.id === 'profile_achievements' }"
+    >
       <achievements
         v-if="user"
         :user-id="user?.userId"
       />
     </div>
 
-    <div class="user-profile-view__stats">
+    <div
+      ref="statsRef"
+      class="user-profile-view__stats"
+      :class="{ 'coach-highlight': profileTip?.id === 'profile_stats' }"
+    >
       <stats-summary
         v-if="user"
         :user-id="user?.userId"
@@ -172,6 +214,13 @@ function openMark(markId: number) {
         @click="openSettings()"
       />
     </div>
+
+    <coach-hint
+      v-if="profileTip"
+      :text="profileTip.text"
+      :icon="profileTip.icon"
+      @close="dismissProfileTip"
+    />
   </div>
 </template>
 
@@ -223,6 +272,24 @@ function openMark(markId: number) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+}
+
+.coach-highlight {
+  border-radius: 18px;
+  outline: 2px solid var(--primary-color);
+  outline-offset: 8px;
+  transition: outline-color 0.3s ease;
+  animation: coach-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes coach-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--primary-color) 0%, transparent);
   }
 }
 

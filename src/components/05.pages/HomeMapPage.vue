@@ -2,6 +2,7 @@
 import type { Map } from 'maplibre-gl'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { GeolocationFeedback } from '@/components/02.features/Geolocation'
 import { useGeolocation } from '@/components/02.features/Geolocation/model/useGeolocation'
@@ -25,9 +26,28 @@ const {
 const dialogStore = useDialogStore()
 const authStore = useAuthStore()
 const routeStore = useRouteStore()
+const notify = useNotificationStore()
+const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
 
 const { shouldShow, markSeen } = useCoachmarks()
+
+let lastGuestNudge = 0
+function nudgeGuestToLogin() {
+  const now = Date.now()
+  if (now - lastGuestNudge < 4000)
+    return
+  lastGuestNudge = now
+  notify.add({
+    title: 'Нужен аккаунт',
+    description: 'Войдите, чтобы ставить свои метки',
+    type: 'info',
+    action: {
+      text: 'Войти',
+      callback: () => router.push('/login'),
+    },
+  })
+}
 
 const mapApi = shallowRef<null | Map>(null)
 const markAddCoords = ref<null | MapPoint>(null)
@@ -81,8 +101,10 @@ function handleMapReady(map: Map) {
 }
 
 function handleMapClick(coordinates: MapPoint) {
-  if (!isAuthenticated.value)
+  if (!isAuthenticated.value) {
+    nudgeGuestToLogin()
     return
+  }
   markAddCoords.value = coordinates
   dialogStore.open(MarkForm, {
     coords: coordinates,
