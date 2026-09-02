@@ -16,6 +16,10 @@ const props = defineProps<{
   zoomLevel: number
 }>()
 
+const emit = defineEmits<{
+  (e: 'update:visibleCount', count: number): void
+}>()
+
 const CLUSTER_ZOOM_STEP = 2
 const CLUSTER_MAX_ZOOM = 18
 
@@ -32,6 +36,12 @@ const displayMarks = computed<Mark[]>(() => {
     return base
   return [...base, pin]
 })
+
+watch(
+  () => displayMarks.value.length + clusters.value.length,
+  count => emit('update:visibleCount', count),
+  { immediate: true },
+)
 const router = useRouter()
 const route = useRoute()
 

@@ -9,6 +9,8 @@ import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
 import LocateButton from '@/components/02.features/LocateButton'
 import { BaseMapView } from '@/components/02.features/MapCore'
 import MarkForm from '@/components/02.features/MarkForm'
+import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoachmarks'
+import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
 import { RouteBanner, useRouteStore } from '@/components/02.features/RouteToMark'
 import SearchUsers from '@/components/02.features/SearchUsers'
 
@@ -20,25 +22,69 @@ const {
   isLoading: isLoadingGeolocation,
 } = useGeolocation()
 
-const { open } = useDialogStore()
+const dialogStore = useDialogStore()
 const authStore = useAuthStore()
 const routeStore = useRouteStore()
 const { user, isAuthenticated } = storeToRefs(authStore)
+
+const { shouldShow, markSeen } = useCoachmarks()
 
 const mapApi = shallowRef<null | Map>(null)
 const markAddCoords = ref<null | MapPoint>(null)
 const screenBounds = ref<MapBounds | null>(null)
 const zoomLevel = ref<number>(15)
 
+const MAP_TIP_ID = 'guest_map_tap'
+const mapTipVisible = ref(false)
+const visibleMarksCount = ref(0)
+let mapTipTimer: ReturnType<typeof setTimeout> | null = null
+
+const mapTipText = computed(() =>
+  visibleMarksCount.value > 0
+    ? 'Вокруг — метки людей 👀 Откройте любую, чтобы узнать о месте'
+    : 'Поблизости пусто — отдалите карту, чтобы увидеть места',
+)
+
+function dismissMapTip() {
+  if (!mapTipVisible.value)
+    return
+  mapTipVisible.value = false
+  if (mapTipTimer) {
+    clearTimeout(mapTipTimer)
+    mapTipTimer = null
+  }
+  markSeen(MAP_TIP_ID)
+}
+
+async function maybeShowMapTip() {
+  if (isAuthenticated.value)
+    return
+  if (!(await shouldShow(MAP_TIP_ID)))
+    return
+  mapTipVisible.value = true
+}
+
+function handleVisibleCount(count: number) {
+  visibleMarksCount.value = count
+}
+
+watch(() => dialogStore.dialogs.length, (next, prev) => {
+  if (next > prev)
+    dismissMapTip()
+})
+
+onDeactivated(dismissMapTip)
+
 function handleMapReady(map: Map) {
   mapApi.value = map
+  maybeShowMapTip()
 }
 
 function handleMapClick(coordinates: MapPoint) {
   if (!isAuthenticated.value)
     return
   markAddCoords.value = coordinates
-  open(MarkForm, {
+  dialogStore.open(MarkForm, {
     coords: coordinates,
   }, {
     position: 'end center',
@@ -88,6 +134,7 @@ watch(userPosition, (newPos) => {
         :user-coordinates="userPosition"
         :screen-bounds="screenBounds"
         :zoom-level="zoomLevel"
+        @update:visible-count="handleVisibleCount"
       />
       <u-marker
         :coordinates="userPosition"
@@ -103,6 +150,13 @@ watch(userPosition, (newPos) => {
     <locate-button
       :user-position="userPosition"
       :map-api="mapApi"
+    />
+
+    <coach-hint
+      v-if="mapTipVisible"
+      :text="mapTipText"
+      icon="solar:map-point-wave-bold-duotone"
+      @close="dismissMapTip"
     />
   </div>
 </template>
