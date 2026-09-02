@@ -16,8 +16,9 @@ export function useChatSocket() {
 
   const connectChats = (token: string) => {
     connect(CHATS_NAMESPACE, {
-      transports: ['polling', 'websocket'],
+      transports: ['polling'],
       withCredentials: true,
+      auth: { token },
       extraHeaders: { Authorization: `Bearer ${token}` },
     })
   }

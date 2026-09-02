@@ -5,6 +5,7 @@ import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
 import { useNotificationStore } from './components/00.shared/stores/notification'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
+import { initBugReport } from './components/02.features/BugReport'
 
 const layouts = {
   empty: EmptyLayout,
@@ -24,6 +25,7 @@ onMounted(async () => {
   await notificationStore.requestPermissions()
   initUpdateChecker()
   initNetworkListener()
+  initBugReport()
 })
 </script>
 

@@ -44,7 +44,7 @@ export function useProfileSettings() {
     }
   }
 
-  const debouncedPersist = useDebounceFn(persist, 500)
+  const debouncedPersist = useDebounceFn(persist, 1200)
 
   function setShowInSearch(next: boolean) {
     if (showInSearch.value === next)

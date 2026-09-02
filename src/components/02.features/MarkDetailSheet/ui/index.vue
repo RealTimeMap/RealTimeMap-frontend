@@ -2,6 +2,8 @@
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation.ts'
 import { formatRelativeDate } from '@/components/00.shared/lib/date/FormatRelativeDate'
 import { useDialogStore } from '@/components/00.shared/stores/dialog.ts'
+import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoachmarks'
+import CoachSpotlight from '@/components/02.features/Onboarding/ui/CoachSpotlight.vue'
 import { useRouteStore } from '@/components/02.features/RouteToMark'
 import { useAuthStore } from '../../Authentication/model/auth'
 import { useShareStore } from '../../Share/model'
@@ -16,7 +18,8 @@ const scrollContainerRef = ref<HTMLElement | null>(null)
 const markIdRef = toRef(props, 'markId')
 const shareStore = useShareStore()
 const routeStore = useRouteStore()
-const { user } = useAuthStore()
+const authStore = useAuthStore()
+const { user } = authStore
 const { close } = useDialogStore()
 
 const { openProfile } = useProfileNavigation()
@@ -48,6 +51,39 @@ function handleRoute() {
   routeStore.buildRoute(mark.value)
   close()
 }
+
+const ROUTE_TIP_ID = 'guest_route'
+const ROUTE_TIP_TIMEOUT = 12000
+const routeBtnRef = ref<HTMLElement | null>(null)
+const showRouteTip = ref(false)
+const { shouldShow, markSeen } = useCoachmarks()
+let routeTipTimer: ReturnType<typeof setTimeout> | null = null
+
+function dismissRouteTip() {
+  if (!showRouteTip.value)
+    return
+  showRouteTip.value = false
+  if (routeTipTimer) {
+    clearTimeout(routeTipTimer)
+    routeTipTimer = null
+  }
+  markSeen(ROUTE_TIP_ID)
+}
+
+onMounted(async () => {
+  if (authStore.isAuthenticated)
+    return
+  if (!(await shouldShow(ROUTE_TIP_ID)))
+    return
+  setTimeout(() => {
+    if (routeBtnRef.value) {
+      showRouteTip.value = true
+      routeTipTimer = setTimeout(dismissRouteTip, ROUTE_TIP_TIMEOUT)
+    }
+  }, 450)
+})
+
+onUnmounted(dismissRouteTip)
 
 watch(markIdRef, fetchData)
 
@@ -207,6 +243,7 @@ onMounted(() => {
         </span>
 
         <span
+          ref="routeBtnRef"
           class="action-item"
           :class="{ 'action-item--active': routeStore.activeMarkId === markId }"
           @click="handleRoute()"
@@ -319,6 +356,13 @@ onMounted(() => {
         </div>
       </div>
     </template>
+
+    <coach-spotlight
+      v-if="showRouteTip"
+      :target="routeBtnRef"
+      text="Проложите маршрут сюда — прямо на карте"
+      @close="dismissRouteTip"
+    />
   </div>
 </template>
 

@@ -5,6 +5,7 @@ import { themeMeta } from '@/components/00.shared/lib/theme'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth/index.ts'
+import { openBugReport } from '@/components/02.features/BugReport'
 import EditProfile from '@/components/02.features/EditProfile'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import { openThemePicker } from '@/components/02.features/ThemePicker'
@@ -197,6 +198,27 @@ onMounted(() => {
           {{ isClearingMap ? 'Очистка…' : 'Очистить' }}
         </button>
       </div>
+    </section>
+
+    <section class="settings-section">
+      <h3 class="settings-section__title">
+        Обратная связь
+      </h3>
+      <button
+        class="settings-row settings-row--link"
+        type="button"
+        @click="openBugReport()"
+      >
+        <div class="settings-row__text">
+          <span class="settings-row__label">Сообщить о баге</span>
+          <span class="settings-row__hint">Опишите проблему — приложим логи и данные устройства</span>
+        </div>
+        <u-icon
+          class="settings-row__chevron"
+          icon="line-md:chevron-right"
+          height="20"
+        />
+      </button>
     </section>
 
     <section class="settings-section">

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation'
+import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoachmarks'
 import { useUserSearch } from '../model/useUserSearch'
 
 const { query, results, total, isLoading, hasQuery, clear } = useUserSearch()
@@ -9,6 +10,33 @@ function goToProfile(userId: number) {
   clear()
   openProfile(userId)
 }
+
+const { shouldShow, markSeen } = useCoachmarks()
+const showSearchHint = ref(false)
+let hintTimer: ReturnType<typeof setTimeout> | null = null
+
+function hideSearchHint() {
+  showSearchHint.value = false
+  if (hintTimer) {
+    clearTimeout(hintTimer)
+    hintTimer = null
+  }
+}
+
+async function onSearchFocus() {
+  if (showSearchHint.value)
+    return
+  if (!(await shouldShow('search_intro')))
+    return
+  showSearchHint.value = true
+  markSeen('search_intro')
+  hintTimer = setTimeout(hideSearchHint, 8000)
+}
+
+watch(hasQuery, (active) => {
+  if (active)
+    hideSearchHint()
+})
 </script>
 
 <template>
@@ -25,6 +53,7 @@ function goToProfile(userId: number) {
         type="text"
         placeholder="Поиск людей по @тегу"
         enterkeyhint="search"
+        @focus="onSearchFocus"
       >
       <button
         v-if="query"
@@ -38,6 +67,30 @@ function goToProfile(userId: number) {
         />
       </button>
     </div>
+
+    <transition name="panel">
+      <div
+        v-if="showSearchHint && !hasQuery"
+        class="user-search__hint"
+      >
+        <u-icon
+          icon="line-md:search"
+          height="18"
+        />
+        <span>Ищите людей по тегу. Скоро — места и другое</span>
+        <button
+          class="user-search__hint-close"
+          type="button"
+          aria-label="Скрыть"
+          @click="hideSearchHint"
+        >
+          <u-icon
+            icon="line-md:close"
+            height="14"
+          />
+        </button>
+      </div>
+    </transition>
 
     <transition name="panel">
       <div
@@ -133,6 +186,34 @@ function goToProfile(userId: number) {
   &__icon {
     color: var(--text-color-secondary);
     flex-shrink: 0;
+  }
+
+  &__hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-color);
+    @include glass-panel(14px, 10px 12px, false);
+
+    span {
+      flex: 1;
+      @include value-text(13px, var(--text-color), 500);
+      line-height: 1.35;
+    }
+  }
+
+  &__hint-close {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--text-color) 6%, transparent);
+    color: var(--text-color-secondary, var(--text-color));
+    cursor: pointer;
   }
 
   &__input {
