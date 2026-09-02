@@ -14,6 +14,34 @@ export function useDialog(swipeZoneRef: Ref<HTMLElement | null>) {
     }
   }
 
+  let prevOverflow = ''
+  let prevPaddingRight = ''
+
+  function lockScroll() {
+    const body = document.body
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+    prevOverflow = body.style.overflow
+    prevPaddingRight = body.style.paddingRight
+    body.style.overflow = 'hidden'
+    if (scrollbarWidth > 0)
+      body.style.paddingRight = `${scrollbarWidth}px`
+  }
+
+  function unlockScroll() {
+    const body = document.body
+    body.style.overflow = prevOverflow
+    body.style.paddingRight = prevPaddingRight
+  }
+
+  watch(() => dialogs.value.length > 0, (locked) => {
+    if (locked)
+      lockScroll()
+    else
+      unlockScroll()
+  })
+
+  onUnmounted(unlockScroll)
+
   const isAnimatingOut = ref(false)
   const translateY = ref(0)
   const isBodyAtTop = ref(true)
