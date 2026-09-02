@@ -169,6 +169,7 @@ function openMark(markId: number) {
       <achievements
         v-if="user"
         :user-id="user?.userId"
+        :is-own="isOwn"
       />
     </div>
 
@@ -202,6 +203,18 @@ function openMark(markId: number) {
           @click="openMark(item.id)"
         />
       </div>
+    </div>
+
+    <div
+      v-else-if="isOwn && myMarks"
+      class="user-profile-view__empty"
+    >
+      <u-icon
+        icon="solar:point-on-map-bold-duotone"
+        width="26"
+        height="26"
+      />
+      <span>Пока нет меток — дважды коснитесь карты, чтобы создать первую</span>
     </div>
 
     <div
@@ -272,6 +285,21 @@ function openMark(markId: number) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    color: var(--text-color-secondary, var(--text-color));
+    @include glass-panel(16px, 18px, false);
+
+    span {
+      @include label-text(13px, none);
+      line-height: 1.4;
+    }
   }
 }
 

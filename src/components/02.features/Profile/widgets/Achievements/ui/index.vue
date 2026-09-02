@@ -5,6 +5,7 @@ import { achievementApi } from '@/components/00.shared/services/achievement'
 
 const props = defineProps<{
   userId: number
+  isOwn?: boolean
 }>()
 
 const achievements = shallowRef<NearestAchievementItem[]>([])
@@ -57,7 +58,10 @@ onMounted(loadAchievements)
       </button>
     </div>
 
-    <div class="achievements-wrapper">
+    <div
+      class="achievements-wrapper"
+      :class="{ 'no-grid': achievements.length === 0 }"
+    >
       <div
         v-if="isLoading"
         class="loader"
@@ -80,6 +84,13 @@ onMounted(loadAchievements)
             >
           </div>
           <span class="short-title">{{ item.achievement.title }}</span>
+        </div>
+
+        <div
+          v-if="!achievements.length"
+          class="achive-empty"
+        >
+          {{ isOwn ? 'Действуйте на карте — и здесь появятся достижения' : 'Пока нет достижений' }}
         </div>
       </template>
     </div>
@@ -121,6 +132,13 @@ onMounted(loadAchievements)
   @include glass-panel(20px, 14px);
   width: 100%;
 
+  .achive-empty {
+    padding: 8px 4px;
+    text-align: center;
+    @include label-text(13px, none);
+    line-height: 1.4;
+  }
+
   .header {
     display: flex;
     align-items: center;
@@ -161,6 +179,12 @@ onMounted(loadAchievements)
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 6px;
   min-height: 56px;
+
+  &.no-grid {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .achive-card {

@@ -1,10 +1,29 @@
 <script setup lang="ts">
 import type { MapPoint } from '@/types/shared/map'
+import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoachmarks'
+import CoachSpotlight from '@/components/02.features/Onboarding/ui/CoachSpotlight.vue'
 import { useMarkAdd } from '../model'
 import DateBlock from './DateBlock.vue'
 
 const props = defineProps<{ coords: MapPoint }>()
 const coords = toRef(props, 'coords')
+
+const DATE_TIP_ID = 'mark_datetime'
+const dateBlockRef = ref<HTMLElement | null>(null)
+const showDateTip = ref(false)
+const { shouldShow, markSeen } = useCoachmarks()
+let dateTipTimer: ReturnType<typeof setTimeout> | null = null
+
+function dismissDateTip() {
+  if (!showDateTip.value)
+    return
+  showDateTip.value = false
+  if (dateTipTimer) {
+    clearTimeout(dateTipTimer)
+    dateTipTimer = null
+  }
+  markSeen(DATE_TIP_ID)
+}
 
 const {
   markName,
@@ -24,10 +43,21 @@ const {
   fetchAddress,
 } = useMarkAdd(coords.value)
 
-onMounted(() => {
+onMounted(async () => {
   fetchCreateData()
   fetchAddress(coords.value)
+
+  if (await shouldShow(DATE_TIP_ID)) {
+    setTimeout(() => {
+      if (dateBlockRef.value) {
+        showDateTip.value = true
+        dateTipTimer = setTimeout(dismissDateTip, 12000)
+      }
+    }, 450)
+  }
 })
+
+onUnmounted(dismissDateTip)
 </script>
 
 <template>
@@ -98,10 +128,12 @@ onMounted(() => {
         />
       </div>
 
-      <date-block
-        v-model:start-at="startAt"
-        v-model:end-at="endAt"
-      />
+      <div ref="dateBlockRef">
+        <date-block
+          v-model:start-at="startAt"
+          v-model:end-at="endAt"
+        />
+      </div>
 
       <u-text-area
         v-model="additionalInfo"
@@ -109,6 +141,13 @@ onMounted(() => {
         placeholder="История этого места, воспоминания, что здесь было..."
       />
     </div>
+
+    <coach-spotlight
+      v-if="showDateTip"
+      :target="dateBlockRef"
+      text="Метку можно создать на будущее — выберите дату и время"
+      @close="dismissDateTip"
+    />
   </div>
 </template>
 
