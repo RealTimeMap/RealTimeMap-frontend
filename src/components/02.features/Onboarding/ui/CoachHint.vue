@@ -86,4 +86,17 @@ const emit = defineEmits<{
     cursor: pointer;
   }
 }
+
+.coach-fade-enter-active,
+.coach-fade-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+}
+
+.coach-fade-enter-from,
+.coach-fade-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px);
+}
 </style>

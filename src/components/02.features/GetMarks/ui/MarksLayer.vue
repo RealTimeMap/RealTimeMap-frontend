@@ -17,7 +17,8 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'update:visibleCount', count: number): void
+  (e: 'update:markCount', count: number): void
+  (e: 'update:clusterCount', count: number): void
 }>()
 
 const CLUSTER_ZOOM_STEP = 2
@@ -37,9 +38,15 @@ const displayMarks = computed<Mark[]>(() => {
   return [...base, pin]
 })
 
+// Что сейчас на экране — для контекстных подсказок (метки и кластеры взаимоисключающи)
 watch(
-  () => displayMarks.value.length + clusters.value.length,
-  count => emit('update:visibleCount', count),
+  () => displayMarks.value.length,
+  count => emit('update:markCount', count),
+  { immediate: true },
+)
+watch(
+  () => clusters.value.length,
+  count => emit('update:clusterCount', count),
   { immediate: true },
 )
 const router = useRouter()
