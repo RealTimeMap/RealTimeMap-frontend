@@ -35,10 +35,12 @@ export const useNotificationStore = defineStore('notification', () => {
 
   async function add(notification: Omit<Notification, 'id'>) {
     const settings = useSettingsStore()
+    let createdId: string | undefined
 
     // Внутренние тосты приложения
     if (settings.isAppNotificationsEnabled) {
       const id = Math.random().toString(36).substring(2, 9)
+      createdId = id
       const newNotification = { ...notification, id }
       notifications.value.push(newNotification)
 
@@ -69,6 +71,8 @@ export const useNotificationStore = defineStore('notification', () => {
         console.error('[LocalNotifications] Ошибка отправки пуша:', e)
       }
     }
+
+    return createdId
   }
 
   function remove(id: string) {
