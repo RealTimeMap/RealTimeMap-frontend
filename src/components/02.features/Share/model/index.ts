@@ -24,9 +24,18 @@ export const useShareStore = defineStore('share', () => {
   const shareData = ref<ShareData | null>(null)
   const mapScreenshot = ref<string>('')
   const rendererRef = ref<HTMLElement | null>(null)
+  const pendingFocus = ref<[number, number] | null>(null)
 
   const registerMap = (map: Map) => {
     mapInstance.value = map
+  }
+
+  const requestMapFocus = (coords: [number, number]) => {
+    pendingFocus.value = coords
+  }
+
+  const clearMapFocus = () => {
+    pendingFocus.value = null
   }
 
   const shareMark = async (data: ShareData): Promise<boolean> => {
@@ -149,5 +158,8 @@ export const useShareStore = defineStore('share', () => {
     mapScreenshot,
     rendererRef,
     isGenerating,
+    pendingFocus,
+    requestMapFocus,
+    clearMapFocus,
   }
 })

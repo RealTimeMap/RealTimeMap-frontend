@@ -14,6 +14,7 @@ import MarkPeriod from './MarkPeriod.vue'
 
 const props = defineProps<{
   markId: number
+  fromProfile?: boolean
 }>()
 
 const scrollContainerRef = ref<HTMLElement | null>(null)
@@ -21,8 +22,9 @@ const markIdRef = toRef(props, 'markId')
 const shareStore = useShareStore()
 const routeStore = useRouteStore()
 const authStore = useAuthStore()
+const router = useRouter()
 const { user } = authStore
-const { close } = useDialogStore()
+const { close, destroy } = useDialogStore()
 
 const { openProfile } = useProfileNavigation()
 
@@ -67,8 +69,18 @@ function handleRoute() {
   close()
 }
 
+function handleShowOnMap() {
+  if (!mark.value)
+    return
+  shareStore.requestMapFocus(mark.value.geom.coordinates)
+  destroy()
+  router.push({ name: 'home-map' })
+}
+
 const confirmingMarkDelete = ref(false)
 const hasPhotos = computed(() => !!mark.value?.photos?.length)
+const isMarkActive = computed(() => mark.value?.meta?.status?.toLowerCase() === 'active')
+const canShowOnMap = computed(() => props.fromProfile && isMarkActive.value)
 
 function handleEditMark() {
   if (!mark.value)
@@ -368,6 +380,19 @@ onMounted(() => {
           <span>{{ routeStore.activeMarkId === markId ? 'Показать маршрут' : 'Маршрут' }}</span>
         </span>
       </div>
+
+      <button
+        v-if="canShowOnMap"
+        type="button"
+        class="show-on-map-btn"
+        @click="handleShowOnMap()"
+      >
+        <u-icon
+          icon="solar:map-point-wave-bold"
+          width="18"
+        />
+        Показать на карте
+      </button>
 
       <div class="block comments-section">
         <h3>Комментарии</h3>

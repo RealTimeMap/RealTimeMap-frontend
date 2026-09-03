@@ -45,6 +45,8 @@ function handleSend() {
   emit('send', text.value)
   emit('stopTyping')
   text.value = ''
+
+  textareaEl.value?.focus()
   nextTick(autoGrow)
 }
 
@@ -89,6 +91,7 @@ function handleKeydown(event: KeyboardEvent) {
         :class="{ 'composer__send--active': canSend }"
         :disabled="!canSend || isSending"
         aria-label="Отправить"
+        @mousedown.prevent
         @click="handleSend"
       >
         <u-icon
