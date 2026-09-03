@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v0.1.22
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.21...v0.1.22)
+
+### 🚀 Функциональность
+
+- **ui:** Добавлена кнопка для перемещение на активную метку ([1f818c5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1f818c5))
+
+### 🩹 Исправления
+
+- **ui:** Клавиатура не закрывается после сообщения ([a943bba](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/a943bba))
+- **ui:** Вернул статусы на каждое сообщение ([737e070](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/737e070))
+
+### 🎨 Стили
+
+- **ui:** Фикс резинового скролла в профиле ([44363f3](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/44363f3))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.21
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.20...v0.1.21)
