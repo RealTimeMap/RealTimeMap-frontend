@@ -30,6 +30,18 @@ const emit = defineEmits<{ click: [] }>()
           height="26"
         />
       </div>
+
+      <div
+        v-if="mark.photos && mark.photos.length > 1"
+        class="mark-card__count"
+      >
+        <u-icon
+          icon="solar:gallery-bold"
+          width="12"
+          height="12"
+        />
+        {{ mark.photos.length }}
+      </div>
     </div>
 
     <div class="mark-card__body">
@@ -97,6 +109,23 @@ const emit = defineEmits<{ click: [] }>()
     );
     pointer-events: none;
   }
+}
+
+.mark-card__count {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  line-height: 1;
 }
 
 .mark-card__body {

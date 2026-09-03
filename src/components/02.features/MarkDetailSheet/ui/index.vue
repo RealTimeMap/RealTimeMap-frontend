@@ -65,6 +65,7 @@ function handleRoute() {
 }
 
 const confirmingMarkDelete = ref(false)
+const hasPhotos = computed(() => !!mark.value?.photos?.length)
 
 function handleEditMark() {
   if (!mark.value)
@@ -225,7 +226,10 @@ onMounted(() => {
         </template>
       </div>
 
-      <div class="header-block">
+      <div
+        v-if="hasPhotos"
+        class="header-block"
+      >
         <div
           class="gallery-block"
         >
@@ -246,7 +250,31 @@ onMounted(() => {
           </span>
         </div>
         <div class="header-block__badge">
-          фото · {{ formatDate(mark.date.startAt) }}
+          <u-icon
+            icon="solar:gallery-bold"
+            width="12"
+            height="12"
+          />
+          {{ mark.photos.length }} фото · {{ formatDate(mark.date.startAt) }}
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="header-nophoto"
+      >
+        <div class="header-nophoto__icon">
+          <u-icon
+            icon="solar:map-point-bold-duotone"
+            width="26"
+            height="26"
+          />
+        </div>
+        <div class="header-nophoto__info">
+          <span class="header-nophoto__title">{{ mark.markName }}</span>
+          <span class="header-nophoto__address">
+            {{ address || 'не найден' }} · {{ formatDate(mark.date.startAt) }}
+          </span>
         </div>
       </div>
 

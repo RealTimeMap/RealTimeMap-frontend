@@ -157,7 +157,6 @@ async function submitReply() {
           @click="startReply"
         >
           <u-icon icon="line-md:turn-left" />
-          Ответить
         </button>
 
         <template v-if="isOwn">
