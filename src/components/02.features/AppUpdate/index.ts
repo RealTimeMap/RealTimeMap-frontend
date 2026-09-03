@@ -1,1 +1,1 @@
-export { initUpdateChecker } from './model/index'
+export { downloadAndroidApp, initUpdateChecker } from './model/index'
