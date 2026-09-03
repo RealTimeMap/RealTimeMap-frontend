@@ -42,6 +42,11 @@ export function useMarkDetail(
   const isLoading = ref(true)
   const error = ref<string | null>(null)
 
+  // --- Comments (independent) ---
+  const commentsLoading = ref(false)
+  const commentsError = ref<string | null>(null)
+  let lastStat: MarkStat | null = null
+
   // --- Comment Form State ---
   const commentText = ref('')
   const isSending = ref(false)
@@ -87,7 +92,6 @@ export function useMarkDetail(
 
   async function fetchData() {
     error.value = null
-    comments.value = []
 
     if (marksCache.has(markId)) {
       mark.value = marksCache.get(markId)!
@@ -107,31 +111,15 @@ export function useMarkDetail(
         fetchAddress(mark.value.geom.coordinates)
       }
 
-      let stat: MarkStat | null = null
       try {
-        stat = await markApi.getMarkStat(markId)
-        applyStat(stat)
+        lastStat = await markApi.getMarkStat(markId)
+        applyStat(lastStat)
       }
       catch (statError) {
         console.error('[Mark Stat]', statError)
       }
 
-      try {
-        const dataComments = await markApi.getMarkComments(markId)
-        comments.value = dataComments.items.reverse()
-      }
-      catch (commentsError) {
-        console.error('[Mark Comments]', commentsError)
-      }
-
-      await Preferences.set({
-        key: cacheKey,
-        value: JSON.stringify({
-          mark: mark.value,
-          comments: comments.value,
-          stat,
-        }),
-      })
+      await persistCache()
     }
     catch (e) {
       console.error('[Mark Detail] Сеть недоступна, пытаемся поднять локальный кэш...', e)
@@ -141,10 +129,11 @@ export function useMarkDetail(
         if (value) {
           const cached = JSON.parse(value)
           mark.value = cached.mark
-          comments.value = cached.comments
           applyReactions(mark.value)
-          if (cached.stat)
+          if (cached.stat) {
+            lastStat = cached.stat
             applyStat(cached.stat)
+          }
 
           if (mark.value?.geom?.coordinates) {
             fetchAddress(mark.value.geom.coordinates).catch(() => { })
@@ -161,6 +150,33 @@ export function useMarkDetail(
     }
     finally {
       isLoading.value = false
+    }
+  }
+
+  async function fetchComments() {
+    commentsError.value = null
+    commentsLoading.value = true
+    try {
+      const data = await markApi.getMarkComments(markId)
+      comments.value = data.items.reverse()
+      await persistCache()
+    }
+    catch (e) {
+      console.error('[Mark Comments]', e)
+      try {
+        const { value } = await Preferences.get({ key: cacheKey })
+        const cached = value ? JSON.parse(value) : null
+        if (cached?.comments?.length)
+          comments.value = cached.comments
+        else
+          commentsError.value = 'Не удалось загрузить комментарии'
+      }
+      catch {
+        commentsError.value = 'Не удалось загрузить комментарии'
+      }
+    }
+    finally {
+      commentsLoading.value = false
     }
   }
 
@@ -216,7 +232,7 @@ export function useMarkDetail(
     try {
       await Preferences.set({
         key: cacheKey,
-        value: JSON.stringify({ mark: mark.value, comments: comments.value }),
+        value: JSON.stringify({ mark: mark.value, comments: comments.value, stat: lastStat }),
       })
     }
     catch (e) {
@@ -458,6 +474,9 @@ export function useMarkDetail(
     commentText,
     error,
     fetchData,
+    fetchComments,
+    commentsLoading,
+    commentsError,
     formatDate,
     handlePostComment,
     isLoading,

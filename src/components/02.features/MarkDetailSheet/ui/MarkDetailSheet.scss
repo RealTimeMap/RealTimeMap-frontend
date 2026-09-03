@@ -84,6 +84,7 @@
   align-items: center;
   gap: 14px;
   padding: 16px;
+  padding-right: 92px;
   border-radius: 20px;
   background: var(--bg-color-block);
   border: 0.5px solid var(--border-subtle);
@@ -111,10 +112,16 @@
     font-weight: 700;
     letter-spacing: -0.3px;
     color: var(--text-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   &__address {
     @include label-text(12px, none);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -192,6 +199,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  min-height: 120px;
   // max-height: 280px;
   // overflow-y: auto;
   // padding-right: 8px;
@@ -209,6 +217,60 @@
   // &::-webkit-scrollbar-thumb:hover {
   //   background: #aaa;
   // }
+}
+
+.comments-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__row {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+  }
+
+  &__avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background: var(--surface-subtle);
+  }
+
+  &__lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding-top: 4px;
+  }
+
+  &__line {
+    height: 10px;
+    border-radius: 6px;
+    background: var(--surface-subtle);
+
+    &--short {
+      width: 40%;
+    }
+  }
+}
+
+.comments-skeleton__row,
+.comments-skeleton__line,
+.comments-skeleton__avatar {
+  animation: comments-skeleton-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes comments-skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 
 .no-comments {

@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const achievements = shallowRef<NearestAchievementItem[]>([])
 const isLoading = ref(false)
+const hasError = ref(false)
 // const { open } = useDialogStore()
 
 const activeItem = ref<NearestAchievementItem | null>(null)
@@ -19,9 +20,14 @@ async function loadAchievements() {
   if (!props.userId)
     return
   isLoading.value = true
+  hasError.value = false
   try {
     const res = await achievementApi.getNearestAchievements(props.userId)
     achievements.value = res.items
+  }
+  catch (e) {
+    console.error('[Achievements]', e)
+    hasError.value = true
   }
   finally {
     isLoading.value = false
@@ -64,10 +70,18 @@ onMounted(loadAchievements)
 
     <div
       class="achievements-wrapper"
-      :class="{ 'no-grid': achievements.length === 0 }"
+      :class="{ 'no-grid': achievements.length === 0 || hasError }"
     >
+      <u-block-error
+        v-if="hasError"
+        compact
+        title="Достижения недоступны"
+        :retrying="isLoading"
+        @retry="loadAchievements"
+      />
+
       <div
-        v-if="isLoading"
+        v-else-if="isLoading"
         class="loader"
       >
         ...

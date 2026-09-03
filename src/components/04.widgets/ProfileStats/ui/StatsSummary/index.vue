@@ -67,12 +67,13 @@ const statsDisplay = computed(() => [
       </div>
     </div>
 
-    <div
+    <u-block-error
       v-else-if="error"
-      class="stats-error"
-    >
-      Ошибка загрузки
-    </div>
+      compact
+      title="Статистика недоступна"
+      :retrying="isLoading"
+      @retry="loadStats"
+    />
   </div>
 </template>
 

@@ -31,6 +31,17 @@ const maxVal = computed(() => {
 })
 const { open } = useDialogStore()
 
+const refetchingLevel = ref(false)
+async function retryLevel() {
+  refetchingLevel.value = true
+  try {
+    await authStore.fetchUser()
+  }
+  finally {
+    refetchingLevel.value = false
+  }
+}
+
 function openSettings() {
   open(AppSettings, {
     user: props.user,
@@ -158,6 +169,13 @@ function openMark(markId: number) {
       <level-block
         v-if="user?.gamification"
         :gamification="user.gamification"
+      />
+      <u-block-error
+        v-else-if="user && isOwn"
+        compact
+        title="Уровень недоступен"
+        :retrying="refetchingLevel"
+        @retry="retryLevel"
       />
     </div>
 

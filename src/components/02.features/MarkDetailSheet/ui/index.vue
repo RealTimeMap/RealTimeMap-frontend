@@ -33,6 +33,9 @@ const {
   formatDate,
   comments,
   fetchData,
+  fetchComments,
+  commentsLoading,
+  commentsError,
   isLoading,
   error,
   mark,
@@ -112,7 +115,10 @@ onMounted(async () => {
 
 onUnmounted(dismissRouteTip)
 
-watch(markIdRef, fetchData)
+watch(markIdRef, () => {
+  fetchData()
+  fetchComments()
+})
 
 const isExpanded = ref(false)
 const canExpand = ref(false)
@@ -152,6 +158,7 @@ async function onShareClick() {
 
 onMounted(() => {
   fetchData()
+  fetchComments()
   setTimeout(checkClamping, 100)
   window.addEventListener('resize', checkClamping)
 })
@@ -362,10 +369,7 @@ onMounted(() => {
         </span>
       </div>
 
-      <div
-        v-if="comments"
-        class="block comments-section"
-      >
+      <div class="block comments-section">
         <h3>Комментарии</h3>
         <u-drawer />
 
@@ -374,29 +378,56 @@ onMounted(() => {
           class="comments-list"
         >
           <div
-            v-if="comments.length === 0"
-            class="no-comments"
+            v-if="commentsLoading && comments.length === 0"
+            class="comments-skeleton"
           >
-            Пока нет комментариев. Будьте первым!
+            <div
+              v-for="i in 3"
+              :key="i"
+              class="comments-skeleton__row"
+            >
+              <div class="comments-skeleton__avatar" />
+              <div class="comments-skeleton__lines">
+                <div class="comments-skeleton__line comments-skeleton__line--short" />
+                <div class="comments-skeleton__line" />
+              </div>
+            </div>
           </div>
 
-          <div
-            v-for="comment in comments"
-            :key="comment.id"
-            class="comment-wrapper"
-          >
-            <comment-item
-              :comment="comment"
-              :current-user-id="currentUserId"
-              :on-like="toggleCommentLike"
-              :on-save="saveCommentEdit"
-              :on-delete="removeComment"
-              :on-reply="submitReply"
-              :on-toggle-replies="toggleReplies"
-              :on-open-profile="openProfile"
-            />
-            <u-drawer />
-          </div>
+          <u-block-error
+            v-else-if="commentsError"
+            title="Комментарии недоступны"
+            message="Не удалось загрузить комментарии"
+            :retrying="commentsLoading"
+            @retry="fetchComments"
+          />
+
+          <template v-else>
+            <div
+              v-if="comments.length === 0"
+              class="no-comments"
+            >
+              Пока нет комментариев. Будьте первым!
+            </div>
+
+            <div
+              v-for="comment in comments"
+              :key="comment.id"
+              class="comment-wrapper"
+            >
+              <comment-item
+                :comment="comment"
+                :current-user-id="currentUserId"
+                :on-like="toggleCommentLike"
+                :on-save="saveCommentEdit"
+                :on-delete="removeComment"
+                :on-reply="submitReply"
+                :on-toggle-replies="toggleReplies"
+                :on-open-profile="openProfile"
+              />
+              <u-drawer />
+            </div>
+          </template>
         </div>
       </div>
 
