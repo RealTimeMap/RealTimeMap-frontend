@@ -28,11 +28,12 @@ function handleColorExtracted(color: string) {
 
 <style lang="scss" scoped>
 .profile {
-  min-height: calc(100dvh - var(--safe-top));
+  height: calc(100dvh - var(--safe-top));
   width: 100%;
 
-  /* overflow-x: hidden; */
-  /* overflow-y: auto; */
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 
   inset: 0px;
