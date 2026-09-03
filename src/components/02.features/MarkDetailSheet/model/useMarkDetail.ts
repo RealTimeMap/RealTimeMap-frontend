@@ -59,6 +59,12 @@ export function useMarkDetail(
   const likeDisplay = computed(() => formatCount(likeCount.value))
   const shareDisplay = computed(() => formatCount(shareCount.value))
 
+  const currentUserId = computed(() => authStore.user?.userId ?? null)
+  const isMarkOwner = computed(() =>
+    !!mark.value && mark.value.owner?.id === currentUserId.value,
+  )
+  const isDeletingMark = ref(false)
+
   function applyReactions(m: MarkFull | null) {
     likeCount.value = m?.like?.count ?? 0
     isLiked.value = m?.like?.isLiked ?? false
@@ -206,6 +212,174 @@ export function useMarkDetail(
     }
   }
 
+  async function persistCache() {
+    try {
+      await Preferences.set({
+        key: cacheKey,
+        value: JSON.stringify({ mark: mark.value, comments: comments.value }),
+      })
+    }
+    catch (e) {
+      console.error('[Mark Cache Write]', e)
+    }
+  }
+
+  // --- Comment interactions ---
+  async function toggleCommentLike(comment: MarkComment) {
+    if (!authStore.isAuthenticated) {
+      notify.add({ title: 'Войдите, чтобы оценить комментарий', type: 'warning' })
+      return
+    }
+
+    const wasLiked = comment.isLiked ?? false
+    comment.isLiked = !wasLiked
+    comment.likes += wasLiked ? -1 : 1
+    hapticLight()
+
+    try {
+      const res = wasLiked
+        ? await markApi.unlikeComment(comment.id)
+        : await markApi.likeComment(comment.id)
+      comment.isLiked = res.liked
+      comment.likes = res.likesCount
+      await persistCache()
+    }
+    catch (e) {
+      comment.isLiked = wasLiked
+      comment.likes += wasLiked ? 1 : -1
+      console.error('[Comment Like]', e)
+      notify.add({ title: 'Не удалось изменить оценку', type: 'error' })
+    }
+  }
+
+  async function saveCommentEdit(comment: MarkComment, content: string): Promise<boolean> {
+    const trimmed = content.trim()
+    if (!trimmed || trimmed === comment.content)
+      return false
+
+    try {
+      const updated = await markApi.editComment(comment.id, trimmed)
+      comment.content = updated.content
+      await persistCache()
+      notify.add({ title: 'Комментарий обновлён', type: 'success' })
+      return true
+    }
+    catch (e) {
+      console.error('[Comment Edit]', e)
+      notify.add({ title: 'Не удалось изменить комментарий', type: 'error' })
+      return false
+    }
+  }
+
+  async function removeComment(comment: MarkComment) {
+    try {
+      await markApi.deleteComment(comment.id)
+      comment.content = 'Комментарий удалён'
+      comment.meta.status = 'deleted'
+      await persistCache()
+    }
+    catch (e) {
+      console.error('[Comment Delete]', e)
+      notify.add({ title: 'Не удалось удалить комментарий', type: 'error' })
+    }
+  }
+
+  async function loadReplies(comment: MarkComment) {
+    comment.isLoadingReplies = true
+    try {
+      const res = await markApi.getCommentReplies(markId, comment.id, { sort: 'oldest' })
+      comment.replies = res.items
+      comment.repliesLoaded = true
+      await persistCache()
+    }
+    catch (e) {
+      console.error('[Comment Replies]', e)
+      notify.add({ title: 'Не удалось загрузить ответы', type: 'error' })
+    }
+    finally {
+      comment.isLoadingReplies = false
+    }
+  }
+
+  async function toggleReplies(comment: MarkComment) {
+    if (comment.showReplies) {
+      comment.showReplies = false
+      return
+    }
+    comment.showReplies = true
+    if (!comment.repliesLoaded)
+      await loadReplies(comment)
+  }
+
+  async function submitReply(parent: MarkComment, content: string): Promise<boolean> {
+    const trimmed = content.trim()
+    if (!trimmed || !authStore.isAuthenticated) {
+      if (!authStore.isAuthenticated)
+        notify.add({ title: 'Войдите, чтобы ответить', type: 'warning' })
+      return false
+    }
+
+    try {
+      const created = await markApi.postMarkComment({
+        content: trimmed,
+        entityId: markId,
+        entity: 'mark',
+        parentId: parent.id,
+      })
+
+      parent.meta.repliesCount = (parent.meta.repliesCount ?? 0) + 1
+      parent.meta.haveReplies = true
+      parent.showReplies = true
+
+      if (parent.repliesLoaded) {
+        if (!parent.replies)
+          parent.replies = []
+        parent.replies.push(created)
+      }
+      else {
+        await loadReplies(parent)
+      }
+
+      await persistCache()
+      return true
+    }
+    catch (e) {
+      console.error('[Comment Reply]', e)
+      notify.add({ title: 'Не удалось отправить ответ', type: 'error' })
+      return false
+    }
+  }
+
+  // --- Mark delete ---
+  async function removeMark(): Promise<boolean> {
+    if (!mark.value || isDeletingMark.value)
+      return false
+
+    isDeletingMark.value = true
+    try {
+      await markApi.deleteMark(mark.value.id)
+      await Preferences.remove({ key: cacheKey })
+      hapticLight()
+      notify.add({ title: 'Метка удалена', type: 'success' })
+      authStore.fetchUser()
+      return true
+    }
+    catch (e) {
+      console.error('[Mark Delete]', e)
+      notify.add({ title: 'Не удалось удалить метку', type: 'error' })
+      return false
+    }
+    finally {
+      isDeletingMark.value = false
+    }
+  }
+
+  async function refreshMark() {
+    marksCache.delete(markId)
+    mark.value = null
+    await fetchData()
+  }
+
   const syncLike = useDebounceFn(async () => {
     const desired = isLiked.value
     if (desired === serverLiked.value)
@@ -290,6 +464,17 @@ export function useMarkDetail(
     isSending,
     mark,
     scrollContainerRef,
+
+    currentUserId,
+    isMarkOwner,
+    isDeletingMark,
+    toggleCommentLike,
+    saveCommentEdit,
+    removeComment,
+    submitReply,
+    toggleReplies,
+    removeMark,
+    refreshMark,
 
     address,
     fetchAddress,

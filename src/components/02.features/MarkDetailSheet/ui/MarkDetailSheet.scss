@@ -332,3 +332,43 @@
     }
   }
 }
+
+.owner-fab {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &__btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.5);
+    border: 0.5px solid rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      background 0.2s ease;
+
+    &:active {
+      transform: scale(0.9);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    &--danger {
+      color: #ff6b6b;
+    }
+  }
+}

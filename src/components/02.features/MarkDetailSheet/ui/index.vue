@@ -2,12 +2,14 @@
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation.ts'
 import { formatRelativeDate } from '@/components/00.shared/lib/date/FormatRelativeDate'
 import { useDialogStore } from '@/components/00.shared/stores/dialog.ts'
+import { openMarkEditForm } from '@/components/02.features/MarkEditForm'
 import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoachmarks'
 import CoachSpotlight from '@/components/02.features/Onboarding/ui/CoachSpotlight.vue'
 import { useRouteStore } from '@/components/02.features/RouteToMark'
 import { useAuthStore } from '../../Authentication/model/auth'
 import { useShareStore } from '../../Share/model'
 import { useMarkDetail } from '../model/useMarkDetail'
+import CommentItem from './CommentItem.vue'
 import MarkPeriod from './MarkPeriod.vue'
 
 const props = defineProps<{
@@ -40,6 +42,16 @@ const {
   toggleLike,
   shareDisplay,
   registerShare,
+  currentUserId,
+  isMarkOwner,
+  isDeletingMark,
+  toggleCommentLike,
+  saveCommentEdit,
+  removeComment,
+  submitReply,
+  toggleReplies,
+  removeMark,
+  refreshMark,
 } = useMarkDetail(
   markIdRef.value,
   scrollContainerRef,
@@ -50,6 +62,20 @@ function handleRoute() {
     return
   routeStore.buildRoute(mark.value)
   close()
+}
+
+const confirmingMarkDelete = ref(false)
+
+function handleEditMark() {
+  if (!mark.value)
+    return
+  openMarkEditForm(mark.value, refreshMark)
+}
+
+async function handleDeleteMark() {
+  const ok = await removeMark()
+  if (ok)
+    close()
 }
 
 const ROUTE_TIP_ID = 'guest_route'
@@ -147,6 +173,58 @@ onMounted(() => {
     </div>
 
     <template v-else-if="mark">
+      <div
+        v-if="isMarkOwner"
+        class="owner-fab"
+      >
+        <template v-if="!confirmingMarkDelete">
+          <button
+            class="owner-fab__btn"
+            aria-label="Редактировать метку"
+            @click="handleEditMark()"
+          >
+            <u-icon
+              icon="solar:pen-linear"
+              width="17"
+            />
+          </button>
+          <button
+            class="owner-fab__btn owner-fab__btn--danger"
+            aria-label="Удалить метку"
+            @click="confirmingMarkDelete = true"
+          >
+            <u-icon
+              icon="solar:trash-bin-trash-linear"
+              width="17"
+            />
+          </button>
+        </template>
+        <template v-else>
+          <button
+            class="owner-fab__btn owner-fab__btn--danger"
+            :disabled="isDeletingMark"
+            aria-label="Подтвердить удаление"
+            @click="handleDeleteMark()"
+          >
+            <u-icon
+              :icon="isDeletingMark ? 'line-md:loading-twotone-loop' : 'line-md:confirm'"
+              width="17"
+            />
+          </button>
+          <button
+            class="owner-fab__btn"
+            :disabled="isDeletingMark"
+            aria-label="Отмена"
+            @click="confirmingMarkDelete = false"
+          >
+            <u-icon
+              icon="line-md:close"
+              width="15"
+            />
+          </button>
+        </template>
+      </div>
+
       <div class="header-block">
         <div
           class="gallery-block"
@@ -279,44 +357,16 @@ onMounted(() => {
             :key="comment.id"
             class="comment-wrapper"
           >
-            <div
-              class="comment-item"
-            >
-              <u-avatar
-                rounded
-                :size="34"
-                :src="comment.author.avatar"
-                :alt-text="comment.author.username"
-                @click="openProfile(comment.author.id)"
-              />
-              <div class="comment-content">
-                <span class="comment-author">{{ comment.author?.username }}</span>
-                <div class="comment-text">
-                  {{ comment.content }}
-                </div>
-                <div class="comment-content__social">
-                  <div class="comment-likes">
-                    <u-icon icon="line-md:heart" />
-                    {{ comment.likes }}
-                  </div>
-                  <div class="comment-likes">
-                    <u-icon icon="line-md:arrow-down" />
-                    {{ comment.likes }}
-                  </div>
-                  <div class="comment-likes">
-                    <u-icon icon="line-md:turn-left" />
-                    Ответить
-                  </div>
-                  <div
-                    v-if="comment.meta.repliesCount > 0"
-                    class="comment-replies"
-                  >
-                    &mdash;
-                    Ответы · {{ comment.meta.repliesCount }}
-                  </div>
-                </div>
-              </div>
-            </div>
+            <comment-item
+              :comment="comment"
+              :current-user-id="currentUserId"
+              :on-like="toggleCommentLike"
+              :on-save="saveCommentEdit"
+              :on-delete="removeComment"
+              :on-reply="submitReply"
+              :on-toggle-replies="toggleReplies"
+              :on-open-profile="openProfile"
+            />
             <u-drawer />
           </div>
         </div>
