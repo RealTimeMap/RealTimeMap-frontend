@@ -133,7 +133,7 @@ $nav-icon-active: var(--nav-icon-active);
 
 .bottom-nav {
   position: fixed;
-  bottom: calc(40px + var(--safe-bottom));
+  bottom: calc(30px + var(--safe-bottom));
   left: 50%;
   transform: translateX(-50%);
   width: 90%;

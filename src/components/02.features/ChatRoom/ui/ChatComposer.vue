@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { hapticLight } from '@/components/00.shared/lib/haptics'
+
 defineProps<{
   isSending: boolean
 }>()
@@ -39,6 +41,7 @@ function handleSend() {
   if (!canSend.value)
     return
 
+  hapticLight()
   emit('send', text.value)
   emit('stopTyping')
   text.value = ''
@@ -164,11 +167,16 @@ function handleKeydown(event: KeyboardEvent) {
     background: var(--surface-subtle);
     transition:
       background 0.2s ease,
-      color 0.2s ease;
+      color 0.2s ease,
+      transform 0.12s ease;
 
     &--active {
       color: #fff;
       background: var(--accent-gradient, linear-gradient(120deg, #4a5bf7 0%, #8b3df0 100%));
+    }
+
+    &--active:active {
+      transform: scale(0.88);
     }
 
     &:disabled {
