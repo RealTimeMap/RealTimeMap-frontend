@@ -109,7 +109,7 @@ const { activeTip: profileTip, dismiss: dismissProfileTip } = useCoachOnView(
 )
 
 function openMark(markId: number) {
-  open(MarkDetailsSheet, { markId }, {
+  open(MarkDetailsSheet, { markId, fromProfile: true }, {
     headerModal: false,
     position: 'end center',
   })

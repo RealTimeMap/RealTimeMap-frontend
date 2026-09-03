@@ -437,6 +437,27 @@
   }
 }
 
+.show-on-map-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  border: 0.5px solid color-mix(in srgb, var(--primary-color) 30%, transparent);
+  border-radius: 14px;
+  cursor: pointer;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
 .owner-fab {
   position: absolute;
   top: 12px;

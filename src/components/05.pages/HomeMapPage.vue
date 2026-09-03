@@ -14,6 +14,7 @@ import { useMapCoach } from '@/components/02.features/Onboarding/model/useMapCoa
 import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
 import { RouteBanner, useRouteStore } from '@/components/02.features/RouteToMark'
 import SearchUsers from '@/components/02.features/SearchUsers'
+import { useShareStore } from '@/components/02.features/Share/model'
 
 defineOptions({ name: 'HomeMapPage' })
 
@@ -26,6 +27,7 @@ const {
 const dialogStore = useDialogStore()
 const authStore = useAuthStore()
 const routeStore = useRouteStore()
+const shareStore = useShareStore()
 const notify = useNotificationStore()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
@@ -60,10 +62,20 @@ const markAddCoords = ref<null | MapPoint>(null)
 const screenBounds = ref<MapBounds | null>(null)
 const zoomLevel = ref<number>(15)
 
+function flyToPending() {
+  if (!mapApi.value || !shareStore.pendingFocus)
+    return
+  mapApi.value.flyTo({ center: shareStore.pendingFocus, zoom: 16 })
+  shareStore.clearMapFocus()
+}
+
 function handleMapReady(map: Map) {
   mapApi.value = map
   onMapReady()
+  flyToPending()
 }
+
+onActivated(flyToPending)
 
 function handleMapClick(coordinates: MapPoint) {
   if (!isAuthenticated.value) {
