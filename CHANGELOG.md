@@ -1,6 +1,31 @@
 # Changelog
 
 
+## v0.1.21
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.20...v0.1.21)
+
+### 🚀 Функциональность
+
+- **seo:** Добавлено сео для сайта и приложения ([11d2c52](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/11d2c52))
+- **ui:** Открытые достижения ([5e890d4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/5e890d4))
+- **ui:** Опыт за действие и вибро отклик ([1e45e9b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1e45e9b))
+- **ui:** Интеграция комментариев и метки (редактор и делит) ([860f06d](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/860f06d))
+- **ui:** Добавлен блок заглушка при падении сервиса ([ece123f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ece123f))
+
+### 💅 Рефакторинг
+
+- **ui:** Переписаны настройки приложения ([73fa1a1](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/73fa1a1))
+- **ui:** Мелкие изменения в чатах ([d7a1481](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d7a1481))
+
+### 🆕 Новое
+
+- **ui:** Новый блок для добавления фоток ([13c0d7f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/13c0d7f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.20
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.19...v0.1.20)
