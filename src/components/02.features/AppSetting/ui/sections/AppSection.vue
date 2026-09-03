@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Capacitor } from '@capacitor/core'
 import { storeToRefs } from 'pinia'
 import { isAndroid } from '@/components/00.shared/lib/platform'
 import { themeMeta } from '@/components/00.shared/lib/theme'
@@ -9,9 +10,15 @@ import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
 
 const settings = useSettingsStore()
-const { theme, isAppNotificationsEnabled, isSystemNotificationsEnabled } = storeToRefs(settings)
+const {
+  theme,
+  isAppNotificationsEnabled,
+  isSystemNotificationsEnabled,
+  isHapticsEnabled,
+} = storeToRefs(settings)
 
 const showDownloadApp = !isAndroid()
+const showHaptics = Capacitor.isNativePlatform()
 </script>
 
 <template>
@@ -38,6 +45,16 @@ const showDownloadApp = !isAndroid()
     >
       <template #trailing>
         <u-switch v-model="isSystemNotificationsEnabled" />
+      </template>
+    </settings-row>
+
+    <settings-row
+      v-if="showHaptics"
+      label="Вибрация"
+      hint="Тактильный отклик на действия"
+    >
+      <template #trailing>
+        <u-switch v-model="isHapticsEnabled" />
       </template>
     </settings-row>
 

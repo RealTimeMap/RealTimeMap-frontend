@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NearestAchievementItem } from '@/components/00.shared/services/achievement/index.type'
-// import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { achievementApi } from '@/components/00.shared/services/achievement'
+import { openAchievements } from '@/components/02.features/AchievementsList'
 
 const props = defineProps<{
   userId: number
@@ -49,7 +49,11 @@ onMounted(loadAchievements)
         <h3>Достижения</h3>
         <span class="badge">{{ achievements.length }} / 32</span>
       </div>
-      <button class="all-link">
+      <button
+        class="all-link"
+        type="button"
+        @click="openAchievements(userId)"
+      >
         Все
         <u-icon
           icon="weui:arrow-filled"

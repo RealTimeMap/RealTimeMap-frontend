@@ -6,6 +6,7 @@ import { useNetworkWatch } from './components/00.shared/composables/useNetworkWa
 import { useNotificationStore } from './components/00.shared/stores/notification'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
 import { initBugReport } from './components/02.features/BugReport'
+import { ExpGain, useGamificationFeedback } from './components/02.features/Gamification'
 
 const layouts = {
   empty: EmptyLayout,
@@ -20,6 +21,7 @@ const layoutComponent = computed(() => {
 
 const notificationStore = useNotificationStore()
 const { initNetworkListener } = useNetworkWatch()
+const { xpGain } = useGamificationFeedback()
 
 onMounted(async () => {
   await notificationStore.requestPermissions()
@@ -42,5 +44,11 @@ onMounted(async () => {
     </component>
 
     <notification-provider />
+
+    <exp-gain
+      v-if="xpGain"
+      :key="xpGain.key"
+      :amount="xpGain.amount"
+    />
   </div>
 </template>

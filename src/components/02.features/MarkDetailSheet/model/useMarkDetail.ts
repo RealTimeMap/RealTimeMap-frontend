@@ -3,6 +3,7 @@ import type { MarkComment, MarkCommentPayload, MarkFull, MarkStat } from '@/comp
 import { Preferences } from '@capacitor/preferences'
 import { useDebounceFn } from '@vueuse/core'
 import { useGeocoding } from '@/components/00.shared/composables/useGeocoding'
+import { hapticLight } from '@/components/00.shared/lib/haptics'
 import { markApi } from '@/components/00.shared/services/mark'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
@@ -236,6 +237,7 @@ export function useMarkDetail(
 
     isLiked.value = !isLiked.value
     likeCount.value += isLiked.value ? 1 : -1
+    hapticLight()
     syncLike()
   }
 
