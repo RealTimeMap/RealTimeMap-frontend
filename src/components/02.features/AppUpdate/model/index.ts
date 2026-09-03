@@ -7,6 +7,8 @@ import { summarizeRelease } from './summarizeRelease'
 
 declare const __APP_VERSION__: string
 const GITHUB_REPO = 'RealTimeMap/RealTimeMap-frontend'
+const API_GITHUB_RELEASES_LATEST = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`
+const GITHUB_RELEASES_PAGE = `https://github.com/${GITHUB_REPO}/releases/latest`
 
 interface UpdateAction {
   text: string
@@ -29,13 +31,11 @@ function resolveUpdateAction(latestRelease: any): UpdateAction | null {
     }
 
     case 'ios':
-      // сборки в App Store пока нет — ведём на страницу релиза как заглушку
       return {
         text: 'Открыть',
         callback: () => window.open(latestRelease.html_url, '_blank'),
       }
 
-    // web сюда не доходит (отсечён в initUpdateChecker), обновляется через SW
     default:
       return null
   }
@@ -48,14 +48,13 @@ export async function initUpdateChecker() {
   const notify = useNotificationStore()
 
   try {
-    const response = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`)
+    const response = await fetch(API_GITHUB_RELEASES_LATEST)
     if (!response.ok)
       return
 
     const latestRelease = await response.json()
     const latestVersion = latestRelease.tag_name.replace(/[^\d.]/g, '')
 
-    // показываем, только если релиз строго новее установленной версии
     if (compareVersions(latestVersion, __APP_VERSION__) <= 0)
       return
 
@@ -74,6 +73,25 @@ export async function initUpdateChecker() {
   }
   catch (error) {
     console.error('Ошибка автоматической проверки обновлений:', error)
+  }
+}
+
+export async function downloadAndroidApp() {
+  try {
+    const response = await fetch(API_GITHUB_RELEASES_LATEST)
+    if (!response.ok) {
+      window.open(GITHUB_RELEASES_PAGE, '_blank')
+      return
+    }
+    const latestRelease = await response.json()
+    const apkAsset = latestRelease.assets?.find(
+      (asset: any) => asset.name.endsWith('.apk'),
+    )
+    window.open(apkAsset?.browser_download_url ?? GITHUB_RELEASES_PAGE, '_blank')
+  }
+  catch (error) {
+    console.error('Не удалось получить ссылку на APK:', error)
+    window.open(GITHUB_RELEASES_PAGE, '_blank')
   }
 }
 

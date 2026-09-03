@@ -59,6 +59,22 @@ export default defineConfig({
     VitePWA({
       registerType: 'prompt',
       injectRegister: null,
+      manifest: {
+        name: 'RealTimeMap — карта мест и меток',
+        short_name: 'RealTimeMap',
+        description: 'Интерактивная карта мест: метки людей вокруг, маршруты и ваши собственные точки в реальном времени.',
+        lang: 'ru',
+        dir: 'ltr',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        orientation: 'portrait',
+        background_color: '#0f1115',
+        theme_color: '#12915a',
+        icons: [
+          { src: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
+        ],
+      },
       workbox: {
         runtimeCaching: [
           {

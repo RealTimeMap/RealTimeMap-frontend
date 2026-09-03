@@ -2,12 +2,14 @@
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation.ts'
 import { formatRelativeDate } from '@/components/00.shared/lib/date/FormatRelativeDate'
 import { useDialogStore } from '@/components/00.shared/stores/dialog.ts'
+import { openMarkEditForm } from '@/components/02.features/MarkEditForm'
 import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoachmarks'
 import CoachSpotlight from '@/components/02.features/Onboarding/ui/CoachSpotlight.vue'
 import { useRouteStore } from '@/components/02.features/RouteToMark'
 import { useAuthStore } from '../../Authentication/model/auth'
 import { useShareStore } from '../../Share/model'
 import { useMarkDetail } from '../model/useMarkDetail'
+import CommentItem from './CommentItem.vue'
 import MarkPeriod from './MarkPeriod.vue'
 
 const props = defineProps<{
@@ -31,6 +33,9 @@ const {
   formatDate,
   comments,
   fetchData,
+  fetchComments,
+  commentsLoading,
+  commentsError,
   isLoading,
   error,
   mark,
@@ -40,6 +45,16 @@ const {
   toggleLike,
   shareDisplay,
   registerShare,
+  currentUserId,
+  isMarkOwner,
+  isDeletingMark,
+  toggleCommentLike,
+  saveCommentEdit,
+  removeComment,
+  submitReply,
+  toggleReplies,
+  removeMark,
+  refreshMark,
 } = useMarkDetail(
   markIdRef.value,
   scrollContainerRef,
@@ -50,6 +65,21 @@ function handleRoute() {
     return
   routeStore.buildRoute(mark.value)
   close()
+}
+
+const confirmingMarkDelete = ref(false)
+const hasPhotos = computed(() => !!mark.value?.photos?.length)
+
+function handleEditMark() {
+  if (!mark.value)
+    return
+  openMarkEditForm(mark.value, refreshMark)
+}
+
+async function handleDeleteMark() {
+  const ok = await removeMark()
+  if (ok)
+    close()
 }
 
 const ROUTE_TIP_ID = 'guest_route'
@@ -85,7 +115,10 @@ onMounted(async () => {
 
 onUnmounted(dismissRouteTip)
 
-watch(markIdRef, fetchData)
+watch(markIdRef, () => {
+  fetchData()
+  fetchComments()
+})
 
 const isExpanded = ref(false)
 const canExpand = ref(false)
@@ -125,6 +158,7 @@ async function onShareClick() {
 
 onMounted(() => {
   fetchData()
+  fetchComments()
   setTimeout(checkClamping, 100)
   window.addEventListener('resize', checkClamping)
 })
@@ -147,7 +181,62 @@ onMounted(() => {
     </div>
 
     <template v-else-if="mark">
-      <div class="header-block">
+      <div
+        v-if="isMarkOwner"
+        class="owner-fab"
+      >
+        <template v-if="!confirmingMarkDelete">
+          <button
+            class="owner-fab__btn"
+            aria-label="Редактировать метку"
+            @click="handleEditMark()"
+          >
+            <u-icon
+              icon="solar:pen-linear"
+              width="17"
+            />
+          </button>
+          <button
+            class="owner-fab__btn owner-fab__btn--danger"
+            aria-label="Удалить метку"
+            @click="confirmingMarkDelete = true"
+          >
+            <u-icon
+              icon="solar:trash-bin-trash-linear"
+              width="17"
+            />
+          </button>
+        </template>
+        <template v-else>
+          <button
+            class="owner-fab__btn owner-fab__btn--danger"
+            :disabled="isDeletingMark"
+            aria-label="Подтвердить удаление"
+            @click="handleDeleteMark()"
+          >
+            <u-icon
+              :icon="isDeletingMark ? 'line-md:loading-twotone-loop' : 'line-md:confirm'"
+              width="17"
+            />
+          </button>
+          <button
+            class="owner-fab__btn"
+            :disabled="isDeletingMark"
+            aria-label="Отмена"
+            @click="confirmingMarkDelete = false"
+          >
+            <u-icon
+              icon="line-md:close"
+              width="15"
+            />
+          </button>
+        </template>
+      </div>
+
+      <div
+        v-if="hasPhotos"
+        class="header-block"
+      >
         <div
           class="gallery-block"
         >
@@ -168,7 +257,31 @@ onMounted(() => {
           </span>
         </div>
         <div class="header-block__badge">
-          фото · {{ formatDate(mark.date.startAt) }}
+          <u-icon
+            icon="solar:gallery-bold"
+            width="12"
+            height="12"
+          />
+          {{ mark.photos.length }} фото · {{ formatDate(mark.date.startAt) }}
+        </div>
+      </div>
+
+      <div
+        v-else
+        class="header-nophoto"
+      >
+        <div class="header-nophoto__icon">
+          <u-icon
+            icon="solar:map-point-bold-duotone"
+            width="26"
+            height="26"
+          />
+        </div>
+        <div class="header-nophoto__info">
+          <span class="header-nophoto__title">{{ mark.markName }}</span>
+          <span class="header-nophoto__address">
+            {{ address || 'не найден' }} · {{ formatDate(mark.date.startAt) }}
+          </span>
         </div>
       </div>
 
@@ -256,10 +369,7 @@ onMounted(() => {
         </span>
       </div>
 
-      <div
-        v-if="comments"
-        class="block comments-section"
-      >
+      <div class="block comments-section">
         <h3>Комментарии</h3>
         <u-drawer />
 
@@ -268,57 +378,56 @@ onMounted(() => {
           class="comments-list"
         >
           <div
-            v-if="comments.length === 0"
-            class="no-comments"
-          >
-            Пока нет комментариев. Будьте первым!
-          </div>
-
-          <div
-            v-for="comment in comments"
-            :key="comment.id"
-            class="comment-wrapper"
+            v-if="commentsLoading && comments.length === 0"
+            class="comments-skeleton"
           >
             <div
-              class="comment-item"
+              v-for="i in 3"
+              :key="i"
+              class="comments-skeleton__row"
             >
-              <u-avatar
-                rounded
-                :size="34"
-                :src="comment.author.avatar"
-                :alt-text="comment.author.username"
-                @click="openProfile(comment.author.id)"
-              />
-              <div class="comment-content">
-                <span class="comment-author">{{ comment.author?.username }}</span>
-                <div class="comment-text">
-                  {{ comment.content }}
-                </div>
-                <div class="comment-content__social">
-                  <div class="comment-likes">
-                    <u-icon icon="line-md:heart" />
-                    {{ comment.likes }}
-                  </div>
-                  <div class="comment-likes">
-                    <u-icon icon="line-md:arrow-down" />
-                    {{ comment.likes }}
-                  </div>
-                  <div class="comment-likes">
-                    <u-icon icon="line-md:turn-left" />
-                    Ответить
-                  </div>
-                  <div
-                    v-if="comment.meta.repliesCount > 0"
-                    class="comment-replies"
-                  >
-                    &mdash;
-                    Ответы · {{ comment.meta.repliesCount }}
-                  </div>
-                </div>
+              <div class="comments-skeleton__avatar" />
+              <div class="comments-skeleton__lines">
+                <div class="comments-skeleton__line comments-skeleton__line--short" />
+                <div class="comments-skeleton__line" />
               </div>
             </div>
-            <u-drawer />
           </div>
+
+          <u-block-error
+            v-else-if="commentsError"
+            title="Комментарии недоступны"
+            message="Не удалось загрузить комментарии"
+            :retrying="commentsLoading"
+            @retry="fetchComments"
+          />
+
+          <template v-else>
+            <div
+              v-if="comments.length === 0"
+              class="no-comments"
+            >
+              Пока нет комментариев. Будьте первым!
+            </div>
+
+            <div
+              v-for="comment in comments"
+              :key="comment.id"
+              class="comment-wrapper"
+            >
+              <comment-item
+                :comment="comment"
+                :current-user-id="currentUserId"
+                :on-like="toggleCommentLike"
+                :on-save="saveCommentEdit"
+                :on-delete="removeComment"
+                :on-reply="submitReply"
+                :on-toggle-replies="toggleReplies"
+                :on-open-profile="openProfile"
+              />
+              <u-drawer />
+            </div>
+          </template>
         </div>
       </div>
 

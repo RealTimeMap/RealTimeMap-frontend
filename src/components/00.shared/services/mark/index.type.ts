@@ -123,7 +123,19 @@ export interface MarkComment {
     canReply: boolean
     haveReplies: boolean
     repliesCount: number
+    status: 'active' | 'deleted'
   }
+  isLiked?: boolean
+  replies?: MarkComment[]
+  repliesLoaded?: boolean
+  showReplies?: boolean
+  isLoadingReplies?: boolean
+}
+
+export interface RepliesQuery {
+  sort?: 'newest' | 'oldest'
+  limit?: number
+  cursor?: number
 }
 
 export interface MarkCommentPayload {
@@ -133,10 +145,25 @@ export interface MarkCommentPayload {
   parentId?: number | null
 }
 
+export interface MarkCommentReaction {
+  liked: boolean
+  likesCount: number
+}
+
 export interface PaginatedResponse<T> {
   items: T[]
   total: number
   page: number
   pageSize: number
 }
-export type MarkCommentResponse = PaginatedResponse<MarkComment>
+
+export interface MarkCommentResponse {
+  items: MarkComment[]
+  hasMore: boolean
+}
+export interface MarkUpdatePayload {
+  markName?: string
+  additionalInfo?: string
+  categoryId?: number
+  photosToDelete?: string[]
+}

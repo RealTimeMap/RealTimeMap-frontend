@@ -1,13 +1,13 @@
 <script lang="ts" setup>
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation'
 
-defineProps<{
+const props = defineProps<{
   title: string
   avatar?: string
   statusText?: string
   isOnline?: boolean
   isTyping?: boolean
-  userId: number
+  userId?: number
 }>()
 
 const emit = defineEmits<{
@@ -15,6 +15,11 @@ const emit = defineEmits<{
 }>()
 
 const { openProfile } = useProfileNavigation()
+
+function goToProfile() {
+  if (props.userId != null)
+    openProfile(props.userId)
+}
 </script>
 
 <template>
@@ -33,7 +38,8 @@ const { openProfile } = useProfileNavigation()
 
     <div
       class="chat-header__wrapper"
-      @click="openProfile(userId)"
+      :class="{ 'chat-header__wrapper--clickable': userId != null }"
+      @click="goToProfile"
     >
       <div class="chat-header__avatar">
         <u-avatar
@@ -87,6 +93,11 @@ const { openProfile } = useProfileNavigation()
     display: flex;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+
+    &--clickable {
+      cursor: pointer;
+    }
   }
 
   &__avatar {

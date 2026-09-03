@@ -1,9 +1,11 @@
 import type { MarkAddPayload, MarkCategory } from '@/components/00.shared/services/mark/index.type'
 import type { MapPoint } from '@/types/shared/map'
 import { useGeocoding } from '@/components/00.shared/composables/useGeocoding'
+import { hapticSuccess } from '@/components/00.shared/lib/haptics'
 import { markApi } from '@/components/00.shared/services/mark'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
+import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 
 export function useMarkAdd(coords: MapPoint) {
   const { address, fetchAddress } = useGeocoding()
@@ -11,6 +13,7 @@ export function useMarkAdd(coords: MapPoint) {
   // --- Stores & Hooks ---
   const { close } = useDialogStore()
   const notify = useNotificationStore()
+  const authStore = useAuthStore()
 
   // --- State ---
   const markName = ref('')
@@ -119,12 +122,14 @@ export function useMarkAdd(coords: MapPoint) {
 
       await markApi.postMarkAdd(formData)
 
+      hapticSuccess()
       notify.add({
         title: 'Метка опубликована',
         description: 'Ваша история теперь видна всем пользователям на карте',
         type: 'success',
       })
       close()
+      authStore.fetchUser()
     }
     catch (e) {
       console.error(e)

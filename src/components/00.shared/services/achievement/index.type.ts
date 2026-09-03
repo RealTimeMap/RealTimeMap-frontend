@@ -22,6 +22,8 @@ export interface Achievement extends AchievementBase {
 export interface UserAchievementItem {
   achievement: Achievement
   unlockedAt: string
+  current?: number
+  progress?: number
 }
 
 export interface NearestAchievementItem {
@@ -33,6 +35,12 @@ export interface NearestAchievementItem {
 
 export interface AchiveUserResponse {
   items: UserAchievementItem[]
+  page: number
+  pageSize: number
+  totalPages: number
+  total: number
+  hasNext: boolean
+  hasPrev: boolean
 }
 
 export interface NearestAchievementsResponse {

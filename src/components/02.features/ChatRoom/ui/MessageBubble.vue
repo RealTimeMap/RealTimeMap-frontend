@@ -2,12 +2,17 @@
 import type { ChatMessage } from '@/components/00.shared/services/chats/index.type'
 import { formatTime } from '@/components/00.shared/lib/date/FormatDate'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   message: ChatMessage
   isOwn: boolean
   showSender: boolean
   isRead: boolean
-}>()
+  isGroupStart?: boolean
+  isGroupEnd?: boolean
+}>(), {
+  isGroupStart: true,
+  isGroupEnd: true,
+})
 
 const emit = defineEmits<{
   (e: 'retry', clientMessageId: string): void
@@ -30,12 +35,24 @@ const status = computed(() => {
   return props.isRead ? 'read' : 'sent'
 })
 
+/**
+ * Точки «отправлено/прочитано» схлопываем на последнее сообщение серии,
+ * чтобы не дублировать статус на каждом пузыре. Промежуточные состояния
+ * (отправляется/ошибка) показываем всегда — они относятся к конкретному сообщению.
+ */
+const showStatus = computed(() =>
+  !!status.value
+  && (props.isGroupEnd || status.value === 'sending' || status.value === 'failed'),
+)
+
 const statusLabel = {
   sending: 'Отправляется',
   sent: 'Отправлено',
   read: 'Прочитано',
   failed: 'Не отправлено, нажмите чтобы повторить',
 } as const
+
+const statusText = computed(() => status.value ? statusLabel[status.value] : '')
 
 function handleRetry() {
   if (status.value === 'failed' && props.message.clientMessageId)
@@ -46,11 +63,18 @@ function handleRetry() {
 <template>
   <div
     class="bubble-row"
-    :class="{ 'bubble-row--own': isOwn }"
+    :class="{
+      'bubble-row--own': isOwn,
+      'bubble-row--group-start': isGroupStart,
+    }"
   >
     <div
       class="bubble"
-      :class="{ 'bubble--own': isOwn }"
+      :class="{
+        'bubble--own': isOwn,
+        'bubble--start': isGroupStart,
+        'bubble--end': isGroupEnd,
+      }"
     >
       <span
         v-if="showSender && !isOwn"
@@ -66,12 +90,12 @@ function handleRetry() {
 
         <component
           :is="status === 'failed' ? 'button' : 'span'"
-          v-if="status"
+          v-if="showStatus"
           class="status"
           :class="`status--${status}`"
           :type="status === 'failed' ? 'button' : undefined"
-          :title="statusLabel[status]"
-          :aria-label="statusLabel[status]"
+          :title="statusText"
+          :aria-label="statusText"
           @click="handleRetry"
         >
           <i class="status__core" />
@@ -88,6 +112,10 @@ function handleRetry() {
 
   &--own {
     justify-content: flex-end;
+  }
+
+  &--group-start {
+    margin-top: 8px;
   }
 }
 
@@ -106,8 +134,20 @@ function handleRetry() {
   &--own {
     background: var(--accent-gradient, linear-gradient(120deg, #4a5bf7 0%, #8b3df0 100%));
     border-color: transparent;
-    /* На акцентном градиенте текст всегда белый в обеих темах */
     color: #fff;
+  }
+
+  &--own:not(.bubble--start) {
+    border-top-right-radius: 6px;
+  }
+  &--own:not(.bubble--end) {
+    border-bottom-right-radius: 6px;
+  }
+  &:not(.bubble--own):not(.bubble--start) {
+    border-top-left-radius: 6px;
+  }
+  &:not(.bubble--own):not(.bubble--end) {
+    border-bottom-left-radius: 6px;
   }
 
   &__sender {

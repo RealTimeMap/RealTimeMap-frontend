@@ -32,10 +32,12 @@ function handleImageLoad(event: Event) {
   canvas.width = 1
   canvas.height = 1
 
-  ctx.drawImage(imgElement, 0, 0, 1, 1)
-  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
-
-  emit('colorExtracted', `rgb(${r}, ${g}, ${b})`)
+  try {
+    ctx.drawImage(imgElement, 0, 0, 1, 1)
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
+    emit('colorExtracted', `rgb(${r}, ${g}, ${b})`)
+  }
+  catch {}
 }
 </script>
 

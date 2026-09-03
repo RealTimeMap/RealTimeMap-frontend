@@ -46,9 +46,11 @@ const peer = computed(() => {
   return messages.value.find(message => message.sender.id !== currentUserId)?.sender
 })
 
+const peerId = computed(() => chatInfo.value?.peerId ?? peer.value?.id)
+
 const title = computed(() => chatInfo.value?.title || peer.value?.username || 'Чат')
 const avatar = computed(() => chatInfo.value?.avatar || peer.value?.avatar || undefined)
-const isPeerOnline = computed(() => chatsStore.isPeerOnline(peer.value?.id))
+const isPeerOnline = computed(() => chatsStore.isPeerOnline(peerId.value))
 const isPeerTyping = computed(() => typingUsers.value.length > 0)
 
 const peerStatusText = computed(() => {
@@ -56,7 +58,7 @@ const peerStatusText = computed(() => {
     return 'печатает...'
   if (isPeerOnline.value)
     return 'в сети'
-  return formatLastSeen(chatsStore.getLastSeenAt(peer.value?.id))
+  return formatLastSeen(chatsStore.getLastSeenAt(peerId.value))
 })
 
 function goBack() {
@@ -74,7 +76,7 @@ async function onSend(text: string) {
     <chat-room-header
       :title="title"
       :avatar="avatar"
-      :user-id="peer?.id!"
+      :user-id="peerId"
       :is-online="isPeerOnline"
       :status-text="peerStatusText"
       :is-typing="isPeerTyping"
@@ -87,6 +89,7 @@ async function onSend(text: string) {
       :has-more="hasMore"
       :is-loading-more="isLoadingMore"
       :peer-last-read-id="peerLastReadId"
+      :is-peer-typing="isPeerTyping"
       @load-more="loadMore"
       @retry="retryMessage"
     />

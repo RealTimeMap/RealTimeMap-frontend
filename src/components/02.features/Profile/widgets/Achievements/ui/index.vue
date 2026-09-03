@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { NearestAchievementItem } from '@/components/00.shared/services/achievement/index.type'
-// import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { achievementApi } from '@/components/00.shared/services/achievement'
+import { openAchievements } from '@/components/02.features/AchievementsList'
 
 const props = defineProps<{
   userId: number
@@ -10,6 +10,7 @@ const props = defineProps<{
 
 const achievements = shallowRef<NearestAchievementItem[]>([])
 const isLoading = ref(false)
+const hasError = ref(false)
 // const { open } = useDialogStore()
 
 const activeItem = ref<NearestAchievementItem | null>(null)
@@ -19,9 +20,14 @@ async function loadAchievements() {
   if (!props.userId)
     return
   isLoading.value = true
+  hasError.value = false
   try {
     const res = await achievementApi.getNearestAchievements(props.userId)
     achievements.value = res.items
+  }
+  catch (e) {
+    console.error('[Achievements]', e)
+    hasError.value = true
   }
   finally {
     isLoading.value = false
@@ -49,7 +55,11 @@ onMounted(loadAchievements)
         <h3>Достижения</h3>
         <span class="badge">{{ achievements.length }} / 32</span>
       </div>
-      <button class="all-link">
+      <button
+        class="all-link"
+        type="button"
+        @click="openAchievements(userId)"
+      >
         Все
         <u-icon
           icon="weui:arrow-filled"
@@ -60,10 +70,18 @@ onMounted(loadAchievements)
 
     <div
       class="achievements-wrapper"
-      :class="{ 'no-grid': achievements.length === 0 }"
+      :class="{ 'no-grid': achievements.length === 0 || hasError }"
     >
+      <u-block-error
+        v-if="hasError"
+        compact
+        title="Достижения недоступны"
+        :retrying="isLoading"
+        @retry="loadAchievements"
+      />
+
       <div
-        v-if="isLoading"
+        v-else-if="isLoading"
         class="loader"
       >
         ...

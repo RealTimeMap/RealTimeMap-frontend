@@ -4,6 +4,7 @@ import { useCoachmarks } from '@/components/02.features/Onboarding/model/useCoac
 import CoachSpotlight from '@/components/02.features/Onboarding/ui/CoachSpotlight.vue'
 import { useMarkAdd } from '../model'
 import DateBlock from './DateBlock.vue'
+import MarkPhotoInput from './MarkPhotoInput.vue'
 
 const props = defineProps<{ coords: MapPoint }>()
 const coords = toRef(props, 'coords')
@@ -99,7 +100,7 @@ onUnmounted(dismissDateTip)
         </div>
       </div>
 
-      <u-ploader
+      <mark-photo-input
         v-model:files="fileList"
         :max="4"
         :max-size-mb="20"

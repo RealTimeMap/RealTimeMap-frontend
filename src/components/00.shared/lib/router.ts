@@ -1,5 +1,7 @@
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
+import type { RouteSeo } from '@/components/00.shared/lib/seo'
 import { createRouter, createWebHistory } from 'vue-router'
+import { applyRouteSeo } from '@/components/00.shared/lib/seo'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
 
@@ -15,6 +17,10 @@ const routes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: false,
       layout: 'empty',
+      seo: {
+        title: 'Знакомство',
+        description: 'RealTimeMap — карта мест рядом с вами: метки, маршруты и живые события.',
+      },
     },
   },
   {
@@ -24,6 +30,10 @@ const routes: RouteRecordRaw[] = [
     meta: {
       layout: 'default',
       fullBleed: true,
+      seo: {
+        title: 'Карта',
+        description: 'Интерактивная карта: метки людей вокруг, маршруты и события рядом с вами.',
+      },
     },
   },
   {
@@ -33,6 +43,10 @@ const routes: RouteRecordRaw[] = [
     meta: {
       layout: 'default',
       guestOnly: true,
+      seo: {
+        title: 'Вход и регистрация',
+        description: 'Войдите или зарегистрируйтесь, чтобы ставить метки, оценивать места и общаться.',
+      },
     },
   },
 
@@ -52,12 +66,22 @@ const routes: RouteRecordRaw[] = [
         name: 'profile',
         meta: {
           requiresAuth: true,
+          seo: {
+            title: 'Мой профиль',
+            description: 'Ваш уровень, достижения, статистика и метки на карте.',
+          },
         },
         component: () => import('@/components/05.pages/Profile/MyProfilePage.vue'),
       },
       {
         path: ':userId(\\d+)',
         name: 'user-profile',
+        meta: {
+          seo: {
+            title: 'Профиль',
+            description: 'Профиль пользователя: метки, достижения и активность на карте.',
+          },
+        },
         component: () => import('@/components/05.pages/Profile/UserProfilePage.vue'),
         props: route => ({ userId: Number(route.params.userId) }),
       },
@@ -77,6 +101,12 @@ const routes: RouteRecordRaw[] = [
         path: '',
         name: 'chats',
         component: () => import('@/components/05.pages/Chats/ChatListPage.vue'),
+        meta: {
+          seo: {
+            title: 'Чаты',
+            description: 'Ваши переписки в RealTimeMap.',
+          },
+        },
       },
       {
         path: ':chatId(\\d+)',
@@ -85,6 +115,10 @@ const routes: RouteRecordRaw[] = [
         props: route => ({ chatId: Number(route.params.chatId) }),
         meta: {
           hideBottomNav: true,
+          seo: {
+            title: 'Чат',
+            description: 'Переписка в RealTimeMap.',
+          },
         },
       },
     ],
@@ -119,6 +153,10 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/components/05.pages/NotFoundPage.vue'),
     meta: {
       layout: 'empty',
+      seo: {
+        title: 'Страница не найдена',
+        description: 'Такой страницы нет. Вернитесь на карту RealTimeMap.',
+      },
     },
   },
 ]
@@ -155,6 +193,10 @@ router.beforeEach(async (to) => {
   }
 
   return true
+})
+
+router.afterEach((to) => {
+  applyRouteSeo(to.meta.seo as RouteSeo | undefined)
 })
 
 export default router
