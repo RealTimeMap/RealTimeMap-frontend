@@ -35,15 +35,7 @@ const status = computed(() => {
   return props.isRead ? 'read' : 'sent'
 })
 
-/**
- * Точки «отправлено/прочитано» схлопываем на последнее сообщение серии,
- * чтобы не дублировать статус на каждом пузыре. Промежуточные состояния
- * (отправляется/ошибка) показываем всегда — они относятся к конкретному сообщению.
- */
-const showStatus = computed(() =>
-  !!status.value
-  && (props.isGroupEnd || status.value === 'sending' || status.value === 'failed'),
-)
+const showStatus = computed(() => !!status.value)
 
 const statusLabel = {
   sending: 'Отправляется',
