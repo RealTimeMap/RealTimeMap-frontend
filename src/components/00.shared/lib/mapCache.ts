@@ -18,10 +18,6 @@ export function keyFor(url: string): string {
   return (hash >>> 0).toString(16).padStart(8, '0')
 }
 
-function pathFor(url: string): string {
-  return `${CACHE_ROOT}/${keyFor(url)}`
-}
-
 // --- base64 <-> ArrayBuffer ---
 function arrayBufferToBase64(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
@@ -40,24 +36,50 @@ function base64ToArrayBuffer(base64: string): ArrayBuffer {
   return bytes.buffer
 }
 
-// --- операции с кешем ---
+let cacheIndex: Set<string> | null = null
+let indexPromise: Promise<Set<string>> | null = null
+
+async function ensureIndex(): Promise<Set<string>> {
+  if (cacheIndex)
+    return cacheIndex
+  if (!indexPromise) {
+    indexPromise = Filesystem.readdir({ directory: CACHE_DIR, path: CACHE_ROOT })
+      .then(({ files }) => new Set(files.map(f => f.name)))
+      .catch(() => new Set<string>())
+      .then((set) => {
+        cacheIndex = set
+        return set
+      })
+  }
+  return indexPromise
+}
+
 export async function read(url: string): Promise<ArrayBuffer | null> {
+  const key = keyFor(url)
+  const index = await ensureIndex()
+  if (!index.has(key))
+    return null
+
   try {
-    const { data } = await Filesystem.readFile({ directory: CACHE_DIR, path: pathFor(url) })
+    const { data } = await Filesystem.readFile({ directory: CACHE_DIR, path: `${CACHE_ROOT}/${key}` })
     return base64ToArrayBuffer(data as string)
   }
   catch {
+    index.delete(key)
     return null
   }
 }
 
 export async function write(url: string, buffer: ArrayBuffer): Promise<void> {
+  const key = keyFor(url)
   await Filesystem.writeFile({
     directory: CACHE_DIR,
-    path: pathFor(url),
+    path: `${CACHE_ROOT}/${key}`,
     data: arrayBufferToBase64(buffer),
     recursive: true,
   })
+  const index = await ensureIndex()
+  index.add(key)
 }
 
 export async function getSize(): Promise<number> {
@@ -77,4 +99,6 @@ export async function clear(): Promise<void> {
   catch (error) {
     console.error('[mapCache] Не удалось очистить кеш карты:', error)
   }
+  cacheIndex = new Set()
+  indexPromise = null
 }
