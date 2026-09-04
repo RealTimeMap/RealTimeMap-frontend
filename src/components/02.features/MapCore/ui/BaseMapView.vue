@@ -35,14 +35,14 @@ const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
 let offDoubleTap: (() => void) | null = null
 
-const { theme } = storeToRefs(useSettingsStore())
+const { resolvedTheme } = storeToRefs(useSettingsStore())
 
 onMounted(() => {
   registerOfflineMapProtocol()
 
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
-    style: MAP_STYLES[themeBase(theme.value)],
+    style: MAP_STYLES[themeBase(resolvedTheme.value)],
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
     doubleClickZoom: false,
@@ -73,8 +73,7 @@ onMounted(() => {
   shareStore.registerMap(mapInstance)
 })
 
-// Переключение базового стиля карты вслед за темой приложения
-watch(theme, (next) => {
+watch(resolvedTheme, (next) => {
   map.value?.setStyle(MAP_STYLES[themeBase(next)])
 })
 

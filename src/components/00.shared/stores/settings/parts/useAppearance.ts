@@ -1,6 +1,12 @@
-import type { ThemeName } from '@/components/00.shared/lib/theme'
+import type { ThemePreference } from '@/components/00.shared/lib/theme'
 import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
-import { applyTheme, readSavedTheme, THEME_COOKIE_NAME } from '@/components/00.shared/lib/theme'
+import {
+  applyThemeInstant,
+  readSavedPreference,
+  resolvePreference,
+  THEME_COOKIE_NAME,
+  watchSystemTheme,
+} from '@/components/00.shared/lib/theme'
 
 const GLASS_EFFECT_COOKIE_NAME = 'app_glass_effect'
 
@@ -9,14 +15,15 @@ export function useAppearance() {
   const savedPreference = getCookie(GLASS_EFFECT_COOKIE_NAME)
   const isGlassEffectEnabled = ref<boolean>(savedPreference !== 'false')
 
-  const theme = ref<ThemeName>(readSavedTheme())
+  const theme = ref<ThemePreference>(readSavedPreference())
+  const resolvedTheme = computed(() => resolvePreference(theme.value))
 
   // --- ACTIONS ---
   function toggleGlassEffect() {
     isGlassEffectEnabled.value = !isGlassEffectEnabled.value
   }
 
-  function setTheme(next: ThemeName) {
+  function setTheme(next: ThemePreference) {
     theme.value = next
   }
 
@@ -27,13 +34,16 @@ export function useAppearance() {
 
   watch(theme, (newValue) => {
     setCookie(THEME_COOKIE_NAME, newValue, 365)
-    applyTheme(newValue)
+    applyThemeInstant(resolvePreference(newValue))
   }, { immediate: true })
+
+  watchSystemTheme(() => theme.value)
 
   return {
     isGlassEffectEnabled,
     toggleGlassEffect,
     theme,
+    resolvedTheme,
     setTheme,
   }
 }

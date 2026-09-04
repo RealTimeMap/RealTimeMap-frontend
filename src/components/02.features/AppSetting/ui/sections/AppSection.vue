@@ -2,7 +2,7 @@
 import { Capacitor } from '@capacitor/core'
 import { storeToRefs } from 'pinia'
 import { isAndroid } from '@/components/00.shared/lib/platform'
-import { themeMeta } from '@/components/00.shared/lib/theme'
+import { preferenceLabel } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { downloadAndroidApp } from '@/components/02.features/AppUpdate'
 import { openThemePicker } from '@/components/02.features/ThemePicker'
@@ -26,7 +26,7 @@ const showHaptics = Capacitor.isNativePlatform()
     <settings-row
       link
       label="Тема оформления"
-      :hint="themeMeta(theme).label"
+      :hint="preferenceLabel(theme)"
       @click="openThemePicker()"
     />
 

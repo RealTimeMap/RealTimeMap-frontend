@@ -7,7 +7,7 @@ import ThemePreview from './ThemePreview.vue'
 import ThemeThumb from './ThemeThumb.vue'
 
 const settings = useSettingsStore()
-const { theme } = storeToRefs(settings)
+const { theme, resolvedTheme } = storeToRefs(settings)
 const { close } = useDialogStore()
 </script>
 
@@ -28,7 +28,29 @@ const { close } = useDialogStore()
       Выберите оформление — изменения применяются сразу
     </p>
 
-    <theme-preview :theme="theme" />
+    <theme-preview :theme="resolvedTheme" />
+
+    <button
+      type="button"
+      class="theme-picker__system"
+      :class="{ 'theme-picker__system--active': theme === 'system' }"
+      @click="settings.setTheme('system')"
+    >
+      <u-icon
+        icon="solar:smartphone-2-bold-duotone"
+        width="20"
+      />
+      <span class="theme-picker__system-text">
+        <span class="theme-picker__system-title">Как в системе</span>
+        <span class="theme-picker__system-hint">Автоматически по настройкам телефона</span>
+      </span>
+      <u-icon
+        v-if="theme === 'system'"
+        icon="solar:check-circle-bold"
+        width="20"
+        class="theme-picker__system-check"
+      />
+    </button>
 
     <div class="theme-picker__row">
       <theme-thumb
@@ -87,6 +109,45 @@ const { close } = useDialogStore()
 
   > * {
     flex: 0 0 auto;
+  }
+}
+
+.theme-picker__system {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-color);
+  @include glass-panel(16px, 12px 14px, false);
+  border: 0.5px solid var(--border-subtle);
+  transition: border-color 0.2s ease;
+
+  &--active {
+    border-color: var(--primary-color);
+  }
+
+  &-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  &-hint {
+    @include label-text(11px, none);
+  }
+
+  &-check {
+    color: var(--primary-color);
+    flex-shrink: 0;
   }
 }
 </style>

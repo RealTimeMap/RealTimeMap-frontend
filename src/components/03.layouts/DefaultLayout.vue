@@ -4,10 +4,8 @@ import { useAuthStore } from '../02.features/Authentication/model/auth'
 import ShareRender from '../02.features/Share/index'
 
 const authStore = useAuthStore()
-const { isAuthenticated } = storeToRefs(authStore)
 const { initAuth } = authStore
 
-const router = useRouter()
 const route = useRoute()
 
 onMounted(() => {
@@ -28,17 +26,6 @@ onMounted(() => {
       v-if="!route.meta.hideBottomNav"
       class="default-layout__footer"
     >
-      <u-chip
-        v-if="isAuthenticated && router.currentRoute.value.name === 'home-map'"
-      >
-        <u-icon
-          icon="tabler:hand-click"
-          width="20"
-        />
-        <span class="chip--content">
-          Двойное касание — новая метка
-        </span>
-      </u-chip>
       <bottom-navigation />
     </footer>
 

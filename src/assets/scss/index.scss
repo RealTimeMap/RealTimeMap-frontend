@@ -7,6 +7,14 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
 button,
 a,
 [role='button'],

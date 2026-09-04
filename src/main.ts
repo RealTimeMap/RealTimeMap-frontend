@@ -6,6 +6,7 @@ import { setupBackButton } from './components/06.app/backButton'
 import { setupPWA } from './components/06.app/pwa'
 import websocketPlugin from './components/06.app/websocket'
 import { withI18n } from './components/06.app/withI18n'
+import './generated/icons'
 import './assets/scss/index.scss'
 
 installBugLogger()

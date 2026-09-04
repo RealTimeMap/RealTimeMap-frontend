@@ -10,10 +10,11 @@
     "node": "^20.19.0 || >=22.12.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "bun run icons && vite",
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
-    "build-only": "vite build",
+    "build-only": "bun run icons && vite build",
+    "icons": "node scripts/buildIcons.mjs",
     "type-check": "vue-tsc --build",
     "apk-build": "bun run build && bunx cap sync",
     "--------------------------------------------------------------------------------": "",
@@ -63,6 +64,8 @@
     "@iconify-json/line-md": "^1.2.16",
     "@iconify-json/lucide": "^1.2.119",
     "@iconify-json/material-symbols": "^1.2.87",
+    "@iconify/json": "^2.2.525",
+    "@iconify/utils": "^3.1.4",
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "^26.1.1",
     "@unocss/eslint-plugin": "^66.7.5",
