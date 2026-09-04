@@ -17,6 +17,7 @@ export interface Notification {
     callback: () => void
     text: string
   }
+  closing?: boolean
 }
 
 export const useNotificationStore = defineStore('notification', () => {
@@ -44,9 +45,9 @@ export const useNotificationStore = defineStore('notification', () => {
       const newNotification = { ...notification, id }
       notifications.value.push(newNotification)
 
-      if (notification.duration !== 0) {
-        setTimeout(remove, notification.duration || 5000, id)
-      }
+      const active = notifications.value.filter(n => !n.closing)
+      if (active.length > 3)
+        active[0].closing = true
     }
 
     // Системные (нативные) уведомления

@@ -19,6 +19,7 @@ export default {
     chore: { title: '🏡 Разное' },
     ci: { title: '🤖 CI' },
     test: { title: '✅ Тесты' },
+    remove: { title: '🗑 Удаление', semver: 'patch' },
   },
 
   templates: {

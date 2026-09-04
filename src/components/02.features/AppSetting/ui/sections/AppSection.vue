@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Capacitor } from '@capacitor/core'
 import { storeToRefs } from 'pinia'
 import { isAndroid } from '@/components/00.shared/lib/platform'
 import { preferenceLabel } from '@/components/00.shared/lib/theme'
@@ -18,7 +17,7 @@ const {
 } = storeToRefs(settings)
 
 const showDownloadApp = !isAndroid()
-const showHaptics = Capacitor.isNativePlatform()
+const showHaptics = false
 </script>
 
 <template>

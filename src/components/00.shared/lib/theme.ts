@@ -1,4 +1,5 @@
 import { getCookie } from '@/components/00.shared/lib/cookie'
+import { syncStatusBar } from '@/components/00.shared/lib/statusBar'
 
 export type ThemeName = 'dark' | 'light' | 'green' | 'ocean' | 'dusk' | 'sky'
 export type ThemePreference = ThemeName | 'system'
@@ -77,6 +78,7 @@ export function applyTheme(theme: ThemeName): void {
   root.style.colorScheme = meta.base
 
   updateThemeColorMeta(meta.metaColor)
+  syncStatusBar(meta.base, meta.metaColor)
 }
 
 export const applyThemeInstant = applyTheme
