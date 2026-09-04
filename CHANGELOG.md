@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.25
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.24...v0.1.25)
+
+### 🎨 Стили
+
+- **ui:** Исправлен баг с артефактами при смене темы! ([ba9a651](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ba9a651))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.24
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.23...v0.1.24)
