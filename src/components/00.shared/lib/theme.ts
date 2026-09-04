@@ -91,6 +91,29 @@ export function applyThemeInstant(theme: ThemeName): void {
   })
 }
 
+function prefersReducedMotion(): boolean {
+  return typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+}
+
+let morphTimer: ReturnType<typeof setTimeout> | null = null
+
+export function applyThemeAnimated(theme: ThemeName): void {
+  const root = document.documentElement
+
+  if (typeof window === 'undefined' || prefersReducedMotion()) {
+    applyThemeInstant(theme)
+    return
+  }
+
+  root.classList.add('theme-morph')
+  applyTheme(theme)
+
+  if (morphTimer)
+    clearTimeout(morphTimer)
+  morphTimer = setTimeout(() => root.classList.remove('theme-morph'), 450)
+}
+
 let mediaListenerAttached = false
 let getPreference: () => ThemePreference = readSavedPreference
 
@@ -101,7 +124,7 @@ export function watchSystemTheme(getPref: () => ThemePreference): void {
   mediaListenerAttached = true
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
     if (getPreference() === 'system')
-      applyThemeInstant(systemBase())
+      applyThemeAnimated(systemBase())
   })
 }
 

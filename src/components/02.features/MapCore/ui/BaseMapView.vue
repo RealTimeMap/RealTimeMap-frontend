@@ -70,11 +70,18 @@ onMounted(() => {
   shareStore.registerMap(mapInstance)
 })
 
+let styleTimer: ReturnType<typeof setTimeout> | null = null
 watch(resolvedTheme, (next) => {
-  map.value?.setStyle(MAP_STYLES[themeBase(next)])
+  if (styleTimer)
+    clearTimeout(styleTimer)
+  styleTimer = setTimeout(() => {
+    map.value?.setStyle(MAP_STYLES[themeBase(next)])
+  }, 550)
 })
 
 onUnmounted(() => {
+  if (styleTimer)
+    clearTimeout(styleTimer)
   offDoubleTap?.()
   map.value?.remove()
 })

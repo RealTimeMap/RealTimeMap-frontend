@@ -1,6 +1,7 @@
 import type { ThemePreference } from '@/components/00.shared/lib/theme'
 import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
 import {
+  applyThemeAnimated,
   applyThemeInstant,
   readSavedPreference,
   resolvePreference,
@@ -33,9 +34,17 @@ export function useAppearance() {
     document.documentElement.classList.toggle('no-glass', !newValue)
   }, { immediate: true })
 
+  let isFirstApply = true
   watch(theme, (newValue) => {
     setCookie(THEME_COOKIE_NAME, newValue, 365)
-    applyThemeInstant(resolvePreference(newValue))
+    const resolved = resolvePreference(newValue)
+    if (isFirstApply) {
+      isFirstApply = false
+      applyThemeInstant(resolved)
+    }
+    else {
+      applyThemeAnimated(resolved)
+    }
   }, { immediate: true })
 
   watchSystemTheme(() => theme.value)
