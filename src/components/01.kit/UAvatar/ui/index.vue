@@ -5,6 +5,7 @@ interface Props {
   src?: string
   altText?: string
   backgroundColor?: string
+  extractColor?: boolean
 }
 
 const {
@@ -12,6 +13,7 @@ const {
   src = undefined,
   altText = 'User Avatar',
   backgroundColor = 'linear-gradient(135deg, oklch(0.7 0.14 200), oklch(0.45 0.12 250))',
+  extractColor = false,
 } = defineProps<Props>()
 
 const emit = defineEmits<{
@@ -23,6 +25,8 @@ const fontSize = computed(() => {
 })
 
 function handleImageLoad(event: Event) {
+  if (!extractColor)
+    return
   const imgElement = event.target as HTMLImageElement
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
@@ -55,7 +59,7 @@ function handleImageLoad(event: Event) {
       v-if="src"
       :src="src"
       :alt="altText.slice(0, 2)"
-      crossorigin="anonymous"
+      :crossorigin="extractColor ? 'anonymous' : undefined"
       @load="handleImageLoad"
     >
     <span

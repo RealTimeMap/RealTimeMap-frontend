@@ -56,8 +56,6 @@ onUnmounted(() => {
       <div class="cluster-body">
         {{ count }}
       </div>
-      <div class="pulse-ring ring-1" />
-      <div class="pulse-ring ring-2" />
     </div>
   </teleport>
 </template>
@@ -72,6 +70,11 @@ onUnmounted(() => {
   user-select: none;
   cursor: pointer;
   position: relative;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
 }
 .cluster-body {
   position: relative;
@@ -86,31 +89,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.pulse-ring {
-  position: absolute;
-  z-index: 1;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: #3399ff6e;
-  border-radius: 50%;
-}
-.ring-1 {
-  animation: pulse 3s infinite;
-}
-.ring-2 {
-  animation: pulse 3s 1.5s infinite;
-}
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.5;
-  }
-  100% {
-    transform: scale(2.2);
-    opacity: 0;
-  }
+  /* Статичный мягкий ореол вместо бесконечной пульсации */
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 </style>

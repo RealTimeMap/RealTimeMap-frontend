@@ -8,6 +8,7 @@ export default antfu({
   ignores: [
     'ios/**',
     'android/**',
+    'src/generated/**',
   ],
 
   rules: {

@@ -35,22 +35,19 @@ const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
 let offDoubleTap: (() => void) | null = null
 
-const { theme } = storeToRefs(useSettingsStore())
+const { resolvedTheme } = storeToRefs(useSettingsStore())
 
 onMounted(() => {
   registerOfflineMapProtocol()
 
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
-    style: MAP_STYLES[themeBase(theme.value)],
+    style: MAP_STYLES[themeBase(resolvedTheme.value)],
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
     doubleClickZoom: false,
     attributionControl: false,
     transformRequest: buildTransformRequest(),
-    canvasContextAttributes: {
-      preserveDrawingBuffer: true,
-    },
   })
 
   map.value = mapInstance
@@ -73,12 +70,18 @@ onMounted(() => {
   shareStore.registerMap(mapInstance)
 })
 
-// Переключение базового стиля карты вслед за темой приложения
-watch(theme, (next) => {
-  map.value?.setStyle(MAP_STYLES[themeBase(next)])
+let styleTimer: ReturnType<typeof setTimeout> | null = null
+watch(resolvedTheme, (next) => {
+  if (styleTimer)
+    clearTimeout(styleTimer)
+  styleTimer = setTimeout(() => {
+    map.value?.setStyle(MAP_STYLES[themeBase(next)])
+  }, 550)
 })
 
 onUnmounted(() => {
+  if (styleTimer)
+    clearTimeout(styleTimer)
   offDoubleTap?.()
   map.value?.remove()
 })

@@ -91,7 +91,10 @@ onUnmounted(() => {
         v-else
         class="marker-icon"
       />
-      <div class="marker-pulse" />
+      <div
+        v-if="variant === 'user'"
+        class="marker-pulse"
+      />
     </div>
   </teleport>
 </template>
@@ -151,7 +154,6 @@ onUnmounted(() => {
   height: 24px;
   background: var(--marker-pulse, rgba(0, 153, 255, 0.3));
   border-radius: 50%;
-  animation: pulse 2s infinite;
 }
 
 .marker-photo--placeholder {
@@ -193,16 +195,6 @@ onUnmounted(() => {
   }
   100% {
     transform: translate(-50%, -50%) scale(1.5);
-    opacity: 0;
-  }
-}
-@keyframes pulse {
-  0% {
-    transform: scale(0.8);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.6);
     opacity: 0;
   }
 }

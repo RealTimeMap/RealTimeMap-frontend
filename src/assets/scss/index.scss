@@ -7,6 +7,46 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+.theme-switching,
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+  animation: none !important;
+}
+
+/* Режим «стекло выключено»: убираем дорогой backdrop-filter, панели делаем непрозрачными */
+.no-glass {
+  --bg-color-block: var(--bg-block-solid, var(--bg-body));
+}
+.no-glass *,
+.no-glass *::before,
+.no-glass *::after {
+  backdrop-filter: none !important;
+}
+
+.theme-morph *,
+.theme-morph *::before,
+.theme-morph *::after {
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease,
+    border-color 0.4s ease,
+    box-shadow 0.4s ease,
+    fill 0.4s ease !important;
+}
+
+/* Уважение к системной настройке «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
 button,
 a,
 [role='button'],
