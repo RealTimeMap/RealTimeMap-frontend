@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.24
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.23...v0.1.24)
+
+### 🩹 Исправления
+
+- **ui:** Артефакты при смене темы в модалке ([55e9741](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/55e9741))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.23
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.22...v0.1.23)
