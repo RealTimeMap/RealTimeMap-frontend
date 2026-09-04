@@ -147,7 +147,7 @@ onMounted(loadAchievements)
 <style scoped lang="scss">
 .achievements-widget {
   min-height: 80px;
-  @include glass-panel(20px, 14px);
+  @include glass-panel(20px, 14px, true, false);
   width: 100%;
 
   .achive-empty {

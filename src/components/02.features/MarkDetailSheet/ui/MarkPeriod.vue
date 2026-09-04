@@ -94,7 +94,7 @@ function formatTime(dateStr: string) {
 
 <style lang="scss" scoped>
 .period-block {
-  @include glass-panel(16px, 14px);
+  @include glass-panel(16px, 14px, true, false);
   width: 100%;
   display: flex;
   flex-direction: column;

@@ -199,7 +199,7 @@ onMounted(loadMore)
 .achive {
   display: flex;
   gap: 14px;
-  @include glass-panel(16px, 14px, false);
+  @include glass-panel(16px, 14px, true, false);
   box-shadow: none;
 
   &__icon {

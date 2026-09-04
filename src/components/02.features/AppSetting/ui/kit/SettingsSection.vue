@@ -28,10 +28,9 @@ defineProps<{
   }
 }
 
-// Карточка-группа: строки в одной панели с разделителями (без «пустоты» между пилюлями)
 .settings-group {
   width: 100%;
   overflow: hidden;
-  @include glass-panel(16px, 0, false);
+  @include glass-panel(16px, 0, false, false);
 }
 </style>

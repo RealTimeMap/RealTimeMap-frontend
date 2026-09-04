@@ -118,7 +118,7 @@ function selectBar(index: number) {
   @include label-text();
 }
 .chart-card {
-  @include glass-panel(18px, 14px);
+  @include glass-panel(18px, 14px, true, false);
   height: 160px;
   display: flex;
   align-items: flex-end;

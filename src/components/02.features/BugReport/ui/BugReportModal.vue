@@ -163,7 +163,7 @@ onMounted(loadContext)
     width: 100%;
 
     .button-back {
-      @include glass-panel(12px, 10px, false);
+      @include glass-panel(12px, 10px, false, false);
     }
 
     h2 {
@@ -190,10 +190,8 @@ onMounted(loadContext)
   }
 
   &__panel {
-    @include glass-panel(16px, 14px, false);
+    @include glass-panel(16px, 14px, false, false);
 
-    // textarea сама по себе .u-block (glass-panel) — сбрасываем её подложку,
-    // чтобы не было вложенной коробки, оставляем только внешнюю панель
     :deep(.u-textarea.u-block) {
       padding: 0;
       background: none;

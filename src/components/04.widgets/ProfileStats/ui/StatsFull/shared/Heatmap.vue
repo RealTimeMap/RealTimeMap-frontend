@@ -230,7 +230,7 @@ loadStats()
 }
 
 .heatmap-container {
-  @include glass-panel(18px, 14px);
+  @include glass-panel(18px, 14px, true, false);
   overflow: hidden;
   margin-top: 6px;
 }
