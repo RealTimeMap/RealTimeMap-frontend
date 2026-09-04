@@ -48,9 +48,6 @@ onMounted(() => {
     doubleClickZoom: false,
     attributionControl: false,
     transformRequest: buildTransformRequest(),
-    canvasContextAttributes: {
-      preserveDrawingBuffer: true,
-    },
   })
 
   map.value = mapInstance

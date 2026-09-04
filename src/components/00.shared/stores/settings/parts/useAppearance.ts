@@ -30,7 +30,8 @@ export function useAppearance() {
   // --- WATCHERS ---
   watch(isGlassEffectEnabled, (newValue) => {
     setCookie(GLASS_EFFECT_COOKIE_NAME, String(newValue), 365)
-  })
+    document.documentElement.classList.toggle('no-glass', !newValue)
+  }, { immediate: true })
 
   watch(theme, (newValue) => {
     setCookie(THEME_COOKIE_NAME, newValue, 365)

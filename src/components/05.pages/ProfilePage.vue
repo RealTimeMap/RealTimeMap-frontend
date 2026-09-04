@@ -50,7 +50,7 @@ function handleColorExtracted(color: string) {
     border-radius: 50%;
     background: radial-gradient(circle, var(--user-color), transparent 70%);
 
-    filter: blur(60px);
+    filter: blur(40px);
     pointer-events: none;
   }
 

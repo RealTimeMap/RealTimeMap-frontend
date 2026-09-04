@@ -129,6 +129,7 @@ function openMark(markId: number) {
         <u-avatar
           :size="96"
           rounded
+          extract-color
           :alt-text="user?.username"
           :src="user?.avatar"
           @color-extracted="(color) => emit('colorExtracted', color)"

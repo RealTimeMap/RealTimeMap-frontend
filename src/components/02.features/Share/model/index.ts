@@ -58,8 +58,11 @@ export const useShareStore = defineStore('share', () => {
         setTimeout(resolve, 1000)
       })
 
-      const canvas = mapInstance.value.getCanvas()
-      mapScreenshot.value = canvas.toDataURL('image/png')
+      mapScreenshot.value = await new Promise<string>((resolve) => {
+        const map = mapInstance.value!
+        map.once('render', () => resolve(map.getCanvas().toDataURL('image/png')))
+        map.triggerRepaint()
+      })
       shareData.value = data
 
       await nextTick()

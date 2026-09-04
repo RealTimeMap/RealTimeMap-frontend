@@ -15,6 +15,27 @@
   animation: none !important;
 }
 
+/* Режим «стекло выключено»: убираем дорогой backdrop-filter, панели делаем непрозрачными */
+.no-glass {
+  --bg-color-block: var(--bg-block-solid, var(--bg-body));
+}
+.no-glass *,
+.no-glass *::before,
+.no-glass *::after {
+  backdrop-filter: none !important;
+}
+
+/* Уважение к системной настройке «уменьшить движение» */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
 button,
 a,
 [role='button'],
