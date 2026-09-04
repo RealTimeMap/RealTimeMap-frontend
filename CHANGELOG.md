@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.23
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.22...v0.1.23)
+
+### 🚀 Функциональность
+
+- **ui:** Автотема, офлайн-бандл иконок, фикс наложения подсказок ([f43b6c2](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f43b6c2))
+- **ui:** Смена темы через морфинг цветов вместо оверлея ([f5e47e4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f5e47e4))
+
+### 🔥 Производительность
+
+- **ui:** Оптимизация блюра блоков, скриншотов карт и панель ([fd2bc9e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fd2bc9e))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.22
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.21...v0.1.22)
