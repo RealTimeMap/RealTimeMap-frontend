@@ -1,6 +1,6 @@
 /* Сумерки — мягкая тёмная тема, тёплый угольный фон и приглушённый персиковый акцент */
-:root.theme-dusk,
-.theme-dusk {
+.theme-dusk,
+html[data-theme='dusk'] {
   --primary-color: oklch(0.73 0.05 45);
   --secondary-color: oklch(0.79 0.04 50);
   --red-color: #e8686d;
@@ -26,7 +26,7 @@
   --text-color-muted: oklch(0.9 0.02 70 / 0.45);
 
   --bg-color-soft: rgba(18, 14, 10, 0.55);
-  --u-modal-wrapper-bg: rgba(38, 30, 24, 0.5);
+  --u-modal-wrapper-bg: rgba(38, 30, 24, 0.95);
   --bg-color-block: rgba(38, 30, 24, 0.5);
   --bg-block-solid: rgb(44, 36, 29);
   --popover-bg: oklch(0.24 0.018 55);

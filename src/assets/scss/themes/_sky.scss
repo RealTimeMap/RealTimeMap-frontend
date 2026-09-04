@@ -1,6 +1,6 @@
 /* Небо — светлая тема, мягкий небесно-голубой акцент */
-:root.theme-sky,
-.theme-sky {
+.theme-sky,
+html[data-theme='sky'] {
   --primary-color: oklch(0.6 0.11 240);
   --secondary-color: oklch(0.68 0.1 235);
   --red-color: #e5484d;

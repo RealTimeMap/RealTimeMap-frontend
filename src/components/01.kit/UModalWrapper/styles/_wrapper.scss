@@ -1,27 +1,32 @@
 .modal-wrapper {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
   display: grid;
   place-items: var(--modal-position, center);
-}
+  isolation: isolate;
+  view-transition-name: none !important;
 
-.modal-wrapper__container {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-  max-width: var(--modal-width);
-  height: var(--modal-height);
-  overflow: hidden;
+  &:first-child {
+    background-color: rgba(0, 0, 0, 0.45);
+  }
 
-  background: var(--u-modal-wrapper-bg);
-  border: 0.5px solid var(--border-subtle);
-  border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  &__container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: var(--modal-width);
+    height: var(--modal-height);
+    overflow: hidden;
 
-  -webkit-backdrop-filter: blur(16px);
-  backdrop-filter: blur(16px);
+    background-color: var(--u-modal-wrapper-bg, #1c1c1e) !important;
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.1));
+    border-radius: var(--border-radius-md) var(--border-radius-md) 0 0;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
 
-  will-change: transform;
-  touch-action: pan-y;
+    transition: none !important;
+
+    transform: translateZ(0);
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
 }

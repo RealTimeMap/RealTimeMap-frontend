@@ -2,26 +2,25 @@ import { getCookie } from '@/components/00.shared/lib/cookie'
 
 export type ThemeName = 'dark' | 'light' | 'green' | 'ocean' | 'dusk' | 'sky'
 export type ThemePreference = ThemeName | 'system'
-
 export type ThemeBase = 'dark' | 'light'
 
 export interface ThemeMeta {
   id: ThemeName
   label: string
   base: ThemeBase
+  metaColor: string
 }
 
 export const THEMES: ThemeMeta[] = [
-  { id: 'dark', label: 'Тёмная', base: 'dark' },
-  { id: 'light', label: 'Светлая', base: 'light' },
-  { id: 'green', label: 'Зелёная', base: 'light' },
-  { id: 'ocean', label: 'Океан', base: 'dark' },
-  { id: 'dusk', label: 'Сумерки', base: 'dark' },
-  { id: 'sky', label: 'Небо', base: 'light' },
+  { id: 'dark', label: 'Тёмная', base: 'dark', metaColor: '#121212' },
+  { id: 'light', label: 'Светлая', base: 'light', metaColor: '#ffffff' },
+  { id: 'green', label: 'Зелёная', base: 'light', metaColor: '#f0fdf4' },
+  { id: 'ocean', label: 'Океан', base: 'dark', metaColor: '#0a192f' },
+  { id: 'dusk', label: 'Сумерки', base: 'dark', metaColor: '#1e1b2e' },
+  { id: 'sky', label: 'Небо', base: 'light', metaColor: '#f0f9ff' },
 ]
 
 export const THEME_COOKIE_NAME = 'app_theme'
-
 const DEFAULT_PREFERENCE: ThemePreference = 'system'
 
 function isThemeName(value: string | null): value is ThemeName {
@@ -36,8 +35,7 @@ export function readSavedPreference(): ThemePreference {
 }
 
 export function systemBase(): ThemeBase {
-  return typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-color-scheme: dark)').matches
+  return typeof window !== 'undefined' && window.matchMedia?.('(prefers-color-scheme: dark)').matches
     ? 'dark'
     : 'light'
 }
@@ -58,60 +56,44 @@ export function preferenceLabel(pref: ThemePreference): string {
   return pref === 'system' ? 'Системная' : themeMeta(pref).label
 }
 
-function updateThemeColorMeta(): void {
+function updateThemeColorMeta(color: string): void {
   let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
   if (!meta) {
     meta = document.createElement('meta')
     meta.name = 'theme-color'
     document.head.appendChild(meta)
   }
-  const bg = getComputedStyle(document.documentElement)
-    .getPropertyValue('--bg-body')
-    .trim()
-  if (bg)
-    meta.setAttribute('content', bg)
+  meta.setAttribute('content', color)
 }
 
 export function applyTheme(theme: ThemeName): void {
+  if (typeof document === 'undefined')
+    return
+
   const root = document.documentElement
-  THEMES.forEach(t => root.classList.remove(`theme-${t.id}`))
-  root.classList.add(`theme-${theme}`)
+  const meta = themeMeta(theme)
 
-  root.style.colorScheme = themeBase(theme)
-  updateThemeColorMeta()
+  root.dataset.theme = theme
+  root.style.colorScheme = meta.base
+
+  updateThemeColorMeta(meta.metaColor)
 }
 
-export function applyThemeInstant(theme: ThemeName): void {
-  const root = document.documentElement
-  root.classList.add('theme-switching')
-  applyTheme(theme)
-  void root.offsetWidth
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => root.classList.remove('theme-switching'))
-  })
-}
-
-function prefersReducedMotion(): boolean {
-  return typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-}
-
-let morphTimer: ReturnType<typeof setTimeout> | null = null
+export const applyThemeInstant = applyTheme
 
 export function applyThemeAnimated(theme: ThemeName): void {
-  const root = document.documentElement
-
-  if (typeof window === 'undefined' || prefersReducedMotion()) {
-    applyThemeInstant(theme)
+  if (typeof document === 'undefined')
     return
+  const hasOpenModals = Boolean(document.querySelector('.modal-wrapper'))
+
+  if (!hasOpenModals && 'startViewTransition' in document) {
+    (document as Document & { startViewTransition: (cb: () => void) => void }).startViewTransition(() => {
+      applyTheme(theme)
+    })
   }
-
-  root.classList.add('theme-morph')
-  applyTheme(theme)
-
-  if (morphTimer)
-    clearTimeout(morphTimer)
-  morphTimer = setTimeout(() => root.classList.remove('theme-morph'), 450)
+  else {
+    applyTheme(theme)
+  }
 }
 
 let mediaListenerAttached = false
@@ -121,10 +103,12 @@ export function watchSystemTheme(getPref: () => ThemePreference): void {
   getPreference = getPref
   if (mediaListenerAttached || typeof window === 'undefined' || !window.matchMedia)
     return
+
   mediaListenerAttached = true
   window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-    if (getPreference() === 'system')
+    if (getPreference() === 'system') {
       applyThemeAnimated(systemBase())
+    }
   })
 }
 

@@ -1,7 +1,6 @@
 /* Тёмная тема — базовая (по умолчанию) */
-:root,
-:root.theme-dark,
-.theme-dark {
+.theme-dark,
+html[data-theme='dark'] {
   --primary-color: rgb(151, 59, 255);
   --secondary-color: rgb(169, 140, 255);
   --red-color: #ff5a5f;
@@ -27,7 +26,7 @@
   --text-color-muted: rgba(255, 255, 255, 0.5);
 
   --bg-color-soft: rgba(0, 0, 0, 0.55);
-  --u-modal-wrapper-bg: rgba(18, 24, 38, 0.45);
+  --u-modal-wrapper-bg: rgba(18, 24, 38, 0.95);
   --bg-color-block: rgba(18, 24, 38, 0.45);
   --bg-block-solid: rgb(27, 32, 45);
   --popover-bg: rgb(18, 24, 38);
