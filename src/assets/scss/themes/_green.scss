@@ -1,6 +1,6 @@
 /* Зелёная тема — светлая, мягкий мятный оттенок с зелёным акцентом */
-:root.theme-green,
-.theme-green {
+.theme-green,
+html[data-theme='green'] {
   --primary-color: oklch(0.62 0.13 155);
   --secondary-color: oklch(0.7 0.12 155);
   --red-color: #e5484d;

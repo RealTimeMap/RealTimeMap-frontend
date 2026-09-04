@@ -25,6 +25,12 @@
   backdrop-filter: none !important;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.2s;
+  mix-blend-mode: normal;
+}
+
 .theme-morph *,
 .theme-morph *::before,
 .theme-morph *::after {

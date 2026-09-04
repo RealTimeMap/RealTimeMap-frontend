@@ -1,6 +1,6 @@
 /* Океан — тёмная тема, бирюзово-синий акцент */
-:root.theme-ocean,
-.theme-ocean {
+.theme-ocean,
+html[data-theme='ocean'] {
   --primary-color: oklch(0.72 0.13 210);
   --secondary-color: oklch(0.8 0.11 200);
   --red-color: #ff5a5f;
@@ -26,7 +26,7 @@
   --text-color-muted: rgba(230, 240, 245, 0.48);
 
   --bg-color-soft: rgba(6, 14, 22, 0.55);
-  --u-modal-wrapper-bg: rgba(16, 30, 42, 0.5);
+  --u-modal-wrapper-bg: rgba(16, 30, 42, 0.95);
   --bg-color-block: rgba(16, 30, 42, 0.5);
   --bg-block-solid: rgb(21, 37, 50);
   --popover-bg: oklch(0.22 0.04 230);

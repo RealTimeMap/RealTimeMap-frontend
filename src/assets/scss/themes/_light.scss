@@ -1,6 +1,6 @@
 /* Светлая тема */
-:root.theme-light,
-.theme-light {
+.theme-light,
+html[data-theme='light'] {
   --primary-color: rgb(124, 58, 237);
   --secondary-color: rgb(139, 92, 246);
   --red-color: #e5484d;
