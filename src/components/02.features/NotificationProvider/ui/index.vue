@@ -30,22 +30,24 @@ const store = useNotificationStore()
   max-width: 400px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-.list-enter-active,
-.list-leave-active,
+.list-enter-active {
+  transition: all 0.38s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.list-leave-active {
+  transition: opacity 0.25s ease;
+}
 .list-move {
-  transition: all 0.4s cubic-bezier(0.3, 1.25, 0.3, 1);
+  transition: transform 0.36s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .list-enter-from {
   opacity: 0;
-  transform: translateY(-30px) scale(0.9);
+  transform: translateY(-24px) scale(0.96);
 }
 
 .list-leave-to {
   opacity: 0;
-  transform: translateX(100px);
 }
 </style>

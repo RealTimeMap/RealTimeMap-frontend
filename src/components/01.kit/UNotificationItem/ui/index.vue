@@ -2,58 +2,166 @@
 import type { Notification } from '@/components/00.shared/stores/notification'
 import { useSwipe } from '@vueuse/core'
 
-defineProps<{ item: Notification }>()
+const props = defineProps<{ item: Notification }>()
 const emit = defineEmits<{
   close: []
 }>()
 
 const containerRef = ref<HTMLElement | null>(null)
-const isAnimatingOut = ref(false)
-const translateX = ref(0)
 
-const { isSwiping, lengthX } = useSwipe(containerRef, {
-  onSwipe() {
-    if (lengthX.value < 0) {
-      translateX.value = Math.abs(lengthX.value)
-    }
+const swiping = ref(false)
+const isOut = ref(false)
+const returning = ref(false)
+const x = ref(0)
+const y = ref(0)
+const axis = ref<'x' | 'y' | null>(null)
+const boxHeight = ref<number | null>(null)
+
+const DISMISS_X = 80
+const DISMISS_Y = 64
+
+const { lengthX, lengthY } = useSwipe(containerRef, {
+  threshold: 8,
+  onSwipeStart() {
+    swiping.value = true
+    axis.value = null
+    clearAutoTimer()
   },
-  onSwipeEnd(e, direction) {
-    if ((direction === 'right' && lengthX.value < -60) || translateX.value > 100) {
-      isAnimatingOut.value = true
-      translateX.value = window.innerWidth
+  onSwipe() {
+    const dx = -lengthX.value
+    const dy = -lengthY.value
 
-      setTimeout(() => {
-        emit('close')
-      }, 200)
+    if (axis.value === null) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6)
+        return
+      axis.value = Math.abs(dx) >= Math.abs(dy) ? 'x' : 'y'
+    }
+
+    if (axis.value === 'x') {
+      x.value = dx
+      y.value = 0
     }
     else {
-      translateX.value = 0
+      x.value = 0
+      y.value = Math.min(0, dy)
     }
+  },
+  onSwipeEnd() {
+    swiping.value = false
+
+    if (axis.value === 'x' && Math.abs(x.value) > DISMISS_X)
+      dismiss(x.value > 0 ? 'right' : 'left')
+    else if (axis.value === 'y' && y.value < -DISMISS_Y)
+      dismiss('up')
+    else
+      snapBack()
+
+    axis.value = null
   },
 })
 
-const swipeStyle = computed(() => {
-  if (isAnimatingOut.value) {
-    return {
-      transform: 'translateX(120%)',
-      opacity: '0',
-      transition: 'transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity 0.2s ease-out',
+function emitClose() {
+  emit('close')
+}
+
+let autoTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearAutoTimer() {
+  if (autoTimer) {
+    clearTimeout(autoTimer)
+    autoTimer = null
+  }
+}
+
+function startAutoTimer() {
+  clearAutoTimer()
+  const d = props.item.duration
+  if (d === 0)
+    return
+  autoTimer = setTimeout(dismiss, d ?? 5000, 'auto')
+}
+
+onMounted(startAutoTimer)
+onBeforeUnmount(clearAutoTimer)
+
+watch(() => props.item.closing, (v) => {
+  if (v)
+    dismiss('auto')
+})
+
+function endReturn() {
+  returning.value = false
+}
+
+function snapBack() {
+  returning.value = true
+  x.value = 0
+  y.value = 0
+  startAutoTimer()
+  window.setTimeout(endReturn, 300)
+}
+
+function dismiss(dir: 'left' | 'right' | 'up' | 'auto') {
+  if (isOut.value)
+    return
+  clearAutoTimer()
+
+  const el = containerRef.value
+  const h = el ? el.offsetHeight : 0
+  boxHeight.value = h
+
+  if (dir === 'right')
+    x.value = window.innerWidth
+  else if (dir === 'left')
+    x.value = -window.innerWidth
+  else if (dir === 'up')
+    y.value = -(h + 40)
+
+  isOut.value = true
+
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      boxHeight.value = 0
+    })
+  })
+
+  window.setTimeout(emitClose, 340)
+}
+
+const style = computed<Record<string, string>>(() => {
+  const s: Record<string, string> = {}
+
+  if (boxHeight.value !== null)
+    s.height = `${boxHeight.value}px`
+
+  if (isOut.value) {
+    s.transform = `translate(${x.value}px, ${y.value}px)`
+    s.opacity = '0'
+    if (boxHeight.value === 0) {
+      s.marginBottom = '0px'
+      s.paddingTop = '0px'
+      s.paddingBottom = '0px'
     }
+    s.transition
+      = 'transform 0.34s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, height 0.34s ease, margin 0.34s ease, padding 0.34s ease'
+    return s
   }
 
-  if (isSwiping.value && translateX.value > 0) {
-    return {
-      transform: `translateX(${translateX.value}px)`,
-      opacity: `${1 - translateX.value / 350}`,
-      transition: 'none',
-    }
+  if (swiping.value) {
+    const dist = Math.max(Math.abs(x.value), Math.abs(y.value))
+    s.transform = `translate(${x.value}px, ${y.value}px)`
+    s.opacity = String(Math.max(0, 1 - dist / 300))
+    s.transition = 'none'
+    return s
   }
 
-  return {
-    transform: 'translateX(0px)',
-    opacity: '1',
-    transition: 'transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.25s ease',
+  if (returning.value) {
+    s.transform = 'translate(0px, 0px)'
+    s.opacity = '1'
+    s.transition = 'transform 0.28s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.28s ease'
+    return s
   }
+  return s
 })
 
 const defaultIcons = {
@@ -70,9 +178,9 @@ const defaultIcons = {
     ref="containerRef"
     class="notification-item"
     :class="[`type-${item.type}`, {
-      'is-swiping': isSwiping || isAnimatingOut,
+      'is-swiping': swiping || isOut,
     }]"
-    :style="swipeStyle"
+    :style="style"
   >
     <div class="icon-wrapper">
       <u-icon
@@ -115,10 +223,12 @@ const defaultIcons = {
   display: flex;
   gap: 12px;
   padding: 14px;
+  margin-bottom: 10px;
+  overflow: hidden;
   @include glass-panel(20px, 14px, false);
   cursor: grab;
-  touch-action: pan-y;
-  will-change: transform, opacity;
+  touch-action: none;
+  will-change: transform, opacity, height;
 
   &.is-swiping {
     cursor: grabbing;
@@ -167,6 +277,7 @@ const defaultIcons = {
 
   .content {
     flex-grow: 1;
+    min-width: 0;
     .header {
       display: flex;
       justify-content: space-between;
