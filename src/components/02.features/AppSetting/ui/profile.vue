@@ -28,7 +28,7 @@ defineProps<{
   display: flex;
   gap: 12px;
   width: 100%;
-  @include glass-panel(18px, 14px, false);
+  @include glass-panel(18px, 14px, false, false);
 }
 
 .profile-name {

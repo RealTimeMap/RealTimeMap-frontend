@@ -5,7 +5,7 @@
   justify-content: center;
   min-height: 76px;
 
-  @include glass-panel(20px, 14px 12px);
+  @include glass-panel(20px, 14px 12px, true, false);
 }
 
 .stats-card {

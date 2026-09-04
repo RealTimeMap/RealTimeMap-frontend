@@ -93,7 +93,7 @@ main {
 }
 
 .u-block {
-  @include glass-panel();
+  @include glass-panel(18px, 14px, true, false);
 }
 
 .label-text {

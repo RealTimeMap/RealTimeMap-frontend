@@ -120,7 +120,7 @@ const { close } = useDialogStore()
   text-align: left;
   cursor: pointer;
   color: var(--text-color);
-  @include glass-panel(16px, 12px 14px, false);
+  @include glass-panel(16px, 12px 14px, false, false);
   border: 0.5px solid var(--border-subtle);
   transition: border-color 0.2s ease;
 

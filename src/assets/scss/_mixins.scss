@@ -1,9 +1,12 @@
-@mixin glass-panel($radius: 18px, $padding: 14px, $show-glow: true) {
+@mixin glass-panel($radius: 18px, $padding: 14px, $show-glow: true, $blur: true) {
   position: relative;
   border-radius: $radius;
   padding: $padding;
 
-  backdrop-filter: blur(16px) saturate(140%);
+  @if $blur {
+    backdrop-filter: blur(16px) saturate(140%);
+  }
+
   background: var(--bg-color-block);
 
   border: 0.5px solid var(--glass-border);
