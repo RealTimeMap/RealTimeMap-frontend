@@ -1,6 +1,30 @@
 # Changelog
 
 
+## v0.1.26
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.25...v0.1.26)
+
+### 🚀 Функциональность
+
+- **ui:** Цвет статус бара от темы ([0c87d9a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/0c87d9a))
+
+### 🩹 Исправления
+
+- **core:** Баг с кешем карты ([b5e5795](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b5e5795))
+
+### 🎨 Стили
+
+- **ui:** Более плавные анимации на уведомления ([c1d5837](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c1d5837))
+
+### 🗑 Удаление
+
+- **ui:** Удален вибро отклик (не работает) ([ab3719f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ab3719f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.25
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.24...v0.1.25)
