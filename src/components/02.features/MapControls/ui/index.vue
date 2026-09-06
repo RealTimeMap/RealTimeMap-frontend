@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type { Map } from 'maplibre-gl'
 import type { MapPoint } from '@/types/shared/map'
+import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import AppSettings from '@/components/02.features/AppSetting'
+import { openMapEditor } from '@/components/02.features/MapEditor'
 
 const { mapApi, userPosition, zoom } = defineProps<{
   mapApi: Map | null
@@ -11,6 +14,7 @@ const { mapApi, userPosition, zoom } = defineProps<{
 }>()
 
 const { open } = useDialogStore()
+const { showMapZoom, showMapLocate, showMapSettings, showMapZoomLevel } = storeToRefs(useSettingsStore())
 
 function zoomIn() {
   mapApi?.zoomIn()
@@ -41,7 +45,10 @@ function openSettings() {
 
 <template>
   <div class="map-controls">
-    <div class="map-controls__group">
+    <div
+      v-if="showMapZoom"
+      class="map-controls__group"
+    >
       <button
         class="map-controls__btn"
         type="button"
@@ -68,7 +75,7 @@ function openSettings() {
     </div>
 
     <button
-      v-if="userPosition"
+      v-if="showMapLocate && userPosition"
       class="map-controls__group map-controls__btn"
       type="button"
       aria-label="Моё местоположение"
@@ -81,6 +88,7 @@ function openSettings() {
     </button>
 
     <button
+      v-if="showMapSettings"
       class="map-controls__group map-controls__btn"
       type="button"
       aria-label="Настройки"
@@ -92,7 +100,22 @@ function openSettings() {
       />
     </button>
 
-    <div class="map-controls__group map-controls__zoom">
+    <button
+      class="map-controls__group map-controls__btn"
+      type="button"
+      aria-label="Редактор карты"
+      @click="openMapEditor('sheet')"
+    >
+      <u-icon
+        icon="solar:pen-2-bold"
+        width="18"
+      />
+    </button>
+
+    <div
+      v-if="showMapZoomLevel"
+      class="map-controls__group map-controls__zoom"
+    >
       <span class="map-controls__zoom-value">{{ Math.round(zoom) }}</span>
       <span class="map-controls__zoom-label">ZOOM</span>
     </div>

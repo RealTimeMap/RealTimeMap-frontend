@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { preferenceLabel } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { checkForUpdates, downloadAndroidApp } from '@/components/02.features/AppUpdate'
+import { openMapEditor } from '@/components/02.features/MapEditor'
 import { openThemePicker } from '@/components/02.features/ThemePicker'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
@@ -28,6 +29,14 @@ const showHaptics = false
       label="Тема оформления"
       :hint="preferenceLabel(theme)"
       @click="openThemePicker()"
+    />
+
+    <settings-row
+      link
+      label="Редактор карты"
+      hint="Какие кнопки показывать на карте"
+      chevron="solar:pen-2-bold"
+      @click="openMapEditor('panel')"
     />
 
     <settings-row
