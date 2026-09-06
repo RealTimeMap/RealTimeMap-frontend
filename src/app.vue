@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { storeToRefs } from 'pinia'
 import NotificationProvider from '@/components/02.features/NotificationProvider/index'
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
 import { useNotificationStore } from './components/00.shared/stores/notification'
+import AccountBan from './components/02.features/AccountBan'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
+import { useAuthStore } from './components/02.features/Authentication/model/auth'
 import { initBugReport } from './components/02.features/BugReport'
 import { ExpGain, useGamificationFeedback } from './components/02.features/Gamification'
 
@@ -22,6 +25,7 @@ const layoutComponent = computed(() => {
 const notificationStore = useNotificationStore()
 const { initNetworkListener } = useNetworkWatch()
 const { xpGain } = useGamificationFeedback()
+const { banInfo } = storeToRefs(useAuthStore())
 
 onMounted(async () => {
   await notificationStore.requestPermissions()
@@ -50,5 +54,7 @@ onMounted(async () => {
       :key="xpGain.key"
       :amount="xpGain.amount"
     />
+
+    <account-ban v-if="banInfo" />
   </div>
 </template>

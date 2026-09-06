@@ -19,7 +19,15 @@ const filter = ref<FilterKey>('all')
 const activeIndex = computed(() => FILTERS.findIndex(f => f.key === filter.value))
 
 const { close, open } = useDialogStore()
-const { items, unlockedIds, total, earnedCount, isLoading, error, load } = useAchievements(props.userId)
+const {
+  items,
+  unlockedIds,
+  total,
+  earnedCount,
+  isLoading,
+  error,
+  load,
+} = useAchievements(props.userId)
 
 const rows = computed(() => items.value.map(achievement => ({
   achievement,
@@ -49,18 +57,30 @@ const entries = computed<Entry[]>(() => {
 
   const list: Entry[] = []
   if (earnedRows.value.length) {
-    list.push({ kind: 'header', label: 'Открытые', count: earnedRows.value.length })
+    list.push({
+      kind: 'header',
+      label: 'Открытые',
+      count: earnedRows.value.length,
+    })
     earnedRows.value.forEach(row => list.push({ kind: 'row', row }))
   }
   if (lockedRows.value.length) {
-    list.push({ kind: 'header', label: 'Закрытые', count: lockedRows.value.length })
+    list.push({
+      kind: 'header',
+      label: 'Закрытые',
+      count: lockedRows.value.length,
+    })
     lockedRows.value.forEach(row => list.push({ kind: 'row', row }))
   }
   return list
 })
 
 const hasVisible = computed(() =>
-  filter.value === 'earned' ? earnedRows.value.length > 0 : filter.value === 'locked' ? lockedRows.value.length > 0 : rows.value.length > 0,
+  filter.value === 'earned'
+    ? earnedRows.value.length > 0
+    : filter.value === 'locked'
+      ? lockedRows.value.length > 0
+      : rows.value.length > 0,
 )
 
 function openDetail(id: number, earned: boolean) {

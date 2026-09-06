@@ -7,7 +7,7 @@ import { useAuthStore } from '@/components/02.features/Authentication/model/auth
 import { GeolocationFeedback } from '@/components/02.features/Geolocation'
 import { useGeolocation } from '@/components/02.features/Geolocation/model/useGeolocation'
 import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
-import LocateButton from '@/components/02.features/LocateButton'
+import MapControls from '@/components/02.features/MapControls'
 import { BaseMapView } from '@/components/02.features/MapCore'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useMapCoach } from '@/components/02.features/Onboarding/model/useMapCoach'
@@ -147,9 +147,10 @@ watch(userPosition, (newPos) => {
       v-if="!isLoadingGeolocation && !geolocationError"
     />
     <route-banner v-if="routeStore.hasRoute" />
-    <locate-button
-      :user-position="userPosition"
+    <map-controls
       :map-api="mapApi"
+      :user-position="userPosition"
+      :zoom="zoomLevel"
     />
 
     <transition name="coach-fade">
