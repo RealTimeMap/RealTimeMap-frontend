@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { Capacitor } from '@capacitor/core'
 import { storeToRefs } from 'pinia'
-import { isAndroid } from '@/components/00.shared/lib/platform'
 import { preferenceLabel } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
-import { downloadAndroidApp } from '@/components/02.features/AppUpdate'
+import { checkForUpdates, downloadAndroidApp } from '@/components/02.features/AppUpdate'
 import { openThemePicker } from '@/components/02.features/ThemePicker'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
@@ -16,7 +16,8 @@ const {
   isHapticsEnabled,
 } = storeToRefs(settings)
 
-const showDownloadApp = !isAndroid()
+const isNative = Capacitor.isNativePlatform()
+const showDownloadApp = !isNative
 const showHaptics = false
 </script>
 
@@ -64,6 +65,15 @@ const showHaptics = false
       hint="Версия для Android (.apk)"
       chevron="solar:download-minimalistic-bold"
       @click="downloadAndroidApp()"
+    />
+
+    <settings-row
+      v-if="isNative"
+      link
+      label="Проверить обновление"
+      hint="Скачать последнюю версию, если доступна"
+      chevron="solar:refresh-bold"
+      @click="checkForUpdates()"
     />
   </settings-section>
 </template>

@@ -76,6 +76,48 @@ export async function initUpdateChecker() {
   }
 }
 
+export async function checkForUpdates() {
+  const notify = useNotificationStore()
+
+  try {
+    const response = await fetch(API_GITHUB_RELEASES_LATEST)
+    if (!response.ok) {
+      notify.add({ title: 'Не удалось проверить обновления', type: 'error' })
+      return
+    }
+
+    const latestRelease = await response.json()
+    const latestVersion = latestRelease.tag_name.replace(/[^\d.]/g, '')
+
+    if (compareVersions(latestVersion, __APP_VERSION__) <= 0) {
+      notify.add({
+        title: 'У вас последняя версия',
+        description: `v${__APP_VERSION__}`,
+        type: 'success',
+      })
+      return
+    }
+
+    const action = resolveUpdateAction(latestRelease) ?? {
+      text: 'Открыть',
+      callback: () => window.open(latestRelease.html_url, '_blank'),
+    }
+
+    notify.add({
+      title: `Доступно обновление v${latestVersion}`,
+      description: summarizeRelease(latestRelease.body),
+      type: 'default',
+      icon: 'solar:download-square-bold',
+      duration: 0,
+      action,
+    })
+  }
+  catch (error) {
+    console.error('Ошибка проверки обновлений:', error)
+    notify.add({ title: 'Не удалось проверить обновления', type: 'error' })
+  }
+}
+
 export async function downloadAndroidApp() {
   try {
     const response = await fetch(API_GITHUB_RELEASES_LATEST)

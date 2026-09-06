@@ -18,7 +18,10 @@ const isOwn = computed(() =>
   !isDeleted.value && props.comment.author?.id === props.currentUserId,
 )
 const canReply = computed(() =>
-  !props.isReply && !isDeleted.value && props.comment.meta.canReply,
+  props.currentUserId != null
+  && !props.isReply
+  && !isDeleted.value
+  && props.comment.meta.canReply,
 )
 const repliesCount = computed(() => props.comment.meta.repliesCount ?? 0)
 const hasReplyThread = computed(() =>
@@ -144,10 +147,10 @@ async function submitReply() {
       >
         <button
           class="comment-pill"
-          :class="{ 'comment-pill--active': comment.isLiked }"
+          :class="{ 'comment-pill--active': comment.meta.isLiked }"
           @click="onLike(comment)"
         >
-          <u-icon :icon="comment.isLiked ? 'line-md:heart-filled' : 'line-md:heart'" />
+          <u-icon :icon="comment.meta.isLiked ? 'line-md:heart-filled' : 'line-md:heart'" />
           {{ comment.likes }}
         </button>
 

@@ -1,9 +1,16 @@
 <script setup lang="ts">
+import { Capacitor } from '@capacitor/core'
+import { downloadAndroidApp } from '@/components/02.features/AppUpdate'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
+
+declare const __APP_VERSION__: string
 
 const { completeOnboarding } = useOnboarding()
 const currentIndex = ref(0)
-const totalSlides = 3
+const totalSlides = 4
+
+const appVersion = __APP_VERSION__
+const isNative = Capacitor.isNativePlatform()
 
 interface SnakePath {
   id: number
@@ -47,6 +54,7 @@ onMounted(() => {
 const slides = [
   { key: 'about', color: '#2080f0', icon: 'line-md:map-marker-twotone-loop' },
   { key: 'team', color: '#18a058', icon: 'line-md:laptop-twotone' },
+  { key: 'download', color: '#7c4dff', icon: 'solar:smartphone-2-bold-duotone' },
   { key: 'safety', color: '#d03050', icon: 'line-md:alert-twotone-loop' },
 ]
 
@@ -206,9 +214,76 @@ function openGithub() {
               </div>
             </div>
 
-            <!-- Слайд 3: Важно -->
+            <!-- Слайд 3: Приложение и версия -->
             <div
               v-else-if="currentIndex === 2"
+              key="download"
+              class="slide-wrapper"
+            >
+              <div class="slide-scroll-area">
+                <div
+                  class="icon-box"
+                  :style="{ background: `rgba(124, 77, 255, 0.1)`, color: '#7c4dff' }"
+                >
+                  <u-icon
+                    :icon="slides[2].icon"
+                    height="56"
+                    width="56"
+                  />
+                </div>
+
+                <h2 class="slide-title">
+                  Приложение
+                </h2>
+                <p class="description">
+                  Пользуйтесь в браузере или установите Android-приложение (.apk)
+                  для пушей и работы офлайн.
+                </p>
+
+                <div class="features-list">
+                  <div class="feature-item">
+                    <div class="feature-icon">
+                      🤖
+                    </div>
+                    <div class="feature-text">
+                      <strong>Android (.apk)</strong>
+                      <span>Нативная версия с уведомлениями</span>
+                    </div>
+                  </div>
+                  <div class="feature-item">
+                    <div class="feature-icon">
+                      🌐
+                    </div>
+                    <div class="feature-text">
+                      <strong>Веб / PWA</strong>
+                      <span>Работает в любом браузере без установки</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="version-badge">
+                  Текущая версия · v{{ appVersion }}
+                </div>
+
+                <button
+                  v-if="!isNative"
+                  type="button"
+                  class="download-app-btn"
+                  @click="downloadAndroidApp"
+                >
+                  <u-icon
+                    icon="solar:download-minimalistic-bold"
+                    height="18"
+                    width="18"
+                  />
+                  Скачать для Android
+                </button>
+              </div>
+            </div>
+
+            <!-- Слайд 4: Важно -->
+            <div
+              v-else-if="currentIndex === 3"
               key="safety"
               class="slide-wrapper"
             >
@@ -218,7 +293,7 @@ function openGithub() {
                   :style="{ background: `rgba(208, 48, 80, 0.1)`, color: '#d03050' }"
                 >
                   <u-icon
-                    :icon="slides[2].icon"
+                    :icon="slides[3].icon"
                     height="56"
                     width="56"
                   />
@@ -486,6 +561,34 @@ function openGithub() {
     color: #7aafeb;
     background: rgba(122, 175, 235, 0.1);
   }
+}
+
+/* --- Слайд приложения --- */
+.version-badge {
+  margin-top: 20px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-color);
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-subtle);
+}
+
+.download-app-btn {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  background: #7c4dff;
+  box-shadow: 0 8px 18px rgba(124, 77, 255, 0.35);
 }
 
 /* --- Блок предупреждений --- */
