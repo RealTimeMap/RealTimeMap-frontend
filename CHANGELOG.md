@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.27
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.26...v0.1.27)
+
+### 🚀 Функциональность
+
+- **achievements:** Детальный просмотри достижений и фикс лайка в комментах ([a60fb99](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/a60fb99))
+- **app:** Слайд о приложении в Welcome и проверка обновлений в настройках ([57df8d6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/57df8d6))
+
+### 🩹 Исправления
+
+- **comments:** Скрыть кнопку ответа для неавторизованных ([1f05050](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1f05050))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.26
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.25...v0.1.26)
