@@ -18,7 +18,10 @@ const isOwn = computed(() =>
   !isDeleted.value && props.comment.author?.id === props.currentUserId,
 )
 const canReply = computed(() =>
-  !props.isReply && !isDeleted.value && props.comment.meta.canReply,
+  props.currentUserId != null
+  && !props.isReply
+  && !isDeleted.value
+  && props.comment.meta.canReply,
 )
 const repliesCount = computed(() => props.comment.meta.repliesCount ?? 0)
 const hasReplyThread = computed(() =>
