@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.28
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.27...v0.1.28)
+
+### 🚀 Функциональность
+
+- **auth:** Экран блокировки аккаунта ([ce5f872](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ce5f872))
+- **map:** Скрыть предпросмотр в редакторе при открытии с карты ([d5b03ec](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d5b03ec))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.27
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.26...v0.1.27)
