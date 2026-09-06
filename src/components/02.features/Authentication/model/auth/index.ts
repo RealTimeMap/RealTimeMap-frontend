@@ -9,9 +9,25 @@ import { userApi } from '@/components/00.shared/services/user'
 
 const USER_CACHE_KEY = 'map_cached_user'
 
+export interface BanInfo {
+  reason: string
+  bannedUntil: string
+  details?: string
+}
+
+function decodeSafe(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  }
+  catch {
+    return value
+  }
+}
+
 export const useAuthStore = defineStore('auth', () => {
   // --- STATE ---
   const user = ref<User | null>(null)
+  const banInfo = ref<BanInfo | null>(null)
   const token = ref<string | null>((typeof document !== 'undefined') ? getCookie('token') : null)
 
   // --- GETTERS ---
@@ -67,6 +83,7 @@ export const useAuthStore = defineStore('auth', () => {
     finally {
       await setUser(null)
       removeToken()
+      banInfo.value = null
       await Preferences.remove({ key: USER_CACHE_KEY })
     }
   }
@@ -77,8 +94,21 @@ export const useAuthStore = defineStore('auth', () => {
         include: ['ban', 'gamefication', 'subscription'],
       })
       await setUser(userData)
+      banInfo.value = null
     }
     catch (error: any) {
+      // Аккаунт заблокирован — показываем экран блокировки вместо приложения.
+      // Важно: не логируем через console.error, иначе сработает баг-репорт.
+      const details = error?.details
+      if (error?.status === 403 && details?.error === 'account_banned') {
+        banInfo.value = {
+          reason: details.reason ?? 'other',
+          bannedUntil: details.bannedUntil ?? 'permanent',
+          details: details.details ? decodeSafe(details.details) : undefined,
+        }
+        return
+      }
+
       console.error('[Fetch User Error]', error)
 
       if (error?.code === 'ERR_NETWORK' || !navigator.onLine) {
@@ -125,6 +155,7 @@ export const useAuthStore = defineStore('auth', () => {
     // State
     user,
     token,
+    banInfo,
 
     // Getters
     isAuthenticated,

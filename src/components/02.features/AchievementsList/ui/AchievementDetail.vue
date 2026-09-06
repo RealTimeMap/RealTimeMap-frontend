@@ -1,15 +1,12 @@
 <script setup lang="ts">
 import type { CatalogAchievement } from '@/components/00.shared/services/achievement/index.type'
 import { achievementApi } from '@/components/00.shared/services/achievement'
-import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { tierOf } from '../model/tiers'
 
 const props = defineProps<{
   id: number
   earned?: boolean
 }>()
-
-const { close } = useDialogStore()
 
 const achievement = ref<CatalogAchievement | null>(null)
 const isLoading = ref(true)
@@ -41,18 +38,6 @@ onMounted(load)
     class="ach"
     :style="tier ? { '--tier': tier.color } : undefined"
   >
-    <button
-      class="ach__close"
-      type="button"
-      aria-label="Закрыть"
-      @click="close"
-    >
-      <u-icon
-        icon="line-md:close"
-        width="16"
-      />
-    </button>
-
     <div
       v-if="isLoading"
       class="ach__state"

@@ -16,10 +16,16 @@ const authStore = useAuthStore()
 const { user } = storeToRefs(authStore)
 const { logout } = authStore
 const { close, open } = useDialogStore()
+const router = useRouter()
 
 function logoutProfile() {
   close()
   logout()
+}
+
+function goToLogin() {
+  close()
+  router.push('/login')
 }
 
 function openEditProfile() {
@@ -53,11 +59,35 @@ function openEditProfile() {
     </div>
 
     <button
+      v-if="user"
       class="profile-button"
       type="button"
       @click="openEditProfile"
     >
       <profile :user="user" />
+      <u-icon
+        class="profile-button__chevron"
+        icon="line-md:chevron-right"
+        height="20"
+      />
+    </button>
+
+    <button
+      v-else
+      class="guest-cta"
+      type="button"
+      @click="goToLogin"
+    >
+      <div class="guest-cta__icon">
+        <u-icon
+          icon="solar:user-plus-bold"
+          height="22"
+        />
+      </div>
+      <div class="guest-cta__text">
+        <span class="guest-cta__title">Войти в аккаунт</span>
+        <span class="guest-cta__hint">Метки, достижения и синхронизация</span>
+      </div>
       <u-icon
         class="profile-button__chevron"
         icon="line-md:chevron-right"
@@ -71,6 +101,7 @@ function openEditProfile() {
     <about-section />
 
     <button
+      v-if="user"
       class="button-logout"
       @click="logoutProfile"
     >
@@ -105,6 +136,44 @@ function openEditProfile() {
 
   h2 {
     @include value-text(24px, var(--text-color), 700);
+  }
+}
+
+.guest-cta {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  cursor: pointer;
+  text-align: left;
+  @include glass-panel(16px, 14px, false, false);
+  padding-right: 40px;
+
+  &__icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    color: #fff;
+    @include gradient();
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__title {
+    @include value-text(16px, var(--text-color), 700);
+  }
+
+  &__hint {
+    @include label-text(12px, none);
   }
 }
 
