@@ -118,14 +118,17 @@ export interface MarkComment {
   content: string
   author: Author
   likes: number
-  dislikes: number
+  dislikes?: number
   meta: {
     canReply: boolean
     haveReplies: boolean
     repliesCount: number
     status: 'active' | 'deleted'
+    /** Лайкнул ли текущий пользователь (для анонима всегда false) */
+    isLiked: boolean
+    /** Может ли текущий пользователь поставить лайк */
+    canLike: boolean
   }
-  isLiked?: boolean
   replies?: MarkComment[]
   repliesLoaded?: boolean
   showReplies?: boolean

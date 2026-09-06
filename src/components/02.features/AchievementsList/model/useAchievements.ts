@@ -1,32 +1,51 @@
-import type { UserAchievementItem } from '@/components/00.shared/services/achievement/index.type'
+import type { CatalogAchievement } from '@/components/00.shared/services/achievement/index.type'
 import { achievementApi } from '@/components/00.shared/services/achievement'
 
-const PAGE_SIZE = 20
+const CATALOG_SIZE = 500
+const UNLOCKED_FETCH_SIZE = 500
 
 export function useAchievements(userId: number) {
-  const items = ref<UserAchievementItem[]>([])
-  const page = ref(0)
-  const hasNext = ref(true)
-  const total = ref(0)
+  const items = ref<CatalogAchievement[]>([])
+  const unlockedIds = ref<Set<number>>(new Set())
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  async function loadMore() {
-    if (isLoading.value || !hasNext.value)
-      return
+  const total = computed(() => items.value.length)
+  const earnedCount = computed(
+    () => items.value.filter(a => unlockedIds.value.has(a.id)).length,
+  )
 
-    isLoading.value = true
-    error.value = null
+  async function loadUnlocked() {
+    if (!userId)
+      return
     try {
       const res = await achievementApi.getAchiveUser({
         id: userId,
-        page: page.value + 1,
-        pageSize: PAGE_SIZE,
+        page: 1,
+        pageSize: UNLOCKED_FETCH_SIZE,
       })
-      items.value.push(...res.items)
-      page.value = res.page
-      hasNext.value = res.hasNext
-      total.value = res.total
+      const ids = new Set<number>()
+      for (const it of res.items) {
+        ids.add(it.achievement.id)
+        if (it.achievement.next)
+          ids.add(it.achievement.next.id)
+      }
+      unlockedIds.value = ids
+    }
+    catch (e) {
+      console.error('[Achievements unlocked]', e)
+    }
+  }
+
+  async function load() {
+    isLoading.value = true
+    error.value = null
+    try {
+      const [all] = await Promise.all([
+        achievementApi.getAllAchievements({ page: 1, pageSize: CATALOG_SIZE }),
+        loadUnlocked(),
+      ])
+      items.value = Array.isArray(all) ? all : []
     }
     catch (e) {
       console.error('[Achievements]', e)
@@ -39,11 +58,11 @@ export function useAchievements(userId: number) {
 
   return {
     items,
-    page,
-    hasNext,
+    unlockedIds,
     total,
+    earnedCount,
     isLoading,
     error,
-    loadMore,
+    load,
   }
 }

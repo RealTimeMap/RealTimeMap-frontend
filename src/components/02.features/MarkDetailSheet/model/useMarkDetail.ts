@@ -247,8 +247,9 @@ export function useMarkDetail(
       return
     }
 
-    const wasLiked = comment.isLiked ?? false
-    comment.isLiked = !wasLiked
+    const wasLiked = comment.meta.isLiked
+    comment.meta.isLiked = !wasLiked
+    comment.meta.canLike = wasLiked
     comment.likes += wasLiked ? -1 : 1
     hapticLight()
 
@@ -256,12 +257,14 @@ export function useMarkDetail(
       const res = wasLiked
         ? await markApi.unlikeComment(comment.id)
         : await markApi.likeComment(comment.id)
-      comment.isLiked = res.liked
+      comment.meta.isLiked = res.liked
+      comment.meta.canLike = !res.liked
       comment.likes = res.likesCount
       await persistCache()
     }
     catch (e) {
-      comment.isLiked = wasLiked
+      comment.meta.isLiked = wasLiked
+      comment.meta.canLike = !wasLiked
       comment.likes += wasLiked ? 1 : -1
       console.error('[Comment Like]', e)
       notify.add({ title: 'Не удалось изменить оценку', type: 'error' })

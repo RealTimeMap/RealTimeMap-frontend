@@ -47,6 +47,16 @@ export interface NearestAchievementsResponse {
   items: NearestAchievementItem[]
 }
 
+export interface CatalogAchievement extends AchievementBase {
+  reward?: AchievementReward
+  next?: CatalogAchievement
+}
+
+export interface AllAchievementsPayload {
+  page?: number
+  pageSize?: number
+}
+
 export interface AchiveUserPayload {
   id: number
   page?: number

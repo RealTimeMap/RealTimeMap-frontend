@@ -11,6 +11,8 @@ const props = defineProps<{
 const achievements = shallowRef<NearestAchievementItem[]>([])
 const isLoading = ref(false)
 const hasError = ref(false)
+const earnedCount = ref(0)
+const totalCount = ref(0)
 // const { open } = useDialogStore()
 
 const activeItem = ref<NearestAchievementItem | null>(null)
@@ -22,8 +24,14 @@ async function loadAchievements() {
   isLoading.value = true
   hasError.value = false
   try {
-    const res = await achievementApi.getNearestAchievements(props.userId)
-    achievements.value = res.items
+    const [nearest, all, earned] = await Promise.all([
+      achievementApi.getNearestAchievements(props.userId),
+      achievementApi.getAllAchievements({ page: 1, pageSize: 500 }),
+      achievementApi.getAchiveUser({ id: props.userId, page: 1, pageSize: 1 }),
+    ])
+    achievements.value = nearest.items
+    totalCount.value = Array.isArray(all) ? all.length : 0
+    earnedCount.value = earned.total ?? 0
   }
   catch (e) {
     console.error('[Achievements]', e)
@@ -53,7 +61,7 @@ onMounted(loadAchievements)
     <div class="header">
       <div class="title-group">
         <h3>Достижения</h3>
-        <span class="badge">{{ achievements.length }} / 32</span>
+        <span class="badge">{{ earnedCount }} / {{ totalCount }}</span>
       </div>
       <button
         class="all-link"

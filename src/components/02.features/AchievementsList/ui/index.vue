@@ -2,38 +2,76 @@
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { tierOf } from '../model/tiers'
 import { useAchievements } from '../model/useAchievements'
+import AchievementDetail from './AchievementDetail.vue'
 
 const props = defineProps<{
   userId: number
 }>()
 
-const { close } = useDialogStore()
-const { items, total, hasNext, isLoading, error, loadMore } = useAchievements(props.userId)
+type FilterKey = 'all' | 'earned' | 'locked'
+const FILTERS: { key: FilterKey, label: string }[] = [
+  { key: 'all', label: 'Все' },
+  { key: 'earned', label: 'Открытые' },
+  { key: 'locked', label: 'Закрытые' },
+]
+const filter = ref<FilterKey>('all')
 
-const rows = computed(() => items.value.map(item => ({
-  item,
-  tier: tierOf(item.achievement),
-  nextTier: tierOf(item.achievement.next),
+const activeIndex = computed(() => FILTERS.findIndex(f => f.key === filter.value))
+
+const { close, open } = useDialogStore()
+const { items, unlockedIds, total, earnedCount, isLoading, error, load } = useAchievements(props.userId)
+
+const rows = computed(() => items.value.map(achievement => ({
+  achievement,
+  tier: tierOf(achievement),
+  nextTier: tierOf(achievement.next),
+  earned: unlockedIds.value.has(achievement.id),
 })))
 
-function formatDate(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime()))
-    return ''
-  return d.toLocaleDateString('ru-RU', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
+const earnedRows = computed(() => rows.value.filter(r => r.earned))
+const lockedRows = computed(() => rows.value.filter(r => !r.earned))
+
+interface Row {
+  achievement: typeof rows.value[number]['achievement']
+  tier: ReturnType<typeof tierOf>
+  nextTier: ReturnType<typeof tierOf>
+  earned: boolean
+}
+type Entry
+  = | { kind: 'header', label: string, count: number }
+    | { kind: 'row', row: Row }
+
+const entries = computed<Entry[]>(() => {
+  if (filter.value === 'earned')
+    return earnedRows.value.map(row => ({ kind: 'row', row }))
+  if (filter.value === 'locked')
+    return lockedRows.value.map(row => ({ kind: 'row', row }))
+
+  const list: Entry[] = []
+  if (earnedRows.value.length) {
+    list.push({ kind: 'header', label: 'Открытые', count: earnedRows.value.length })
+    earnedRows.value.forEach(row => list.push({ kind: 'row', row }))
+  }
+  if (lockedRows.value.length) {
+    list.push({ kind: 'header', label: 'Закрытые', count: lockedRows.value.length })
+    lockedRows.value.forEach(row => list.push({ kind: 'row', row }))
+  }
+  return list
+})
+
+const hasVisible = computed(() =>
+  filter.value === 'earned' ? earnedRows.value.length > 0 : filter.value === 'locked' ? lockedRows.value.length > 0 : rows.value.length > 0,
+)
+
+function openDetail(id: number, earned: boolean) {
+  open(AchievementDetail, { id, earned }, {
+    position: 'end center',
+    headerModal: false,
+    width: '400px',
   })
 }
 
-function onScroll(e: Event) {
-  const el = e.target as HTMLElement
-  if (el.scrollHeight - el.scrollTop - el.clientHeight < 240)
-    loadMore()
-}
-
-onMounted(loadMore)
+onMounted(load)
 </script>
 
 <template>
@@ -49,67 +87,105 @@ onMounted(loadMore)
       <span
         v-if="total"
         class="achievements-list__count"
-      >{{ total }}</span>
+      >{{ earnedCount }} / {{ total }}</span>
     </div>
 
     <div
-      class="achievements-list__body"
-      @scroll="onScroll"
+      class="achievements-list__filter"
+      :style="{ '--tabs': FILTERS.length, '--active': activeIndex }"
     >
-      <div
-        v-for="{ item, tier, nextTier } in rows"
-        :key="item.achievement.id"
-        class="achive"
-        :style="tier ? { '--tier': tier.color } : undefined"
+      <span class="achievements-list__pill" />
+      <button
+        v-for="f in FILTERS"
+        :key="f.key"
+        type="button"
+        class="achievements-list__tab"
+        :class="{ 'is-active': filter === f.key }"
+        @click="filter = f.key"
+      >
+        {{ f.label }}
+      </button>
+    </div>
+
+    <div class="achievements-list__body">
+      <template
+        v-for="entry in entries"
+        :key="entry.kind === 'header' ? `h-${entry.label}` : entry.row.achievement.id"
       >
         <div
-          class="achive__icon"
-          :class="{ 'has-tier': !!tier }"
+          v-if="entry.kind === 'header'"
+          class="achievements-list__section"
         >
-          <img
-            :src="item.achievement.icon"
-            :alt="item.achievement.title"
-          >
+          <span>{{ entry.label }}</span>
+          <span class="achievements-list__section-count">{{ entry.count }}</span>
         </div>
 
-        <div class="achive__body">
-          <div class="achive__top">
-            <span class="achive__title">{{ item.achievement.title }}</span>
-            <span
-              v-if="item.achievement.reward?.amount"
-              class="achive__xp"
-            >+{{ item.achievement.reward.amount }} XP</span>
-          </div>
-          <p class="achive__desc">
-            {{ item.achievement.desc }}
-          </p>
-
+        <button
+          v-else
+          type="button"
+          class="achive"
+          :class="{ 'is-locked': !entry.row.earned }"
+          :style="entry.row.tier ? { '--tier': entry.row.tier.color } : undefined"
+          @click="openDetail(entry.row.achievement.id, entry.row.earned)"
+        >
           <div
-            v-if="tier || item.achievement.next"
-            class="achive__tiers"
+            class="achive__icon"
+            :class="{ 'has-tier': !!entry.row.tier }"
           >
-            <span
-              v-if="tier"
-              class="achive__tier is-current"
-            >{{ tier.label }}</span>
+            <img
+              :src="entry.row.achievement.icon"
+              :alt="entry.row.achievement.title"
+            >
+          </div>
 
-            <template v-if="item.achievement.next">
-              <div class="achive__bar">
-                <div
-                  class="achive__bar-fill"
-                  :style="{ width: `${item.progress ?? 0}%` }"
-                />
+          <div class="achive__body">
+            <div class="achive__top">
+              <div class="achive__title-wrap">
+                <span class="achive__title">{{ entry.row.achievement.title }}</span>
+                <span
+                  v-if="entry.row.tier"
+                  class="achive__rank"
+                  :style="{ '--tier': entry.row.tier.color }"
+                >{{ entry.row.tier.label }}</span>
               </div>
               <span
-                class="achive__tier is-next"
-                :style="nextTier ? { '--tier': nextTier.color } : undefined"
-              >{{ nextTier?.label ?? item.achievement.next.title }}</span>
-            </template>
-          </div>
+                v-if="entry.row.achievement.reward?.amount"
+                class="achive__xp"
+              >+{{ entry.row.achievement.reward.amount }} XP</span>
+            </div>
+            <p class="achive__desc">
+              {{ entry.row.achievement.desc }}
+            </p>
 
-          <span class="achive__date">Получено {{ formatDate(item.unlockedAt) }}</span>
-        </div>
-      </div>
+            <div
+              v-if="entry.row.achievement.next"
+              class="achive__tiers"
+            >
+              <span class="achive__next-hint">Далее</span>
+              <u-icon
+                class="achive__arrow"
+                icon="solar:alt-arrow-right-linear"
+                width="14"
+              />
+              <span
+                class="achive__tier is-next"
+                :style="entry.row.nextTier ? { '--tier': entry.row.nextTier.color } : undefined"
+              >{{ entry.row.nextTier?.label ?? entry.row.achievement.next.title }}</span>
+            </div>
+
+            <span
+              class="achive__status"
+              :class="{ 'is-earned': entry.row.earned }"
+            >
+              <u-icon
+                :icon="entry.row.earned ? 'solar:check-circle-bold' : 'solar:lock-keyhole-minimalistic-linear'"
+                width="13"
+              />
+              {{ entry.row.earned ? 'Получено' : 'Не получено' }}
+            </span>
+          </div>
+        </button>
+      </template>
 
       <div
         v-if="isLoading"
@@ -132,14 +208,14 @@ onMounted(loadMore)
         v-else-if="!items.length"
         class="achievements-list__state"
       >
-        Пока нет полученных достижений — действуйте на карте, чтобы открыть первое.
+        Достижений пока нет.
       </div>
 
       <div
-        v-else-if="!hasNext"
-        class="achievements-list__end"
+        v-else-if="!hasVisible"
+        class="achievements-list__state"
       >
-        Это всё 🎉
+        {{ filter === 'earned' ? 'Пока нет открытых достижений.' : 'Все достижения уже открыты 🎉' }}
       </div>
     </div>
   </div>
@@ -177,6 +253,49 @@ onMounted(loadMore)
     padding: 4px 10px;
     border-radius: 10px;
     background: var(--bg-color-block);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__filter {
+    position: relative;
+    display: flex;
+    padding: 4px;
+    border-radius: 14px;
+    background: var(--bg-color-block);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  &__pill {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    bottom: 4px;
+    width: calc((100% - 8px) / var(--tabs));
+    border-radius: 10px;
+    background: var(--primary-color);
+    box-shadow: 0 4px 12px color-mix(in srgb, var(--primary-color) 40%, transparent);
+    transform: translateX(calc(var(--active) * 100%));
+    transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+  }
+
+  &__tab {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    padding: 9px 0;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-color-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    transition: color 0.25s ease;
+
+    &.is-active {
+      color: #fff;
+    }
   }
 
   &__body {
@@ -185,6 +304,32 @@ onMounted(loadMore)
     display: flex;
     flex-direction: column;
     gap: 10px;
+  }
+
+  &__section {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 4px;
+    @include label-text(12px, uppercase);
+
+    &:first-child {
+      margin-top: 0;
+    }
+
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border-subtle);
+    }
+  }
+
+  &__section-count {
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: var(--bg-color-block);
+    font-variant-numeric: tabular-nums;
   }
 
   &__state,
@@ -199,8 +344,26 @@ onMounted(loadMore)
 .achive {
   display: flex;
   gap: 14px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
   @include glass-panel(16px, 14px, true, false);
   box-shadow: none;
+  transition: transform 0.12s ease;
+
+  &:active {
+    transform: scale(0.99);
+  }
+
+  &.is-locked {
+    opacity: 0.62;
+
+    .achive__icon img {
+      filter: grayscale(1);
+    }
+  }
 
   &__icon {
     flex-shrink: 0;
@@ -240,8 +403,33 @@ onMounted(loadMore)
     gap: 8px;
   }
 
+  &__title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
   &__title {
     @include value-text(15px, var(--text-color), 700);
+  }
+
+  &__rank {
+    flex-shrink: 0;
+    padding: 2px 8px;
+    border-radius: 7px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--tier);
+    background: color-mix(in srgb, var(--tier) 16%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tier) 45%, transparent);
+  }
+
+  &__next-hint {
+    @include label-text(11px, none);
   }
 
   &__xp {
@@ -258,7 +446,6 @@ onMounted(loadMore)
     line-height: 1.4;
   }
 
-  // Трек ступеней: [текущая] → прогресс → [следующая]
   &__tiers {
     margin-top: 6px;
     display: flex;
@@ -285,24 +472,21 @@ onMounted(loadMore)
     }
   }
 
-  &__bar {
-    flex: 1;
-    height: 5px;
-    border-radius: 3px;
-    overflow: hidden;
-    background: color-mix(in srgb, var(--text-color) 8%, transparent);
+  &__arrow {
+    flex-shrink: 0;
+    color: var(--text-color-muted);
   }
 
-  &__bar-fill {
-    height: 100%;
-    border-radius: 3px;
-    background: var(--tier, var(--primary-color));
-    transition: width 0.3s ease;
-  }
-
-  &__date {
-    margin-top: 2px;
+  &__status {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     @include label-text(11px, none);
+
+    &.is-earned {
+      color: var(--access-color, #3fb950);
+    }
   }
 }
 </style>

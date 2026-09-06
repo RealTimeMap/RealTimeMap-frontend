@@ -144,10 +144,10 @@ async function submitReply() {
       >
         <button
           class="comment-pill"
-          :class="{ 'comment-pill--active': comment.isLiked }"
+          :class="{ 'comment-pill--active': comment.meta.isLiked }"
           @click="onLike(comment)"
         >
-          <u-icon :icon="comment.isLiked ? 'line-md:heart-filled' : 'line-md:heart'" />
+          <u-icon :icon="comment.meta.isLiked ? 'line-md:heart-filled' : 'line-md:heart'" />
           {{ comment.likes }}
         </button>
 
