@@ -15,10 +15,6 @@ const {
   showMapZoomLevel,
 } = storeToRefs(settings)
 const { close } = useDialogStore()
-
-const anyVisible = computed(() =>
-  showMapZoom.value || showMapLocate.value || showMapSettings.value || showMapZoomLevel.value,
-)
 </script>
 
 <template>
@@ -44,7 +40,7 @@ const anyVisible = computed(() =>
     >
       <div class="mc-stack">
         <div
-          v-if="showMapZoom"
+          :class="{ 'mc-stack__group--disabled': !showMapZoom }"
           class="mc-stack__group mc-stack__group--zoom"
         >
           <u-icon
@@ -58,7 +54,7 @@ const anyVisible = computed(() =>
           />
         </div>
         <div
-          v-if="showMapLocate"
+          :class="{ 'mc-stack__group--disabled': !showMapLocate }"
           class="mc-stack__group"
         >
           <u-icon
@@ -67,7 +63,7 @@ const anyVisible = computed(() =>
           />
         </div>
         <div
-          v-if="showMapSettings"
+          :class="{ 'mc-stack__group--disabled': !showMapSettings }"
           class="mc-stack__group"
         >
           <u-icon
@@ -76,17 +72,12 @@ const anyVisible = computed(() =>
           />
         </div>
         <div
-          v-if="showMapZoomLevel"
+          :class="{ 'mc-stack__group--disabled': !showMapZoomLevel }"
           class="mc-stack__group mc-stack__zoom"
         >
           <span class="mc-stack__zoom-value">12</span>
           <span class="mc-stack__zoom-label">ZOOM</span>
         </div>
-
-        <span
-          v-if="!anyVisible"
-          class="map-editor__empty"
-        >Панель скрыта</span>
       </div>
     </div>
 
@@ -219,6 +210,11 @@ const anyVisible = computed(() =>
       flex-direction: column;
       gap: 3px;
       padding: 8px 0;
+    }
+
+    &--disabled {
+      opacity: 0.3;
+      pointer-events: none;
     }
   }
 
