@@ -18,7 +18,7 @@ const { openProfile } = useProfileNavigation()
 
 function goToProfile() {
   if (props.userId != null)
-    openProfile(props.userId)
+    openProfile(props.userId, { username: props.title, avatar: props.avatar })
 }
 </script>
 

@@ -10,7 +10,7 @@ const props = defineProps<{
   onDelete: (c: MarkComment) => void
   onReply: (parent: MarkComment, content: string) => void | Promise<boolean>
   onToggleReplies: (c: MarkComment) => void
-  onOpenProfile: (id: number) => void
+  onOpenProfile: (id: number, preview?: { username?: string, avatar?: string }) => void
 }>()
 
 const isDeleted = computed(() => props.comment.meta.status === 'deleted')
@@ -97,7 +97,10 @@ async function submitReply() {
       :size="isReply ? 28 : 34"
       :src="comment.author.avatar"
       :alt-text="comment.author.username"
-      @click="onOpenProfile(comment.author.id)"
+      @click="onOpenProfile(comment.author.id, {
+        username: comment.author.username,
+        avatar: comment.author.avatar,
+      })"
     />
 
     <div class="comment-content">

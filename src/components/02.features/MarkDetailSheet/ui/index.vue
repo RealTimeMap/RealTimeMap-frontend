@@ -310,7 +310,10 @@ onMounted(() => {
           :size="40"
           :src="mark.owner.avatar"
           :alt-text="mark.owner.username"
-          @click="openProfile(mark.owner.id)"
+          @click="openProfile(mark.owner.id, {
+            username: mark.owner.username,
+            avatar: mark.owner.avatar,
+          })"
         />
         <div class="owner-info">
           <div class="owner-info__name">

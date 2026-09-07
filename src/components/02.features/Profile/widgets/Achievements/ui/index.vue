@@ -78,7 +78,7 @@ onMounted(loadAchievements)
 
     <div
       class="achievements-wrapper"
-      :class="{ 'no-grid': achievements.length === 0 || hasError }"
+      :class="{ 'no-grid': (achievements.length === 0 && !isLoading) || hasError }"
     >
       <u-block-error
         v-if="hasError"
@@ -88,12 +88,13 @@ onMounted(loadAchievements)
         @retry="loadAchievements"
       />
 
-      <div
-        v-else-if="isLoading"
-        class="loader"
-      >
-        ...
-      </div>
+      <template v-else-if="isLoading">
+        <div
+          v-for="i in 4"
+          :key="i"
+          class="achive-skeleton"
+        />
+      </template>
 
       <template v-else>
         <div
@@ -295,9 +296,22 @@ onMounted(loadAchievements)
   }
 }
 
-.loader {
-  grid-column: span 5;
-  text-align: center;
-  color: var(--text-color-muted);
+.achive-skeleton {
+  width: 100%;
+  height: 100%;
+  min-height: 56px;
+  border-radius: 10px;
+  background: linear-gradient(100deg, var(--surface-subtle) 30%, var(--surface-hover) 50%, var(--surface-subtle) 70%);
+  background-size: 200% 100%;
+  animation: achive-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes achive-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
 }
 </style>

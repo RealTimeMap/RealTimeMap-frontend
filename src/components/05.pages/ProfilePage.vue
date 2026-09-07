@@ -1,17 +1,23 @@
 <script setup lang="ts">
 // import ProfileUserView from '@/components/02.features/Profile'
 
-const dynamicColor = ref('oklch(0.62 0.22 220)')
+const route = useRoute()
+const dynamicColor = ref<string | null>(null)
 
 function handleColorExtracted(color: string) {
   dynamicColor.value = color
 }
+
+watch(() => route.fullPath, () => {
+  dynamicColor.value = null
+})
 </script>
 
 <template>
   <div
     class="profile"
-    :style="{ '--user-color': dynamicColor }"
+    :class="{ 'profile--tinted': !!dynamicColor }"
+    :style="{ '--user-color': dynamicColor ?? 'transparent' }"
   >
     <div class="profile-blum" />
     <div class="profile-container">
@@ -27,6 +33,12 @@ function handleColorExtracted(color: string) {
 </template>
 
 <style lang="scss" scoped>
+@property --user-color {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: transparent;
+}
+
 .profile {
   height: calc(100dvh - var(--safe-top));
   width: 100%;
@@ -40,6 +52,9 @@ function handleColorExtracted(color: string) {
   background: var(--profile-bg);
   color: var(--text-color);
 
+  // Плавный морф самого оттенка (для браузеров с поддержкой @property)
+  transition: --user-color 0.6s ease;
+
   &-blum {
     position: absolute;
     top: -100px;
@@ -52,6 +67,13 @@ function handleColorExtracted(color: string) {
 
     filter: blur(40px);
     pointer-events: none;
+
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  &--tinted &-blum {
+    opacity: 1;
   }
 
   &-container {

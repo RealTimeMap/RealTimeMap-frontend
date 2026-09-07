@@ -161,11 +161,16 @@ function openMark(markId: number) {
     >
       <button
         class="button-sub"
-        :class="{ 'button-sub--active': isSubscribed }"
+        :class="{
+          'button-sub--active': isSubscribed,
+          'button-sub--loading': isLoadingStatus,
+        }"
         :disabled="isPending || isLoadingStatus"
         @click="toggle"
       >
-        {{ isSubscribed ? 'Вы подписаны' : 'Подписаться' }}
+        <span v-if="!isLoadingStatus">
+          {{ isSubscribed ? 'Вы подписаны' : 'Подписаться' }}
+        </span>
       </button>
       <button
         class="button-message"
@@ -193,6 +198,10 @@ function openMark(markId: number) {
         title="Уровень недоступен"
         :retrying="refetchingLevel"
         @retry="retryLevel"
+      />
+      <div
+        v-else-if="user"
+        class="skeleton-block skeleton-block--level"
       />
     </div>
 
@@ -225,7 +234,20 @@ function openMark(markId: number) {
     </div>
 
     <div
-      v-if="myMarks && myMarks.length"
+      v-if="myMarks === undefined"
+      class="user-profile-view__marks"
+    >
+      <div class="user-profile-view__marks-grid">
+        <div
+          v-for="i in 4"
+          :key="i"
+          class="skeleton-block skeleton-block--mark"
+        />
+      </div>
+    </div>
+
+    <div
+      v-else-if="myMarks.length"
       class="user-profile-view__marks"
     >
       <!-- <h3 class="user-profile-view__marks-title">
@@ -242,7 +264,7 @@ function openMark(markId: number) {
     </div>
 
     <div
-      v-else-if="isOwn && myMarks"
+      v-else-if="isOwn"
       class="user-profile-view__empty"
     >
       <u-icon
@@ -256,11 +278,11 @@ function openMark(markId: number) {
     <div
       v-if="isOwn"
       class="button-settings"
+      @click="openSettings()"
     >
       <u-icon
         icon="line-md:cog-loop"
         height="20"
-        @click="openSettings()"
       />
     </div>
 
@@ -321,6 +343,20 @@ function openMark(markId: number) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+
+    > :not(.skeleton-block) {
+      animation: mark-in 0.35s ease both;
+
+      &:nth-child(2) {
+        animation-delay: 0.05s;
+      }
+      &:nth-child(3) {
+        animation-delay: 0.1s;
+      }
+      &:nth-child(4) {
+        animation-delay: 0.15s;
+      }
+    }
   }
 
   &__empty {
@@ -385,10 +421,16 @@ function openMark(markId: number) {
     font-size: 22px;
     font-weight: 700;
     letter-spacing: -0.3px;
+    // Резерв высоты строки, чтобы имя не «толкало» контент при загрузке
+    min-height: 28px;
+    line-height: 28px;
   }
 
   &__tag {
     @include label-text(14px, none);
+    // Резерв под тег — иначе появление сдвигает контент ниже
+    min-height: 18px;
+    line-height: 18px;
   }
 }
 
@@ -418,6 +460,13 @@ function openMark(markId: number) {
     border: 1px solid var(--border-subtle);
     @include value-text(14px, var(--text-color-secondary), 600);
   }
+
+  &--loading {
+    box-shadow: none;
+    background: linear-gradient(100deg, var(--surface-subtle) 30%, var(--surface-hover) 50%, var(--surface-subtle) 70%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
 }
 
 .button-message {
@@ -425,5 +474,42 @@ function openMark(markId: number) {
   color: var(--text-color);
   height: 44px;
   min-width: 44px;
+}
+
+.skeleton-block {
+  width: 100%;
+  border-radius: 16px;
+  background: linear-gradient(100deg, var(--surface-subtle) 30%, var(--surface-hover) 50%, var(--surface-subtle) 70%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+
+  &--level {
+    height: 120px;
+  }
+
+  &--mark {
+    aspect-ratio: 1.5 / 1;
+    border-radius: 12px;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes mark-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
