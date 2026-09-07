@@ -2,12 +2,13 @@
 import type { User } from '@/components/00.shared/services/user/index.type'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useEditProfile } from '../model/useEditProfile'
+import AvatarCropper from './AvatarCropper.vue'
 
 const props = defineProps<{
   user: User
 }>()
 
-const { close } = useDialogStore()
+const { close, open } = useDialogStore()
 
 const initialUser = props.user
 
@@ -27,8 +28,20 @@ const fileInput = useTemplateRef<HTMLInputElement>('fileInput')
 
 function onFileChange(event: Event) {
   const file = (event.target as HTMLInputElement).files?.[0]
-  if (file)
-    selectAvatar(file)
+  if (file) {
+    open(AvatarCropper, {
+      file,
+      onApply: selectAvatar,
+    }, {
+      height: '100%',
+      width: '500px',
+      headerModal: false,
+      transition: 'slide-right',
+      classModal: 'modal-settings',
+      position: 'center end',
+      swipeable: false,
+    })
+  }
   if (fileInput.value)
     fileInput.value.value = ''
 }

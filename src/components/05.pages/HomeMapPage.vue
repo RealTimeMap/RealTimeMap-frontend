@@ -3,12 +3,14 @@ import type { Map } from 'maplibre-gl'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { GeolocationFeedback } from '@/components/02.features/Geolocation'
 import { useGeolocation } from '@/components/02.features/Geolocation/model/useGeolocation'
 import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
 import MapControls from '@/components/02.features/MapControls'
 import { BaseMapView } from '@/components/02.features/MapCore'
+import MarkCreateMenu from '@/components/02.features/MarkCreateMenu'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useMapCoach } from '@/components/02.features/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
@@ -29,8 +31,11 @@ const authStore = useAuthStore()
 const routeStore = useRouteStore()
 const shareStore = useShareStore()
 const notify = useNotificationStore()
+const settingsStore = useSettingsStore()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
+const { markMenuStyle } = storeToRefs(settingsStore)
+const menuVariant = computed(() => (markMenuStyle.value === 'off' ? 'popover' : markMenuStyle.value))
 
 const {
   activeMapHint,
@@ -77,11 +82,9 @@ function handleMapReady(map: Map) {
 
 onActivated(flyToPending)
 
-function handleMapClick(coordinates: MapPoint) {
-  if (!isAuthenticated.value) {
-    nudgeGuestToLogin()
-    return
-  }
+const markMenu = ref<{ coords: MapPoint, x: number, y: number } | null>(null)
+
+function openMarkForm(coordinates: MapPoint) {
   markAddCoords.value = coordinates
   dialogStore.open(MarkForm, {
     coords: coordinates,
@@ -89,6 +92,45 @@ function handleMapClick(coordinates: MapPoint) {
     position: 'end center',
     headerModal: false,
   })
+}
+
+function handleMapClick(coordinates: MapPoint) {
+  if (!isAuthenticated.value) {
+    nudgeGuestToLogin()
+    return
+  }
+
+  // Экспериментальное меню выключено — сразу открываем форму
+  if (markMenuStyle.value === 'off' || !mapApi.value) {
+    openMarkForm(coordinates)
+    return
+  }
+
+  const point = mapApi.value.project(coordinates)
+  markMenu.value = { coords: coordinates, x: point.x, y: point.y }
+}
+
+function openPublicMark() {
+  const coordinates = markMenu.value?.coords
+  markMenu.value = null
+  if (coordinates)
+    openMarkForm(coordinates)
+}
+
+function handlePrivateMark() {
+  markMenu.value = null
+  notify.add({
+    title: 'Личные метки в разработке',
+    description: 'Скоро можно будет ставить метки только для себя',
+    type: 'info',
+  })
+}
+
+function handleMenuMove(x: number, y: number) {
+  if (!markMenu.value || !mapApi.value)
+    return
+  const { lng, lat } = mapApi.value.unproject([x, y])
+  markMenu.value.coords = [lng, lat]
 }
 
 function handleUpdateBounds(bounds: MapBounds) {
@@ -151,6 +193,18 @@ watch(userPosition, (newPos) => {
       :map-api="mapApi"
       :user-position="userPosition"
       :zoom="zoomLevel"
+    />
+
+    <mark-create-menu
+      v-if="markMenu && markMenuStyle !== 'off'"
+      :variant="menuVariant"
+      :x="markMenu.x"
+      :y="markMenu.y"
+      :coords="markMenu.coords"
+      @public="openPublicMark"
+      @private="handlePrivateMark"
+      @move="handleMenuMove"
+      @close="markMenu = null"
     />
 
     <transition name="coach-fade">

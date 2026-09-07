@@ -6,9 +6,14 @@ import { useUserSearch } from '../model/useUserSearch'
 const { query, results, total, isLoading, hasQuery, clear } = useUserSearch()
 const { openProfile } = useProfileNavigation()
 
-function goToProfile(userId: number) {
+function goToProfile(person: { userId: number, username: string, tag: string, avatar?: string, isPrivate: boolean }) {
   clear()
-  openProfile(userId)
+  openProfile(person.userId, {
+    username: person.username,
+    tag: person.tag,
+    avatar: person.avatar,
+    isPrivate: person.isPrivate,
+  })
 }
 
 const { shouldShow, markSeen } = useCoachmarks()
@@ -123,7 +128,7 @@ watch(hasQuery, (active) => {
               class="result"
               type="button"
               :style="{ transitionDelay: `${index * 35}ms` }"
-              @click="goToProfile(person.userId)"
+              @click="goToProfile(person)"
             >
               <u-avatar
                 :size="40"

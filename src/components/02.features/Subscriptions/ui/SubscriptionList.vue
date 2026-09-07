@@ -68,7 +68,12 @@ loadMore()
         :key="person.userId"
         class="subs-item"
         type="button"
-        @click="openProfile(person.userId)"
+        @click="openProfile(person.userId, {
+          username: person.username,
+          avatar: person.avatar,
+          tag: person.tag,
+          isPrivate: person.isPrivate,
+        })"
       >
         <div class="subs-item__avatar">
           <u-avatar

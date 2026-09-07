@@ -199,6 +199,7 @@ onMounted(() => {
       >
         <template v-if="!confirmingMarkDelete">
           <button
+            v-if="isMarkActive"
             class="owner-fab__btn"
             aria-label="Редактировать метку"
             @click="handleEditMark()"
@@ -310,7 +311,10 @@ onMounted(() => {
           :size="40"
           :src="mark.owner.avatar"
           :alt-text="mark.owner.username"
-          @click="openProfile(mark.owner.id)"
+          @click="openProfile(mark.owner.id, {
+            username: mark.owner.username,
+            avatar: mark.owner.avatar,
+          })"
         />
         <div class="owner-info">
           <div class="owner-info__name">
@@ -368,6 +372,7 @@ onMounted(() => {
         </span>
 
         <span
+          v-if="isMarkActive"
           ref="routeBtnRef"
           class="action-item"
           :class="{ 'action-item--active': routeStore.activeMarkId === markId }"

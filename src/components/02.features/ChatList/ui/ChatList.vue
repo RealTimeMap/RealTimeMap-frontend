@@ -42,15 +42,21 @@ const { chats } = useChatList()
 
 <style lang="scss" scoped>
 .chats-container {
-  position: relative;
   display: flex;
   flex-direction: column;
   max-width: 400px;
   margin: 0 auto;
   height: 100%;
   width: 90%;
-  padding-top: calc(16px + var(--safe-top));
   padding-bottom: calc(110px + var(--safe-bottom));
+}
+
+.chats-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: var(--bg-body);
+  padding: calc(16px + var(--safe-top)) 0 16px;
 }
 
 .chats-empty {

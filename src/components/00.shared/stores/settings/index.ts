@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import { useAppearance } from './parts/useAppearance'
 import { useCache } from './parts/useCache'
+import { useExperimental } from './parts/useExperimental'
 import { useHaptics } from './parts/useHaptics'
 import { useMapCache } from './parts/useMapCache'
 import { useMapControls } from './parts/useMapControls'
@@ -15,6 +16,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const mapCacheSettings = useMapCache()
   const mapControlsSettings = useMapControls()
   const profileSettings = useProfileSettings()
+  const experimentalSettings = useExperimental()
 
   return {
     ...appearanceSettings,
@@ -24,5 +26,6 @@ export const useSettingsStore = defineStore('settings', () => {
     ...mapCacheSettings,
     ...mapControlsSettings,
     ...profileSettings,
+    ...experimentalSettings,
   }
 })
