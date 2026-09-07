@@ -1,4 +1,4 @@
-@mixin glass-panel($radius: 18px, $padding: 14px, $show-glow: true, $blur: true) {
+@mixin glass-panel($radius: 18px, $padding: 14px, $show-glow: true, $blur: true, $shadow: true) {
   position: relative;
   border-radius: $radius;
   padding: $padding;
@@ -11,9 +11,11 @@
 
   border: 0.5px solid var(--glass-border);
 
-  box-shadow:
-    var(--glass-shadow-inset) 0px 1px 0px inset,
-    var(--glass-shadow) 0px 10px 30px;
+  @if $shadow {
+    box-shadow:
+      var(--glass-shadow-inset) 0px 1px 0px inset,
+      var(--glass-shadow) 0px 10px 30px;
+  }
 
   @if $show-glow {
     &::before {

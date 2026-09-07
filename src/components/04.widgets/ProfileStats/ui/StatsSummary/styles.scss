@@ -21,6 +21,10 @@
   align-items: center;
   position: relative;
 
+  &--clickable {
+    cursor: pointer;
+  }
+
   &:not(:last-child)::after {
     content: '';
     position: absolute;

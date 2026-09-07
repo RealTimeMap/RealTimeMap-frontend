@@ -1,4 +1,11 @@
-import type { ChatReadPayload, ChatTypingPayload, Message, PresenceSnapshotPayload, PresenceUserPayload, TypingPayload } from '@/components/00.shared/services/chats/index.type'
+import type {
+  ChatReadPayload,
+  ChatTypingPayload,
+  Message,
+  PresenceSnapshotPayload,
+  PresenceUserPayload,
+  TypingPayload,
+} from '@/components/00.shared/services/chats/index.type'
 import { useWebSocket } from './useWebSocket'
 
 export const CHATS_NAMESPACE = '/chats'
