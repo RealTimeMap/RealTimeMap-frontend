@@ -199,6 +199,7 @@ onMounted(() => {
       >
         <template v-if="!confirmingMarkDelete">
           <button
+            v-if="isMarkActive"
             class="owner-fab__btn"
             aria-label="Редактировать метку"
             @click="handleEditMark()"
@@ -371,6 +372,7 @@ onMounted(() => {
         </span>
 
         <span
+          v-if="isMarkActive"
           ref="routeBtnRef"
           class="action-item"
           :class="{ 'action-item--active': routeStore.activeMarkId === markId }"
