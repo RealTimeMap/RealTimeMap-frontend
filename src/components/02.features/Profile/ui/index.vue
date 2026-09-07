@@ -10,6 +10,7 @@ import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { useCoachOnView } from '@/components/02.features/Onboarding/model/useCoachOnView'
 import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
+import { useSubscription } from '../model/useSubscription'
 import Achievements from '../widgets/Achievements/index'
 import LevelBlock from '../widgets/LevelBlock'
 
@@ -24,6 +25,16 @@ const emit = defineEmits<{
 
 const chatsStore = useChatsStore()
 const authStore = useAuthStore()
+
+const statsSummaryRef = ref<InstanceType<typeof StatsSummary> | null>(null)
+
+const { isSubscribed, isPending, isLoadingStatus, toggle } = useSubscription(
+  () => props.user?.userId,
+  {
+    enabled: () => !props.isOwn && authStore.isAuthenticated,
+    onChange: subscribed => statsSummaryRef.value?.bumpSubscribers(subscribed ? 1 : -1),
+  },
+)
 const gameStats = computed(() => props.user?.gamification)
 const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
 const maxVal = computed(() => {
@@ -148,8 +159,13 @@ function openMark(markId: number) {
       v-if="!isOwn && user && authStore.isAuthenticated"
       class="user-action"
     >
-      <button class="button-sub">
-        Подписаться
+      <button
+        class="button-sub"
+        :class="{ 'button-sub--active': isSubscribed }"
+        :disabled="isPending || isLoadingStatus"
+        @click="toggle"
+      >
+        {{ isSubscribed ? 'Вы подписаны' : 'Подписаться' }}
       </button>
       <button
         class="button-message"
@@ -199,6 +215,7 @@ function openMark(markId: number) {
     >
       <stats-summary
         v-if="user"
+        ref="statsSummaryRef"
         :user-id="user?.userId"
       />
       <stats-full
@@ -383,16 +400,28 @@ function openMark(markId: number) {
 
 .button-sub {
   height: 44px;
-  @include glass-panel(14px, 11px, false);
+  @include glass-panel(14px, 11px, false, false);
   @include gradient();
-  /* Текст на акцентном градиенте — всегда белый */
   @include value-text(14px, #fff, 700);
   width: 100%;
   border: none;
+  transition: opacity 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &--active {
+    box-shadow: none;
+    background: var(--bg-color-block);
+    border: 1px solid var(--border-subtle);
+    @include value-text(14px, var(--text-color-secondary), 600);
+  }
 }
 
 .button-message {
-  @include glass-panel(14px, 11px);
+  @include glass-panel(14px, 11px, false, false, false);
   color: var(--text-color);
   height: 44px;
   min-width: 44px;
