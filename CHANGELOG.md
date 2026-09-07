@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.1.30
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.29...v0.1.30)
+
+### 🚀 Функциональность
+
+- **ui:** Редактор фото ([feac137](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/feac137))
+- **ui:** Эксперимент ([3c48490](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3c48490))
+
+### 🩹 Исправления
+
+- **ui:** Дерганье профилей при перезагрузке и при инит ([8fe5687](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/8fe5687))
+- **ui:** Лишние кнопки на ended метке ([d90bdc6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d90bdc6))
+- **ui:** Редактор карты в настройках ([66856cb](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/66856cb))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.29
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.28...v0.1.29)
