@@ -1,9 +1,9 @@
 import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
 
-export type MarkMenuStyle = 'off' | 'popover' | 'orbit' | 'bar'
+export type MarkMenuStyle = 'off' | 'popover' | 'orbit' | 'bar' | 'segment'
 
 const MARK_MENU_STYLE_COOKIE = 'exp_mark_menu_style'
-const VALID: MarkMenuStyle[] = ['off', 'popover', 'orbit', 'bar']
+const VALID: MarkMenuStyle[] = ['off', 'popover', 'orbit', 'bar', 'segment']
 
 function readStyle(): MarkMenuStyle {
   const saved = getCookie(MARK_MENU_STYLE_COOKIE) as MarkMenuStyle

@@ -24,6 +24,19 @@ export interface MarkMenuOptions {
   clampInitial?: boolean
 }
 
+export function useMenuClose(onClose: () => void, duration = 220) {
+  const closing = ref(false)
+
+  function requestClose() {
+    if (closing.value)
+      return
+    closing.value = true
+    window.setTimeout(onClose, duration)
+  }
+
+  return { closing, requestClose }
+}
+
 export function useMarkMenu(
   props: MarkMenuProps,
   onMove: (x: number, y: number) => void,
@@ -52,7 +65,7 @@ export function useMarkMenu(
 
   function onDragStart(e: PointerEvent) {
     e.stopPropagation()
-    ;(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
+    ; (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId)
     dragging = true
     lastX = e.clientX
     lastY = e.clientY

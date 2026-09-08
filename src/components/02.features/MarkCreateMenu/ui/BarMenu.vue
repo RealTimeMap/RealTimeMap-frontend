@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MapPoint } from '@/types/shared/map'
-import { MENU_MARGIN, MENU_TOP_RESERVE, useMarkMenu } from '../model/useMarkMenu'
+import { MENU_MARGIN, MENU_TOP_RESERVE, useMarkMenu, useMenuClose } from '../model/useMarkMenu'
 
 const props = defineProps<{
   x: number
@@ -19,6 +19,8 @@ const { pos, clamp, coordsLabel, onDragStart, onDragMove, onDragEnd } = useMarkM
   props,
   (x, y) => emit('move', x, y),
 )
+
+const { closing, requestClose } = useMenuClose(() => emit('close'))
 
 const BAR_HALF = 108
 const COORDS_HALF = 84
@@ -51,7 +53,8 @@ const coordsStyle = computed(() => {
 <template>
   <div
     class="bar-overlay"
-    @pointerdown.self="emit('close')"
+    :class="{ 'bar-overlay--closing': closing }"
+    @pointerdown.self="requestClose"
   >
     <div
       class="bar"
@@ -115,6 +118,10 @@ const coordsStyle = computed(() => {
   position: fixed;
   inset: 0;
   z-index: 40;
+
+  &--closing {
+    animation: menu-out 0.2s ease both;
+  }
 }
 
 .bar {
@@ -264,6 +271,16 @@ const coordsStyle = computed(() => {
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes menu-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
   }
 }
 </style>

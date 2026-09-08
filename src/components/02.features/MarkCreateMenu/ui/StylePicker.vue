@@ -12,6 +12,7 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
   { id: 'popover', title: 'Карточка', hint: 'Всплывающая карточка над точкой' },
   { id: 'orbit', title: 'Орбита', hint: 'Два круга на пунктирном кольце' },
   { id: 'bar', title: 'Панель', hint: 'Горизонтальная панель кнопок' },
+  { id: 'segment', title: 'Тумблер', hint: 'Переключатель типа с кнопкой «Продолжить»' },
   { id: 'off', title: 'Выключено', hint: 'Сразу открывать форму метки' },
 ]
 </script>
@@ -57,6 +58,11 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
           </template>
           <template v-else-if="opt.id === 'bar'">
             <span class="pv-bar" />
+            <span class="pv-dot" />
+          </template>
+          <!-- Тумблер -->
+          <template v-else-if="opt.id === 'segment'">
+            <span class="pv-seg" />
             <span class="pv-dot" />
           </template>
           <template v-else>
@@ -193,6 +199,11 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
     bottom: auto;
     transform: translate(-50%, -50%);
   }
+
+  &--top {
+    top: 10px;
+    bottom: auto;
+  }
 }
 
 .pv-card {
@@ -217,6 +228,29 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
   border-radius: 999px;
   background: var(--bg-color-block);
   border: 1px solid var(--border-subtle);
+}
+
+.pv-seg {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: 46px;
+  height: 14px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: var(--bg-color-block);
+  border: 1px solid var(--border-subtle);
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: calc(50% - 2px);
+    height: calc(100% - 4px);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--primary-color) 70%, transparent);
+  }
 }
 
 .pv-ring {

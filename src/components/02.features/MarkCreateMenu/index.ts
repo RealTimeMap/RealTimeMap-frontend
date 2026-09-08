@@ -9,6 +9,7 @@ export const MARK_MENU_STYLE_LABELS: Record<MarkMenuStyle, string> = {
   popover: 'Карточка',
   orbit: 'Орбита',
   bar: 'Панель',
+  segment: 'Тумблер',
 }
 
 export function openMarkMenuStylePicker(): void {
