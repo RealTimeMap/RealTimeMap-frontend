@@ -114,3 +114,12 @@ main {
 .maplibregl-ctrl-attrib {
   display: none !important;
 }
+
+@keyframes rtm-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}

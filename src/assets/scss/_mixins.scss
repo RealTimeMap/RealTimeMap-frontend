@@ -45,6 +45,12 @@ $breakpoint-desktop: 900px;
   }
 }
 
+@mixin skeleton-shimmer {
+  background: linear-gradient(100deg, var(--surface-subtle) 30%, var(--surface-hover) 50%, var(--surface-subtle) 70%);
+  background-size: 200% 100%;
+  animation: rtm-shimmer 1.4s ease-in-out infinite;
+}
+
 @mixin label-text($font-size: 12px, $text-transform: uppercase, $color: var(--text-color-muted)) {
   font-size: $font-size;
   color: $color;

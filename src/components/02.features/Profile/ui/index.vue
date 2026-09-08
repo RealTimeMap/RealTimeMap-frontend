@@ -343,20 +343,6 @@ function openMark(markId: number) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
-
-    > :not(.skeleton-block) {
-      animation: mark-in 0.35s ease both;
-
-      &:nth-child(2) {
-        animation-delay: 0.05s;
-      }
-      &:nth-child(3) {
-        animation-delay: 0.1s;
-      }
-      &:nth-child(4) {
-        animation-delay: 0.15s;
-      }
-    }
   }
 
   &__empty {
@@ -499,17 +485,6 @@ function openMark(markId: number) {
   }
   100% {
     background-position: -200% 0;
-  }
-}
-
-@keyframes mark-in {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 </style>

@@ -25,6 +25,9 @@ const emit = defineEmits<{ click: [] }>()
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const marker = shallowRef<maplibregl.Marker | null>(null)
 
+// blur-up: фото метки проявляется из размытия по мере загрузки
+const photoLoaded = ref(false)
+
 const el = document.createElement('div')
 const isReady = ref(false)
 
@@ -69,13 +72,19 @@ onUnmounted(() => {
     >
       <template v-if="media || variant === 'user'">
         <div class="marker__block">
-          <img
+          <div
             v-if="media"
-            :src="media"
             class="marker-photo"
             :style="variant === 'user' ? undefined : { borderColor: color }"
-            alt="photo"
           >
+            <img
+              :src="media"
+              class="marker-photo__img"
+              :class="{ 'marker-photo__img--loaded': photoLoaded }"
+              alt="photo"
+              @load="photoLoaded = true"
+            >
+          </div>
           <div
             v-else
             class="marker-photo marker-photo--placeholder"
@@ -109,6 +118,23 @@ onUnmounted(() => {
   flex-direction: column;
   cursor: pointer;
 }
+
+/* Появление метки — плавный zoom из точки (кроме метки пользователя) */
+.custom-map-marker:not(.custom-map-marker--user) {
+  transform-origin: bottom center;
+  animation: marker-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes marker-in {
+  from {
+    opacity: 0;
+    transform: scale(0.4);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
 .draggable {
   cursor: grab;
 }
@@ -130,12 +156,34 @@ onUnmounted(() => {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  object-fit: cover;
   border: 1px solid var(--marker-accent, #3399ff);
   box-shadow: rgba(0, 0, 0, 0.5) 0px 6px 14px;
   background-color: white;
   position: relative;
   z-index: 2;
+  /* Обрезаем размытие по кругу — блюр не вылезает за метку */
+  overflow: hidden;
+}
+
+.marker-photo__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  /* blur-up: до загрузки — размыто (внутри круга) */
+  filter: blur(6px);
+  transform: scale(1.1);
+  opacity: 0.7;
+  transition:
+    filter 0.4s ease,
+    transform 0.4s ease,
+    opacity 0.3s ease;
+
+  &--loaded {
+    filter: blur(0);
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .marker-icon {
   width: 36px;
