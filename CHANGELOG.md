@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.31
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.30...v0.1.31)
+
+### 🎨 Стили
+
+- **ui:** Новая ширина всех блоков ([6c2170c](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6c2170c))
+- **ui:** Изменения стилей для пк версии ([6fda72f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6fda72f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.30
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.29...v0.1.30)
