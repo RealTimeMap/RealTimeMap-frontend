@@ -176,7 +176,7 @@ watch(hasQuery, (active) => {
   transform: translateX(-50%);
   z-index: 20;
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
   gap: 10px;

@@ -302,7 +302,7 @@ function openMark(markId: number) {
   flex-direction: column;
   gap: 12px;
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
 
   &__header {

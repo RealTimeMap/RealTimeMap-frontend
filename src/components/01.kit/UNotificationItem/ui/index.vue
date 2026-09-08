@@ -219,7 +219,7 @@ const defaultIcons = {
 <style scoped lang="scss">
 .notification-item {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
   display: flex;
   gap: 12px;
   padding: 14px;

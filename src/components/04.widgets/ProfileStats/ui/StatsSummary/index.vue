@@ -89,7 +89,7 @@ function openSubscriptions(tab?: SubscriptionListType) {
 
   dialog.open(SubscriptionsModal, { initialTab: tab }, {
     title: 'Ваши связи',
-    width: '400px',
+    width: '500px',
     height: '80%',
     position: 'end center',
   })

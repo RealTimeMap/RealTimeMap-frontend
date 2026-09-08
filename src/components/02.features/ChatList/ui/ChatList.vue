@@ -44,7 +44,7 @@ const { chats } = useChatList()
 .chats-container {
   display: flex;
   flex-direction: column;
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   height: 100%;
   width: 90%;

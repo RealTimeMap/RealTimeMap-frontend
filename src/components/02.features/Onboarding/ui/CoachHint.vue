@@ -48,7 +48,7 @@ const emit = defineEmits<{
   transform: translateX(-50%);
   z-index: 900;
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   display: flex;
   align-items: center;
   gap: 12px;

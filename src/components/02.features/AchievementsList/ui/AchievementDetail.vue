@@ -137,6 +137,7 @@ onMounted(load)
   align-items: center;
   text-align: center;
   gap: 12px;
+  padding-bottom: 16px;
 
   &__close {
     position: absolute;

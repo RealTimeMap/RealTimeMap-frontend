@@ -108,7 +108,7 @@ function goHome() {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  max-width: 400px;
+  max-width: 500px;
   width: 90%;
   gap: 24px;
   z-index: 1;

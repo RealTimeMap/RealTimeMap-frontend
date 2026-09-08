@@ -60,7 +60,7 @@ watch(() => route.fullPath, () => {
     top: -100px;
     left: 50%;
     transform: translateX(-50%);
-    width: 400px;
+    width: 500px;
     height: 320px;
     border-radius: 50%;
     background: radial-gradient(circle, var(--user-color), transparent 70%);

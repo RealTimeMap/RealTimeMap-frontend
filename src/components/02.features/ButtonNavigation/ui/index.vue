@@ -137,7 +137,7 @@ $nav-icon-active: var(--nav-icon-active);
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   height: 70px;
   border-radius: 28px;
   box-shadow:
