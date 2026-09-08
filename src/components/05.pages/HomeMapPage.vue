@@ -35,7 +35,11 @@ const settingsStore = useSettingsStore()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
 const { markMenuStyle } = storeToRefs(settingsStore)
-const menuVariant = computed(() => (markMenuStyle.value === 'off' ? 'popover' : markMenuStyle.value))
+const menuVariant = computed(() =>
+  (markMenuStyle.value === 'off')
+    ? 'popover'
+    : markMenuStyle.value,
+)
 
 const {
   activeMapHint,

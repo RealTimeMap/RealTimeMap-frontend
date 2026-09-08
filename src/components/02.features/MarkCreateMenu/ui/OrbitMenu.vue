@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { MapPoint } from '@/types/shared/map'
-import { useMarkMenu } from '../model/useMarkMenu'
+import { useMarkMenu, useMenuClose } from '../model/useMarkMenu'
 
 const props = defineProps<{
   x: number
@@ -20,12 +20,15 @@ const { pos, coordsLabel, onDragStart, onDragMove, onDragEnd } = useMarkMenu(
   (x, y) => emit('move', x, y),
   { side: 104, top: 104, bottom: 130, clampInitial: true },
 )
+
+const { closing, requestClose } = useMenuClose(() => emit('close'))
 </script>
 
 <template>
   <div
     class="orbit-overlay"
-    @pointerdown.self="emit('close')"
+    :class="{ 'orbit-overlay--closing': closing }"
+    @pointerdown.self="requestClose"
   >
     <div
       class="orbit"
@@ -87,6 +90,10 @@ const { pos, coordsLabel, onDragStart, onDragMove, onDragEnd } = useMarkMenu(
   position: fixed;
   inset: 0;
   z-index: 40;
+
+  &--closing {
+    animation: menu-out 0.2s ease both;
+  }
 }
 
 .orbit {
@@ -253,6 +260,16 @@ const { pos, coordsLabel, onDragStart, onDragMove, onDragEnd } = useMarkMenu(
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes menu-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.96);
   }
 }
 </style>

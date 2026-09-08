@@ -3,9 +3,10 @@ import type { MapPoint } from '@/types/shared/map'
 import BarMenu from './BarMenu.vue'
 import OrbitMenu from './OrbitMenu.vue'
 import PopoverMenu from './PopoverMenu.vue'
+import SegmentMenu from './SegmentMenu.vue'
 
 const props = defineProps<{
-  variant: 'popover' | 'orbit' | 'bar'
+  variant: 'popover' | 'orbit' | 'bar' | 'segment'
   x: number
   y: number
   coords: MapPoint
@@ -22,6 +23,7 @@ const component = computed(() => {
   switch (props.variant) {
     case 'orbit': return OrbitMenu
     case 'bar': return BarMenu
+    case 'segment': return SegmentMenu
     default: return PopoverMenu
   }
 })
