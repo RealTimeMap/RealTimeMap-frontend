@@ -6,6 +6,9 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{ click: [] }>()
+
+// blur-up: фото проявляется из размытия по мере загрузки
+const imgLoaded = ref(false)
 </script>
 
 <template>
@@ -19,7 +22,9 @@ const emit = defineEmits<{ click: [] }>()
         v-if="mark.photos && mark.photos.length > 0"
         :src="mark.photos[0]"
         class="mark-card__img"
+        :class="{ 'mark-card__img--loaded': imgLoaded }"
         alt=""
+        @load="imgLoaded = true"
       >
       <div
         v-else
@@ -86,6 +91,20 @@ const emit = defineEmits<{ click: [] }>()
   height: 100%;
   object-fit: cover;
   display: block;
+  /* blur-up: до загрузки — размыто и чуть увеличено */
+  filter: blur(14px);
+  transform: scale(1.06);
+  opacity: 0.5;
+  transition:
+    filter 0.5s ease,
+    transform 0.5s ease,
+    opacity 0.4s ease;
+
+  &--loaded {
+    filter: blur(0);
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .mark-card__placeholder {

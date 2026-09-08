@@ -91,5 +91,22 @@ onUnmounted(() => {
   justify-content: center;
   /* Статичный мягкий ореол вместо бесконечной пульсации */
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--primary-color) 22%, transparent);
+  /* Появление кластера — упругий «поп» с лёгким перелётом */
+  animation: cluster-in 0.36s ease-out both;
+}
+
+@keyframes cluster-in {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>
