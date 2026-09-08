@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { openCommunityRules } from '@/components/02.features/CommunityRules'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import { useAuth } from '../../model/useAuth'
 
@@ -83,6 +84,13 @@ const {
       </span>
       <span class="auth-form__consent-text">
         Я принимаю
+        <button
+          type="button"
+          class="auth-form__consent-link"
+          @click="openCommunityRules()"
+        >
+          Правила сообщества
+        </button>,
         <button
           type="button"
           class="auth-form__consent-link"

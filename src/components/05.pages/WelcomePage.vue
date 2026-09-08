@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { Capacitor } from '@capacitor/core'
 import { downloadAndroidApp } from '@/components/02.features/AppUpdate'
+import { openCommunityRules } from '@/components/02.features/CommunityRules'
+import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
 
 declare const __APP_VERSION__: string
@@ -313,7 +315,23 @@ function openGithub() {
                 <div class="rules-block">
                   <ul class="u-ul">
                     <li class="u-li">
-                      Нажимая "Начать", вы принимаете правила.
+                      Нажимая «Начать использование», вы подтверждаете, что
+                      ознакомлены и согласны с
+                      <button
+                        type="button"
+                        class="rules-inline-link"
+                        @click="openCommunityRules()"
+                      >
+                        Правилами сообщества
+                      </button>
+                      и
+                      <button
+                        type="button"
+                        class="rules-inline-link"
+                        @click="openPrivacyPolicy()"
+                      >
+                        Политикой конфиденциальности
+                      </button>.
                     </li>
                     <li class="u-li">
                       Не передавайте доступ третьим лицам.
@@ -620,6 +638,17 @@ function openGithub() {
     margin-bottom: 8px;
     opacity: 0.8;
   }
+}
+
+.rules-inline-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--primary-color);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
 }
 
 .github-link-btn {

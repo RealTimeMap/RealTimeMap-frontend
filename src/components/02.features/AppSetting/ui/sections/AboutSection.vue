@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { openBugReport } from '@/components/02.features/BugReport'
+import { openCommunityRules } from '@/components/02.features/CommunityRules'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
@@ -12,6 +13,13 @@ import SettingsSection from '../kit/SettingsSection.vue'
       label="Сообщить о баге"
       hint="Опишите проблему — приложим логи и данные устройства"
       @click="openBugReport()"
+    />
+
+    <settings-row
+      link
+      label="Правила сообщества"
+      hint="Как пользоваться метками, чатами и картой"
+      @click="openCommunityRules()"
     />
 
     <settings-row
