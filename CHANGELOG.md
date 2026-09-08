@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.32
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.31...v0.1.32)
+
+### 🚀 Функциональность
+
+- **ui:** Документ правил сообществ ([db0d167](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/db0d167))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.31
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.30...v0.1.31)
