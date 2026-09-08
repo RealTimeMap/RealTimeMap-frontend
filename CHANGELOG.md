@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.1.33
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.32...v0.1.33)
+
+### 🚀 Функциональность
+
+- **pwa:** Иконки и apple-touch-icon для установки на iOS ([8f22fa8](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/8f22fa8))
+
+### 🎨 Стили
+
+- **ui:** Анимация появления меток и кластеров ([9d88f40](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/9d88f40))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.32
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.31...v0.1.32)
