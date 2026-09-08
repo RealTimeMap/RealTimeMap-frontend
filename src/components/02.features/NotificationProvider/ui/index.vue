@@ -27,7 +27,7 @@ const store = useNotificationStore()
   transform: translateX(-50%);
   z-index: 10000;
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   display: flex;
   flex-direction: column;
 }

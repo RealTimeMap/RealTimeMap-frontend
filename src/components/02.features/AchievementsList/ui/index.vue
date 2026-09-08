@@ -87,7 +87,7 @@ function openDetail(id: number, earned: boolean) {
   open(AchievementDetail, { id, earned }, {
     position: 'end center',
     headerModal: false,
-    width: '400px',
+    width: '500px',
   })
 }
 

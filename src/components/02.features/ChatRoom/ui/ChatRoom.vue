@@ -116,7 +116,7 @@ async function onSend(text: string) {
   flex-direction: column;
   height: var(--viewport-height, 100dvh);
 
-  max-width: 400px;
+  max-width: 500px;
   margin: 0 auto;
   width: 100%;
 

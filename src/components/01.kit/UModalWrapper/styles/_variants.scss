@@ -8,4 +8,14 @@
   .modal-wrapper__body {
     max-height: 100%;
   }
+
+  /* Десктоп: правая панель → плавающая скруглённая панель с отступом */
+  @media (min-width: 900px) {
+    height: min(calc(100dvh - 48px), 820px);
+    margin: 24px;
+    padding-top: 16px;
+    border-radius: 24px;
+    border: 0.5px solid var(--border-subtle);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  }
 }

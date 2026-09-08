@@ -37,6 +37,14 @@
   box-shadow: var(--accent-gradient-shadow, oklch(0.62 0.22 265 / 0.35)) 0px 6px 18px;
 }
 
+$breakpoint-desktop: 900px;
+
+@mixin desktop {
+  @media (min-width: #{$breakpoint-desktop}) {
+    @content;
+  }
+}
+
 @mixin label-text($font-size: 12px, $text-transform: uppercase, $color: var(--text-color-muted)) {
   font-size: $font-size;
   color: $color;

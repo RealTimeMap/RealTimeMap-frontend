@@ -23,7 +23,7 @@ defineProps<{
   left: 50%;
   transform: translateX(-50%);
   width: 90%;
-  max-width: 400px;
+  max-width: 500px;
   padding: 1.5rem;
   border-radius: 20px;
   background-color: var(--bg-color-soft);

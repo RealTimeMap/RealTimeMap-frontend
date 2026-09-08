@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useMediaQuery } from '@vueuse/core'
 import BottomNavigation from '@/components/02.features/ButtonNavigation'
 import { useAuthStore } from '../02.features/Authentication/model/auth'
 import ShareRender from '../02.features/Share/index'
@@ -7,6 +8,9 @@ const authStore = useAuthStore()
 const { initAuth } = authStore
 
 const route = useRoute()
+const isDesktop = useMediaQuery('(min-width: 900px)')
+
+const showBottomNav = computed(() => isDesktop.value || !route.meta.hideBottomNav)
 
 onMounted(() => {
   initAuth()
@@ -23,7 +27,7 @@ onMounted(() => {
     </main>
 
     <footer
-      v-if="!route.meta.hideBottomNav"
+      v-if="showBottomNav"
       class="default-layout__footer"
     >
       <bottom-navigation />

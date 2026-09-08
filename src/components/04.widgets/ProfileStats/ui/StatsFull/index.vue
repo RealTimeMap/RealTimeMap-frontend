@@ -12,7 +12,7 @@ function handleOpenStats() {
   open(StatsModal, {
     userId,
   }, {
-    width: '400px',
+    width: '500px',
     position: 'end center',
     headerModal: false,
   })
