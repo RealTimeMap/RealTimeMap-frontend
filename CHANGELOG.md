@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.34
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.33...v0.1.34)
+
+### 🚀 Функциональность
+
+- **ui:** Новый вариант выбора метки ([1504c9f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1504c9f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.33
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.32...v0.1.33)
