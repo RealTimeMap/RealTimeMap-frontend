@@ -224,4 +224,50 @@ $nav-icon-active: var(--nav-icon-active);
   background-color: $orb-background;
   z-index: 2;
 }
+
+@include desktop {
+  .bottom-nav {
+    top: 50%;
+    bottom: auto;
+    left: 24px;
+    transform: translateY(-50%);
+    width: 84px;
+    height: auto;
+    max-width: none;
+    border-radius: 26px;
+    padding: 12px 0;
+  }
+
+  .bottom-nav__list {
+    flex-direction: column;
+    gap: 6px;
+    height: auto;
+  }
+
+  .bottom-nav__item {
+    flex: none;
+    gap: 5px;
+    width: 64px;
+    margin: 0 auto;
+    padding: 12px 0;
+    border-radius: 18px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: color-mix(in srgb, var(--text-color) 6%, transparent);
+    }
+
+    &--active {
+      background: color-mix(in srgb, var(--primary-color) 14%, transparent);
+    }
+  }
+
+  .bottom-nav__label {
+    font-size: 11px;
+  }
+
+  .bottom-nav__indicator {
+    display: none;
+  }
+}
 </style>
