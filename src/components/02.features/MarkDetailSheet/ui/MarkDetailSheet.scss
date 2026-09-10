@@ -15,7 +15,6 @@
     font-size: 22px;
     font-weight: 700;
     letter-spacing: -0.3px;
-    /* Текст лежит поверх фото/тёмного градиента — всегда светлый */
     color: #fff;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
@@ -270,6 +269,120 @@
   }
   50% {
     opacity: 0.5;
+  }
+}
+
+/* --- FULL SHEET SKELETON --- */
+.mark-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+
+  .sk {
+    background: var(--surface-subtle);
+    border-radius: 6px;
+    animation: comments-skeleton-pulse 1.4s ease-in-out infinite;
+  }
+
+  .sk-line {
+    height: 12px;
+    width: 100%;
+
+    &--title {
+      height: 20px;
+      width: 60%;
+    }
+
+    &--name {
+      height: 14px;
+      width: 40%;
+    }
+
+    &--sub {
+      height: 10px;
+      width: 50%;
+    }
+
+    &--short {
+      width: 35%;
+    }
+
+    &--heading {
+      height: 16px;
+      width: 30%;
+      margin-bottom: 4px;
+    }
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 20px;
+    background: var(--bg-color-block);
+    border: 0.5px solid var(--border-subtle);
+  }
+
+  &__header-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    flex-shrink: 0;
+  }
+
+  &__header-info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__owner {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  &__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    &--sm {
+      width: 34px;
+      height: 34px;
+    }
+  }
+
+  &__desc {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__actions {
+    display: flex;
+    gap: 12px;
+  }
+
+  .sk-pill {
+    height: 36px;
+    width: 84px;
+    border-radius: 999px;
+  }
+
+  &__comments {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__comment {
+    display: flex;
+    gap: 12px;
   }
 }
 

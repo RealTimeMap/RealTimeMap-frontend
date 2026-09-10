@@ -7,8 +7,11 @@ import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions
 export function useGeolocation() {
   const { devPosition, isDev } = useDevPosition()
 
+  type GeoErrorReason = 'denied' | 'unavailable' | 'timeout' | 'unsupported' | 'generic'
+
   const userPosition = ref<MapPoint | null>(null)
   const error = ref<string | null>(null)
+  const errorReason = ref<GeoErrorReason | null>(null)
   const isLoading = ref<boolean>(true)
 
   let capWatchId: string | null = null
@@ -19,31 +22,56 @@ export function useGeolocation() {
     return !!(cap && cap.isNativePlatform())
   })
 
+  const clearWatchers = async () => {
+    if (isNativeCapacitor.value && capWatchId) {
+      try {
+        await Geolocation.clearWatch({ id: capWatchId })
+      }
+      catch (err) {
+        console.error('Ошибка при остановке мобильного трекинга:', err)
+      }
+      capWatchId = null
+    }
+    if (!isNativeCapacitor.value && webWatchId !== null) {
+      navigator.geolocation.clearWatch(webWatchId)
+      webWatchId = null
+    }
+  }
+
   interface Coords { coords: { longitude: number, latitude: number } }
 
   const applyPosition = (position: Coords) => {
     userPosition.value = [position.coords.longitude, position.coords.latitude]
     error.value = null
+    errorReason.value = null
     isLoading.value = false
   }
 
-  /**
-   * Ошибку показываем, только пока не получили ни одной позиции.
-   * Иначе временный сбой watchPosition (частый на iOS: потеря сигнала,
-   * таймаут высокой точности) убрал бы уже работающую карту.
-   */
-  const handleError = (message: string) => {
+  const reasonFromCode = (code?: number): GeoErrorReason => {
+    switch (code) {
+      case 1: return 'denied'
+      case 2: return 'unavailable'
+      case 3: return 'timeout'
+      default: return 'generic'
+    }
+  }
+
+  const handleError = (message: string, reason: GeoErrorReason = 'generic') => {
     if (userPosition.value) {
       console.warn('[geolocation]', message)
       return
     }
     error.value = message
+    errorReason.value = reason
     isLoading.value = false
   }
 
   const fetchGeolocation = async () => {
     isLoading.value = true
     error.value = null
+    errorReason.value = null
+
+    await clearWatchers()
 
     if (isNativeCapacitor.value) {
       try {
@@ -52,7 +80,8 @@ export function useGeolocation() {
         )
 
         if (permissions.location !== 'granted') {
-          error.value = 'Доступ к геопозиции отклонен на устройстве.'
+          error.value = 'Доступ к геопозиции отклонён на устройстве.'
+          errorReason.value = 'denied'
           isLoading.value = false
           return
         }
@@ -75,7 +104,10 @@ export function useGeolocation() {
           },
           (position, err) => {
             if (err) {
-              handleError(`Ошибка мобильной геолокации: ${err.message}`)
+              handleError(
+                `Ошибка мобильной геолокации: ${err.message}`,
+                reasonFromCode((err as any).code),
+              )
               return
             }
             if (position)
@@ -84,7 +116,10 @@ export function useGeolocation() {
         )
       }
       catch (err: any) {
-        handleError(`Не удалось запустить мобильный трекинг: ${err.message || err}`)
+        handleError(
+          `Не удалось запустить мобильный трекинг: ${err.message || err}`,
+          reasonFromCode(err?.code),
+        )
       }
     }
     else {
@@ -103,7 +138,7 @@ export function useGeolocation() {
               isLoading.value = false
             }
             else {
-              handleError(`Ошибка браузерной геолокации: ${err.message}`)
+              handleError(`Ошибка браузерной геолокации: ${err.message}`, reasonFromCode(err.code))
             }
           },
           {
@@ -115,32 +150,27 @@ export function useGeolocation() {
       }
       else {
         error.value = 'Геолокация не поддерживается этим браузером.'
+        errorReason.value = 'unsupported'
         isLoading.value = false
       }
     }
   }
 
+  const retry = () => fetchGeolocation()
+
   onMounted(() => {
     fetchGeolocation()
   })
 
-  onUnmounted(async () => {
-    if (isNativeCapacitor.value && capWatchId) {
-      try {
-        await Geolocation.clearWatch({ id: capWatchId })
-      }
-      catch (err) {
-        console.error('Ошибка при остановке мобильного трекинга:', err)
-      }
-    }
-    if (!isNativeCapacitor.value && webWatchId !== null) {
-      navigator.geolocation.clearWatch(webWatchId)
-    }
+  onUnmounted(() => {
+    clearWatchers()
   })
 
   return {
     userPosition,
     error,
+    errorReason,
     isLoading,
+    retry,
   }
 }

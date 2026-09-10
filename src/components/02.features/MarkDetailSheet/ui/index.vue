@@ -112,7 +112,7 @@ function dismissRouteTip() {
   markSeen(ROUTE_TIP_ID)
 }
 
-onMounted(async () => {
+async function maybeShowRouteTip() {
   if (authStore.isAuthenticated)
     return
   if (!(await shouldShow(ROUTE_TIP_ID)))
@@ -123,9 +123,12 @@ onMounted(async () => {
       routeTipTimer = setTimeout(dismissRouteTip, ROUTE_TIP_TIMEOUT)
     }
   }, 450)
-})
+}
 
-onUnmounted(dismissRouteTip)
+onUnmounted(() => {
+  dismissRouteTip()
+  window.removeEventListener('resize', checkClamping)
+})
 
 watch(markIdRef, () => {
   fetchData()
@@ -171,6 +174,7 @@ async function onShareClick() {
 onMounted(() => {
   fetchData()
   fetchComments()
+  maybeShowRouteTip()
   setTimeout(checkClamping, 100)
   window.addEventListener('resize', checkClamping)
 })
@@ -180,9 +184,50 @@ onMounted(() => {
   <div class="mark-container">
     <div
       v-if="isLoading && !mark"
-      class="state-text"
+      class="mark-skeleton"
     >
-      Загрузка...
+      <div class="mark-skeleton__header">
+        <div class="mark-skeleton__header-icon sk" />
+        <div class="mark-skeleton__header-info">
+          <div class="sk sk-line sk-line--title" />
+          <div class="sk sk-line sk-line--sub" />
+        </div>
+      </div>
+
+      <div class="mark-skeleton__owner">
+        <div class="mark-skeleton__avatar sk" />
+        <div class="mark-skeleton__header-info">
+          <div class="sk sk-line sk-line--name" />
+          <div class="sk sk-line sk-line--sub" />
+        </div>
+      </div>
+
+      <div class="mark-skeleton__desc">
+        <div class="sk sk-line" />
+        <div class="sk sk-line" />
+        <div class="sk sk-line sk-line--short" />
+      </div>
+
+      <div class="mark-skeleton__actions">
+        <div class="sk sk-pill" />
+        <div class="sk sk-pill" />
+        <div class="sk sk-pill" />
+      </div>
+
+      <div class="mark-skeleton__comments">
+        <div class="sk sk-line sk-line--heading" />
+        <div
+          v-for="i in 2"
+          :key="i"
+          class="mark-skeleton__comment"
+        >
+          <div class="mark-skeleton__avatar mark-skeleton__avatar--sm sk" />
+          <div class="mark-skeleton__header-info">
+            <div class="sk sk-line sk-line--short" />
+            <div class="sk sk-line" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <div
