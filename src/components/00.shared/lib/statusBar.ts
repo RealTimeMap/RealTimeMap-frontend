@@ -8,7 +8,11 @@ export function syncStatusBar(base: ThemeBase, backgroundColor?: string): void {
   import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
     StatusBar.setStyle({ style: base === 'light' ? Style.Light : Style.Dark }).catch(() => {})
 
-    if (backgroundColor && Capacitor.getPlatform() === 'android')
-      StatusBar.setBackgroundColor({ color: backgroundColor }).catch(() => {})
+    if (Capacitor.getPlatform() === 'android') {
+      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+
+      if (backgroundColor)
+        StatusBar.setBackgroundColor({ color: backgroundColor }).catch(() => {})
+    }
   }).catch(() => {})
 }
