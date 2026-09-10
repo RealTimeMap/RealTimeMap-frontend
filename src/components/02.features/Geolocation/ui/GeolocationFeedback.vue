@@ -1,9 +1,62 @@
 <script setup lang="ts">
+type GeoErrorReason = 'denied' | 'unavailable' | 'timeout' | 'unsupported' | 'generic'
+
 interface Props {
   isLoading: boolean
   error: string | null
+  errorReason?: GeoErrorReason | null
 }
 const props = defineProps<Props>()
+
+const emit = defineEmits<{
+  retry: []
+}>()
+
+const isNative = computed(() => {
+  const cap = (window as any).Capacitor
+  return !!(cap && cap.isNativePlatform())
+})
+
+const errorView = computed(() => {
+  const reason = props.errorReason ?? 'generic'
+
+  const enableHint = isNative.value
+    ? 'Откройте настройки телефона и включите геолокацию (Службы геолокации), затем разрешите доступ приложению и нажмите «Повторная попытка».'
+    : 'Разрешите доступ к геолокации в настройках браузера для этого сайта и нажмите «Повторная попытка».'
+
+  switch (reason) {
+    case 'denied':
+      return {
+        icon: 'solar:map-point-remove-bold-duotone',
+        title: 'Нет доступа к геолокации',
+        description: `Приложению нужен доступ к вашему местоположению, чтобы показать карту. ${enableHint}`,
+      }
+    case 'unavailable':
+      return {
+        icon: 'solar:gps-bold-duotone',
+        title: 'Геолокация выключена',
+        description: `Не удалось определить местоположение. Проверьте, что геолокация включена. ${enableHint}`,
+      }
+    case 'timeout':
+      return {
+        icon: 'solar:gps-bold-duotone',
+        title: 'Не удалось найти вас',
+        description: 'Определение местоположения заняло слишком много времени. Проверьте сигнал GPS и попробуйте ещё раз.',
+      }
+    case 'unsupported':
+      return {
+        icon: 'line-md:alert-loop',
+        title: 'Геолокация недоступна',
+        description: props.error ?? 'Ваше устройство не поддерживает геолокацию.',
+      }
+    default:
+      return {
+        icon: 'line-md:alert-loop',
+        title: 'Произошла ошибка',
+        description: props.error ?? 'Не удалось получить местоположение.',
+      }
+  }
+})
 
 const loadingPhrases = [
   'Определяем ваше местоположение...',
@@ -73,18 +126,30 @@ onUnmounted(() => {
       <div class="error-alert">
         <div class="error-alert__header">
           <u-icon
-            icon="line-md:alert-loop"
-            height="24"
-            width="24"
+            :icon="errorView.icon"
+            height="28"
+            width="28"
             class="error-alert__icon"
           />
           <h3 class="error-alert__title">
-            Произошла ошибка
+            {{ errorView.title }}
           </h3>
         </div>
         <p class="error-alert__description">
-          {{ error }}
+          {{ errorView.description }}
         </p>
+        <button
+          type="button"
+          class="error-alert__retry"
+          @click="emit('retry')"
+        >
+          <u-icon
+            icon="solar:refresh-linear"
+            width="16"
+            height="16"
+          />
+          Повторная попытка
+        </button>
       </div>
     </div>
   </div>
@@ -172,6 +237,26 @@ onUnmounted(() => {
     opacity: 0.8;
     margin: 0;
     line-height: 1.4;
+  }
+
+  &__retry {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    border: 0.5px solid var(--border-subtle);
+    background: var(--surface-subtle);
+    color: var(--text-color);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+
+    &:active {
+      transform: scale(0.96);
+    }
   }
 }
 

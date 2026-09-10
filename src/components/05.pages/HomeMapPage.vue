@@ -23,7 +23,9 @@ defineOptions({ name: 'HomeMapPage' })
 const {
   userPosition,
   error: geolocationError,
+  errorReason: geolocationErrorReason,
   isLoading: isLoadingGeolocation,
+  retry: retryGeolocation,
 } = useGeolocation()
 
 const dialogStore = useDialogStore()
@@ -162,7 +164,9 @@ watch(userPosition, (newPos) => {
       v-if="isLoadingGeolocation || geolocationError"
       :is-loading="isLoadingGeolocation"
       :error="geolocationError"
+      :error-reason="geolocationErrorReason"
       class="absolute-center"
+      @retry="retryGeolocation"
     />
     <base-map-view
       v-if="!isLoadingGeolocation && !geolocationError && mapInitialCenter && userPosition"
