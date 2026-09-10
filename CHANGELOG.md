@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.35
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.34...v0.1.35)
+
+### 🚀 Функциональность
+
+- **mark-detail,geolocation:** Скелетон модалки метки и понятная ошибка геолокации ([7169524](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/7169524))
+
+### 🩹 Исправления
+
+- **ui:** В баг не тянется тайтл ошибки ([f33618b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f33618b))
+- **ui:** Отключить overlay статус-бара — контент больше не залезает под него ([433df91](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/433df91))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.34
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.33...v0.1.34)
