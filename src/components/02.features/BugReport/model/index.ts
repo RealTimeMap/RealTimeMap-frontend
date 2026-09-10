@@ -61,7 +61,7 @@ export function initBugReport(): void {
   const notify = useNotificationStore()
   const SILENCED_ROUTES = new Set(['login'])
 
-  onBugError(async (info) => {
+  onBugError(async (_info) => {
     if (SILENCED_ROUTES.has(String(router.currentRoute.value.name)))
       return
     if (toastShown)
@@ -78,7 +78,7 @@ export function initBugReport(): void {
         callback: () => {
           if (toastId)
             notify.remove(toastId)
-          openBugReport({ tag: 'logic', title: info.message.slice(0, 120) })
+          openBugReport({ tag: 'logic' })
         },
       },
     })
