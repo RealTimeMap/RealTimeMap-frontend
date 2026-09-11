@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.realtimemap",
+      "sha256_cert_fingerprints": [
+        "02:F5:4B:7C:BD:0E:9B:5F:94:2F:21:A9:53:BE:43:D5:C9:BF:F7:C7:03:34:07:F8:CF:50:91:99:D0:C3:8B:4A"
+      ]
+    }
+  }
+]
