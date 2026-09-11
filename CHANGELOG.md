@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.36
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.35...v0.1.36)
+
+### 🚀 Функциональность
+
+- **core:** Редирект в приложение (тест) ([958173f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/958173f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.35
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.34...v0.1.35)
