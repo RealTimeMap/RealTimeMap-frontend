@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.37
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.36...v0.1.37)
+
+### 🚀 Функциональность
+
+- **ui:** Favicon and animation screen start ([bdfd93a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bdfd93a))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.36
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.35...v0.1.36)
