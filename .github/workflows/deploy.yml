@@ -17,6 +17,12 @@ on:
           - minor
           - major
 
+# Сериализуем релизные прогоны: параллельные merge в main иначе гонятся
+# за push и второй падает с non-fast-forward.
+concurrency:
+  group: release-main
+  cancel-in-progress: false
+
 jobs:
   build-apk:
     runs-on: ubuntu-latest
@@ -112,6 +118,8 @@ jobs:
           # [skip ci] обязателен: иначе пуш обратно в main запустит этот же workflow
           git commit -m "docs(changelog): v${{ steps.bump.outputs.APP_VERSION }} [skip ci]"
           git tag "v${{ steps.bump.outputs.APP_VERSION }}"
+          # Страховка от гонки: добираем чужие коммиты, если main ушёл вперёд.
+          git pull --rebase origin main
           git push origin main --follow-tags
 
       - name: Build Web Application
