@@ -9,6 +9,26 @@
 
 - **ui:** Favicon and animation screen start ([bdfd93a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bdfd93a))
 
+### 📖 Документация
+
+- **changelog:** V0.1.37 [skip ci] ([eb1cb25](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/eb1cb25))
+
+### 🤖 CI
+
+- **core:** Сериализовать релизные прогоны и rebase перед push ([1b529ef](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1b529ef))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
+## v0.1.37
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.36...v0.1.37)
+
+### 🚀 Функциональность
+
+- **ui:** Favicon and animation screen start ([bdfd93a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bdfd93a))
+
 ### ❤️ Contributors
 
 - Hell-soon <pmaks2365@gmail.com>
