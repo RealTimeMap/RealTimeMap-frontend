@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.1.38
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.37...v0.1.38)
+
+### 🚀 Функциональность
+
+- **android:** Launcher-иконки с логотипом-щитом ([298bc06](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/298bc06))
+
+### 📦 Сборка
+
+- **android:** Переименовать выходной APK в rtm.apk ([98951c4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/98951c4))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.37
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.36...v0.1.37)
