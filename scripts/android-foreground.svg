@@ -1,0 +1,15 @@
+<svg width="108" height="108" viewBox="0 0 108 108" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(25 22) scale(0.29)">
+    <path
+      d="M100 8 C130 8 150 14 176 22 C186 25 190 32 190 44 L190 118 C190 168 152 198 100 214 C48 198 10 168 10 118 L10 44 C10 32 14 25 24 22 C50 14 70 8 100 8 Z"
+      fill="#16161f"
+      stroke="#2a2a38"
+      stroke-width="4"
+    />
+    <path
+      d="M100 44 C126 44 146 64 146 90 C146 118 118 142 100 178 C82 142 54 118 54 90 C54 64 74 44 100 44 Z"
+      fill="#f4f2ee"
+    />
+    <circle cx="100" cy="90" r="18" fill="#7c3aed" />
+  </g>
+</svg>
