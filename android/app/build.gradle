@@ -63,6 +63,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+
+    // Итоговый APK называем rtm.apk вместо app-<variant>.apk
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            output.outputFileName = "rtm.apk"
+        }
+    }
 }
 
 repositories {
