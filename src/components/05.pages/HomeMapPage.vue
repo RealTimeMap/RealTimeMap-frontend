@@ -14,6 +14,8 @@ import MarkCreateMenu from '@/components/02.features/MarkCreateMenu'
 import MarkForm from '@/components/02.features/MarkForm'
 import { useMapCoach } from '@/components/02.features/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
+import { openPersonalMarkForm } from '@/components/02.features/PersonalMarkForm'
+import { PersonalMarksLayer } from '@/components/02.features/PersonalMarksLayer'
 import { RouteBanner, useRouteStore } from '@/components/02.features/RouteToMark'
 import SearchUsers from '@/components/02.features/SearchUsers'
 import { useShareStore } from '@/components/02.features/Share/model'
@@ -124,12 +126,10 @@ function openPublicMark() {
 }
 
 function handlePrivateMark() {
+  const coordinates = markMenu.value?.coords
   markMenu.value = null
-  notify.add({
-    title: 'Личные метки в разработке',
-    description: 'Скоро можно будет ставить метки только для себя',
-    type: 'info',
-  })
+  if (coordinates)
+    openPersonalMarkForm(coordinates)
 }
 
 function handleMenuMove(x: number, y: number) {
@@ -186,6 +186,7 @@ watch(userPosition, (newPos) => {
         @update:mark-count="handleMarkCount"
         @update:cluster-count="handleClusterCount"
       />
+      <personal-marks-layer />
       <u-marker
         :coordinates="userPosition"
         :draggable="false"

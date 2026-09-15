@@ -1,7 +1,7 @@
 import type { PluginListenerHandle } from '@capacitor/core'
 import type { ConnectionStatus } from '@capacitor/network'
 import { Network } from '@capacitor/network'
-import { getCurrentInstance, onUnmounted } from 'vue'
+import { getCurrentInstance, onUnmounted, ref } from 'vue'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
 let listenerHandle: PluginListenerHandle | null = null
@@ -10,8 +10,30 @@ let hasNotifiedOffline = false
 let activeUsersCount = 0
 let initPromise: Promise<void> | null = null
 
+/** Глобальный реактивный статус сети (доступен без монтирования компонента). */
+const isOnline = ref(true)
+
+/** Подписчики на переход offline → online (для запуска синхронизации). */
+const onlineCallbacks = new Set<() => void>()
+
+/** Подписаться на событие «сеть восстановлена». Возвращает отписку. */
+export function onNetworkOnline(cb: () => void): () => void {
+  onlineCallbacks.add(cb)
+  return () => onlineCallbacks.delete(cb)
+}
+
+/** Реактивный флаг наличия сети. */
+export function useIsOnline() {
+  return isOnline
+}
+
 function handleNetworkChange(status: ConnectionStatus) {
   const notify = useNotificationStore()
+
+  const wasOnline = isOnline.value
+  isOnline.value = status.connected
+  if (status.connected && !wasOnline)
+    onlineCallbacks.forEach(cb => cb())
 
   if (!status.connected) {
     if (!timerId) {
@@ -83,6 +105,7 @@ async function initGlobalListener() {
   initPromise = (async () => {
     try {
       const status = await Network.getStatus()
+      isOnline.value = status.connected
       if (!status.connected) {
         handleNetworkChange(status)
       }

@@ -7,6 +7,7 @@ interface NavItem {
   icon: string
   label: string
   routeName: string[]
+  requiresAuth?: boolean
 }
 
 const auth = useAuthStore()
@@ -19,7 +20,7 @@ const indicatorStyle = ref({})
 const route = useRoute()
 const router = useRouter()
 
-const navItems: NavItem[] = ([
+const ALL_NAV_ITEMS: NavItem[] = ([
   {
     id: 'Map',
     icon: 'line-md:map-marker-alt-loop',
@@ -27,10 +28,18 @@ const navItems: NavItem[] = ([
     routeName: ['home-map'],
   },
   {
+    id: 'Places',
+    icon: 'solar:bookmark-bold',
+    label: 'Места',
+    routeName: ['places'],
+    requiresAuth: true,
+  },
+  {
     id: 'Chatbox',
     icon: 'line-md:chat-bubble',
     label: 'Чаты',
     routeName: ['chats', 'chat-room'],
+    requiresAuth: true,
   },
   {
     id: 'Person',
@@ -39,6 +48,10 @@ const navItems: NavItem[] = ([
     routeName: ['login', 'profile', 'user-profile'],
   },
 ])
+
+const visibleNavItems = computed<NavItem[]>(() =>
+  ALL_NAV_ITEMS.filter(item => !item.requiresAuth || auth.isAuthenticated),
+)
 
 function updateIndicatorPosition(activeIndex: number) {
   const activeItemEl = itemRefs.value[activeIndex]
@@ -63,11 +76,13 @@ function handleNavClick(item: NavItem) {
 }
 
 watch(
-  () => route.name,
-  (newName) => {
-    const index = navItems.findIndex(item => item.routeName.includes(newName as string))
+  [() => route.name, visibleNavItems],
+  ([newName]) => {
+    const index = visibleNavItems.value.findIndex(item =>
+      item.routeName.includes(newName as string),
+    )
     if (index !== -1) {
-      activeItemId.value = navItems[index].id
+      activeItemId.value = visibleNavItems.value[index]!.id
       nextTick(() => updateIndicatorPosition(index))
     }
   },
@@ -75,7 +90,7 @@ watch(
 )
 
 function handleResize() {
-  const index = navItems.findIndex(item => item.id === activeItemId.value)
+  const index = visibleNavItems.value.findIndex(item => item.id === activeItemId.value)
   if (index !== -1)
     updateIndicatorPosition(index)
 }
@@ -100,7 +115,7 @@ onUnmounted(() => window.removeEventListener('resize', handleResize))
       class="bottom-nav__list"
     >
       <li
-        v-for="(item, index) in navItems"
+        v-for="(item, index) in visibleNavItems"
         :key="item.id"
         :ref="el => { if (el) itemRefs[index] = el as HTMLElement }"
         class="bottom-nav__item"

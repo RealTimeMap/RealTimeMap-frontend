@@ -9,7 +9,8 @@ interface Props {
   draggable?: boolean
   color?: string
   media?: string | null
-  variant?: 'default' | 'user'
+  icon?: string
+  variant?: 'default' | 'user' | 'personal'
 }
 
 const {
@@ -17,6 +18,7 @@ const {
   draggable = false,
   color = '#fff',
   media = null,
+  icon = 'solar:map-point-linear',
   variant = 'default',
 } = defineProps<Props>()
 
@@ -25,7 +27,6 @@ const emit = defineEmits<{ click: [] }>()
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const marker = shallowRef<maplibregl.Marker | null>(null)
 
-// blur-up: фото метки проявляется из размытия по мере загрузки
 const photoLoaded = ref(false)
 
 const el = document.createElement('div')
@@ -67,10 +68,25 @@ onUnmounted(() => {
   >
     <div
       class="custom-map-marker"
-      :class="{ draggable, 'custom-map-marker--user': variant === 'user' }"
+      :class="{
+        draggable,
+        'custom-map-marker--user': variant === 'user',
+        'custom-map-marker--personal': variant === 'personal',
+      }"
       @click="emit('click')"
     >
-      <template v-if="media || variant === 'user'">
+      <template v-if="variant === 'personal'">
+        <div
+          class="marker-personal"
+          :style="{ borderColor: color, color }"
+        >
+          <u-icon
+            :icon="icon"
+            height="20"
+          />
+        </div>
+      </template>
+      <template v-else-if="media || variant === 'user'">
         <div class="marker__block">
           <div
             v-if="media"
@@ -244,6 +260,30 @@ onUnmounted(() => {
   100% {
     transform: translate(-50%, -50%) scale(1.5);
     opacity: 0;
+  }
+}
+
+.marker-personal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px dashed currentColor;
+  background: var(--bg-block-solid, #fff);
+  box-shadow: rgba(0, 0, 0, 0.35) 0 4px 12px;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border: 6px solid transparent;
+    border-top-color: currentColor;
   }
 }
 </style>
