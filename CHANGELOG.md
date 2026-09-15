@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.39
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.38...v0.1.39)
+
+### 🚀 Функциональность
+
+- **ui:** Добавлены ЛМ ([b3bf3da](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b3bf3da))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.38
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.37...v0.1.38)
