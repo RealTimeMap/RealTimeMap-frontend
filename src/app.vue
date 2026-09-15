@@ -5,6 +5,7 @@ import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
 import { useNotificationStore } from './components/00.shared/stores/notification'
+import { initPlacesSync } from './components/00.shared/stores/places'
 import { useSettingsStore } from './components/00.shared/stores/settings'
 import AccountBan from './components/02.features/AccountBan'
 import { initUpdateChecker } from './components/02.features/AppUpdate'
@@ -44,6 +45,7 @@ onMounted(async () => {
   initUpdateChecker()
   initNetworkListener()
   initBugReport()
+  initPlacesSync()
   appReady.value = true
 })
 </script>

@@ -89,6 +89,21 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: '/places',
+    name: 'places',
+    component: () => import('@/components/05.pages/PlacesPage.vue'),
+    meta: {
+      layout: 'default',
+      requiresAuth: true,
+      fullBleed: true,
+      seo: {
+        title: 'Мои места',
+        description: 'Личные метки, списки и группы в RealTimeMap.',
+      },
+    },
+  },
+
+  {
     path: '/chats',
     component: () => import('@/components/05.pages/ChatsPage.vue'),
     meta: {
