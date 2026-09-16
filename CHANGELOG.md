@@ -1,6 +1,20 @@
 # Changelog
 
 
+## v0.1.40
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.39...v0.1.40)
+
+### 🚀 Функциональность
+
+- **ui:** Новые кастомные иконки ([08d3261](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/08d3261))
+- **ui:** Кнопка для настройки слоев карты ([4e77efb](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4e77efb))
+- **ui:** Badge isAdmin ([ad54620](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ad54620))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.39
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.38...v0.1.39)
