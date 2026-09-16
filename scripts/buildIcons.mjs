@@ -1,4 +1,4 @@
-import { mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -48,6 +48,16 @@ for (const [prefix, names] of [...byPrefix].sort()) {
   total += found
   subsets.push(subset)
   console.log(`  ${prefix}: ${found}/${names.size}${missing.length ? ` (нет: ${missing.join(', ')})` : ''}`)
+}
+
+const localDir = join(scriptDir, '..', 'icons')
+if (existsSync(localDir)) {
+  for (const f of readdirSync(localDir).filter(f => f.endsWith('.json'))) {
+    const coll = JSON.parse(readFileSync(join(localDir, f), 'utf8'))
+    const count = Object.keys(coll.icons).length
+    subsets.push(coll)
+    total += count
+  }
 }
 
 const out = `// АВТО-СГЕНЕРИРОВАНО scripts/build-icons.mjs — не редактировать вручную.

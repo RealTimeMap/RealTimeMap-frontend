@@ -36,7 +36,7 @@ const isDesktop = useMediaQuery('(min-width: 900px)')
           class="chats__empty"
         >
           <u-icon
-            icon="line-md:chat-bubble"
+            icon="app:chat-loop"
             height="40"
           />
           <span>Выберите чат, чтобы начать переписку</span>
