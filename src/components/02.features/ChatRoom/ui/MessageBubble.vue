@@ -73,6 +73,10 @@ function handleRetry() {
         class="bubble__sender"
       >
         {{ message.sender.username }}
+        <u-admin-badge
+          v-if="message.sender.isAdmin"
+          :size="14"
+        />
       </span>
 
       <span class="bubble__content">{{ message.content }}</span>
@@ -143,7 +147,9 @@ function handleRetry() {
   }
 
   &__sender {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 5px;
     margin-bottom: 2px;
     font-size: 13px;
     font-weight: 600;

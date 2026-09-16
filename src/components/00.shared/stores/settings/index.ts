@@ -5,6 +5,7 @@ import { useExperimental } from './parts/useExperimental'
 import { useHaptics } from './parts/useHaptics'
 import { useMapCache } from './parts/useMapCache'
 import { useMapControls } from './parts/useMapControls'
+import { useMapLayers } from './parts/useMapLayers'
 import { useNotifications } from './parts/useNotifications'
 import { useProfileSettings } from './parts/useProfileSettings'
 
@@ -15,6 +16,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const cacheSettings = useCache()
   const mapCacheSettings = useMapCache()
   const mapControlsSettings = useMapControls()
+  const mapLayers = useMapLayers()
   const profileSettings = useProfileSettings()
   const experimentalSettings = useExperimental()
 
@@ -25,6 +27,7 @@ export const useSettingsStore = defineStore('settings', () => {
     ...cacheSettings,
     ...mapCacheSettings,
     ...mapControlsSettings,
+    ...mapLayers,
     ...profileSettings,
     ...experimentalSettings,
   }

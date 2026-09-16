@@ -6,7 +6,14 @@ import { useUserSearch } from '../model/useUserSearch'
 const { query, results, total, isLoading, hasQuery, clear } = useUserSearch()
 const { openProfile } = useProfileNavigation()
 
-function goToProfile(person: { userId: number, username: string, tag: string, avatar?: string, isPrivate: boolean }) {
+function goToProfile(person: {
+  userId: number
+  username: string
+  tag: string
+  avatar?: string
+  isPrivate: boolean
+  isAdmin?: boolean
+}) {
   clear()
   openProfile(person.userId, {
     username: person.username,
@@ -137,7 +144,13 @@ watch(hasQuery, (active) => {
                 :src="person.avatar"
               />
               <div class="result__info">
-                <span class="result__name">{{ person.username }}</span>
+                <span class="result__name">
+                  {{ person.username }}
+                  <u-admin-badge
+                    v-if="person.isAdmin"
+                    :size="14"
+                  />
+                </span>
                 <span class="result__meta">
                   <u-icon
                     v-if="person.isPrivate"
@@ -348,6 +361,9 @@ watch(hasQuery, (active) => {
   }
 
   &__name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
     @include value-text(16px, var(--text-color), 600);
   }
 

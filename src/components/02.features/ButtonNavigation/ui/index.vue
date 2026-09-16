@@ -23,27 +23,27 @@ const router = useRouter()
 const ALL_NAV_ITEMS: NavItem[] = ([
   {
     id: 'Map',
-    icon: 'line-md:map-marker-alt-loop',
+    icon: 'app:map-loop',
     label: 'Карта',
     routeName: ['home-map'],
   },
   {
     id: 'Places',
-    icon: 'solar:bookmark-bold',
+    icon: 'app:places-loop',
     label: 'Места',
     routeName: ['places'],
     requiresAuth: true,
   },
   {
     id: 'Chatbox',
-    icon: 'line-md:chat-bubble',
+    icon: 'app:chat-loop',
     label: 'Чаты',
     routeName: ['chats', 'chat-room'],
     requiresAuth: true,
   },
   {
     id: 'Person',
-    icon: 'line-md:account',
+    icon: 'app:profile-loop',
     label: 'Профиль',
     routeName: ['login', 'profile', 'user-profile'],
   },
