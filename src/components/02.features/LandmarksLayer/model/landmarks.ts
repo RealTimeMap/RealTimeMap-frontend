@@ -53,4 +53,22 @@ export const DEMO_LANDMARKS: Landmark[] = [
     rotationY: 10,
     doubleSide: false,
   },
+  {
+    id: 'clock-tower',
+    title: 'Биг-Бен',
+    coordinates: [73.3986, 61.2565],
+    modelUrl: '/models/clockTower.glb',
+    scale: 2.4,
+    rotationY: 30,
+    doubleSide: false,
+  },
+  {
+    id: 'philharmonic',
+    title: 'Сургутская Филармония',
+    coordinates: [73.3909, 61.2412],
+    modelUrl: '/models/philharmonic.glb',
+    scale: 1.9,
+    rotationY: 2.1,
+    doubleSide: false,
+  },
 ]
