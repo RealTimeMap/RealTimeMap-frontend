@@ -38,7 +38,7 @@ const notify = useNotificationStore()
 const settingsStore = useSettingsStore()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -180,13 +180,14 @@ watch(userPosition, (newPos) => {
       @update:zoom-level="handleUpdateZoom"
     >
       <marks-layer
+        v-if="showPublicMarks"
         :user-coordinates="userPosition"
         :screen-bounds="screenBounds"
         :zoom-level="zoomLevel"
         @update:mark-count="handleMarkCount"
         @update:cluster-count="handleClusterCount"
       />
-      <personal-marks-layer />
+      <personal-marks-layer v-if="showPersonalMarks" />
       <u-marker
         :coordinates="userPosition"
         :draggable="false"
