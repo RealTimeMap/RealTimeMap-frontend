@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.41
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.40...v0.1.41)
+
+### 🚀 Функциональность
+
+- **ui:** Добавлены 3d модельки на 3 достоприм ([bce68ba](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bce68ba))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.40
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.39...v0.1.40)
