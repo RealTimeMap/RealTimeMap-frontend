@@ -8,6 +8,7 @@ import { useAuthStore } from '@/components/02.features/Authentication/model/auth
 import { GeolocationFeedback } from '@/components/02.features/Geolocation'
 import { useGeolocation } from '@/components/02.features/Geolocation/model/useGeolocation'
 import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
+import { LandmarksLayer } from '@/components/02.features/LandmarksLayer'
 import MapControls from '@/components/02.features/MapControls'
 import { BaseMapView } from '@/components/02.features/MapCore'
 import MarkCreateMenu from '@/components/02.features/MarkCreateMenu'
@@ -188,6 +189,7 @@ watch(userPosition, (newPos) => {
         @update:cluster-count="handleClusterCount"
       />
       <personal-marks-layer v-if="showPersonalMarks" />
+      <landmarks-layer />
       <u-marker
         :coordinates="userPosition"
         :draggable="false"
