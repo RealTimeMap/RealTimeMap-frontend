@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.42
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.41...v0.1.42)
+
+### 🚀 Функциональность
+
+- **ui:** Добавлены 2 достоприм (Сургут) ([ce8efb5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ce8efb5))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.41
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.40...v0.1.41)
