@@ -148,7 +148,13 @@ function openMark(markId: number) {
       </u-experience-ring>
 
       <div class="user-info">
-        <h2>{{ user?.username || 'Guest' }}</h2>
+        <div class="user-info__name-row">
+          <h2>{{ user?.username || 'Guest' }}</h2>
+          <u-admin-badge
+            v-if="user?.isAdmin"
+            :size="18"
+          />
+        </div>
         <span class="user-info__tag">
           {{ user?.tag || '' }}
         </span>
@@ -401,6 +407,14 @@ function openMark(markId: number) {
   flex-direction: column;
   align-items: center;
   gap: 0px;
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    // Резерв высоты — чтобы бейдж не «толкал» контент при загрузке
+    min-height: 28px;
+  }
 
   h2 {
     margin: 0;

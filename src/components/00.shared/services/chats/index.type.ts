@@ -63,6 +63,8 @@ export interface Message {
     id: number
     username: string
     avatar?: string
+    /** Признак администратора. Read-only, приходит только с бэка. */
+    isAdmin?: boolean
   }
 }
 

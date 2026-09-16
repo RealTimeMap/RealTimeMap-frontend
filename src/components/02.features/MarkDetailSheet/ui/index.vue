@@ -364,6 +364,10 @@ onMounted(() => {
         <div class="owner-info">
           <div class="owner-info__name">
             {{ mark.owner.username }}
+            <u-admin-badge
+              v-if="mark.owner.isAdmin"
+              :size="14"
+            />
           </div>
           <div class="owner-info__dop">
             {{ mark.owner.tag }} · {{ formatRelativeDate(mark.date.startAt) }}

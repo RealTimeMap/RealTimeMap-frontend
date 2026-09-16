@@ -3,6 +3,8 @@ export interface User {
   username: string
   avatar?: string
   tag: string
+  /** Признак администратора. Read-only, приходит только с бэка. Не редактируется клиентом. */
+  isAdmin?: boolean
   settings: {
     showInSearch: boolean
   }
@@ -77,6 +79,8 @@ export interface SearchProfileItem {
   tag: string
   avatar?: string
   isPrivate: boolean
+  /** Признак администратора. Read-only, приходит только с бэка. */
+  isAdmin?: boolean
 }
 
 export interface SearchProfilesParams {

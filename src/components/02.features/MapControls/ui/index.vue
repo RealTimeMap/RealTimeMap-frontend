@@ -6,6 +6,7 @@ import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import AppSettings from '@/components/02.features/AppSetting'
 import { openMapEditor } from '@/components/02.features/MapEditor'
+import { openMapLayers } from '@/components/02.features/MapLayers'
 
 const { mapApi, userPosition, zoom } = defineProps<{
   mapApi: Map | null
@@ -96,6 +97,18 @@ function openSettings() {
     >
       <u-icon
         icon="solar:settings-bold"
+        width="18"
+      />
+    </button>
+
+    <button
+      class="map-controls__group map-controls__btn"
+      type="button"
+      aria-label="Слои"
+      @click="openMapLayers()"
+    >
+      <u-icon
+        icon="app:layers-loop"
         width="18"
       />
     </button>

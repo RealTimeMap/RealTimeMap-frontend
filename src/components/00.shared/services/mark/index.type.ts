@@ -27,6 +27,8 @@ interface Author {
   username: string
   avatar: string
   tag: string
+  /** Признак администратора. Read-only, приходит только с бэка. */
+  isAdmin?: boolean
 }
 
 export interface AllMarksPayload {

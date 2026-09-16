@@ -14,6 +14,7 @@ declare module 'vue' {
     Model: typeof import('./../../components/01.kit/UModalWrapper/model/index.ts')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    UAdminBadge: typeof import('./../../components/01.kit/UAdminBadge/index.ts')['default']
     UAppPanel: typeof import('./../../components/01.kit/UAppPanel/index.ts')['default']
     UAvatar: typeof import('./../../components/01.kit/UAvatar/index.ts')['default']
     UBadge: typeof import('./../../components/01.kit/UBadge/index.ts')['default']
