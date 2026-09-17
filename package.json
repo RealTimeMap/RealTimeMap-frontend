@@ -50,7 +50,7 @@
     "axios": "^1.18.1",
     "compare-versions": "^6.1.1",
     "html-to-image": "^1.11.13",
-    "maplibre-gl": "^6.0.0",
+    "maplibre-gl": "^6.10.0",
     "pinia": "^4.0.2",
     "socket.io-client": "^4.8.3",
     "three": "^0.186.0",
