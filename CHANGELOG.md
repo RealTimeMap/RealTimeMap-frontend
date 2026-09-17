@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.1.43
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.42...v0.1.43)
+
+### 🚀 Функциональность
+
+- **ui:** Добавен scale зданий при зуме и новая eiffel-tower ([d2f61f5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d2f61f5))
+- **ui:** Round planet ([4a22016](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4a22016))
+- **ui:** Колизей ([d114436](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d114436))
+
+### 🔥 Производительность
+
+- **core:** 3d модельки ([6a62afe](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6a62afe))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.42
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.41...v0.1.42)
