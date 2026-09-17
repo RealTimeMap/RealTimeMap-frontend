@@ -37,21 +37,9 @@ interface SceneRefs {
   dracoLoader: DRACOLoader
 }
 
-const _tempMatrix = new THREE.Matrix4()
 const _localMatrix = new THREE.Matrix4()
 const _rotationXMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 2)
 const _scaleVector = new THREE.Vector3()
-
-function getZoomScale(zoom: number): number {
-  const BASE_ZOOM = 16.5
-  if (zoom >= BASE_ZOOM)
-    return 1.0
-  if (zoom <= 9.0)
-    return 28.0
-
-  const growth = 2 ** ((BASE_ZOOM - zoom) * 0.85)
-  return Math.min(growth, 28.0)
-}
 
 function disposeHierarchy(obj: THREE.Object3D) {
   obj.traverse((child) => {
@@ -296,8 +284,6 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         return
 
       const rawMatrix = args.defaultProjectionData?.mainMatrix ?? (args as any).matrix
-      const currentZoom = map.getZoom()
-      const zoomFactor = getZoomScale(currentZoom)
       const bounds = map.getBounds()
 
       const center = map.getCenter()
@@ -323,7 +309,7 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
 
         item.object.position.set(dxMeters, 0, dzMeters)
 
-        const finalScale = item.baseScale * zoomFactor * item.animScale
+        const finalScale = item.baseScale * item.animScale
         item.object.scale.set(finalScale, finalScale, finalScale)
       }
 
@@ -340,7 +326,6 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
 
       renderer.resetState()
-
       renderer.render(scene, camera)
     },
   }
