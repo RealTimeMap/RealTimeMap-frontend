@@ -22,6 +22,18 @@ interface SceneRefs {
   scene: THREE.Scene
   renderer: THREE.WebGLRenderer
   items: LandmarkItem[]
+  map: Map
+}
+
+function getZoomScale(zoom: number): number {
+  const BASE_ZOOM = 16
+
+  if (zoom >= BASE_ZOOM)
+    return 1.0
+
+  const growth = 2 ** ((BASE_ZOOM - zoom) * 0.65)
+
+  return Math.min(growth, 10.0)
 }
 
 function buildMarkerMesh(color: number): THREE.Group {
@@ -54,7 +66,6 @@ function buildMarkerMesh(color: number): THREE.Group {
 export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterface {
   const refs: Partial<SceneRefs> = {}
 
-  // Центрируем модель в ее локальных координатах (в метрах)
   function anchorModel(obj: THREE.Object3D) {
     obj.updateWorldMatrix(true, true)
     const box = new THREE.Box3().setFromObject(obj)
@@ -87,8 +98,6 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         const coord = MercatorCoordinate.fromLngLat(landmark.coordinates, 0)
         const meterScale = coord.meterInMercatorCoordinateUnits()
 
-        // Скрываем объект из дефолтного дерева рендера,
-        // мы будем рендерить каждый объект отдельно с индивидуальной матрицей
         object.visible = false
         scene.add(object)
 
@@ -155,32 +164,32 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       refs.scene = scene
       refs.renderer = renderer
       refs.items = items
+      refs.map = map
     },
 
     render(_gl, args: CustomRenderMethodInput) {
-      const { camera, scene, renderer, items } = refs
-      if (!camera || !scene || !renderer || !items)
+      const { camera, scene, renderer, items, map } = refs
+      if (!camera || !scene || !renderer || !items || !map)
         return
 
       const rawMatrix = args.defaultProjectionData?.mainMatrix ?? (args as any).matrix
       const mapProjMatrix = new THREE.Matrix4().fromArray(rawMatrix)
 
+      const currentZoom = map.getZoom()
+      const zoomFactor = getZoomScale(currentZoom)
+
       renderer.resetState()
 
-      // Рендерим каждую модель индивидуально в её локальной системе координат
       for (const item of items) {
         const { coord, meterScale, object } = item
 
-        // Матрица трансформации конкретного лендмарка:
-        // 1. Сдвиг в точку на карте (coord.x, coord.y, coord.z)
-        // 2. Масштабирование метров в меркаторские юниты
-        // 3. Поворот осей: Three.js Y (вверх) -> Mercator Z (вверх)
+        const effectiveScale = meterScale * zoomFactor
+
         const modelMatrix = new THREE.Matrix4()
           .makeTranslation(coord.x, coord.y, coord.z)
-          .scale(new THREE.Vector3(meterScale, -meterScale, meterScale))
+          .scale(new THREE.Vector3(effectiveScale, -effectiveScale, effectiveScale))
           .multiply(new THREE.Matrix4().makeRotationX(Math.PI / 2))
 
-        // Проекция камеры = Матрица карты * Локальная матрица модели
         camera.projectionMatrix = mapProjMatrix.clone().multiply(modelMatrix)
         camera.projectionMatrixInverse = camera.projectionMatrix.clone().invert()
 

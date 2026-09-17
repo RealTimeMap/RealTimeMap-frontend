@@ -29,10 +29,10 @@ export const DEMO_LANDMARKS: Landmark[] = [
   {
     id: 'eiffel-tower',
     title: 'Эйфелева башня',
-    coordinates: [2.2945, 48.8584],
-    modelUrl: '/models/tourEiffel.glb',
-    scale: 0.008,
-    rotationY: 1,
+    coordinates: [2.2945, 48.85835],
+    modelUrl: '/models/eiffelTower.glb',
+    scale: 3.15,
+    rotationY: 2.4,
     doubleSide: false,
   },
   {
@@ -71,4 +71,13 @@ export const DEMO_LANDMARKS: Landmark[] = [
     rotationY: 2.1,
     doubleSide: false,
   },
+  // {
+  //   id: 'colosseum',
+  //   title: 'Колизей',
+  //   coordinates: [12.492338, 41.890197],
+  //   modelUrl: '/models/colosseum.glb',
+  //   scale: 3.15,
+  //   rotationY: 0,
+  //   doubleSide: false,
+  // },
 ]
