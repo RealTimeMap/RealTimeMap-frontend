@@ -45,6 +45,7 @@ onMounted(() => {
     style: MAP_STYLES[themeBase(resolvedTheme.value)],
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
+    renderWorldCopies: false,
     doubleClickZoom: false,
     attributionControl: false,
     transformRequest: buildTransformRequest(),
@@ -52,6 +53,13 @@ onMounted(() => {
   })
 
   map.value = mapInstance
+
+  mapInstance.on('style.load', () => {
+    mapInstance.setProjection({
+      type: 'globe',
+    })
+    mapInstance.setMinZoom(0.5)
+  })
 
   mapInstance.on('load', () => {
     emit('mapReady', mapInstance)
