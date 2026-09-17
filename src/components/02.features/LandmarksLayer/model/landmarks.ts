@@ -71,13 +71,13 @@ export const DEMO_LANDMARKS: Landmark[] = [
     rotationY: 2.1,
     doubleSide: false,
   },
-  // {
-  //   id: 'colosseum',
-  //   title: 'Колизей',
-  //   coordinates: [12.492338, 41.890197],
-  //   modelUrl: '/models/colosseum.glb',
-  //   scale: 3.15,
-  //   rotationY: 0,
-  //   doubleSide: false,
-  // },
+  {
+    id: 'colosseum',
+    title: 'Колизей',
+    coordinates: [12.492338, 41.890197],
+    modelUrl: '/models/colosseum.glb',
+    scale: 2.2,
+    rotationY: 2.1,
+    doubleSide: false,
+  },
 ]
