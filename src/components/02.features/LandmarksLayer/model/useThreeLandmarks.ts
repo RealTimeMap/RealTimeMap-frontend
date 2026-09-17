@@ -2,19 +2,29 @@ import type { CustomLayerInterface, CustomRenderMethodInput, Map } from 'maplibr
 import type { Landmark } from './landmarks'
 import { MercatorCoordinate } from 'maplibre-gl'
 import * as THREE from 'three'
+import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 
 const LAYER_ID = '3d-landmarks'
 
+const MIN_LOAD_ZOOM = 12.0
+const MAX_CACHED_MODELS = 8
+
 const MARKER_HEIGHT = 60
 const MARKER_RADIUS = 18
 const FALLBACK_COLOR = 0xE8543F
+
+type LoadingState = 'idle' | 'loading' | 'loaded' | 'error'
 
 interface LandmarkItem {
   landmark: Landmark
   object: THREE.Object3D
   coord: MercatorCoordinate
   meterScale: number
+  status: LoadingState
+  baseScale: number
+  animScale: number
+  lastVisibleTime: number
 }
 
 interface SceneRefs {
@@ -23,17 +33,44 @@ interface SceneRefs {
   renderer: THREE.WebGLRenderer
   items: LandmarkItem[]
   map: Map
+  loader: GLTFLoader
+  dracoLoader: DRACOLoader
 }
 
-function getZoomScale(zoom: number): number {
-  const BASE_ZOOM = 16
+const _tempMatrix = new THREE.Matrix4()
+const _localMatrix = new THREE.Matrix4()
+const _rotationXMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 2)
+const _scaleVector = new THREE.Vector3()
 
+function getZoomScale(zoom: number): number {
+  const BASE_ZOOM = 16.5
   if (zoom >= BASE_ZOOM)
     return 1.0
+  if (zoom <= 9.0)
+    return 28.0
 
-  const growth = 2 ** ((BASE_ZOOM - zoom) * 0.65)
+  const growth = 2 ** ((BASE_ZOOM - zoom) * 0.85)
+  return Math.min(growth, 28.0)
+}
 
-  return Math.min(growth, 10.0)
+function disposeHierarchy(obj: THREE.Object3D) {
+  obj.traverse((child) => {
+    if ((child as THREE.Mesh).isMesh) {
+      const mesh = child as THREE.Mesh
+      mesh.geometry?.dispose()
+
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      for (const mat of materials) {
+        for (const key of Object.keys(mat)) {
+          const value = (mat as any)[key]
+          if (value && typeof value.dispose === 'function') {
+            value.dispose()
+          }
+        }
+        mat.dispose()
+      }
+    }
+  })
 }
 
 function buildMarkerMesh(color: number): THREE.Group {
@@ -46,7 +83,7 @@ function buildMarkerMesh(color: number): THREE.Group {
   })
 
   const cone = new THREE.Mesh(
-    new THREE.ConeGeometry(MARKER_RADIUS, MARKER_HEIGHT * 0.7, 24),
+    new THREE.ConeGeometry(MARKER_RADIUS, MARKER_HEIGHT * 0.7, 16),
     bodyMaterial,
   )
   cone.rotation.x = Math.PI
@@ -54,7 +91,7 @@ function buildMarkerMesh(color: number): THREE.Group {
   group.add(cone)
 
   const head = new THREE.Mesh(
-    new THREE.SphereGeometry(MARKER_RADIUS, 24, 24),
+    new THREE.SphereGeometry(MARKER_RADIUS, 16, 16),
     bodyMaterial,
   )
   head.position.y = MARKER_HEIGHT * 0.7
@@ -66,6 +103,8 @@ function buildMarkerMesh(color: number): THREE.Group {
 export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterface {
   const refs: Partial<SceneRefs> = {}
 
+  const loadedQueue: LandmarkItem[] = []
+
   function anchorModel(obj: THREE.Object3D) {
     obj.updateWorldMatrix(true, true)
     const box = new THREE.Box3().setFromObject(obj)
@@ -73,6 +112,120 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
     obj.position.x = -center.x
     obj.position.z = -center.z
     obj.position.y = -box.min.y
+  }
+
+  function animatePopIn(item: LandmarkItem, map: Map) {
+    const startTime = performance.now()
+    const duration = 350
+
+    function step(now: number) {
+      const progress = Math.min((now - startTime) / duration, 1.0)
+      const ease = 1 + 2.70158 * (progress - 1) ** 3 + 1.70158 * (progress - 1) ** 2
+      item.animScale = progress >= 1.0 ? 1.0 : Math.max(0, ease)
+      map.triggerRepaint()
+
+      if (progress < 1.0) {
+        requestAnimationFrame(step)
+      }
+    }
+
+    requestAnimationFrame(step)
+  }
+
+  function evictOldestModel(scene: THREE.Scene) {
+    if (loadedQueue.length <= MAX_CACHED_MODELS)
+      return
+
+    let oldestIndex = -1
+    let oldestTime = Infinity
+
+    for (let i = 0; i < loadedQueue.length; i++) {
+      if (loadedQueue[i].lastVisibleTime < oldestTime) {
+        oldestTime = loadedQueue[i].lastVisibleTime
+        oldestIndex = i
+      }
+    }
+
+    if (oldestIndex !== -1) {
+      const item = loadedQueue.splice(oldestIndex, 1)[0]
+      scene.remove(item.object)
+      disposeHierarchy(item.object)
+
+      const fallback = buildMarkerMesh(item.landmark.color ?? FALLBACK_COLOR)
+      scene.add(fallback)
+      item.object = fallback
+      item.status = 'idle'
+      item.animScale = 1.0
+    }
+  }
+
+  function loadModel(item: LandmarkItem, scene: THREE.Scene, map: Map, loader: GLTFLoader) {
+    if (!item.landmark.modelUrl || item.status !== 'idle')
+      return
+    item.status = 'loading'
+
+    loader.load(
+      item.landmark.modelUrl,
+      (gltf) => {
+        const model = gltf.scene
+
+        if (item.landmark.doubleSide) {
+          model.traverse((node) => {
+            const mesh = node as THREE.Mesh
+            if (mesh.isMesh) {
+              const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+              for (const mat of materials) mat.side = THREE.DoubleSide
+            }
+          })
+        }
+
+        if (item.landmark.rotationX)
+          model.rotation.x = item.landmark.rotationX
+        if (item.landmark.rotationY)
+          model.rotation.y = item.landmark.rotationY
+
+        anchorModel(model)
+
+        scene.remove(item.object)
+        disposeHierarchy(item.object)
+        scene.add(model)
+
+        item.object = model
+        item.status = 'loaded'
+        item.animScale = 0.0
+
+        loadedQueue.push(item)
+        evictOldestModel(scene)
+
+        animatePopIn(item, map)
+      },
+      undefined,
+      () => {
+        item.status = 'error'
+      },
+    )
+  }
+
+  function checkVisibleModels() {
+    const { map, items, scene, loader } = refs
+    if (!map || !items || !scene || !loader)
+      return
+
+    const currentZoom = map.getZoom()
+    if (currentZoom < MIN_LOAD_ZOOM)
+      return
+
+    const bounds = map.getBounds()
+
+    for (const item of items) {
+      const [lng, lat] = item.landmark.coordinates
+      if (bounds.contains([lng, lat])) {
+        item.lastVisibleTime = performance.now()
+        if (item.status === 'idle') {
+          loadModel(item, scene, map, loader)
+        }
+      }
+    }
   }
 
   return {
@@ -85,6 +238,12 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       const scene = new THREE.Scene()
       const items: LandmarkItem[] = []
 
+      const dracoLoader = new DRACOLoader()
+      dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.7/')
+
+      const loader = new GLTFLoader()
+      loader.setDRACOLoader(dracoLoader)
+
       const ambient = new THREE.AmbientLight(0xFFFFFF, 1.5)
       scene.add(ambient)
 
@@ -92,65 +251,24 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       directional.position.set(50, 70, 100).normalize()
       scene.add(directional)
 
-      const loader = new GLTFLoader()
-
-      function registerObject(object: THREE.Object3D, landmark: Landmark) {
+      for (const landmark of landmarks) {
         const coord = MercatorCoordinate.fromLngLat(landmark.coordinates, 0)
         const meterScale = coord.meterInMercatorCoordinateUnits()
 
-        object.visible = false
-        scene.add(object)
+        const fallbackMesh = buildMarkerMesh(landmark.color ?? FALLBACK_COLOR)
+        fallbackMesh.visible = false
+        scene.add(fallbackMesh)
 
         items.push({
           landmark,
-          object,
+          object: fallbackMesh,
           coord,
           meterScale,
+          status: 'idle',
+          baseScale: landmark.scale ?? 1,
+          animScale: 1.0,
+          lastVisibleTime: 0,
         })
-      }
-
-      for (const landmark of landmarks) {
-        if (landmark.modelUrl) {
-          loader.load(
-            landmark.modelUrl,
-            (gltf) => {
-              const model = gltf.scene
-
-              if (landmark.doubleSide) {
-                model.traverse((node) => {
-                  const mesh = node as THREE.Mesh
-                  if (mesh.isMesh) {
-                    const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
-                    for (const mat of materials)
-                      mat.side = THREE.DoubleSide
-                  }
-                })
-              }
-
-              const s = landmark.scale ?? 1
-              model.scale.set(s, s, s)
-
-              if (landmark.rotationX)
-                model.rotation.x = landmark.rotationX
-              if (landmark.rotationY)
-                model.rotation.y = landmark.rotationY
-
-              anchorModel(model)
-              registerObject(model, landmark)
-              map.triggerRepaint()
-            },
-            undefined,
-            () => {
-              const marker = buildMarkerMesh(landmark.color ?? FALLBACK_COLOR)
-              registerObject(marker, landmark)
-              map.triggerRepaint()
-            },
-          )
-        }
-        else {
-          const marker = buildMarkerMesh(landmark.color ?? FALLBACK_COLOR)
-          registerObject(marker, landmark)
-        }
       }
 
       const renderer = new THREE.WebGLRenderer({
@@ -165,6 +283,11 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       refs.renderer = renderer
       refs.items = items
       refs.map = map
+      refs.loader = loader
+      refs.dracoLoader = dracoLoader
+
+      map.on('moveend', checkVisibleModels)
+      checkVisibleModels()
     },
 
     render(_gl, args: CustomRenderMethodInput) {
@@ -173,30 +296,52 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         return
 
       const rawMatrix = args.defaultProjectionData?.mainMatrix ?? (args as any).matrix
-      const mapProjMatrix = new THREE.Matrix4().fromArray(rawMatrix)
-
       const currentZoom = map.getZoom()
       const zoomFactor = getZoomScale(currentZoom)
+      const bounds = map.getBounds()
+
+      const center = map.getCenter()
+      const originCoord = MercatorCoordinate.fromLngLat([center.lng, center.lat], 0)
+      const originScale = originCoord.meterInMercatorCoordinateUnits()
+
+      let hasVisibleObjects = false
+
+      for (const item of items) {
+        const [lng, lat] = item.landmark.coordinates
+
+        if (!bounds.contains([lng, lat])) {
+          item.object.visible = false
+          continue
+        }
+
+        item.lastVisibleTime = performance.now()
+        item.object.visible = true
+        hasVisibleObjects = true
+
+        const dxMeters = (item.coord.x - originCoord.x) / originScale
+        const dzMeters = (item.coord.y - originCoord.y) / originScale
+
+        item.object.position.set(dxMeters, 0, dzMeters)
+
+        const finalScale = item.baseScale * zoomFactor * item.animScale
+        item.object.scale.set(finalScale, finalScale, finalScale)
+      }
+
+      if (!hasVisibleObjects)
+        return
+
+      _scaleVector.set(originScale, -originScale, originScale)
+      _localMatrix
+        .makeTranslation(originCoord.x, originCoord.y, originCoord.z)
+        .scale(_scaleVector)
+        .multiply(_rotationXMatrix)
+
+      camera.projectionMatrix.fromArray(rawMatrix).multiply(_localMatrix)
+      camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
 
       renderer.resetState()
 
-      for (const item of items) {
-        const { coord, meterScale, object } = item
-
-        const effectiveScale = meterScale * zoomFactor
-
-        const modelMatrix = new THREE.Matrix4()
-          .makeTranslation(coord.x, coord.y, coord.z)
-          .scale(new THREE.Vector3(effectiveScale, -effectiveScale, effectiveScale))
-          .multiply(new THREE.Matrix4().makeRotationX(Math.PI / 2))
-
-        camera.projectionMatrix = mapProjMatrix.clone().multiply(modelMatrix)
-        camera.projectionMatrixInverse = camera.projectionMatrix.clone().invert()
-
-        object.visible = true
-        renderer.render(scene, camera)
-        object.visible = false
-      }
+      renderer.render(scene, camera)
     },
   }
 }
