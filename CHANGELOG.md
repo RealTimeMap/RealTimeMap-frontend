@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.44
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.43...v0.1.44)
+
+### 🗑 Удаление
+
+- **ui:** Scale 3d ([c08a78f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c08a78f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.43
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.42...v0.1.43)
