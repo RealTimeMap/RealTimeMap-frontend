@@ -7,6 +7,7 @@ import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSubscriptionsStore } from '@/components/00.shared/stores/subscriptions'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import SubscriptionsModal from '@/components/02.features/Subscriptions'
+import { openUserMarks } from '@/components/02.features/UserMarksList'
 
 const props = defineProps<{
   userId: number
@@ -77,11 +78,33 @@ const subscriptionsCount = computed(() => {
   return stats.value?.friendsCount ?? 0
 })
 
-const statsDisplay = computed<{ label: string, value: number | string, tab?: SubscriptionListType }[]>(() => [
-  { label: 'Метки', value: stats.value?.markCount ?? 0 },
+interface StatItem {
+  label: string
+  value: number | string
+  tab?: SubscriptionListType
+  action?: 'marks'
+}
+
+const statsDisplay = computed<StatItem[]>(() => [
+  { label: 'Метки', value: stats.value?.markCount ?? 0, action: 'marks' },
   { label: 'Подписчики', value: subscribersCount.value, tab: 'subscribers' },
   { label: 'Подписки', value: subscriptionsCount.value, tab: 'subscriptions' },
 ])
+
+function isStatClickable(item: StatItem): boolean {
+  if (item.action === 'marks')
+    return Number(item.value) > 0
+  return !!item.tab && isOwn.value
+}
+
+function handleStatClick(item: StatItem) {
+  if (!isStatClickable(item))
+    return
+  if (item.action === 'marks')
+    openUserMarks(props.userId)
+  else
+    openSubscriptions(item.tab)
+}
 
 function openSubscriptions(tab?: SubscriptionListType) {
   if (!tab || !isOwn.value)
@@ -120,9 +143,9 @@ function openSubscriptions(tab?: SubscriptionListType) {
         :key="index"
         class="stats-item"
         type="button"
-        :class="{ 'stats-item--clickable': item.tab && isOwn }"
-        :disabled="!item.tab || !isOwn"
-        @click="openSubscriptions(item.tab)"
+        :class="{ 'stats-item--clickable': isStatClickable(item) }"
+        :disabled="!isStatClickable(item)"
+        @click="handleStatClick(item)"
       >
         <span class="stats-value">{{ item.value }}</span>
         <span class="stats-label">{{ item.label }}</span>
