@@ -9,11 +9,17 @@ async function registerDeviceOnBackend(token: string, platform: 'web' | 'android
     const deviceId = localStorage.getItem('device_id') || crypto.randomUUID()
     localStorage.setItem('device_id', deviceId)
 
-    await api.post('/notifications/device', {
-      device_id: deviceId,
-      fcm_token: token,
+    console.warn('firebase', {
+      deviceId,
       platform,
+      fullToken: token,
     })
+
+    // await api.post('/notifications/device', {
+    //   device_id: deviceId,
+    //   fcm_token: token,
+    //   platform,
+    // })
   }
   catch (e) {
     console.error('Ошибка отправки токена на бэкенд:', e)
