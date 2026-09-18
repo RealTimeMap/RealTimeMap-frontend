@@ -104,7 +104,12 @@ async function submitReply() {
     />
 
     <div class="comment-content">
-      <span class="comment-author">{{ comment.author?.username }}</span>
+      <span class="comment-author">{{ comment.author?.username }}
+        <u-admin-badge
+          v-if="comment.author?.isAdmin"
+          :size="14"
+        />
+      </span>
 
       <div
         v-if="isDeleted"
@@ -299,6 +304,9 @@ async function submitReply() {
   font-weight: 600;
   color: var(--text-color);
   line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .comment-text {

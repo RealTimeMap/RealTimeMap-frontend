@@ -24,6 +24,7 @@ export interface Chat {
   updatedAt: string
 
   peerId: number
+  isAdmin: boolean
 }
 
 export interface DirectChat {
