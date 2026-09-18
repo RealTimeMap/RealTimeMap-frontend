@@ -8,6 +8,7 @@ const props = defineProps<{
   isOnline?: boolean
   isTyping?: boolean
   userId?: number
+  isAdmin?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -55,7 +56,14 @@ function goToProfile() {
       </div>
 
       <div class="chat-header__info">
-        <span class="chat-header__title">{{ title }}</span>
+        <div class="chat-header__name">
+          <span class="title">{{ title }}</span>
+          <u-admin-badge
+            v-if="isAdmin"
+            class="chat-header__badge"
+            :size="14"
+          />
+        </div>
         <span
           v-if="statusText"
           class="chat-header__status"
@@ -124,12 +132,27 @@ function goToProfile() {
     min-width: 0;
   }
 
-  &__title {
-    font-size: 17px;
-    font-weight: 700;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  &__name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+
+    .title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 600;
+      font-size: 16px;
+      min-width: 0;
+    }
+  }
+
+  &__badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &__status {
