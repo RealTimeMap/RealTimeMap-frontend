@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.1.45
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.44...v0.1.45)
+
+### 🚀 Функциональность
+
+- **ui:** Анимаиция свайпа страниц ([4e2f229](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4e2f229))
+
+### 🔥 Производительность
+
+- **ui:** Оптимизация моделей и их рендер ([fe07cc0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fe07cc0))
+
+### 🎨 Стили
+
+- **ui:** Исправлена ширина плашки ([c50c2e7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c50c2e7))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.44
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.43...v0.1.44)
