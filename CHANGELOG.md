@@ -1,6 +1,36 @@
 # Changelog
 
 
+## v0.1.48
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.47...v0.1.48)
+
+### 🚀 Функциональность
+
+- **core:** Notif ([3569638](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3569638))
+- **ui:** Is admin badge chat room header ([561acf0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/561acf0))
+- **mark:** Запрет удаления метки старше 10 минут и завершённой ([f146d05](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f146d05))
+- **profile:** Список всех меток пользователя и обновление меток после удаления ([02a4773](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/02a4773))
+- **auth:** Восстановление пароля — запрос письма и страница сброса ([e202024](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e202024))
+
+### 🔥 Производительность
+
+- **profile:** Модульный кэш достижений, скелетон только при первой загрузке ([04dfdd2](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/04dfdd2))
+
+### 🩹 Исправления
+
+- **places:** Очистка личных меток при логауте и синхронизация только после авторизации ([ec2cc1a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ec2cc1a))
+- **places:** Очистка личных меток и слоёв при логауте, синхронизация только после авторизации ([cc1b1b3](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/cc1b1b3))
+
+### 🎨 Стили
+
+- **ui:** Бордер у групп на главной ([344ed62](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/344ed62))
+- **ui:** Баг отступов на страницах ([2148ac3](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/2148ac3))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.47
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.46...v0.1.47)
