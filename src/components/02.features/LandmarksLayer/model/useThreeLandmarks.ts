@@ -10,20 +10,19 @@ const LAYER_ID = '3d-landmarks'
 const MIN_LOAD_ZOOM = 12.0
 const MAX_CACHED_MODELS = 8
 
-const MARKER_HEIGHT = 60
-const MARKER_RADIUS = 18
-const FALLBACK_COLOR = 0xE8543F
+const RISE_DURATION = 650
 
 type LoadingState = 'idle' | 'loading' | 'loaded' | 'error'
 
 interface LandmarkItem {
   landmark: Landmark
-  object: THREE.Object3D
+  object: THREE.Object3D | null
   coord: MercatorCoordinate
   meterScale: number
   status: LoadingState
   baseScale: number
-  animScale: number
+  rise: number
+  height: number
   lastVisibleTime: number
 }
 
@@ -40,6 +39,8 @@ interface SceneRefs {
 const _localMatrix = new THREE.Matrix4()
 const _rotationXMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 2)
 const _scaleVector = new THREE.Vector3()
+
+const _groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
 
 function disposeHierarchy(obj: THREE.Object3D) {
   obj.traverse((child) => {
@@ -61,55 +62,40 @@ function disposeHierarchy(obj: THREE.Object3D) {
   })
 }
 
-function buildMarkerMesh(color: number): THREE.Group {
-  const group = new THREE.Group()
-
-  const bodyMaterial = new THREE.MeshStandardMaterial({
-    color,
-    roughness: 0.4,
-    metalness: 0.1,
-  })
-
-  const cone = new THREE.Mesh(
-    new THREE.ConeGeometry(MARKER_RADIUS, MARKER_HEIGHT * 0.7, 16),
-    bodyMaterial,
-  )
-  cone.rotation.x = Math.PI
-  cone.position.y = MARKER_HEIGHT * 0.35
-  group.add(cone)
-
-  const head = new THREE.Mesh(
-    new THREE.SphereGeometry(MARKER_RADIUS, 16, 16),
-    bodyMaterial,
-  )
-  head.position.y = MARKER_HEIGHT * 0.7
-  group.add(head)
-
-  return group
-}
-
 export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterface {
   const refs: Partial<SceneRefs> = {}
 
   const loadedQueue: LandmarkItem[] = []
 
-  function anchorModel(obj: THREE.Object3D) {
+  function anchorModel(obj: THREE.Object3D): number {
     obj.updateWorldMatrix(true, true)
     const box = new THREE.Box3().setFromObject(obj)
     const center = box.getCenter(new THREE.Vector3())
     obj.position.x = -center.x
     obj.position.z = -center.z
     obj.position.y = -box.min.y
+    return box.max.y - box.min.y
   }
 
-  function animatePopIn(item: LandmarkItem, map: Map) {
+  function enableGroundClip(obj: THREE.Object3D) {
+    obj.traverse((child) => {
+      const mesh = child as THREE.Mesh
+      if (!mesh.isMesh)
+        return
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material]
+      for (const mat of materials) {
+        mat.clippingPlanes = [_groundPlane]
+        mat.clipShadows = true
+      }
+    })
+  }
+
+  function animateRise(item: LandmarkItem, map: Map) {
     const startTime = performance.now()
-    const duration = 350
 
     function step(now: number) {
-      const progress = Math.min((now - startTime) / duration, 1.0)
-      const ease = 1 + 2.70158 * (progress - 1) ** 3 + 1.70158 * (progress - 1) ** 2
-      item.animScale = progress >= 1.0 ? 1.0 : Math.max(0, ease)
+      const progress = Math.min((now - startTime) / RISE_DURATION, 1.0)
+      item.rise = 1 - (1 - progress) ** 3
       map.triggerRepaint()
 
       if (progress < 1.0) {
@@ -136,14 +122,13 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
 
     if (oldestIndex !== -1) {
       const item = loadedQueue.splice(oldestIndex, 1)[0]
-      scene.remove(item.object)
-      disposeHierarchy(item.object)
-
-      const fallback = buildMarkerMesh(item.landmark.color ?? FALLBACK_COLOR)
-      scene.add(fallback)
-      item.object = fallback
+      if (item.object) {
+        scene.remove(item.object)
+        disposeHierarchy(item.object)
+      }
+      item.object = null
       item.status = 'idle'
-      item.animScale = 1.0
+      item.rise = 0
     }
   }
 
@@ -172,20 +157,23 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         if (item.landmark.rotationY)
           model.rotation.y = item.landmark.rotationY
 
-        anchorModel(model)
+        item.height = anchorModel(model)
+        enableGroundClip(model)
 
-        scene.remove(item.object)
-        disposeHierarchy(item.object)
+        if (item.object) {
+          scene.remove(item.object)
+          disposeHierarchy(item.object)
+        }
         scene.add(model)
 
         item.object = model
         item.status = 'loaded'
-        item.animScale = 0.0
+        item.rise = 0.0
 
         loadedQueue.push(item)
         evictOldestModel(scene)
 
-        animatePopIn(item, map)
+        animateRise(item, map)
       },
       undefined,
       () => {
@@ -243,18 +231,15 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         const coord = MercatorCoordinate.fromLngLat(landmark.coordinates, 0)
         const meterScale = coord.meterInMercatorCoordinateUnits()
 
-        const fallbackMesh = buildMarkerMesh(landmark.color ?? FALLBACK_COLOR)
-        fallbackMesh.visible = false
-        scene.add(fallbackMesh)
-
         items.push({
           landmark,
-          object: fallbackMesh,
+          object: null,
           coord,
           meterScale,
           status: 'idle',
           baseScale: landmark.scale ?? 1,
-          animScale: 1.0,
+          rise: 0,
+          height: 0,
           lastVisibleTime: 0,
         })
       }
@@ -265,6 +250,8 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         antialias: true,
       })
       renderer.autoClear = false
+      // Нужно, чтобы clippingPlanes на материалах учитывались.
+      renderer.localClippingEnabled = true
 
       refs.camera = camera
       refs.scene = scene
@@ -293,6 +280,9 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       let hasVisibleObjects = false
 
       for (const item of items) {
+        if (!item.object)
+          continue
+
         const [lng, lat] = item.landmark.coordinates
 
         if (!bounds.contains([lng, lat])) {
@@ -307,9 +297,10 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         const dxMeters = (item.coord.x - originCoord.x) / originScale
         const dzMeters = (item.coord.y - originCoord.y) / originScale
 
-        item.object.position.set(dxMeters, 0, dzMeters)
+        const riseOffset = -item.height * item.baseScale * (1 - item.rise)
+        item.object.position.set(dxMeters, riseOffset, dzMeters)
 
-        const finalScale = item.baseScale * item.animScale
+        const finalScale = item.baseScale * item.rise
         item.object.scale.set(finalScale, finalScale, finalScale)
       }
 

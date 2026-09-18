@@ -32,3 +32,4 @@ coverage
 
 .env
 plans/
+public/models/_original/*.glb
