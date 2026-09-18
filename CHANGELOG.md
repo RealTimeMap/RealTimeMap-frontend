@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.46
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.45...v0.1.46)
+
+### 🚀 Функциональность
+
+- **core:** Firebase notif ([311af55](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/311af55))
+
+### 🎨 Стили
+
+- **ui:** Анимаиця для баннера маршрута ([fc79c57](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fc79c57))
+- **ui:** Мелкие правки и отображение админа ([e95d0b5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e95d0b5))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.45
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.44...v0.1.45)
