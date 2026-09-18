@@ -1,9 +1,19 @@
 <script setup lang="ts">
+import { setTransparentStatusBar } from '@/components/00.shared/lib/statusBar'
+import { initTheme, readSavedPreference, resolvePreference, themeBase } from '@/components/00.shared/lib/theme'
 import ProfileFormView from '@/components/02.features/Authentication/index'
+
+onMounted(() => {
+  setTransparentStatusBar(themeBase(resolvePreference(readSavedPreference())))
+})
+
+onBeforeUnmount(() => {
+  initTheme()
+})
 </script>
 
 <template>
-  <div class="">
+  <div class="auth-container">
     <div class="auth-bg">
       <div class="glow glow-cyan" />
       <div class="glow glow-purple" />
@@ -21,10 +31,16 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
 </template>
 
 <style scoped lang="scss">
+.auth-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
 .auth-bg {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   background: var(--auth-bg);
   overflow: hidden;
 }
@@ -74,6 +90,8 @@ import ProfileFormView from '@/components/02.features/Authentication/index'
 }
 
 .auth-content {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;

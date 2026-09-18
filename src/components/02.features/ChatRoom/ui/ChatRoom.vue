@@ -52,6 +52,7 @@ const title = computed(() => chatInfo.value?.title || peer.value?.username || 'Ð
 const avatar = computed(() => chatInfo.value?.avatar || peer.value?.avatar || undefined)
 const isPeerOnline = computed(() => chatsStore.isPeerOnline(peerId.value))
 const isPeerTyping = computed(() => typingUsers.value.length > 0)
+const isAdmin = computed(() => chatInfo.value?.isAdmin)
 
 const peerStatusText = computed(() => {
   if (isPeerTyping.value)
@@ -80,6 +81,7 @@ async function onSend(text: string) {
       :is-online="isPeerOnline"
       :status-text="peerStatusText"
       :is-typing="isPeerTyping"
+      :is-admin="isAdmin"
       @back="goBack"
     />
 

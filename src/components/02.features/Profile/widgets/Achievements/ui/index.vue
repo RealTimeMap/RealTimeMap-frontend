@@ -1,19 +1,21 @@
 <script setup lang="ts">
+import type { WidgetData } from '../model/cache'
 import type { NearestAchievementItem } from '@/components/00.shared/services/achievement/index.type'
 import { achievementApi } from '@/components/00.shared/services/achievement'
 import { openAchievements } from '@/components/02.features/AchievementsList'
+import { achievementsWidgetCache as cache, isSameWidgetData as isSameData } from '../model/cache'
 
 const props = defineProps<{
   userId: number
   isOwn?: boolean
 }>()
 
-const achievements = shallowRef<NearestAchievementItem[]>([])
+const cached = cache.get(props.userId)
+const achievements = shallowRef<NearestAchievementItem[]>(cached?.nearest ?? [])
 const isLoading = ref(false)
 const hasError = ref(false)
-const earnedCount = ref(0)
-const totalCount = ref(0)
-// const { open } = useDialogStore()
+const earnedCount = ref(cached?.earned ?? 0)
+const totalCount = ref(cached?.total ?? 0)
 
 const activeItem = ref<NearestAchievementItem | null>(null)
 const targetEl = ref<HTMLElement | null>(null)
@@ -21,7 +23,9 @@ const targetEl = ref<HTMLElement | null>(null)
 async function loadAchievements() {
   if (!props.userId)
     return
-  isLoading.value = true
+  const prev = cache.get(props.userId)
+  if (!prev)
+    isLoading.value = true
   hasError.value = false
   try {
     const [nearest, all, earned] = await Promise.all([
@@ -29,13 +33,22 @@ async function loadAchievements() {
       achievementApi.getAllAchievements({ page: 1, pageSize: 500 }),
       achievementApi.getAchiveUser({ id: props.userId, page: 1, pageSize: 1 }),
     ])
-    achievements.value = nearest.items
-    totalCount.value = Array.isArray(all) ? all.length : 0
-    earnedCount.value = earned.total ?? 0
+    const next: WidgetData = {
+      nearest: nearest.items,
+      total: Array.isArray(all) ? all.length : 0,
+      earned: earned.total ?? 0,
+    }
+    cache.set(props.userId, next)
+    if (!prev || !isSameData(prev, next)) {
+      achievements.value = next.nearest
+      totalCount.value = next.total
+      earnedCount.value = next.earned
+    }
   }
   catch (e) {
     console.error('[Achievements]', e)
-    hasError.value = true
+    if (!prev)
+      hasError.value = true
   }
   finally {
     isLoading.value = false

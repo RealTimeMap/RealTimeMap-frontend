@@ -148,7 +148,6 @@ function openSettings() {
 
   &__group {
     background: var(--bg-block-solid, var(--bg-color-block));
-    border: 0.5px solid var(--glass-border);
     border-radius: 16px;
     box-shadow:
       var(--glass-shadow-inset) 0px 1px 0px inset,

@@ -18,3 +18,12 @@ export interface RegistrationPayload extends LoginPayload {
   is_superuser?: boolean
   is_verified?: boolean
 }
+
+export interface ForgotPasswordPayload {
+  email: string
+}
+
+export interface ResetPasswordPayload {
+  token: string
+  password: string
+}

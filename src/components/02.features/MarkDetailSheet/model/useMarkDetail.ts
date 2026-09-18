@@ -70,6 +70,24 @@ export function useMarkDetail(
   )
   const isDeletingMark = ref(false)
 
+  const DELETE_WINDOW_MS = 10 * 60 * 1000
+
+  const deleteBlockedReason = computed<string | null>(() => {
+    const m = mark.value
+    if (!m)
+      return null
+    const now = Date.now()
+    const end = new Date(m.date?.endAt ?? '').getTime()
+    if (Number.isFinite(end) && end <= now)
+      return 'Метка уже завершилась — удалить нельзя'
+    const start = new Date(m.date?.startAt ?? '').getTime()
+    if (Number.isFinite(start) && now - start > DELETE_WINDOW_MS)
+      return 'Удалить метку можно только в первые 10 минут'
+    return null
+  })
+
+  const canDeleteMark = computed(() => isMarkOwner.value && !deleteBlockedReason.value)
+
   function applyReactions(m: MarkFull | null) {
     likeCount.value = m?.like?.count ?? 0
     isLiked.value = m?.like?.isLiked ?? false
@@ -374,6 +392,13 @@ export function useMarkDetail(
     if (!mark.value || isDeletingMark.value)
       return false
 
+    if (!canDeleteMark.value) {
+      const reason = deleteBlockedReason.value
+      if (reason)
+        notify.add({ title: reason, type: 'warning' })
+      return false
+    }
+
     isDeletingMark.value = true
     try {
       await markApi.deleteMark(mark.value.id)
@@ -490,6 +515,8 @@ export function useMarkDetail(
     currentUserId,
     isMarkOwner,
     isDeletingMark,
+    canDeleteMark,
+    deleteBlockedReason,
     toggleCommentLike,
     saveCommentEdit,
     removeComment,

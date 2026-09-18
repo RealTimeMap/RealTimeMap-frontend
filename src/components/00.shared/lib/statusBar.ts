@@ -6,13 +6,27 @@ export function syncStatusBar(base: ThemeBase, backgroundColor?: string): void {
     return
 
   import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
-    StatusBar.setStyle({ style: base === 'light' ? Style.Light : Style.Dark }).catch(() => {})
+    StatusBar.setStyle({ style: base === 'light' ? Style.Light : Style.Dark }).catch(() => { })
 
     if (Capacitor.getPlatform() === 'android') {
-      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => {})
+      StatusBar.setOverlaysWebView({ overlay: false }).catch(() => { })
 
       if (backgroundColor)
-        StatusBar.setBackgroundColor({ color: backgroundColor }).catch(() => {})
+        StatusBar.setBackgroundColor({ color: backgroundColor }).catch(() => { })
     }
-  }).catch(() => {})
+  }).catch(() => { })
+}
+
+export function setTransparentStatusBar(base: ThemeBase): void {
+  if (!Capacitor.isNativePlatform())
+    return
+
+  import('@capacitor/status-bar').then(({ StatusBar, Style }) => {
+    StatusBar.setStyle({ style: base === 'light' ? Style.Light : Style.Dark }).catch(() => { })
+
+    if (Capacitor.getPlatform() === 'android') {
+      StatusBar.setOverlaysWebView({ overlay: true }).catch(() => { })
+      StatusBar.setBackgroundColor({ color: '#00000000' }).catch(() => { })
+    }
+  }).catch(() => { })
 }

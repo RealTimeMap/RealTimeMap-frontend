@@ -67,17 +67,10 @@ onMounted(async () => {
       <router-view v-slot="{ Component }">
         <transition :name="pageTransition">
           <keep-alive :include="['HomeMapPage']">
-            <suspense>
-              <template #default>
-                <component
-                  :is="Component"
-                  :key="transitionKey"
-                />
-              </template>
-              <template #fallback>
-                <div class="suspense-fallback" />
-              </template>
-            </suspense>
+            <component
+              :is="Component"
+              :key="transitionKey"
+            />
           </keep-alive>
         </transition>
       </router-view>

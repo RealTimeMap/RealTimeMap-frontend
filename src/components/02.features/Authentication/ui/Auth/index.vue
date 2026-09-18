@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import { openCommunityRules } from '@/components/02.features/CommunityRules'
+import { openForgotPassword } from '@/components/02.features/ForgotPassword'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import { useAuth } from '../../model/useAuth'
 
@@ -61,6 +62,7 @@ const {
       v-if="!isRegister"
       type="button"
       class="button__link"
+      @click="openForgotPassword()"
     >
       Забыли пароль?
     </button>

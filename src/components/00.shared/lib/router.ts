@@ -59,6 +59,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/components/05.pages/ProfilePage.vue'),
     meta: {
       layout: 'default',
+      fullBleed: true,
       depth: 1,
     },
     children: [
@@ -151,6 +152,20 @@ const routes: RouteRecordRaw[] = [
   },
 
   {
+    path: '/password-reset',
+    name: 'reset-password',
+    component: () => import('@/components/05.pages/ResetPasswordPage.vue'),
+    meta: {
+      layout: 'empty',
+      depth: 1,
+      seo: {
+        title: 'Восстановление пароля',
+        description: 'Установите новый пароль для входа в RealTimeMap.',
+      },
+    },
+  },
+
+  {
     path: '/oauth/google',
     name: 'google-auth-callback',
     component: AuthProcessingComponent,
@@ -200,8 +215,10 @@ router.beforeEach(async (to) => {
   const seen = await hasSeenOnboarding()
   const isAuthenticated = authStore.isAuthenticated
   const isWelcomePage = to.name === 'Welcome'
+  // Сброс пароля — deep-link из письма, должен открываться до онбординга.
+  const isResetPassword = to.name === 'reset-password'
 
-  if (!seen && !isWelcomePage) {
+  if (!seen && !isWelcomePage && !isResetPassword) {
     return { name: 'Welcome' }
   }
   if (seen && isWelcomePage) {
