@@ -50,6 +50,7 @@ const {
   currentUserId,
   isMarkOwner,
   isDeletingMark,
+  canDeleteMark,
   toggleCommentLike,
   saveCommentEdit,
   removeComment,
@@ -239,7 +240,7 @@ onMounted(() => {
 
     <template v-else-if="mark">
       <div
-        v-if="isMarkOwner"
+        v-if="isMarkOwner && (isMarkActive || canDeleteMark)"
         class="owner-fab"
       >
         <template v-if="!confirmingMarkDelete">
@@ -255,6 +256,7 @@ onMounted(() => {
             />
           </button>
           <button
+            v-if="canDeleteMark"
             class="owner-fab__btn owner-fab__btn--danger"
             aria-label="Удалить метку"
             @click="confirmingMarkDelete = true"
