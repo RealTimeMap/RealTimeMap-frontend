@@ -1,5 +1,6 @@
 import { App as CapacitorApp } from '@capacitor/app'
 import { onNetworkOnline, useIsOnline } from '@/components/00.shared/composables/useNetworkWatch'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { usePlacesStore } from './store'
 
@@ -16,6 +17,7 @@ export function initPlacesSync(): void {
 
   const store = usePlacesStore()
   const authStore = useAuthStore()
+  const settings = useSettingsStore()
   const isOnline = useIsOnline()
 
   function startTimer() {
@@ -44,13 +46,23 @@ export function initPlacesSync(): void {
     store.reset()
   }
 
+  function resetLayersForGuest() {
+    settings.showPersonalMarks = false
+    if (!settings.showPublicMarks)
+      settings.showPublicMarks = true
+  }
+
   watch(
     () => authStore.isAuthenticated,
-    (authed) => {
-      if (authed)
+    (authed, wasAuthed) => {
+      if (authed) {
         start()
-      else
+      }
+      else {
         stop()
+        if (wasAuthed)
+          resetLayersForGuest()
+      }
     },
     { immediate: true },
   )
