@@ -1,8 +1,10 @@
 import type {
   AuthGoogleResponse,
   AuthResponse,
+  ForgotPasswordPayload,
   LoginPayload,
   RegistrationPayload,
+  ResetPasswordPayload,
 } from './index.type'
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
@@ -21,6 +23,14 @@ export const authApi = {
 
   registration(payload: RegistrationPayload): Promise<AuthResponse> {
     return apiService.post<AuthResponse>('/auth/register', payload)
+  },
+
+  forgotPassword(payload: ForgotPasswordPayload): Promise<void> {
+    return apiService.post<void>('/auth/forgot-password', payload)
+  },
+
+  resetPassword(payload: ResetPasswordPayload): Promise<void> {
+    return apiService.post<void>('/auth/reset-password', payload)
   },
 
   logout(): Promise<void> {
