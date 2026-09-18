@@ -97,7 +97,7 @@ const activeMode = computed(() => modes.find(m => m.id === profile.value) ?? mod
   left: 50%;
   transform: translateX(-50%);
   z-index: 15;
-  width: 180px;
+  min-width: 180px;
   max-width: calc(100% - 24px);
   overflow: hidden;
   transition:
