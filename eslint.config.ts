@@ -9,6 +9,7 @@ export default antfu({
     'ios/**',
     'android/**',
     'src/generated/**',
+    'public/firebase-messaging-sw.js',
   ],
 
   rules: {

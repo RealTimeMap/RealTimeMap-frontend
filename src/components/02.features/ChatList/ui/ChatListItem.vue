@@ -35,7 +35,16 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
       />
     </div>
     <div class="chat-content">
-      <span class="name">{{ chat.title }}</span>
+      <div class="chat-name">
+        <span class="chat-name__text">
+          {{ chat.title }}
+        </span>
+        <u-admin-badge
+          v-if="chat.isAdmin"
+          class="chat-name__badge"
+          :size="14"
+        />
+      </div>
       <span class="content">{{ chat.lastMessage?.content }}</span>
     </div>
     <div class="chat-info">
@@ -81,18 +90,33 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
     flex: 1;
     min-width: 0;
 
-    .name,
+    .chat-name {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-width: 0;
+
+      &__text {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-weight: 600;
+        font-size: 16px;
+        min-width: 0;
+      }
+
+      &__badge {
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+    }
+
     .content {
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
-    }
-
-    .name {
-      font-weight: 600;
-      font-size: 16px;
-    }
-    .content {
       @include label-text(14px, none);
     }
   }

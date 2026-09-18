@@ -94,7 +94,15 @@ loadMore()
           </span>
         </div>
         <div class="subs-item__info">
-          <span class="subs-item__name">{{ person.username }}</span>
+          <div class="subs-item__name">
+            <span class="subs-item__username">{{ person.username }}</span>
+
+            <u-admin-badge
+              v-if="person.isAdmin"
+              class="subs-item__badge"
+              :size="14"
+            />
+          </div>
           <span
             v-if="person.tag"
             class="subs-item__tag"
@@ -210,14 +218,32 @@ loadMore()
   }
 
   &__name {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
+  &__username {
     @include value-text(16px, var(--text-color), 600);
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+  }
+
+  &__badge {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &__tag {
     @include label-text(12px, none);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   &__chevron {

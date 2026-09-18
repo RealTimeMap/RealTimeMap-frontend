@@ -4,6 +4,7 @@ export interface SubscriptionUser {
   tag?: string
   avatar?: string
   isPrivate: boolean
+  isAdmin: boolean
 }
 
 export interface PaginatedResult<T> {

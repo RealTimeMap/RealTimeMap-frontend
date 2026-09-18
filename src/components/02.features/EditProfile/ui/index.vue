@@ -122,7 +122,7 @@ onUnmounted(dispose)
       <div class="field__divider" />
 
       <label class="field">
-        <span class="field__label">Никнейм</span>
+        <span class="field__label">тег</span>
         <div class="field__prefixed">
           <span class="field__prefix">@</span>
           <input

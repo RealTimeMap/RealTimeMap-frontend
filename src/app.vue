@@ -13,6 +13,7 @@ import { initUpdateChecker } from './components/02.features/AppUpdate'
 import { useAuthStore } from './components/02.features/Authentication/model/auth'
 import { initBugReport } from './components/02.features/BugReport'
 import { ExpGain, useGamificationFeedback } from './components/02.features/Gamification'
+import { initPushManager } from './components/02.features/PushManager'
 import { AppSplash } from './components/02.features/SplashScreen'
 
 const layouts = {
@@ -47,6 +48,11 @@ onMounted(async () => {
   initNetworkListener()
   initBugReport()
   initPlacesSync()
+
+  if (authStore.isAuthenticated) {
+    await initPushManager()
+  }
+
   appReady.value = true
   prefetchNavPages()
   prefetchNavData(authStore.isAuthenticated)

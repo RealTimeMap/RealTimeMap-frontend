@@ -156,7 +156,7 @@ function openMark(markId: number) {
           />
         </div>
         <span class="user-info__tag">
-          {{ user?.tag || '' }}
+          @{{ user?.tag || '' }}
         </span>
       </div>
     </div>
