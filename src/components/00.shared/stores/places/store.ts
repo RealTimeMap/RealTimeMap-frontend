@@ -366,6 +366,18 @@ export const usePlacesStore = defineStore('places', () => {
     }
   }
 
+  async function reset(): Promise<void> {
+    marks.value = []
+    groups.value = []
+    queue.value = []
+    cursor.value = undefined
+    lastSyncAt.value = null
+    lastSyncError.value = false
+    isSyncing.value = false
+    isHydrated.value = false
+    await placesStorage.clear()
+  }
+
   return {
     marks,
     groups,
@@ -379,6 +391,7 @@ export const usePlacesStore = defineStore('places', () => {
     hydrate,
     sync,
     trySync,
+    reset,
     createMark,
     updateMark,
     deleteMark,

@@ -1,5 +1,6 @@
 import { App as CapacitorApp } from '@capacitor/app'
 import { onNetworkOnline, useIsOnline } from '@/components/00.shared/composables/useNetworkWatch'
+import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { usePlacesStore } from './store'
 
 /** Интервал фоновой синхронизации (мс). Настраивается здесь. */
@@ -8,28 +9,20 @@ export const SYNC_INTERVAL_MS = 2 * 60 * 1000
 let initialized = false
 let timer: ReturnType<typeof setInterval> | null = null
 
-/**
- * Инициализация офлайн-синхронизации раздела «Места».
- * Гидратирует стор, делает первичный sync и держит данные актуальными:
- *  - периодический sync каждые SYNC_INTERVAL_MS (пока приложение активно и есть сеть);
- *  - мгновенный sync при восстановлении сети и при возврате из фона;
- *  - таймер ставится на паузу в фоне, чтобы не жечь батарею/трафик.
- */
 export function initPlacesSync(): void {
   if (initialized)
     return
   initialized = true
 
   const store = usePlacesStore()
+  const authStore = useAuthStore()
   const isOnline = useIsOnline()
-
-  store.hydrate().then(() => store.trySync())
 
   function startTimer() {
     if (timer)
       return
     timer = setInterval(() => {
-      if (isOnline.value)
+      if (isOnline.value && authStore.isAuthenticated)
         store.trySync()
     }, SYNC_INTERVAL_MS)
   }
@@ -41,14 +34,36 @@ export function initPlacesSync(): void {
     }
   }
 
-  startTimer()
+  function start() {
+    store.hydrate().then(() => store.trySync())
+    startTimer()
+  }
+
+  function stop() {
+    stopTimer()
+    store.reset()
+  }
+
+  watch(
+    () => authStore.isAuthenticated,
+    (authed) => {
+      if (authed)
+        start()
+      else
+        stop()
+    },
+    { immediate: true },
+  )
 
   // Восстановление сети — синхронизируемся сразу.
-  onNetworkOnline(() => store.trySync())
+  onNetworkOnline(() => {
+    if (authStore.isAuthenticated)
+      store.trySync()
+  })
 
   // Фон/возврат: в фоне таймер на паузе, при возврате — немедленный sync.
   CapacitorApp.addListener('appStateChange', ({ isActive }) => {
-    if (isActive) {
+    if (isActive && authStore.isAuthenticated) {
       startTimer()
       store.trySync()
     }
