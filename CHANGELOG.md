@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.47
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.46...v0.1.47)
+
+### 🩹 Исправления
+
+- **core:** Firebase log ([05ad4a9](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/05ad4a9))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.46
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.45...v0.1.46)
