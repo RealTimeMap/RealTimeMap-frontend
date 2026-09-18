@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// import ProfileUserView from '@/components/02.features/Profile'
-
 const route = useRoute()
 const dynamicColor = ref<string | null>(null)
 
@@ -27,7 +25,6 @@ watch(() => route.fullPath, () => {
           @color-extracted="handleColorExtracted"
         />
       </router-view>
-      <!-- <profile-user-view @color-extracted="handleColorExtracted" /> -->
     </div>
   </div>
 </template>
@@ -53,7 +50,7 @@ watch(() => route.fullPath, () => {
   color: var(--text-color);
 
   // Плавный морф самого оттенка (для браузеров с поддержкой @property)
-  transition: --user-color 0.6s ease;
+  // transition: --user-color 0.6s ease;
 
   &-blum {
     position: absolute;
@@ -69,7 +66,9 @@ watch(() => route.fullPath, () => {
     pointer-events: none;
 
     opacity: 0;
-    transition: opacity 0.6s ease;
+    transition:
+      opacity 0.6s ease,
+      --user-color 0.6s ease;
   }
 
   &--tinted &-blum {

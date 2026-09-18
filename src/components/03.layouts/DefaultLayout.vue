@@ -44,6 +44,11 @@ onMounted(() => {
   flex-direction: column;
   min-height: 100dvh;
 
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+
   &__main {
     flex-grow: 1;
     position: relative;

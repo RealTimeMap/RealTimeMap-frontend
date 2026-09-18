@@ -47,14 +47,9 @@ const isDesktop = useMediaQuery('(min-width: 900px)')
         v-else
         v-slot="{ Component }"
       >
-        <transition
-          name="chat-slide"
-          mode="out-in"
-        >
-          <keep-alive include="ChatListPage">
-            <component :is="Component" />
-          </keep-alive>
-        </transition>
+        <keep-alive include="ChatListPage">
+          <component :is="Component" />
+        </keep-alive>
       </router-view>
     </section>
   </div>
@@ -113,32 +108,5 @@ const isDesktop = useMediaQuery('(min-width: 900px)')
   span {
     @include value-text(15px, var(--text-color-secondary), 500);
   }
-}
-
-.chat-slide-enter-active,
-.chat-slide-leave-active {
-  transition:
-    opacity 0.22s ease,
-    transform 0.22s ease;
-}
-
-.chat-slide-enter-from {
-  opacity: 0;
-  transform: translateX(24px);
-}
-
-.chat-slide-leave-to {
-  opacity: 0;
-  transform: translateX(-24px);
-}
-
-.chat-fade-enter-active,
-.chat-fade-leave-active {
-  transition: opacity 0.18s ease;
-}
-
-.chat-fade-enter-from,
-.chat-fade-leave-to {
-  opacity: 0;
 }
 </style>

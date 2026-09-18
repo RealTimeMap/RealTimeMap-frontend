@@ -1,6 +1,7 @@
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import type { RouteSeo } from '@/components/00.shared/lib/seo'
 import { createRouter, createWebHistory } from 'vue-router'
+import { pageTransition, resolvePageTransition } from '@/components/00.shared/lib/pageTransition'
 import { applyRouteSeo } from '@/components/00.shared/lib/seo'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
@@ -17,6 +18,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       requiresAuth: false,
       layout: 'empty',
+      depth: 1,
       seo: {
         title: 'Знакомство',
         description: 'RealTimeMap — карта мест рядом с вами: метки, маршруты и живые события.',
@@ -30,6 +32,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       layout: 'default',
       fullBleed: true,
+      depth: 1,
       seo: {
         title: 'Карта',
         description: 'Интерактивная карта: метки людей вокруг, маршруты и события рядом с вами.',
@@ -43,6 +46,7 @@ const routes: RouteRecordRaw[] = [
     meta: {
       layout: 'default',
       guestOnly: true,
+      depth: 1,
       seo: {
         title: 'Вход и регистрация',
         description: 'Войдите или зарегистрируйтесь, чтобы ставить метки, оценивать места и общаться.',
@@ -55,6 +59,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/components/05.pages/ProfilePage.vue'),
     meta: {
       layout: 'default',
+      depth: 1,
     },
     children: [
       {
@@ -70,6 +75,7 @@ const routes: RouteRecordRaw[] = [
             title: 'Мой профиль',
             description: 'Ваш уровень, достижения, статистика и метки на карте.',
           },
+          depth: 1,
         },
         component: () => import('@/components/05.pages/Profile/MyProfilePage.vue'),
       },
@@ -81,6 +87,7 @@ const routes: RouteRecordRaw[] = [
             title: 'Профиль',
             description: 'Профиль пользователя: метки, достижения и активность на карте.',
           },
+          depth: 2,
         },
         component: () => import('@/components/05.pages/Profile/UserProfilePage.vue'),
         props: route => ({ userId: Number(route.params.userId) }),
@@ -96,6 +103,7 @@ const routes: RouteRecordRaw[] = [
       layout: 'default',
       requiresAuth: true,
       fullBleed: true,
+      depth: 1,
       seo: {
         title: 'Мои места',
         description: 'Личные метки, списки и группы в RealTimeMap.',
@@ -110,6 +118,7 @@ const routes: RouteRecordRaw[] = [
       layout: 'default',
       requiresAuth: true,
       fullBleed: true,
+      depth: 1,
     },
     children: [
       {
@@ -117,6 +126,7 @@ const routes: RouteRecordRaw[] = [
         name: 'chats',
         component: () => import('@/components/05.pages/Chats/ChatListPage.vue'),
         meta: {
+          depth: 1,
           seo: {
             title: 'Чаты',
             description: 'Ваши переписки в RealTimeMap.',
@@ -129,6 +139,7 @@ const routes: RouteRecordRaw[] = [
         component: () => import('@/components/05.pages/Chats/ChatRoomPage.vue'),
         props: route => ({ chatId: Number(route.params.chatId) }),
         meta: {
+          depth: 2,
           hideBottomNav: true,
           seo: {
             title: 'Чат',
@@ -168,6 +179,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/components/05.pages/NotFoundPage.vue'),
     meta: {
       layout: 'empty',
+      depth: 1,
       seo: {
         title: 'Страница не найдена',
         description: 'Такой страницы нет. Вернитесь на карту RealTimeMap.',
@@ -210,7 +222,8 @@ router.beforeEach(async (to) => {
   return true
 })
 
-router.afterEach((to) => {
+router.afterEach((to, from) => {
+  pageTransition.value = resolvePageTransition(to, from)
   applyRouteSeo(to.meta.seo as RouteSeo | undefined)
 })
 
