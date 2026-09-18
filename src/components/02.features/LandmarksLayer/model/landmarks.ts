@@ -4,7 +4,7 @@ export interface Landmark {
   id: string
   title: string
   coordinates: MapPoint
-  // Путь к .glb модели. Если не задан — рисуется примитив-заглушка.
+  // Путь к .glb модели. Без него достопримечательность не отрисовывается.
   modelUrl?: string
   // Масштаб модели (метры). Подбирается под конкретную модель.
   scale?: number
@@ -12,18 +12,30 @@ export interface Landmark {
   // модели, экспортированные в системе Z-up, по вертикали.
   rotationX?: number
   rotationY?: number
-  // Цвет примитива-заглушки (hex), если модели нет.
-  color?: number
   // Двусторонний рендер граней. Нужен ажурным конструкциям (решётка башни),
   // но у плотных моделей вызывает z-fighting — по умолчанию выключен.
   doubleSide?: boolean
 }
 
 // ! ПРОМТ для генерации 3д
-// low-poly 3D model of {ОБЪЕКТ}, isometric game asset style,
-// flat shading, soft ambient occlusion, muted blue-grey palette
-// with orange accents, no textures just vertex colors,
-// clean topology, single centered object on transparent background
+//
+// Стиль:
+//   low-poly 3D model of {ОБЪЕКТ}, isometric game asset style,
+//   flat shading, soft ambient occlusion, muted blue-grey palette
+//   with orange accents, no textures just vertex colors
+//
+// Геометрия (важно для FPS на карте — модель рендерится каждый кадр):
+//   single merged watertight mesh (not separate parts), low triangle count
+//   5k-15k faces, minimal number of materials, clean topology,
+//   flat closed bottom base (стоит на земле, низ замкнут),
+//   single centered object on transparent background
+//
+// НЕ добавлять «highly detailed / intricate» — конфликтует с low-poly и
+// даёт кашу из тысяч мелких мешей, которую потом не спасти.
+//
+// После генерации всё равно прогнать через `bun run models:optimize`:
+// LLM/генератор часто отдаёт модель раздробленной на сотни-тысячи мешей
+// (каждый = отдельный draw call), скрипт схлопывает их в один по материалу.
 
 export const DEMO_LANDMARKS: Landmark[] = [
   {
