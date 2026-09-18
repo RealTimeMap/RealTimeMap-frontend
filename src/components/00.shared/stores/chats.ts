@@ -5,7 +5,6 @@ import type {
   PresenceSnapshotPayload,
   PresenceUserPayload,
 } from '@/components/00.shared/services/chats/index.type'
-import { defineStore } from 'pinia'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { chatApi } from '@/components/00.shared/services/chats'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
@@ -120,6 +119,7 @@ export const useChatsStore = defineStore('chats', () => {
             unreadCount: 0,
             updatedAt: direct.createdAt,
             peerId,
+            isAdmin: false,
           },
           ...chats.value,
         ]
