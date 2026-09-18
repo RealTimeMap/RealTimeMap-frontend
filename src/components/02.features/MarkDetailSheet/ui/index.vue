@@ -15,6 +15,7 @@ import MarkPeriod from './MarkPeriod.vue'
 const props = defineProps<{
   markId: number
   fromProfile?: boolean
+  onDeleted?: (markId: number) => void
 }>()
 
 const scrollContainerRef = ref<HTMLElement | null>(null)
@@ -91,8 +92,10 @@ function handleEditMark() {
 
 async function handleDeleteMark() {
   const ok = await removeMark()
-  if (ok)
+  if (ok) {
+    props.onDeleted?.(props.markId)
     close()
+  }
 }
 
 const ROUTE_TIP_ID = 'guest_route'

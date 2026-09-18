@@ -9,6 +9,7 @@ import { useAuthStore } from '@/components/02.features/Authentication/model/auth
 import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { useCoachOnView } from '@/components/02.features/Onboarding/model/useCoachOnView'
 import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
+import { openUserMarks } from '@/components/02.features/UserMarksList'
 import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
 import { useSubscription } from '../model/useSubscription'
 import Achievements from '../widgets/Achievements/index'
@@ -68,6 +69,7 @@ function openSettings() {
 }
 
 const myMarks = ref<Mark[]>()
+const myMarksTotal = ref(0)
 async function getMyMark() {
   const userId = props.user?.userId
   if (!userId)
@@ -80,6 +82,7 @@ async function getMyMark() {
       pageSize: 4,
     })
     myMarks.value = data.items
+    myMarksTotal.value = data.total
   }
   catch (e) {
     console.error(e)
@@ -120,7 +123,7 @@ const { activeTip: profileTip, dismiss: dismissProfileTip } = useCoachOnView(
 )
 
 function openMark(markId: number) {
-  open(MarkDetailsSheet, { markId, fromProfile: true }, {
+  open(MarkDetailsSheet, { markId, fromProfile: true, onDeleted: getMyMark }, {
     headerModal: false,
     position: 'end center',
   })
@@ -267,6 +270,19 @@ function openMark(markId: number) {
           @click="openMark(item.id)"
         />
       </div>
+
+      <button
+        v-if="user && myMarksTotal > myMarks.length"
+        type="button"
+        class="user-profile-view__marks-all"
+        @click="openUserMarks(user.userId)"
+      >
+        Показать все метки
+        <u-icon
+          icon="weui:arrow-filled"
+          width="8"
+        />
+      </button>
     </div>
 
     <div
@@ -349,6 +365,21 @@ function openMark(markId: number) {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
+  }
+
+  &__marks-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    @include glass-panel(14px, 12px, false);
+    @include value-text(13px, var(--primary-color), 700);
+    cursor: pointer;
+
+    &:active {
+      transform: scale(0.99);
+    }
   }
 
   &__empty {
