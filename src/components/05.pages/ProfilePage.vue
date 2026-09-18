@@ -76,7 +76,7 @@ watch(() => route.fullPath, () => {
   }
 
   &-container {
-    padding-top: calc(60px - var(--safe-top));
+    padding-top: max(60px, var(--safe-top, env(safe-area-inset-top, 0px)));
     padding-bottom: 140px;
     width: 100%;
   }

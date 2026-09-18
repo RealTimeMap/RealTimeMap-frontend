@@ -59,6 +59,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/components/05.pages/ProfilePage.vue'),
     meta: {
       layout: 'default',
+      fullBleed: true,
       depth: 1,
     },
     children: [
