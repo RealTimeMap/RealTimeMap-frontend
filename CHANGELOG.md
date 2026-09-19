@@ -1,6 +1,27 @@
 # Changelog
 
 
+## v0.1.50
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.49...v0.1.50)
+
+### 🚀 Функциональность
+
+- **ui:** 3d дома, это все тестовое ([2636362](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/2636362))
+- **core:** Firebase уведомления на бэке ([04288a8](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/04288a8))
+
+### 🔥 Производительность
+
+- **map:** Мгновенный показ карты + оффлайн-кэш ([9081471](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/9081471))
+
+### 🎨 Стили
+
+- **mark-menu:** Цвет личной опции через токен --personal-color по темам ([b23c4b4](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b23c4b4))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.49
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.48...v0.1.49)
