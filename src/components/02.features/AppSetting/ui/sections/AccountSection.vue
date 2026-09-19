@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { openActiveSessions } from '@/components/02.features/ActiveSessions'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
@@ -43,5 +44,12 @@ onMounted(() => {
         />
       </template>
     </settings-row>
+
+    <settings-row
+      label="Активные сессии"
+      hint="Устройства, с которых выполнен вход"
+      link
+      @click="openActiveSessions"
+    />
   </settings-section>
 </template>
