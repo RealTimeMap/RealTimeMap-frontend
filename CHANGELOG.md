@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v0.1.49
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.48...v0.1.49)
+
+### 🚀 Функциональность
+
+- **profile:** Открытие списка всех меток по клику на «Метки» в статистике ([f914557](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f914557))
+- **settings:** Раздел активных сессий пользователя ([ae9748d](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ae9748d))
+
+### 💅 Рефакторинг
+
+- **groups:** Переход на uuid-идентификаторы групп ([0cf9442](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/0cf9442))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.48
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.47...v0.1.48)
