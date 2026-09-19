@@ -33,7 +33,8 @@ export interface LocalPersonalMark extends OfflineMeta {
   icon?: string
   isShare: boolean
   isVisible: boolean
-  groupsIds: number[]
+  /** uuid групп, в которые входит метка (локальные — временный uuid до синхронизации). */
+  groupsIds: string[]
   /** URL уже загруженных фото (сервер) + локальные file://-пути (офлайн). */
   photos: string[]
   createdAt?: string

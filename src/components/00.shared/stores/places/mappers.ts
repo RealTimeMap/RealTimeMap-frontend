@@ -85,8 +85,8 @@ export function mergeGroups(local: LocalGroup[], upserted: LocalGroup[]): LocalG
 /** Удаление серверных removed-id из локального массива (pending-записи не трогаем). */
 export function applyRemoved<T extends { id: number | string, pending: boolean }>(
   local: T[],
-  removed: number[],
+  removed: Array<number | string>,
 ): T[] {
-  const removedSet = new Set<number>(removed)
-  return local.filter(item => item.pending || !removedSet.has(item.id as number))
+  const removedSet = new Set<number | string>(removed)
+  return local.filter(item => item.pending || !removedSet.has(item.id))
 }

@@ -27,14 +27,15 @@ export interface SyncPersonalMark {
   icon?: string | null
   isShare: boolean
   isVisible: boolean
-  groupsIds: number[]
+  groupsIds: string[]
   photos: SyncPhoto[]
   geom: SyncPointGeom
 }
 
 /** Группа меток в секции синхронизации */
 export interface SyncGroup {
-  id: number
+  // uuid группы
+  id: string
   revision: number
   name: string
   description?: string | null
@@ -44,8 +45,8 @@ export interface SyncGroup {
 export interface SyncSection<T> {
   /** Добавленные или измененные сущности */
   upserted: T[]
-  /** ID удаленных сущностей */
-  removed: number[]
+  /** ID удаленных сущностей (метки — number, группы — uuid) */
+  removed: Array<number | string>
   /** Курсор секции */
   cursor: number
   /** Есть ли еще данные для догрузки */
@@ -82,7 +83,7 @@ export interface PersonalMark {
   icon: string
   isShare: boolean
   isVisible: boolean
-  groupsIds: number[]
+  groupsIds: string[]
   photos?: string[]
   createdAt: string
   updatedAt: string
@@ -103,7 +104,7 @@ export interface CreatePersonalMarkPayload {
   isVisible?: boolean
   longitude: number
   latitude: number
-  groupsIds: number[]
+  groupsIds: string[]
   photos?: File[] | Blob[]
 }
 
@@ -119,7 +120,7 @@ export interface UpdatePersonalMarkPayload {
   longitude?: number
   latitude?: number
   /** Заменяет состав групп целиком, если передан */
-  groupsIds?: number[]
+  groupsIds?: string[]
   /** Новые прикрепляемые фотографии (добавляются к существующим) */
   photos?: File[] | Blob[]
   /** URL фотографий, которые нужно удалить (суммарно не более 3) */

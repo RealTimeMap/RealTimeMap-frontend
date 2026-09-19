@@ -33,12 +33,18 @@ const markCoords = computed<MapPoint>(() =>
   editingMark.value?.coordinates ?? props.coords ?? [0, 0],
 )
 
+// временный uuid заменится на серверный при синхронизации (см. remapId).
 const availableGroups = computed(() =>
-  groups.value.filter(g => typeof g.id === 'number') as { id: number, name: string, color?: string, icon?: string }[],
+  groups.value.map(g => ({
+    id: String(g.id),
+    name: g.name,
+    color: g.color,
+    icon: g.icon,
+  })),
 )
-const selectedgroupsIds = ref<number[]>([])
+const selectedgroupsIds = ref<string[]>([])
 
-function toggleGroup(id: number) {
+function toggleGroup(id: string) {
   const i = selectedgroupsIds.value.indexOf(id)
   if (i === -1)
     selectedgroupsIds.value.push(id)
