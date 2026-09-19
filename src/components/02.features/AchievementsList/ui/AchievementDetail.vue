@@ -61,10 +61,9 @@ onMounted(load)
           class="ach__icon"
           :class="{ 'is-locked': !earned }"
         >
-          <img
-            :src="achievement.icon"
-            :alt="achievement.title"
-          >
+          <u-icon
+            :icon="achievement.icon"
+          />
         </div>
       </div>
 
@@ -108,11 +107,10 @@ onMounted(load)
         v-if="achievement.next"
         class="ach__next"
       >
-        <img
+        <u-icon
           class="ach__next-icon"
-          :src="achievement.next.icon"
-          :alt="achievement.next.title"
-        >
+          :icon="achievement.next.icon"
+        />
         <div class="ach__next-body">
           <span class="ach__next-label">Следующая ступень</span>
           <span class="ach__next-title">
@@ -180,6 +178,7 @@ onMounted(load)
 
   &__icon {
     position: relative;
+    font-size: 40px;
     width: 88px;
     height: 88px;
     display: grid;
@@ -191,12 +190,6 @@ onMounted(load)
     &.is-locked img {
       filter: grayscale(1);
       opacity: 0.7;
-    }
-
-    img {
-      width: 52px;
-      height: 52px;
-      object-fit: contain;
     }
   }
 
@@ -304,9 +297,7 @@ onMounted(load)
     border: 0.5px solid var(--border-subtle);
 
     &-icon {
-      width: 38px;
-      height: 38px;
-      object-fit: contain;
+      font-size: 30px;
       filter: grayscale(1);
       opacity: 0.85;
       flex-shrink: 0;

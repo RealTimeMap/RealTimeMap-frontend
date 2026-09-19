@@ -5,6 +5,8 @@ html[data-theme='dusk'] {
   --secondary-color: oklch(0.79 0.04 50);
   --red-color: #e8686d;
   --access-color: #6bbf87;
+  /* Акцент личных меток (контраст к тёплому primary) */
+  --personal-color: oklch(0.72 0.12 200);
 
   --bg-body: oklch(0.19 0.012 60);
   --profile-bg: linear-gradient(oklch(0.23 0.02 55) 0%, oklch(0.16 0.014 60) 60%);

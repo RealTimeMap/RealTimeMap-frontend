@@ -61,7 +61,7 @@ const { closing, requestClose } = useMenuClose(() => emit('close'))
         >
           <span class="orbit__circle orbit__circle--muted">
             <u-icon
-              icon="solar:lock-keyhole-bold"
+              icon="solar:user-bold"
               height="20"
             />
           </span>
@@ -151,14 +151,18 @@ const { closing, requestClose } = useMenuClose(() => emit('close'))
   border-radius: 50%;
   color: var(--primary-color);
   background: var(--bg-color-block);
-  border: 1.5px dashed color-mix(in srgb, var(--primary-color) 55%, transparent);
+  // Публичная — сплошная обводка.
+  border: 1.5px solid color-mix(in srgb, var(--primary-color) 55%, transparent);
   backdrop-filter: blur(12px);
   transition: transform 0.15s ease;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 
+  // Личная — акцент личных меток (по теме), пунктирная рамка.
   &--muted {
-    color: var(--text-color-secondary);
-    border-color: color-mix(in srgb, var(--text-color) 25%, transparent);
+    color: var(--personal-color);
+    background: color-mix(in srgb, var(--personal-color) 12%, transparent);
+    border-style: dashed;
+    border-color: color-mix(in srgb, var(--personal-color) 55%, transparent);
   }
 }
 

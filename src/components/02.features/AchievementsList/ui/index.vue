@@ -152,10 +152,9 @@ onMounted(load)
             class="achive__icon"
             :class="{ 'has-tier': !!entry.row.tier }"
           >
-            <img
-              :src="entry.row.achievement.icon"
-              :alt="entry.row.achievement.title"
-            >
+            <u-icon
+              :icon="entry.row.achievement.icon"
+            />
           </div>
 
           <div class="achive__body">
@@ -387,6 +386,7 @@ onMounted(load)
 
   &__icon {
     flex-shrink: 0;
+    font-size: 20px;
     width: 42px;
     height: 42px;
     display: flex;
@@ -399,12 +399,6 @@ onMounted(load)
     &.has-tier {
       background: color-mix(in srgb, var(--tier) 18%, transparent);
       box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tier) 55%, transparent);
-    }
-
-    img {
-      width: 28px;
-      height: 28px;
-      object-fit: contain;
     }
   }
 
