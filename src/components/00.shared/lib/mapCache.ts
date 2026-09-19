@@ -1,7 +1,11 @@
+import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 
 const CACHE_DIR = Directory.Data
 const CACHE_ROOT = 'map-cache'
+
+const MAX_CACHE_BYTES = 80 * 1024 * 1024
+const CHECK_EVERY_WRITES = 40
 
 export function normalizeUrl(url: string): string {
   return url.replace(/tiles-[a-d]\./g, 'tiles.')
@@ -54,6 +58,20 @@ async function ensureIndex(): Promise<Set<string>> {
   return indexPromise
 }
 
+async function readBinary(path: string): Promise<ArrayBuffer> {
+  try {
+    const { uri } = await Filesystem.getUri({ directory: CACHE_DIR, path })
+    const res = await fetch(Capacitor.convertFileSrc(uri))
+    if (res.ok)
+      return await res.arrayBuffer()
+  }
+  catch {
+    // convertFileSrc/fetch недоступен — уходим на base64-фолбэк ниже.
+  }
+  const { data } = await Filesystem.readFile({ directory: CACHE_DIR, path })
+  return base64ToArrayBuffer(data as string)
+}
+
 export async function read(url: string): Promise<ArrayBuffer | null> {
   const key = keyFor(url)
   const index = await ensureIndex()
@@ -61,12 +79,39 @@ export async function read(url: string): Promise<ArrayBuffer | null> {
     return null
 
   try {
-    const { data } = await Filesystem.readFile({ directory: CACHE_DIR, path: `${CACHE_ROOT}/${key}` })
-    return base64ToArrayBuffer(data as string)
+    return await readBinary(`${CACHE_ROOT}/${key}`)
   }
   catch {
     index.delete(key)
     return null
+  }
+}
+
+let writesSinceCheck = 0
+
+async function enforceLimit(): Promise<void> {
+  try {
+    const { files } = await Filesystem.readdir({ directory: CACHE_DIR, path: CACHE_ROOT })
+    let total = files.reduce((sum, f) => sum + (f.size ?? 0), 0)
+    if (total <= MAX_CACHE_BYTES)
+      return
+
+    const target = MAX_CACHE_BYTES * 0.9
+    const oldestFirst = [...files].sort((a, b) => (a.mtime ?? 0) - (b.mtime ?? 0))
+    for (const file of oldestFirst) {
+      if (total <= target)
+        break
+      try {
+        await Filesystem.deleteFile({ directory: CACHE_DIR, path: `${CACHE_ROOT}/${file.name}` })
+        cacheIndex?.delete(file.name)
+        total -= file.size ?? 0
+      }
+      catch {
+      }
+    }
+  }
+  catch {
+    // readdir недоступен — лимит не критичен, пропускаем
   }
 }
 
@@ -80,6 +125,11 @@ export async function write(url: string, buffer: ArrayBuffer): Promise<void> {
   })
   const index = await ensureIndex()
   index.add(key)
+
+  if (++writesSinceCheck >= CHECK_EVERY_WRITES) {
+    writesSinceCheck = 0
+    void enforceLimit()
+  }
 }
 
 export async function getSize(): Promise<number> {

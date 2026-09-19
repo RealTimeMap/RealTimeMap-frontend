@@ -5,6 +5,7 @@ import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+// import { Buildings3D } from '@/components/02.features/Buildings3D'
 import { GeolocationFeedback } from '@/components/02.features/Geolocation'
 import { useGeolocation } from '@/components/02.features/Geolocation/model/useGeolocation'
 import MarksLayer from '@/components/02.features/GetMarks/ui/MarksLayer.vue'
@@ -148,10 +149,35 @@ function handleUpdateZoom(newZoom: number) {
   zoomLevel.value = newZoom
 }
 
-const mapInitialCenter = shallowRef<MapPoint | null>(null)
-watch(userPosition, (newPos) => {
-  if (newPos && !mapInitialCenter.value) {
-    mapInitialCenter.value = newPos
+const LAST_CENTER_KEY = 'rtm_last_center'
+const DEFAULT_CENTER: MapPoint = [37.6173, 55.7558]
+
+function readLastCenter(): MapPoint | null {
+  try {
+    const raw = localStorage.getItem(LAST_CENTER_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    if (Array.isArray(parsed) && parsed.length === 2
+      && typeof parsed[0] === 'number' && typeof parsed[1] === 'number') {
+      return [parsed[0], parsed[1]]
+    }
+  }
+  catch {}
+  return null
+}
+
+const mapInitialCenter = shallowRef<MapPoint>(readLastCenter() ?? DEFAULT_CENTER)
+
+let centeredOnUser = false
+watch(userPosition, (pos) => {
+  if (!pos)
+    return
+  try {
+    localStorage.setItem(LAST_CENTER_KEY, JSON.stringify(pos))
+  }
+  catch { }
+  if (!centeredOnUser && !shareStore.pendingFocus) {
+    centeredOnUser = true
+    mapApi.value?.flyTo({ center: pos, zoom: mapApi.value.getZoom() })
   }
 }, { immediate: true })
 </script>
@@ -162,7 +188,7 @@ watch(userPosition, (newPos) => {
     style="height: 100dvh;"
   >
     <geolocation-feedback
-      v-if="isLoadingGeolocation || geolocationError"
+      v-if="geolocationError && !userPosition"
       :is-loading="isLoadingGeolocation"
       :error="geolocationError"
       :error-reason="geolocationErrorReason"
@@ -170,7 +196,7 @@ watch(userPosition, (newPos) => {
       @retry="retryGeolocation"
     />
     <base-map-view
-      v-if="!isLoadingGeolocation && !geolocationError && mapInitialCenter && userPosition"
+      v-if="mapInitialCenter"
       :center-coordinates="mapInitialCenter"
       :zoom-level="zoomLevel"
       :show-user-marker="false"
@@ -181,7 +207,7 @@ watch(userPosition, (newPos) => {
       @update:zoom-level="handleUpdateZoom"
     >
       <marks-layer
-        v-if="showPublicMarks"
+        v-if="showPublicMarks && userPosition"
         :user-coordinates="userPosition"
         :screen-bounds="screenBounds"
         :zoom-level="zoomLevel"
@@ -189,17 +215,17 @@ watch(userPosition, (newPos) => {
         @update:cluster-count="handleClusterCount"
       />
       <personal-marks-layer v-if="showPersonalMarks" />
+      <!-- <buildings3-d /> -->
       <landmarks-layer />
       <u-marker
+        v-if="userPosition"
         :coordinates="userPosition"
         :draggable="false"
         variant="user"
         :media="user?.avatar || null"
       />
     </base-map-view>
-    <search-users
-      v-if="!isLoadingGeolocation && !geolocationError"
-    />
+    <search-users v-if="mapInitialCenter" />
     <route-banner v-if="routeStore.hasRoute" />
     <map-controls
       :map-api="mapApi"

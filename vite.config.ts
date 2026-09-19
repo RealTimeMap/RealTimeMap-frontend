@@ -91,12 +91,12 @@ export default defineConfig({
       workbox: {
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/basemaps\.cartocdn\.com\/.*$/,
+            urlPattern: /^https:\/\/([a-z0-9-]+\.)*basemaps\.cartocdn\.com\/.*$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'carto-map-tiles',
               expiration: {
-                maxEntries: 500,
+                maxEntries: 1500,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
               },
               cacheableResponse: {
