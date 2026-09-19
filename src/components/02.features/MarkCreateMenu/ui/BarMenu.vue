@@ -87,7 +87,7 @@ const coordsStyle = computed(() => {
         >
           <span class="bar__ic bar__ic--private">
             <u-icon
-              icon="solar:lock-keyhole-bold"
+              icon="solar:user-bold"
               height="16"
             />
           </span>
@@ -169,15 +169,20 @@ const coordsStyle = computed(() => {
   width: 34px;
   height: 34px;
   border-radius: 10px;
+  box-sizing: border-box;
 
+  // Публичная — фирменный цвет, сплошная рамка.
   &--public {
-    color: #fff;
-    @include gradient();
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    border: 1.5px solid var(--primary-color);
   }
 
+  // Личная — акцент личных меток (по теме), пунктирная рамка.
   &--private {
-    color: var(--text-color-secondary);
-    background: var(--surface-subtle);
+    color: var(--personal-color);
+    background: color-mix(in srgb, var(--personal-color) 12%, transparent);
+    border: 1.5px dashed var(--personal-color);
   }
 }
 

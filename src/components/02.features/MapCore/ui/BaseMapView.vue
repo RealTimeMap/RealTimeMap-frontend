@@ -50,6 +50,8 @@ onMounted(() => {
     attributionControl: false,
     transformRequest: buildTransformRequest(),
     canvasContextAttributes: { antialias: true },
+    fadeDuration: 0,
+    refreshExpiredTiles: false,
   })
 
   map.value = mapInstance

@@ -93,7 +93,7 @@ function confirm() {
             @click="selected = 'private'"
           >
             <u-icon
-              icon="solar:lock-keyhole-bold"
+              icon="solar:user-bold"
               height="15"
             />
             Личная

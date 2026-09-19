@@ -317,6 +317,7 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
       camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
 
       renderer.resetState()
+      renderer.clearDepth()
       renderer.render(scene, camera)
     },
   }

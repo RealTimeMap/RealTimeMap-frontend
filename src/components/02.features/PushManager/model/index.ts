@@ -2,24 +2,17 @@ import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { getToken, onMessage } from 'firebase/messaging'
 import { getFirebaseMessaging } from '@/components/00.shared/lib/firebase'
+import { notificationApi } from '@/components/00.shared/services/notification'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
-async function registerDeviceOnBackend(token: string, platform: 'web' | 'android') {
+async function registerDeviceOnBackend(token: string, _platform: 'web' | 'android') {
   try {
     const deviceId = localStorage.getItem('device_id') || crypto.randomUUID()
     localStorage.setItem('device_id', deviceId)
 
-    console.warn('firebase', {
-      deviceId,
-      platform,
-      fullToken: token,
+    await notificationApi.postToken({
+      token,
     })
-
-    // await api.post('/notifications/device', {
-    //   device_id: deviceId,
-    //   fcm_token: token,
-    //   platform,
-    // })
   }
   catch (e) {
     console.error('Ошибка отправки токена на бэкенд:', e)

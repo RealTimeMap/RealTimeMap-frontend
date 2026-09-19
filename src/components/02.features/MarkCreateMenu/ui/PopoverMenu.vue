@@ -94,12 +94,16 @@ const coordsStyle = computed(() => {
         >
           <span class="mark-pop__ic mark-pop__ic--private">
             <u-icon
-              icon="solar:lock-keyhole-bold"
+              icon="solar:user-bold"
               height="16"
             />
           </span>
           <span class="mark-pop__text">Личная</span>
-          <span class="mark-pop__soon">скоро</span>
+          <u-icon
+            class="mark-pop__chevron"
+            icon="line-md:chevron-right"
+            height="16"
+          />
         </button>
 
         <span
@@ -186,15 +190,20 @@ const coordsStyle = computed(() => {
   height: 34px;
   flex-shrink: 0;
   border-radius: 10px;
+  box-sizing: border-box;
 
+  // Публичная — фирменный цвет, сплошная рамка.
   &--public {
-    color: #fff;
-    @include gradient();
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 12%, transparent);
+    border: 1.5px solid var(--primary-color);
   }
 
+  // Личная — акцент личных меток (по теме), пунктирная рамка.
   &--private {
-    color: var(--text-color-secondary);
-    background: var(--surface-subtle);
+    color: var(--personal-color);
+    background: color-mix(in srgb, var(--personal-color) 12%, transparent);
+    border: 1.5px dashed var(--personal-color);
   }
 }
 
@@ -207,14 +216,6 @@ const coordsStyle = computed(() => {
 .mark-pop__chevron {
   color: var(--text-color-muted);
   flex-shrink: 0;
-}
-
-.mark-pop__soon {
-  flex-shrink: 0;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: var(--surface-subtle);
-  @include label-text(10px, uppercase);
 }
 
 .mark-pop__divider {

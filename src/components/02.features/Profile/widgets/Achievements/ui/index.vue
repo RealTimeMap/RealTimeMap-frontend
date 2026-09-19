@@ -118,10 +118,9 @@ onMounted(loadAchievements)
           @click="handleItemClick($event, item)"
         >
           <div class="icon-container">
-            <img
-              :src="item.achievement.icon"
-              :alt="item.achievement.title"
-            >
+            <u-icon
+              :icon="item.achievement.icon"
+            />
           </div>
           <span class="short-title">{{ item.achievement.title }}</span>
         </div>
@@ -231,7 +230,7 @@ onMounted(loadAchievements)
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: space-around;
   padding: 8px 4px;
   border-radius: 10px;
   width: 100%;
@@ -255,9 +254,8 @@ onMounted(loadAchievements)
     border-color: color-mix(in srgb, var(--primary-color) 50%, transparent);
   }
 
-  img {
-    height: 22px;
-    object-fit: contain;
+  .icon-container {
+    font-size: 16px;
     opacity: 0.4;
   }
 

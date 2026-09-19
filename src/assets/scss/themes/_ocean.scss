@@ -5,6 +5,8 @@ html[data-theme='ocean'] {
   --secondary-color: oklch(0.8 0.11 200);
   --red-color: #ff5a5f;
   --access-color: #2ee6a6;
+  /* Акцент личных меток (контраст к бирюзовому primary) */
+  --personal-color: oklch(0.7 0.17 350);
 
   --bg-body: oklch(0.16 0.03 230);
   --profile-bg: linear-gradient(oklch(0.2 0.05 225) 0%, oklch(0.12 0.03 230) 60%);

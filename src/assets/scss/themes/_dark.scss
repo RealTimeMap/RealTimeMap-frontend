@@ -5,6 +5,8 @@ html[data-theme='dark'] {
   --secondary-color: rgb(169, 140, 255);
   --red-color: #ff5a5f;
   --access-color: #82f00d;
+  /* Акцент личных меток (контраст к фиолетовому primary) */
+  --personal-color: oklch(0.72 0.16 350);
 
   --bg-body: rgb(16, 16, 20);
   --profile-bg: linear-gradient(oklch(0.16 0.04 220) 0%, oklch(0.09 0.02 220) 60%);
