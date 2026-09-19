@@ -9,13 +9,7 @@ const KEYS = {
   version: 'pm_cache_version',
 } as const
 
-/**
- * Версия локального кэша. Повышаем, когда прежний формат данных мог сохраниться
- * повреждённым и требуется одноразовый полный ре-pull с сервера.
- * v2: фикс потери фото (sync отдаёт string[], раньше парсилось как {url}).
- * v3: очистка меток с legacy null-элементами в photos, сохранёнными до фикса v2.
- */
-const CACHE_VERSION = 3
+const CACHE_VERSION = 4
 
 async function readJson<T>(key: string, fallback: T): Promise<T> {
   const { value } = await Preferences.get({ key })
@@ -53,16 +47,16 @@ export const placesStorage = {
   },
   saveCursor: (cursor: number) => Preferences.set({ key: KEYS.cursor, value: String(cursor) }),
 
-  /**
-   * Одноразовая миграция по версии кэша. При устаревшей версии сбрасывает cursor,
-   * чтобы следующий sync сделал полный pull и переписал повреждённые данные
-   * (очередь мутаций при этом сохраняется). Возвращает true, если сброс выполнен.
-   */
   async migrate(): Promise<boolean> {
     const { value } = await Preferences.get({ key: KEYS.version })
     if (Number(value) === CACHE_VERSION)
       return false
-    await Preferences.remove({ key: KEYS.cursor })
+    await Promise.all([
+      Preferences.remove({ key: KEYS.marks }),
+      Preferences.remove({ key: KEYS.groups }),
+      Preferences.remove({ key: KEYS.queue }),
+      Preferences.remove({ key: KEYS.cursor }),
+    ])
     await Preferences.set({ key: KEYS.version, value: String(CACHE_VERSION) })
     return true
   },

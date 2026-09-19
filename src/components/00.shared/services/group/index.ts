@@ -31,12 +31,12 @@ export const groupApi = {
       headers: authHeaders(),
     }),
 
-  getGroupDetail: (groupId: number) =>
+  getGroupDetail: (groupId: string) =>
     apiService.get<Group>(`/group/${groupId}`, authConfig()),
 
-  patchGroupUpdate: (groupId: number, payload: UpdateGroupPayload) =>
+  patchGroupUpdate: (groupId: string, payload: UpdateGroupPayload) =>
     apiService.patch<Group>(`/group/${groupId}`, payload, authConfig()),
 
-  deleteGroup: (groupId: number) =>
+  deleteGroup: (groupId: string) =>
     apiService.delete<void>(`/group/${groupId}`, authConfig()),
 }

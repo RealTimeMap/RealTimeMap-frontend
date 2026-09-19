@@ -26,8 +26,8 @@ function startCreate() {
   router.push({ name: 'home-map' })
 }
 
-function getGroupIds(mark: LocalPersonalMark): number[] {
-  return mark.groupsIds ?? mark.groupsIds ?? []
+function getGroupIds(mark: LocalPersonalMark): string[] {
+  return mark.groupsIds ?? []
 }
 
 function badge(mark: LocalPersonalMark): { label: string, tone: 'shared' | 'private' | 'hidden' } {

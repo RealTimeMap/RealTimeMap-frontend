@@ -37,14 +37,13 @@ const canDelete = computed(() => marks.value.length === 0)
 // Режим редактирования состава группы (открепление/прикрепление меток).
 const isEditingMarks = ref(false)
 
-// Прикреплять метки можно только к серверной группе (её id — number).
-const canAttach = computed(() => typeof props.groupId === 'number')
+const canAttach = computed(() => group.value != null)
 
 // Кандидаты на прикрепление: серверные метки, ещё не входящие в эту группу.
 const candidateMarks = computed<LocalPersonalMark[]>(() => {
   if (!canAttach.value)
     return []
-  const gid = Number(props.groupId)
+  const gid = String(props.groupId)
   return store.marks
     .filter(m => typeof m.id === 'number' && !m.groupsIds.includes(gid))
     .sort((a, b) => a.title.localeCompare(b.title, 'ru'))
@@ -57,14 +56,14 @@ function canDetach(mark: LocalPersonalMark) {
 async function detachMark(mark: LocalPersonalMark) {
   if (!canDetach(mark))
     return
-  const gid = Number(props.groupId)
+  const gid = String(props.groupId)
   const rest = mark.groupsIds.filter(g => g !== gid)
   await store.updateMark(mark.id, { groupsIds: rest })
   hapticLight()
 }
 
 async function attachMark(mark: LocalPersonalMark) {
-  await store.updateMark(mark.id, { groupsIds: [...mark.groupsIds, Number(props.groupId)] })
+  await store.updateMark(mark.id, { groupsIds: [...mark.groupsIds, String(props.groupId)] })
   hapticLight()
 }
 
@@ -303,54 +302,43 @@ async function remove() {
     >
       <span class="group-detail__attach-title">Добавить метки</span>
 
-      <p
-        v-if="!canAttach"
-        class="group-detail__attach-hint"
+      <div
+        v-for="mark in candidateMarks"
+        :key="String(mark.id)"
+        class="gd-mark"
       >
-        {{ showPending
-          ? 'Группа ещё не синхронизирована — добавить метки можно после синхронизации.'
-          : 'Добавлять метки можно только в синхронизированную группу.' }}
+        <span
+          class="gd-mark__icon"
+          :style="{
+            borderColor: mark.color || 'var(--primary-color)',
+            color: mark.color || 'var(--primary-color)',
+          }"
+        >
+          <u-icon
+            :icon="mark.icon || 'solar:map-point-linear'"
+            height="18"
+          />
+        </span>
+        <span class="gd-mark__title">{{ mark.title }}</span>
+        <button
+          class="gd-mark__action gd-mark__action--primary"
+          type="button"
+          title="Прикрепить к группе"
+          @click="attachMark(mark)"
+        >
+          <u-icon
+            icon="solar:add-circle-linear"
+            height="18"
+          />
+        </button>
+      </div>
+
+      <p
+        v-if="!candidateMarks.length"
+        class="group-detail__empty"
+      >
+        Нет меток для добавления.
       </p>
-
-      <template v-else>
-        <div
-          v-for="mark in candidateMarks"
-          :key="String(mark.id)"
-          class="gd-mark"
-        >
-          <span
-            class="gd-mark__icon"
-            :style="{
-              borderColor: mark.color || 'var(--primary-color)',
-              color: mark.color || 'var(--primary-color)',
-            }"
-          >
-            <u-icon
-              :icon="mark.icon || 'solar:map-point-linear'"
-              height="18"
-            />
-          </span>
-          <span class="gd-mark__title">{{ mark.title }}</span>
-          <button
-            class="gd-mark__action gd-mark__action--primary"
-            type="button"
-            title="Прикрепить к группе"
-            @click="attachMark(mark)"
-          >
-            <u-icon
-              icon="solar:add-circle-linear"
-              height="18"
-            />
-          </button>
-        </div>
-
-        <p
-          v-if="!candidateMarks.length"
-          class="group-detail__empty"
-        >
-          Нет меток для добавления.
-        </p>
-      </template>
     </div>
   </div>
 </template>

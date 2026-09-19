@@ -42,19 +42,12 @@ export const usePlacesStore = defineStore('places', () => {
 
   /** Метки конкретной группы (сортировка/фильтрация — на фронте). */
   function marksInGroup(groupId: EntityId): LocalPersonalMark[] {
-    if (typeof groupId !== 'number')
-      return []
-    return marks.value.filter((m) => {
-      const ids: number[] = m.groupsIds ?? m.groupsIds ?? []
-      return ids.includes(groupId)
-    })
+    const gid = String(groupId)
+    return marks.value.filter(m => m.groupsIds.includes(gid))
   }
   /** Метки без групп (раздел «Без группы»). */
   const marksWithoutGroup = computed(() =>
-    marks.value.filter((m) => {
-      const ids: number[] = m.groupsIds ?? m.groupsIds ?? []
-      return ids.length === 0
-    }),
+    marks.value.filter(m => (m.groupsIds ?? []).length === 0),
   )
 
   function currentUserId(): number {
@@ -86,7 +79,7 @@ export const usePlacesStore = defineStore('places', () => {
     ])
     marks.value = m.map(item => ({
       ...item,
-      groupsIds: item.groupsIds ?? item.groupsIds ?? [],
+      groupsIds: item.groupsIds ?? [],
       photos: (item.photos ?? []).filter((p): p is string => typeof p === 'string' && p.length > 0),
     }))
     groups.value = g
@@ -222,22 +215,38 @@ export const usePlacesStore = defineStore('places', () => {
       pending: true,
     })
     await persistGroups()
-    if (typeof id === 'number')
+    // Ещё не отправленную группу (есть localId) правим прямо в её create-мутации,
+    // иначе — обычный update по серверному uuid.
+    if (group.localId)
+      await mergeGroupIntoPendingCreate(group.localId, payload)
+    else
       await enqueue({ id: uuid(), kind: 'group.update', target: id, payload })
     void trySync()
   }
 
   async function deleteGroup(id: EntityId) {
+    const group = groups.value.find(g => g.id === id)
+    const localId = group?.localId
     groups.value = groups.value.filter(g => g.id !== id)
     await persistGroups()
-    if (typeof id === 'string') {
-      queue.value = queue.value.filter(mut => !('localId' in mut && mut.localId === id))
+    if (localId) {
+      // Локальная группа ещё не на сервере — удаляем её create-мутацию из очереди.
+      queue.value = queue.value.filter(mut => !('localId' in mut && mut.localId === localId))
       await persistQueue()
     }
     else {
       await enqueue({ id: uuid(), kind: 'group.delete', target: id })
     }
     void trySync()
+  }
+
+  /** Обновление ещё не отправленной группы — правим прямо в её create-мутации. */
+  async function mergeGroupIntoPendingCreate(localId: string, payload: UpdateGroupPayload) {
+    const mut = queue.value.find(m => m.kind === 'group.create' && m.localId === localId)
+    if (mut && mut.kind === 'group.create') {
+      Object.assign(mut.payload, payload)
+      await persistQueue()
+    }
   }
 
   /** Обновление ещё не отправленной метки — правим прямо в её create-мутации. */
@@ -253,7 +262,7 @@ export const usePlacesStore = defineStore('places', () => {
   // ── Синхронизация ───────────────────────────────────────────────────────
 
   /** Ремап временного localId на серверный id во всех связанных данных. */
-  function remapId(localId: string, serverId: number, revision: number) {
+  function remapId(localId: string, serverId: EntityId, revision: number) {
     const mark = marks.value.find(m => m.localId === localId)
     if (mark) {
       mark.id = serverId
@@ -267,9 +276,29 @@ export const usePlacesStore = defineStore('places', () => {
       group.revision = revision
       group.pending = false
       group.localId = undefined
+      // Группа подтверждена: заменяем её временный uuid на серверный во всех
+      // ссылках groupsIds — и в метках, и в ещё не отправленных мутациях.
+      remapGroupRef(localId, String(serverId))
     }
-    // Ссылки на локальную группу в остальных мутациях/метках ремапить не нужно:
-    // groupsIds хранят number, локальные группы туда не попадают до подтверждения.
+  }
+
+  /** Замена временного uuid группы на серверный в groupsIds меток и очереди. */
+  function remapGroupRef(localId: string, serverId: string) {
+    for (const mark of marks.value) {
+      const i = mark.groupsIds.indexOf(localId)
+      if (i !== -1)
+        mark.groupsIds.splice(i, 1, serverId)
+    }
+    for (const mut of queue.value) {
+      if (mut.kind !== 'mark.create' && mut.kind !== 'mark.update')
+        continue
+      const ids = mut.payload.groupsIds
+      if (!ids)
+        continue
+      const i = ids.indexOf(localId)
+      if (i !== -1)
+        ids.splice(i, 1, serverId)
+    }
   }
 
   /** Проигрывание всей очереди мутаций (push). */

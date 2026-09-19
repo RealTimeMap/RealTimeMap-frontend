@@ -1,4 +1,4 @@
-import type { Mutation, PendingPhoto } from './types'
+import type { EntityId, Mutation, PendingPhoto } from './types'
 import type { ApiError } from '@/components/00.shared/api/api.types'
 import { groupApi } from '@/components/00.shared/services/group'
 import { personalMarkApi } from '@/components/00.shared/services/personal-mark'
@@ -7,7 +7,7 @@ import { readPendingPhoto, removePendingPhoto } from './photoStore'
 /** Результат успешного проигрывания мутации создания — для ремапа localId → серверный id. */
 export interface CreateResult {
   localId: string
-  serverId: number
+  serverId: EntityId
   revision: number
 }
 
@@ -17,7 +17,7 @@ function isValidationError(error: unknown): boolean {
 }
 
 /** Ошибка мутации, непригодной к ретраю (валидация 4xx) — её выбрасываем из очереди. */
-export class PermanentMutationError extends Error {}
+export class PermanentMutationError extends Error { }
 
 async function buildMarkFormData(
   payload: Record<string, unknown>,
@@ -75,10 +75,10 @@ export async function playMutation(m: Mutation): Promise<CreateResult | null> {
         return { localId: m.localId, serverId: res.id, revision: 0 }
       }
       case 'group.update':
-        await groupApi.patchGroupUpdate(m.target as number, m.payload)
+        await groupApi.patchGroupUpdate(m.target as string, m.payload)
         return null
       case 'group.delete':
-        await groupApi.deleteGroup(m.target as number)
+        await groupApi.deleteGroup(m.target as string)
         return null
     }
   }

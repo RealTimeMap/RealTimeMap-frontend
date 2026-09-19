@@ -46,9 +46,9 @@ const hasPhotos = computed(() => photoUrls.value.length > 0)
 const markGroups = computed(() => {
   if (!mark.value)
     return []
-  const ids: number[] = mark.value.groupsIds ?? []
+  const ids = mark.value.groupsIds ?? []
 
-  return groups.value.filter(g => typeof g.id === 'number' && ids.includes(g.id))
+  return groups.value.filter(g => ids.includes(String(g.id)))
 })
 
 onMounted(() => {

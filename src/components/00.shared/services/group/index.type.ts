@@ -19,7 +19,8 @@ export interface UpdateGroupPayload {
 }
 
 export interface Group {
-  id: number
+  // uuid группы
+  id: string
   // Владелец
   userId: number
   name: string
