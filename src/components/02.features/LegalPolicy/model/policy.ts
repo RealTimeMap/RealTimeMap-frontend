@@ -4,5 +4,5 @@ export const OPERATOR = {
   name: '[Наименование оператора]',
   inn: '[ИНН]',
   address: '[юридический адрес]',
-  email: '[email для обращений]',
+  email: 'rtmGroupDev@yandex.com',
 } as const
