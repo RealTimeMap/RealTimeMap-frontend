@@ -57,7 +57,7 @@ function openSettings() {
         @click="zoomIn"
       >
         <u-icon
-          icon="lucide:plus"
+          icon="app:plus"
           width="18"
         />
       </button>
@@ -69,7 +69,7 @@ function openSettings() {
         @click="zoomOut"
       >
         <u-icon
-          icon="lucide:minus"
+          icon="app:minus"
           width="18"
         />
       </button>
@@ -83,7 +83,7 @@ function openSettings() {
       @click="locate"
     >
       <u-icon
-        icon="line-md:my-location"
+        icon="app:locate-loop"
         width="18"
       />
     </button>
@@ -96,7 +96,7 @@ function openSettings() {
       @click="openSettings"
     >
       <u-icon
-        icon="solar:settings-bold"
+        icon="app:settings"
         width="18"
       />
     </button>
@@ -120,7 +120,7 @@ function openSettings() {
       @click="openMapEditor('sheet')"
     >
       <u-icon
-        icon="solar:pen-2-bold"
+        icon="app:edit"
         width="18"
       />
     </button>
