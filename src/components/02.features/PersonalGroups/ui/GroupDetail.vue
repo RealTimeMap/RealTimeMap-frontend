@@ -7,7 +7,10 @@ import { useDeferredPending, usePlacesStore } from '@/components/00.shared/store
 import { openPersonalMarkDetail } from '@/components/02.features/PersonalMarkDetail'
 import { openGroupForm } from '..'
 
-const props = defineProps<{ groupId: EntityId }>()
+const props = defineProps<{
+  groupId: EntityId
+  readonly?: boolean
+}>()
 
 const store = usePlacesStore()
 const { groups } = storeToRefs(store)
@@ -79,7 +82,7 @@ async function toggleAllVisibility() {
 }
 
 function onMarkClick(mark: LocalPersonalMark) {
-  if (isEditingMarks.value)
+  if (props.readonly || isEditingMarks.value)
     return
   openPersonalMarkDetail(mark.id)
 }
@@ -137,7 +140,10 @@ async function remove() {
       </div>
     </header>
 
-    <div class="group-detail__actions">
+    <div
+      v-if="!readonly"
+      class="group-detail__actions"
+    >
       <button
         class="group-detail__act"
         type="button"
@@ -213,7 +219,7 @@ async function remove() {
     </div>
 
     <p
-      v-if="!canDelete"
+      v-if="!readonly && !canDelete"
       class="group-detail__delete-hint"
     >
       Чтобы удалить группу, сначала уберите из неё все метки.
@@ -246,9 +252,9 @@ async function remove() {
         v-for="mark in marks"
         :key="String(mark.id)"
         class="gd-mark"
-        :class="{ 'gd-mark--static': isEditingMarks }"
-        role="button"
-        tabindex="0"
+        :class="{ 'gd-mark--static': isEditingMarks || readonly }"
+        :role="readonly ? undefined : 'button'"
+        :tabindex="readonly ? undefined : 0"
         @click="onMarkClick(mark)"
         @keydown.enter="onMarkClick(mark)"
       >
@@ -281,7 +287,7 @@ async function remove() {
           />
         </button>
         <u-icon
-          v-else
+          v-else-if="!readonly"
           class="gd-mark__chevron"
           icon="line-md:chevron-right"
           height="18"

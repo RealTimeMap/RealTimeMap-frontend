@@ -26,8 +26,8 @@ export function openGroupForm(
   )
 }
 
-export function openGroupDetail(groupId: EntityId): void {
-  useDialogStore().open(GroupDetail, { groupId }, {
+export function openGroupDetail(groupId: EntityId, options?: { readonly?: boolean }): void {
+  useDialogStore().open(GroupDetail, { groupId, readonly: options?.readonly ?? false }, {
     position: 'end center',
     headerModal: false,
   })
