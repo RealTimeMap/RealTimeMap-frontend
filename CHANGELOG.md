@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.52
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.51...v0.1.52)
+
+### 🚀 Функциональность
+
+- **ui:** Кастомные иконки (48 штук) ([f6a4fc7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f6a4fc7))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.51
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.50...v0.1.51)
