@@ -60,7 +60,7 @@ onMounted(() => {
     mapInstance.setProjection({
       type: 'globe',
     })
-    mapInstance.setMinZoom(0.5)
+    mapInstance.setMinZoom(3)
   })
 
   mapInstance.on('load', () => {

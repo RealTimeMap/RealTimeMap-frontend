@@ -44,6 +44,17 @@ const {
   fetchAddress,
 } = useMarkAdd(coords.value)
 
+const nameError = ref(false)
+
+watch(markName, () => {
+  nameError.value = false
+})
+
+function onSubmit() {
+  nameError.value = !String(markName.value ?? '').trim()
+  handleSubmit()
+}
+
 onMounted(async () => {
   fetchCreateData()
   fetchAddress(coords.value)
@@ -78,7 +89,7 @@ onUnmounted(dismissDateTip)
         type="button"
         class="mark-form__header-btn mark-form__header-btn--submit"
         :disabled="isSubmitting"
-        @click="handleSubmit"
+        @click="onSubmit"
       >
         Готово
       </button>
@@ -110,6 +121,8 @@ onUnmounted(dismissDateTip)
         <u-input
           v-model="markName"
           label="Название"
+          required
+          :error="nameError"
           placeholder="Напр. «Двор на Патриарших»"
         />
         <u-drawer />
@@ -124,6 +137,7 @@ onUnmounted(dismissDateTip)
         <u-select
           v-model="selectedCategoryId"
           label="Категория"
+          required
           :options="categoryOptions"
           :parent-padding="14"
         />

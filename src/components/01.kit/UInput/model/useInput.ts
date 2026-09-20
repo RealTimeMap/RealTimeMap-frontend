@@ -2,6 +2,7 @@ import type { ModelRef } from 'vue'
 
 export interface UInputProps {
   label?: string
+  required?: boolean
   placeholder?: string
   type?: 'text' | 'password' | 'email' | 'tel' | 'textarea'
   error?: boolean

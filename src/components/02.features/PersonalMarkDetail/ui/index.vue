@@ -7,6 +7,7 @@ import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useDeferredPending, usePlacesStore } from '@/components/00.shared/stores/places'
 import { isLocalPhoto, localPhotoPath, photoDisplayUrl } from '@/components/00.shared/stores/places/photoStore'
+import { openGroupDetail } from '@/components/02.features/PersonalGroups'
 import { openPersonalMarkEditForm } from '@/components/02.features/PersonalMarkForm'
 import { useShareStore } from '@/components/02.features/Share/model'
 
@@ -281,18 +282,25 @@ async function remove() {
         </span>
         <span class="pm-status__label">{{ markGroups.length > 1 ? 'Группы' : 'Группа' }}</span>
         <div class="pm-status__groups">
-          <span
+          <button
             v-for="g in markGroups"
             :key="String(g.id)"
+            type="button"
             class="pm-status__chip"
             :style="{ borderColor: g.color || 'var(--primary-color)', color: g.color || 'var(--primary-color)' }"
+            @click="openGroupDetail(g.id, { readonly: true })"
           >
             <u-icon
               :icon="g.icon || 'solar:folder-linear'"
               height="12"
             />
             {{ g.name }}
-          </span>
+            <u-icon
+              class="pm-status__chip-chevron"
+              icon="line-md:chevron-right"
+              height="12"
+            />
+          </button>
         </div>
       </div>
 
@@ -426,7 +434,19 @@ async function remove() {
     padding: 4px 9px;
     border-radius: 999px;
     border: 1.5px solid currentColor;
+    background: transparent;
+    cursor: pointer;
     @include value-text(12px, inherit, 600);
+    transition: transform 0.15s ease;
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  &__chip-chevron {
+    opacity: 0.7;
+    margin-right: -2px;
   }
 
   &__icon {

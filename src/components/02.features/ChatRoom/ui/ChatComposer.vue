@@ -38,15 +38,20 @@ function handleInput() {
 }
 
 function handleSend() {
-  if (!canSend.value)
+  const el = textareaEl.value
+  const content = el?.value ?? text.value
+  if (content.trim().length === 0)
     return
 
   hapticLight()
-  emit('send', text.value)
+  emit('send', content)
   emit('stopTyping')
-  text.value = ''
 
-  textareaEl.value?.focus()
+  text.value = ''
+  if (el)
+    el.value = ''
+
+  el?.focus()
   nextTick(autoGrow)
 }
 

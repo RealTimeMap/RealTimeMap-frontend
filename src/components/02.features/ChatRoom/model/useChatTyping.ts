@@ -6,6 +6,8 @@ import { useAuthStore } from '@/components/02.features/Authentication/model/auth
 
 /** Контракт бэкенда: typing.start слать не чаще раза в ~2 секунды, пока идёт набор */
 const TYPING_THROTTLE_MS = 2000
+/** Если ввод прекратился на столько — сами шлём stop, чтобы «печатает…» не залипало */
+const TYPING_IDLE_STOP_MS = 3500
 
 interface TypingUser {
   userId: number
@@ -25,11 +27,30 @@ export function useChatTyping(chatId: Ref<number>) {
     false,
   )
 
+  let idleTimer: ReturnType<typeof setTimeout> | null = null
+
+  const clearIdle = () => {
+    if (idleTimer) {
+      clearTimeout(idleTimer)
+      idleTimer = null
+    }
+  }
+
   /** Дёргать на каждое изменение инпута — троттлинг внутри */
-  const notifyTyping = () => throttledStart()
+  const notifyTyping = () => {
+    throttledStart()
+    clearIdle()
+    idleTimer = setTimeout(() => {
+      idleTimer = null
+      stopTyping({ chatId: chatId.value })
+    }, TYPING_IDLE_STOP_MS)
+  }
 
   /** Дёргать на отправку сообщения, очистку поля или уход из чата */
-  const notifyStopped = () => stopTyping({ chatId: chatId.value })
+  const notifyStopped = () => {
+    clearIdle()
+    stopTyping({ chatId: chatId.value })
+  }
 
   const handleChatTyping = (payload: ChatTypingPayload) => {
     if (payload.chatId !== chatId.value)
@@ -69,6 +90,7 @@ export function useChatTyping(chatId: Ref<number>) {
 
   // при смене чата сбрасываем набор и явно шлём stop за собой
   watch(chatId, (_, prevId) => {
+    clearIdle()
     if (prevId !== undefined)
       stopTyping({ chatId: prevId })
 

@@ -67,7 +67,10 @@ const {
         :for="inputId"
         class="u-input-label label-text"
       >
-        {{ label }}
+        {{ label }}<span
+          v-if="required"
+          class="u-input-required"
+        >*</span>
       </label>
 
       <div
@@ -214,6 +217,11 @@ const {
   top: 0;
   pointer-events: none;
   transition: all 0.2s ease;
+}
+
+.u-input-required {
+  margin-left: 3px;
+  color: var(--red-color, #e5484d);
 }
 
 .u-input-wrapper.has-error .u-input:focus ~ .u-input-label,
