@@ -1,6 +1,29 @@
 # Changelog
 
 
+## v0.1.51
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.50...v0.1.51)
+
+### 🚀 Функциональность
+
+- **ui:** Добавлена почта для обращения ([c64a1ff](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c64a1ff))
+- **forms:** Подсветка ошибки названия без inline-сообщения и выделение обязательных полей ([2ced29f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/2ced29f))
+- **ui:** Открытие группы из ЛМ ([be84683](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/be84683))
+
+### 🔥 Производительность
+
+- **chats:** Обновление и взаимодействие чатов ([e388b76](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e388b76))
+
+### 🩹 Исправления
+
+- **map:** Ограничить минимальный зум до 2, чтобы globe не ломался ([72fda4b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/72fda4b))
+- **gamification:** Не показывать анимацию опыта во время заставки ([de7c458](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/de7c458))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.50
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.49...v0.1.50)
