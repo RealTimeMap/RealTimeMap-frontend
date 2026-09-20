@@ -142,7 +142,7 @@ async function remove() {
           @click="toggleVisibility()"
         >
           <u-icon
-            :icon="mark.isVisible ? 'solar:eye-closed-linear' : 'solar:eye-linear'"
+            :icon="mark.isVisible ? 'app:eye-off' : 'app:eye'"
             width="17"
           />
         </button>
@@ -152,7 +152,7 @@ async function remove() {
           @click="handleEdit()"
         >
           <u-icon
-            icon="solar:pen-linear"
+            icon="app:edit"
             width="17"
           />
         </button>
@@ -162,7 +162,7 @@ async function remove() {
           @click="confirmingDelete = true"
         >
           <u-icon
-            icon="solar:trash-bin-trash-linear"
+            icon="app:trash"
             width="17"
           />
         </button>
@@ -174,7 +174,7 @@ async function remove() {
           @click="remove()"
         >
           <u-icon
-            icon="line-md:confirm"
+            icon="app:check"
             width="17"
           />
         </button>
@@ -184,7 +184,7 @@ async function remove() {
           @click="confirmingDelete = false"
         >
           <u-icon
-            icon="line-md:close"
+            icon="app:close"
             width="15"
           />
         </button>
@@ -211,7 +211,7 @@ async function remove() {
       </div>
       <div class="header-block__badge">
         <u-icon
-          icon="solar:lock-keyhole-minimalistic-bold"
+          icon="app:lock"
           width="12"
           height="12"
         />
@@ -232,7 +232,7 @@ async function remove() {
         }"
       >
         <u-icon
-          :icon="mark.icon || 'solar:map-point-bold-duotone'"
+          :icon="mark.icon || 'app:pin'"
           width="26"
           height="26"
         />
@@ -251,7 +251,7 @@ async function remove() {
           :class="mark.isVisible ? 'pm-status__icon--on' : 'pm-status__icon--off'"
         >
           <u-icon
-            :icon="mark.isVisible ? 'solar:eye-linear' : 'solar:eye-closed-linear'"
+            :icon="mark.isVisible ? 'app:eye' : 'app:eye-off'"
             height="16"
           />
         </span>
@@ -262,7 +262,7 @@ async function remove() {
       <div class="pm-status__row">
         <span class="pm-status__icon pm-status__icon--on">
           <u-icon
-            icon="solar:lock-keyhole-minimalistic-linear"
+            icon="app:lock"
             height="16"
           />
         </span>
@@ -276,7 +276,7 @@ async function remove() {
       >
         <span class="pm-status__icon pm-status__icon--on">
           <u-icon
-            icon="solar:folder-linear"
+            icon="app:folder"
             height="16"
           />
         </span>
@@ -291,13 +291,13 @@ async function remove() {
             @click="openGroupDetail(g.id, { readonly: true })"
           >
             <u-icon
-              :icon="g.icon || 'solar:folder-linear'"
+              :icon="g.icon || 'app:folder'"
               height="12"
             />
             {{ g.name }}
             <u-icon
               class="pm-status__chip-chevron"
-              icon="line-md:chevron-right"
+              icon="app:chevron-right"
               height="12"
             />
           </button>
@@ -310,7 +310,7 @@ async function remove() {
           :class="showPending ? 'pm-status__icon--pending' : 'pm-status__icon--on'"
         >
           <u-icon
-            :icon="showPending ? 'solar:cloud-upload-linear' : 'solar:cloud-check-linear'"
+            :icon="showPending ? 'app:cloud-upload' : 'app:cloud-check'"
             height="16"
           />
         </span>
@@ -326,7 +326,7 @@ async function remove() {
     >
       <span class="pm-desc__label">
         <u-icon
-          icon="solar:notes-linear"
+          icon="app:note"
           height="15"
         />
         Заметка
@@ -356,7 +356,7 @@ async function remove() {
       <div class="pm-coords__head">
         <u-icon
           class="pm-coords__pin"
-          icon="solar:map-point-linear"
+          icon="app:pin"
           height="18"
         />
         <div class="pm-coords__values">
@@ -370,7 +370,7 @@ async function remove() {
           @click="copyCoords()"
         >
           <u-icon
-            icon="solar:copy-linear"
+            icon="app:copy"
             height="16"
           />
         </button>
@@ -382,7 +382,7 @@ async function remove() {
         @click="showOnMap()"
       >
         <u-icon
-          icon="solar:map-point-wave-bold"
+          icon="app:pin-wave"
           height="18"
         />
         Показать на карте

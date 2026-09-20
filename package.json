@@ -15,6 +15,7 @@
     "preview": "vite preview",
     "build-only": "bun run icons && vite build",
     "icons": "node scripts/buildIcons.mjs",
+    "icons:preview": "node scripts/buildIconsPreview.mjs",
     "icons:favicon": "node scripts/buildFavicon.mjs",
     "models:optimize": "node scripts/optimizeModels.mjs",
     "type-check": "vue-tsc --build",

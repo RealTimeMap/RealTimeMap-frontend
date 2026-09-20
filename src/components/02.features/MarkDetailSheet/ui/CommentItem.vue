@@ -158,7 +158,7 @@ async function submitReply() {
           :class="{ 'comment-pill--active': comment.meta.isLiked }"
           @click="onLike(comment)"
         >
-          <u-icon :icon="comment.meta.isLiked ? 'line-md:heart-filled' : 'line-md:heart'" />
+          <u-icon :icon="comment.meta.isLiked ? 'app:heart-filled' : 'app:heart'" />
           {{ comment.likes }}
         </button>
 
@@ -167,7 +167,7 @@ async function submitReply() {
           class="comment-pill"
           @click="startReply"
         >
-          <u-icon icon="line-md:turn-left" />
+          <u-icon icon="app:reply" />
         </button>
 
         <template v-if="isOwn">
@@ -175,7 +175,7 @@ async function submitReply() {
             class="comment-pill"
             @click="startEdit"
           >
-            <u-icon icon="solar:pen-linear" />
+            <u-icon icon="app:edit" />
           </button>
 
           <button
@@ -183,7 +183,7 @@ async function submitReply() {
             class="comment-pill comment-pill--danger"
             @click="confirmingDelete = true"
           >
-            <u-icon icon="solar:trash-bin-trash-linear" />
+            <u-icon icon="app:trash" />
           </button>
 
           <template v-else>
@@ -239,8 +239,8 @@ async function submitReply() {
       >
         <u-icon
           :icon="comment.isLoadingReplies
-            ? 'line-md:loading-twotone-loop'
-            : (comment.showReplies ? 'solar:alt-arrow-up-linear' : 'solar:alt-arrow-down-linear')"
+            ? 'app:loading'
+            : (comment.showReplies ? 'app:chevron-up' : 'app:chevron-down')"
           width="14"
         />
         {{ comment.showReplies ? 'Скрыть ответы' : `Показать ответы · ${repliesCount}` }}

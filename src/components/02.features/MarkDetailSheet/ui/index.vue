@@ -254,7 +254,7 @@ onMounted(() => {
             @click="handleEditMark()"
           >
             <u-icon
-              icon="solar:pen-linear"
+              icon="app:edit"
               width="17"
             />
           </button>
@@ -265,7 +265,7 @@ onMounted(() => {
             @click="confirmingMarkDelete = true"
           >
             <u-icon
-              icon="solar:trash-bin-trash-linear"
+              icon="app:trash"
               width="17"
             />
           </button>
@@ -278,7 +278,7 @@ onMounted(() => {
             @click="handleDeleteMark()"
           >
             <u-icon
-              :icon="isDeletingMark ? 'line-md:loading-twotone-loop' : 'line-md:confirm'"
+              :icon="isDeletingMark ? 'app:loading' : 'app:check'"
               width="17"
             />
           </button>
@@ -289,7 +289,7 @@ onMounted(() => {
             @click="confirmingMarkDelete = false"
           >
             <u-icon
-              icon="line-md:close"
+              icon="app:close"
               width="15"
             />
           </button>
@@ -321,7 +321,7 @@ onMounted(() => {
         </div>
         <div class="header-block__badge">
           <u-icon
-            icon="solar:gallery-bold"
+            icon="app:gallery"
             width="12"
             height="12"
           />
@@ -335,7 +335,7 @@ onMounted(() => {
       >
         <div class="header-nophoto__icon">
           <u-icon
-            icon="solar:map-point-bold-duotone"
+            icon="app:pin"
             width="26"
             height="26"
           />
@@ -408,7 +408,7 @@ onMounted(() => {
           @click="toggleLike()"
         >
           <u-icon
-            :icon="isLiked ? 'line-md:heart-filled' : 'line-md:heart'"
+            :icon="isLiked ? 'app:heart-filled' : 'app:heart'"
             width="16"
           />
           <span>{{ likeDisplay }}</span>
@@ -419,7 +419,7 @@ onMounted(() => {
           @click="onShareClick()"
         >
           <u-icon
-            icon="line-md:arrow-down"
+            icon="app:arrow-down"
             width="16"
           />
           <span>{{ shareDisplay }}</span>
@@ -433,7 +433,7 @@ onMounted(() => {
           @click="handleRoute()"
         >
           <u-icon
-            :icon="routeStore.isBuilding ? 'line-md:loading-twotone-loop' : 'solar:route-bold'"
+            :icon="routeStore.isBuilding ? 'app:loading' : 'app:route'"
             width="16"
           />
           <span>{{ routeStore.activeMarkId === markId ? 'Показать маршрут' : 'Маршрут' }}</span>
@@ -447,7 +447,7 @@ onMounted(() => {
         @click="handleShowOnMap()"
       >
         <u-icon
-          icon="solar:map-point-wave-bold"
+          icon="app:pin-wave"
           width="18"
         />
         Показать на карте

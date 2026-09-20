@@ -121,7 +121,7 @@ async function remove() {
         }"
       >
         <u-icon
-          :icon="group.icon || 'solar:folder-linear'"
+          :icon="group.icon || 'app:folder'"
           height="26"
         />
       </span>
@@ -150,7 +150,7 @@ async function remove() {
         @click="edit"
       >
         <u-icon
-          icon="solar:pen-linear"
+          icon="app:edit"
           height="18"
         />
         Изменить
@@ -162,7 +162,7 @@ async function remove() {
         @click="toggleAllVisibility"
       >
         <u-icon
-          :icon="anyVisible ? 'solar:eye-closed-linear' : 'solar:eye-linear'"
+          :icon="anyVisible ? 'app:eye-off' : 'app:eye'"
           height="18"
         />
         {{ anyVisible ? 'Скрыть все' : 'Показать все' }}
@@ -174,7 +174,7 @@ async function remove() {
         @click="isEditingMarks = !isEditingMarks"
       >
         <u-icon
-          :icon="isEditingMarks ? 'line-md:confirm' : 'solar:list-check-linear'"
+          :icon="isEditingMarks ? 'app:check' : 'app:list-check'"
           height="18"
         />
         {{ isEditingMarks ? 'Готово' : 'Редактировать метки' }}
@@ -187,7 +187,7 @@ async function remove() {
         title="Сначала удалите или перенесите метки группы"
       >
         <u-icon
-          icon="solar:lock-keyhole-minimalistic-linear"
+          icon="app:lock"
           height="18"
         />
         Удалить
@@ -199,7 +199,7 @@ async function remove() {
         @click="confirmingDelete = true"
       >
         <u-icon
-          icon="solar:trash-bin-trash-linear"
+          icon="app:trash"
           height="18"
         />
         Удалить
@@ -211,7 +211,7 @@ async function remove() {
         @click="remove"
       >
         <u-icon
-          icon="solar:trash-bin-trash-bold"
+          icon="app:trash"
           height="18"
         />
         Точно?
@@ -266,7 +266,7 @@ async function remove() {
           }"
         >
           <u-icon
-            :icon="mark.icon || 'solar:map-point-linear'"
+            :icon="mark.icon || 'app:pin'"
             height="18"
           />
         </span>
@@ -282,14 +282,14 @@ async function remove() {
           @click.stop="detachMark(mark)"
         >
           <u-icon
-            icon="solar:link-broken-linear"
+            icon="app:unlink"
             height="18"
           />
         </button>
         <u-icon
           v-else-if="!readonly"
           class="gd-mark__chevron"
-          icon="line-md:chevron-right"
+          icon="app:chevron-right"
           height="18"
         />
       </div>
@@ -321,7 +321,7 @@ async function remove() {
           }"
         >
           <u-icon
-            :icon="mark.icon || 'solar:map-point-linear'"
+            :icon="mark.icon || 'app:pin'"
             height="18"
           />
         </span>
@@ -333,7 +333,7 @@ async function remove() {
           @click="attachMark(mark)"
         >
           <u-icon
-            icon="solar:add-circle-linear"
+            icon="app:add-circle"
             height="18"
           />
         </button>
