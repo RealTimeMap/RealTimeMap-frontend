@@ -79,7 +79,7 @@ onMounted(async () => {
     <notification-provider />
 
     <exp-gain
-      v-if="xpGain"
+      v-if="xpGain && !splashVisible"
       :key="xpGain.key"
       :amount="xpGain.amount"
     />
