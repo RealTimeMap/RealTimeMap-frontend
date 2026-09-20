@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { EntityId } from '@/components/00.shared/stores/places'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { usePlacesStore } from '@/components/00.shared/stores/places'
 
 const props = defineProps<{
@@ -26,19 +27,30 @@ const COLORS = ['#7c3aed', '#3399ff', '#16a34a', '#eab308', '#ff5a5f', '#ec4899'
 
 const store = usePlacesStore()
 const { close } = useDialogStore()
+const notify = useNotificationStore()
 
 const name = ref(props.initialName ?? '')
 const description = ref(props.initialDescription ?? '')
 const color = ref(props.initialColor ?? COLORS[0])
 const icon = ref(props.initialIcon ?? ICONS[0])
 const saving = ref(false)
+const nameError = ref(false)
 
 const isEdit = computed(() => props.groupId != null)
-const canSave = computed(() => name.value.trim().length > 0 && !saving.value)
+const canSave = computed(() => !saving.value)
+
+watch(name, () => {
+  nameError.value = false
+})
 
 async function submit() {
-  if (!canSave.value)
+  if (saving.value)
     return
+  if (!name.value.trim()) {
+    nameError.value = true
+    notify.add({ title: 'Введите название группы', type: 'warning' })
+    return
+  }
   saving.value = true
   const payload = {
     name: name.value.trim(),
@@ -46,12 +58,28 @@ async function submit() {
     color: color.value,
     icon: icon.value,
   }
-  if (isEdit.value && props.groupId != null)
-    await store.updateGroup(props.groupId, payload)
-  else
-    await store.createGroup(payload)
-  saving.value = false
-  close()
+  try {
+    if (isEdit.value && props.groupId != null)
+      await store.updateGroup(props.groupId, payload)
+    else
+      await store.createGroup(payload)
+    notify.add({
+      title: isEdit.value ? 'Группа обновлена' : 'Группа создана',
+      type: 'success',
+    })
+    close()
+  }
+  catch (e) {
+    console.error('[GroupForm] submit', e)
+    notify.add({
+      title: isEdit.value ? 'Не удалось сохранить группу' : 'Не удалось создать группу',
+      description: 'Попробуйте ещё раз',
+      type: 'error',
+    })
+  }
+  finally {
+    saving.value = false
+  }
 }
 </script>
 
@@ -77,7 +105,9 @@ async function submit() {
     <u-input
       v-model="name"
       label="Название"
+      required
       placeholder="Например, Питер"
+      :error="nameError"
     />
 
     <u-text-area

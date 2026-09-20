@@ -12,6 +12,7 @@ interface Props {
   label: string
   options: UOption[]
   parentPadding?: number
+  required?: boolean
 }
 
 const { options, parentPadding = 0 } = defineProps<Props>()
@@ -67,7 +68,10 @@ onClickOutside(selectRef, () => {
     </div>
 
     <div class="u-select__value">
-      <span class="label-text">{{ label }}</span>
+      <span class="label-text">{{ label }}<span
+        v-if="required"
+        class="u-select__required"
+      >*</span></span>
       <div
         class="value-text"
       >
@@ -142,6 +146,11 @@ onClickOutside(selectRef, () => {
 
   &__value {
     flex: 1 1 0%;
+  }
+
+  &__required {
+    margin-left: 3px;
+    color: var(--red-color, #e5484d);
   }
 
   &__list {

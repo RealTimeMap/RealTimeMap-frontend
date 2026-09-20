@@ -71,6 +71,11 @@ const isVisible = ref(true)
 const selectedIcon = ref(ICONS[0])
 const selectedColor = ref(COLORS[0])
 const isSubmitting = ref(false)
+const nameError = ref(false)
+
+watch(title, () => {
+  nameError.value = false
+})
 
 const photosToDelete = ref<string[]>([])
 
@@ -100,6 +105,7 @@ onMounted(() => fetchAddress(markCoords.value))
 
 async function handleSubmit() {
   if (!title.value.trim()) {
+    nameError.value = true
     notify.add({ title: 'Внимание', description: 'Введите название метки', type: 'warning' })
     return
   }
@@ -209,6 +215,8 @@ async function handleSubmit() {
         <u-input
           v-model="title"
           label="Название"
+          required
+          :error="nameError"
           placeholder="Напр. «Любимая кофейня»"
         />
         <u-drawer />
