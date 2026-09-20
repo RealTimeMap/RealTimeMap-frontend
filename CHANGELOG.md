@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.53
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.52...v0.1.53)
+
+### ⬆️ Обновления
+
+- **notif:** Firebase notif ([c565b85](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c565b85))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.52
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.51...v0.1.52)
