@@ -87,11 +87,18 @@ export const useChatsStore = defineStore('chats', () => {
     }
 
     const isActive = message.chatId === activeChatId.value
+    const isOwn = message.sender.id === useAuthStore().user?.userId
+
+    let unreadCount = target.unreadCount
+    if (isActive)
+      unreadCount = 0
+    else if (!isOwn)
+      unreadCount = target.unreadCount + 1
 
     const updated: Chat = {
       ...target,
       updatedAt: message.createdAt,
-      unreadCount: isActive ? 0 : target.unreadCount + 1,
+      unreadCount,
       lastMessage: {
         messageId: message.id,
         username: message.sender.username,

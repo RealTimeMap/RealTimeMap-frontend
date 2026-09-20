@@ -12,6 +12,19 @@ const READ_THROTTLE_MS = 1500
 
 const PEER_READ_CACHE_PREFIX = 'chat_peer_read_'
 
+const HISTORY_CACHE_LIMIT = 15
+const historyCache = new Map<number, ChatMessage[]>()
+
+function cacheHistory(id: number, list: ChatMessage[]) {
+  historyCache.delete(id)
+  historyCache.set(id, list)
+  if (historyCache.size > HISTORY_CACHE_LIMIT) {
+    const oldest = historyCache.keys().next().value
+    if (oldest !== undefined)
+      historyCache.delete(oldest)
+  }
+}
+
 function toChronological(list: ChatMessage[]): ChatMessage[] {
   return [...list].sort((a, b) => {
     const byTime = new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -83,12 +96,13 @@ export function useChatMessages(chatId: Ref<number>) {
     true,
   )
 
-  /** Пока вкладка скрыта, пришедшие сообщения прочитанными не считаются */
   let missedWhileHidden = false
 
   const markRead = () => {
-    if (visibility.value !== 'visible')
+    if (visibility.value !== 'visible') {
+      missedWhileHidden = true
       return
+    }
 
     sendRead()
   }
@@ -103,14 +117,17 @@ export function useChatMessages(chatId: Ref<number>) {
 
   // --- ЗАГРУЗКА ---
 
-  const fetchMessages = async () => {
-    isLoading.value = true
+  const fetchMessages = async (background = false) => {
+    if (!background)
+      isLoading.value = true
     error.value = null
     hasMore.value = true
 
     try {
       const response = await chatApi.getHistoryChat(chatId.value)
-      messages.value = toChronological(response.messages)
+      const list = toChronological(response.messages)
+      messages.value = list
+      cacheHistory(chatId.value, list)
 
       // когда бэк начнёт отдавать курсор собеседника в истории, здесь
       // достаточно будет заменить кэш на ответ:
@@ -198,6 +215,7 @@ export function useChatMessages(chatId: Ref<number>) {
       })
 
       replaceByClientId(clientMessageId, { ...saved, status: 'sent' })
+      error.value = null
     }
     catch (err) {
       patchStatus(clientMessageId, 'failed')
@@ -275,10 +293,7 @@ export function useChatMessages(chatId: Ref<number>) {
     if (message.sender.id === authStore.user?.userId)
       return
 
-    if (visibility.value === 'visible')
-      markRead()
-    else
-      missedWhileHidden = true
+    markRead()
   }
 
   const handleRead = (payload: ChatReadPayload) => {
@@ -323,12 +338,22 @@ export function useChatMessages(chatId: Ref<number>) {
       peerLastReadId.value = 0
       missedWhileHidden = false
 
+      const cached = historyCache.get(id)
+      const hasCache = !!cached && cached.length > 0
+      messages.value = cached ?? []
+      if (hasCache)
+        isLoading.value = false
+
       restorePeerRead(id)
-      fetchMessages()
+      fetchMessages(hasCache)
       chatsStore.setActiveChat(id)
     },
     { immediate: true },
   )
+
+  watch(messages, (list) => {
+    cacheHistory(chatId.value, list)
+  })
 
   onUnmounted(() => {
     unsubscribeAll()
