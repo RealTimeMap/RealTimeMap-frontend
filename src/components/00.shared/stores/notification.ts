@@ -1,6 +1,3 @@
-import { Capacitor } from '@capacitor/core'
-import { LocalNotifications } from '@capacitor/local-notifications'
-import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 
 export type NotificationType
@@ -23,57 +20,19 @@ export interface Notification {
 export const useNotificationStore = defineStore('notification', () => {
   const notifications = ref<Notification[]>([])
 
-  async function requestPermissions() {
-    if (!Capacitor.isNativePlatform())
-      return
-
-    const perm = await LocalNotifications.checkPermissions()
-    if (perm.display === 'granted')
-      return
-
-    await requestPermissionInQueue(() => LocalNotifications.requestPermissions())
-  }
-
-  async function add(notification: Omit<Notification, 'id'>) {
+  function add(notification: Omit<Notification, 'id'>) {
     const settings = useSettingsStore()
-    let createdId: string | undefined
+    if (!settings.isAppNotificationsEnabled)
+      return undefined
 
-    // Внутренние тосты приложения
-    if (settings.isAppNotificationsEnabled) {
-      const id = Math.random().toString(36).substring(2, 9)
-      createdId = id
-      const newNotification = { ...notification, id }
-      notifications.value.push(newNotification)
+    const id = Math.random().toString(36).substring(2, 9)
+    notifications.value.push({ ...notification, id })
 
-      const active = notifications.value.filter(n => !n.closing)
-      if (active.length > 3)
-        active[0].closing = true
-    }
+    const active = notifications.value.filter(n => !n.closing)
+    if (active.length > 3)
+      active[0].closing = true
 
-    // Системные (нативные) уведомления
-    if (settings.isSystemNotificationsEnabled && Capacitor.isNativePlatform()) {
-      try {
-        await LocalNotifications.schedule({
-          notifications: [
-            {
-              id: Math.floor(Math.random() * 100000),
-              title: notification.title,
-              body: notification.description || '',
-              channelId: 'default',
-              largeBody: notification.description,
-              schedule: { at: new Date(Date.now() + 10) },
-              actionTypeId: '',
-              extra: null,
-            },
-          ],
-        })
-      }
-      catch (e) {
-        console.error('[LocalNotifications] Ошибка отправки пуша:', e)
-      }
-    }
-
-    return createdId
+    return id
   }
 
   function remove(id: string) {
@@ -84,6 +43,5 @@ export const useNotificationStore = defineStore('notification', () => {
     notifications,
     add,
     remove,
-    requestPermissions,
   }
 })

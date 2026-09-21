@@ -13,7 +13,6 @@ const settings = useSettingsStore()
 const {
   theme,
   isAppNotificationsEnabled,
-  isSystemNotificationsEnabled,
   isHapticsEnabled,
 } = storeToRefs(settings)
 
@@ -45,15 +44,6 @@ const showHaptics = false
     >
       <template #trailing>
         <u-switch v-model="isAppNotificationsEnabled" />
-      </template>
-    </settings-row>
-
-    <settings-row
-      label="Системные уведомления"
-      hint="Пуши на устройстве"
-    >
-      <template #trailing>
-        <u-switch v-model="isSystemNotificationsEnabled" />
       </template>
     </settings-row>
 
