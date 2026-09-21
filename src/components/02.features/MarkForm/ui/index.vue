@@ -37,6 +37,8 @@ const {
 
   startAt,
   endAt,
+  isEndRequired,
+  endAtError,
 
   handleSubmit,
   close,
@@ -147,6 +149,8 @@ onUnmounted(dismissDateTip)
         <date-block
           v-model:start-at="startAt"
           v-model:end-at="endAt"
+          :end-required="isEndRequired"
+          :end-error="endAtError"
         />
       </div>
 

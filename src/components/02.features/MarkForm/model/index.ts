@@ -22,6 +22,15 @@ export function useMarkAdd(coords: MapPoint) {
   const startAt = ref<Date>(new Date())
   const endAt = ref<Date | null>(null)
 
+  const PAST_GRACE_MS = 60_000
+  const isEndRequired = computed(() => startAt.value.getTime() < Date.now() - PAST_GRACE_MS)
+  const endAtError = ref(false)
+
+  watch([startAt, endAt], () => {
+    if (!isEndRequired.value || endAt.value)
+      endAtError.value = false
+  })
+
   const selectedCategoryId = ref<number | null>(null)
   const fileList = ref<File[]>([])
 
@@ -92,6 +101,16 @@ export function useMarkAdd(coords: MapPoint) {
       return
     }
 
+    if (isEndRequired.value && !endAt.value) {
+      endAtError.value = true
+      notify.add({
+        title: 'Внимание',
+        description: 'Для события в прошлом укажите дату окончания',
+        type: 'warning',
+      })
+      return
+    }
+
     try {
       isSubmitting.value = true
 
@@ -149,6 +168,8 @@ export function useMarkAdd(coords: MapPoint) {
     additionalInfo,
     startAt,
     endAt,
+    isEndRequired,
+    endAtError,
     selectedCategoryId,
     fileList,
     categoryOptions,

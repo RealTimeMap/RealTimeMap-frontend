@@ -295,7 +295,7 @@ onMounted(load)
   display: flex;
   align-items: center;
   gap: 12px;
-  @include glass-panel(16px, 0, false, false);
+  @include glass-panel(16px, 0, false, false, false);
   padding: 14px;
 
   &--current {

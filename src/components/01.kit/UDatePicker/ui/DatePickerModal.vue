@@ -2,6 +2,7 @@
 const props = defineProps<{
   title?: string
   min?: Date
+  max?: Date
 }>()
 
 const emit = defineEmits<{
@@ -11,9 +12,8 @@ const emit = defineEmits<{
 const model = defineModel<Date | null>()
 
 const minDate = computed(() => props.min ? new Date(props.min) : new Date())
-const initial = model.value
-  ? (new Date(model.value) < minDate.value ? new Date(minDate.value) : new Date(model.value))
-  : null
+const maxDate = computed(() => props.max ? new Date(props.max) : null)
+const initial = model.value ? clamp(new Date(model.value)) : null
 const tempDate = ref<Date | null>(initial)
 const viewDate = ref<Date>(initial ?? new Date(minDate.value))
 
@@ -53,11 +53,28 @@ const minDayStart = computed(() => {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 })
 
+const maxDayStart = computed(() => {
+  const d = maxDate.value
+  if (!d)
+    return null
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate())
+})
+
 const isPrevDisabled = computed(() => {
   const y = viewDate.value.getFullYear()
   const m = viewDate.value.getMonth()
   return y < minDate.value.getFullYear()
     || (y === minDate.value.getFullYear() && m <= minDate.value.getMonth())
+})
+
+const isNextDisabled = computed(() => {
+  const d = maxDate.value
+  if (!d)
+    return false
+  const y = viewDate.value.getFullYear()
+  const m = viewDate.value.getMonth()
+  return y > d.getFullYear()
+    || (y === d.getFullYear() && m >= d.getMonth())
 })
 
 const selectedHour = computed(() => (tempDate.value ?? minDate.value).getHours())
@@ -66,7 +83,7 @@ const selectedMinute = computed(() => {
   return Math.floor(m / MINUTE_STEP) * MINUTE_STEP
 })
 
-// Выбранный день совпадает с днём нижней границы — тогда часы/минуты ограничены
+// Выбранный день совпадает с днём нижней границы — тогда часы/минуты ограничены снизу
 const isMinDaySelected = computed(() => {
   const d = tempDate.value ?? minDate.value
   return d.getFullYear() === minDate.value.getFullYear()
@@ -74,23 +91,48 @@ const isMinDaySelected = computed(() => {
     && d.getDate() === minDate.value.getDate()
 })
 
+// Выбранный день совпадает с днём верхней границы — тогда часы/минуты ограничены сверху
+const isMaxDaySelected = computed(() => {
+  const max = maxDate.value
+  if (!max)
+    return false
+  const d = tempDate.value ?? minDate.value
+  return d.getFullYear() === max.getFullYear()
+    && d.getMonth() === max.getMonth()
+    && d.getDate() === max.getDate()
+})
+
 function isDayDisabled(day: number) {
   const d = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth(), day)
-  return d < minDayStart.value
+  if (d < minDayStart.value)
+    return true
+  return !!(maxDayStart.value && d > maxDayStart.value)
 }
 
 function isHourDisabled(h: number) {
-  return isMinDaySelected.value && h < minDate.value.getHours()
+  if (isMinDaySelected.value && h < minDate.value.getHours())
+    return true
+  return !!(isMaxDaySelected.value && maxDate.value && h > maxDate.value.getHours())
 }
 
 function isMinuteDisabled(m: number) {
-  return isMinDaySelected.value
+  if (isMinDaySelected.value
     && selectedHour.value === minDate.value.getHours()
-    && m < minDate.value.getMinutes()
+    && m < minDate.value.getMinutes()) {
+    return true
+  }
+  return !!(isMaxDaySelected.value
+    && maxDate.value
+    && selectedHour.value === maxDate.value.getHours()
+    && m > maxDate.value.getMinutes())
 }
 
-function clampToMin(d: Date): Date {
-  return d < minDate.value ? new Date(minDate.value) : d
+function clamp(d: Date): Date {
+  if (d < minDate.value)
+    return new Date(minDate.value)
+  if (maxDate.value && d > maxDate.value)
+    return new Date(maxDate.value)
+  return d
 }
 
 function selectDay(day: number) {
@@ -104,21 +146,21 @@ function selectDay(day: number) {
     base.getHours(),
     base.getMinutes(),
   )
-  tempDate.value = clampToMin(next)
+  tempDate.value = clamp(next)
 }
 
 function setHour(h: number) {
   const base = tempDate.value ?? new Date(minDate.value)
   const next = new Date(base)
   next.setHours(h)
-  tempDate.value = clampToMin(next)
+  tempDate.value = clamp(next)
 }
 
 function setMinute(m: number) {
   const base = tempDate.value ?? new Date(minDate.value)
   const next = new Date(base)
   next.setMinutes(m)
-  tempDate.value = clampToMin(next)
+  tempDate.value = clamp(next)
 }
 
 function isSelected(day: number) {
@@ -136,6 +178,8 @@ function prevMonth() {
 }
 
 function nextMonth() {
+  if (isNextDisabled.value)
+    return
   viewDate.value = new Date(viewDate.value.getFullYear(), viewDate.value.getMonth() + 1, 1)
 }
 
@@ -149,7 +193,7 @@ function submit() {
 }
 
 function setQuickDate(type: 'now' | '1h' | '3h' | 'tomorrow') {
-  const d = new Date(minDate.value)
+  const d = new Date()
   if (type === '1h')
     d.setHours(d.getHours() + 1)
   if (type === '3h')
@@ -157,8 +201,8 @@ function setQuickDate(type: 'now' | '1h' | '3h' | 'tomorrow') {
   if (type === 'tomorrow')
     d.setDate(d.getDate() + 1)
 
-  tempDate.value = clampToMin(d)
-  viewDate.value = new Date(d)
+  tempDate.value = clamp(d)
+  viewDate.value = new Date(tempDate.value)
 }
 
 watch(model, (newVal) => {
@@ -296,6 +340,7 @@ watch(model, (newVal) => {
       </div>
       <button
         class="nav-btn"
+        :disabled="isNextDisabled"
         @click="nextMonth"
       >
         <u-icon

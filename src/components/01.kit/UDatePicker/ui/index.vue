@@ -2,6 +2,15 @@
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import UDatePickerModal from './DatePickerModal.vue'
 
+const props = defineProps<{
+  startMin?: Date
+  startMax?: Date
+  endMin?: Date
+  endMax?: Date
+  endRequired?: boolean
+  endError?: boolean
+}>()
+
 const startAt = defineModel<Date>('startAt', { required: true })
 const endAt = defineModel<Date | null>('endAt', { required: true })
 
@@ -20,7 +29,8 @@ function openStartModal() {
     {
       'modelValue': startAt.value,
       'title': 'Дата начала',
-      'min': new Date(),
+      'min': props.startMin ?? new Date(),
+      'max': props.startMax,
       'onUpdate:modelValue': (newDate: Date | null | undefined) => {
         if (newDate) {
           startAt.value = newDate
@@ -46,7 +56,8 @@ function openEndModal() {
     {
       'modelValue': endAt.value,
       'title': 'Дата окончания',
-      'min': new Date(startAt.value),
+      'min': props.endMin ?? new Date(startAt.value),
+      'max': props.endMax,
       'onUpdate:modelValue': (newDate: Date | null | undefined) => {
         endAt.value = newDate ?? null
       },
@@ -86,10 +97,14 @@ const displayEnd = computed(() => (endAt.value ? formatter.format(endAt.value) :
 
     <div
       class="u-date-picker__item"
+      :class="{ 'u-date-picker__item--error': endError }"
       @click="openEndModal"
     >
       <span class="label-text">
-        Конец
+        Конец<span
+          v-if="endRequired"
+          class="u-date-picker__req"
+        >*</span>
       </span>
       <span class="value-text">
         {{ displayEnd }}
@@ -115,6 +130,10 @@ const displayEnd = computed(() => (endAt.value ? formatter.format(endAt.value) :
     cursor: pointer;
     transition: 150ms;
 
+    &--error {
+      border: 1px solid var(--red-color);
+    }
+
     .label-text {
       font-size: 10px;
     }
@@ -125,6 +144,11 @@ const displayEnd = computed(() => (endAt.value ? formatter.format(endAt.value) :
       white-space: normal;
       font-variant-numeric: tabular-nums;
     }
+  }
+
+  &__req {
+    color: var(--red-color);
+    margin-left: 2px;
   }
 }
 </style>
