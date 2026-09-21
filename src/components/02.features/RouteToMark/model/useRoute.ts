@@ -6,7 +6,6 @@ import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { MapPoint } from '@/types/shared/map'
 import { defineStore } from 'pinia'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
-import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useShareStore } from '@/components/02.features/Share/model'
 import { formatDistance, formatDuration } from './distance'
 import { fetchRoute } from './fetchRoute'
@@ -50,7 +49,6 @@ function routeLineColor(): string {
 export const useRouteStore = defineStore('routeToMark', () => {
   const share = useShareStore()
   const notify = useNotificationStore()
-  const settings = useSettingsStore()
 
   const activeMarkId = ref<number | null>(null)
   const destination = ref<MapPoint | null>(null)
@@ -83,17 +81,12 @@ export const useRouteStore = defineStore('routeToMark', () => {
   })
 
   function syncNotification() {
-    if (settings.isSystemNotificationsEnabled) {
-      const label = PROFILE_LABELS[profile.value]
-      showRouteNotification(
-        `${formattedDistance.value} · ${formattedDuration.value} · ${label}`,
-        formattedDuration.value,
-        routeProgress.value,
-      )
-    }
-    else {
-      hideRouteNotification()
-    }
+    const label = PROFILE_LABELS[profile.value]
+    showRouteNotification(
+      `${formattedDistance.value} · ${formattedDuration.value} · ${label}`,
+      formattedDuration.value,
+      routeProgress.value,
+    )
   }
 
   function drawRoute(geojson: Feature<LineString>) {

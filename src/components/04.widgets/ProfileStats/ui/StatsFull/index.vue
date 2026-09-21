@@ -26,13 +26,13 @@ function handleOpenStats() {
   >
     <u-icon
       class="icon"
-      icon="gridicons:stats-up"
+      icon="app:stats-up"
       width="20"
     />
     Подробная статистика
     <u-icon
       class="arrow icon"
-      icon="weui:arrow-filled"
+      icon="app:arrow-filled"
       width="12px"
       height="12px"
     />

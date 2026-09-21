@@ -19,7 +19,7 @@ const { close } = useDialogStore()
         type="button"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Тема оформления</h2>
     </div>
@@ -37,7 +37,7 @@ const { close } = useDialogStore()
       @click="settings.setTheme('system')"
     >
       <u-icon
-        icon="solar:smartphone-2-bold-duotone"
+        icon="app:smartphone"
         width="20"
       />
       <span class="theme-picker__system-text">
@@ -46,7 +46,7 @@ const { close } = useDialogStore()
       </span>
       <u-icon
         v-if="theme === 'system'"
-        icon="solar:check-circle-bold"
+        icon="app:check-circle"
         width="20"
         class="theme-picker__system-check"
       />

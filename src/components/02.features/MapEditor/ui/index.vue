@@ -25,7 +25,7 @@ const { close } = useDialogStore()
         type="button"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Редактор карты</h2>
     </div>
@@ -44,12 +44,12 @@ const { close } = useDialogStore()
           class="mc-stack__group mc-stack__group--zoom"
         >
           <u-icon
-            icon="lucide:plus"
+            icon="app:plus"
             width="16"
           />
           <span class="mc-stack__line" />
           <u-icon
-            icon="lucide:minus"
+            icon="app:minus"
             width="16"
           />
         </div>
@@ -58,7 +58,7 @@ const { close } = useDialogStore()
           class="mc-stack__group"
         >
           <u-icon
-            icon="line-md:my-location"
+            icon="app:locate-loop"
             width="16"
           />
         </div>
@@ -67,7 +67,7 @@ const { close } = useDialogStore()
           class="mc-stack__group"
         >
           <u-icon
-            icon="solar:settings-bold"
+            icon="app:settings"
             width="16"
           />
         </div>
@@ -84,7 +84,7 @@ const { close } = useDialogStore()
     <div class="map-editor__rows">
       <div class="me-row">
         <span class="me-row__icon"><u-icon
-          icon="lucide:zoom-in"
+          icon="app:zoom-in"
           width="18"
         /></span>
         <div class="me-row__text">
@@ -96,7 +96,7 @@ const { close } = useDialogStore()
 
       <div class="me-row">
         <span class="me-row__icon"><u-icon
-          icon="line-md:my-location"
+          icon="app:locate-loop"
           width="18"
         /></span>
         <div class="me-row__text">
@@ -108,7 +108,7 @@ const { close } = useDialogStore()
 
       <div class="me-row">
         <span class="me-row__icon"><u-icon
-          icon="solar:settings-bold"
+          icon="app:settings"
           width="18"
         /></span>
         <div class="me-row__text">
@@ -120,7 +120,7 @@ const { close } = useDialogStore()
 
       <div class="me-row">
         <span class="me-row__icon"><u-icon
-          icon="lucide:gauge"
+          icon="app:gauge"
           width="18"
         /></span>
         <div class="me-row__text">

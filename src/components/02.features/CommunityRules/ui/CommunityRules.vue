@@ -285,7 +285,7 @@ const signText = computed(() => {
         type="button"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Правила сообщества</h2>
     </div>
@@ -451,7 +451,7 @@ const signText = computed(() => {
 
       <div class="doc-sign">
         <u-icon
-          icon="solar:document-text-linear"
+          icon="app:note"
           height="18"
         />
         <div>

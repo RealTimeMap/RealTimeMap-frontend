@@ -79,7 +79,7 @@ const {
         aria-label="Загрузка"
       >
         <u-icon
-          icon="svg-spinners:ring-resize"
+          icon="app:loading"
           height="16"
           width="16"
         />
@@ -98,14 +98,14 @@ const {
           v-if="!isPasswordVisible"
           width="20"
           height="20"
-          icon="ri:eye-off-line"
+          icon="app:eye-off"
         />
 
         <u-icon
           v-else
           width="20"
           height="20"
-          icon="ri:eye-line"
+          icon="app:eye"
         />
       </button>
     </div>

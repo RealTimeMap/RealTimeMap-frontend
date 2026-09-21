@@ -9,7 +9,7 @@ defineProps<{
     <div class="xp-gain">
       <span class="xp-gain__pill">
         <u-icon
-          icon="solar:star-bold"
+          icon="app:star"
           width="16"
           height="16"
         />

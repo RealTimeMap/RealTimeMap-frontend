@@ -71,7 +71,7 @@ const coordsStyle = computed(() => {
         >
           <span class="bar__ic bar__ic--public">
             <u-icon
-              icon="solar:map-point-bold"
+              icon="app:pin"
               height="18"
             />
           </span>
@@ -87,7 +87,7 @@ const coordsStyle = computed(() => {
         >
           <span class="bar__ic bar__ic--private">
             <u-icon
-              icon="solar:user-bold"
+              icon="app:user"
               height="16"
             />
           </span>

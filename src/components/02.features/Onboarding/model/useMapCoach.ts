@@ -27,13 +27,13 @@ export function useMapCoach() {
   const activeMapHint = computed(() => {
     if (activeHintId.value === 'clusters') {
       return {
-        icon: 'solar:layers-minimalistic-bold-duotone',
+        icon: 'app:layers-loop',
         text: 'Цифра — это группа меток. Тапните, чтобы приблизить',
       }
     }
     if (activeHintId.value === 'guest') {
       return {
-        icon: 'solar:map-point-wave-bold-duotone',
+        icon: 'app:pin-wave',
         text: markCount.value > 0
           ? 'Вокруг — метки людей 👀 Откройте любую, чтобы узнать о месте'
           : 'Поблизости пусто — отдалите карту, чтобы увидеть места',

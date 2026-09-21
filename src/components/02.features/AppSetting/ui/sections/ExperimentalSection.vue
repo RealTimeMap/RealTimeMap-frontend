@@ -16,7 +16,7 @@ const { markMenuStyle, splashStyle } = storeToRefs(settings)
       link
       label="Меню создания метки"
       :hint="MARK_MENU_STYLE_LABELS[markMenuStyle]"
-      chevron="solar:map-point-add-bold"
+      chevron="app:pin-plus"
       @click="openMarkMenuStylePicker()"
     />
 
@@ -24,7 +24,7 @@ const { markMenuStyle, splashStyle } = storeToRefs(settings)
       link
       label="Анимация запуска"
       :hint="SPLASH_STYLE_LABELS[splashStyle]"
-      chevron="solar:magic-stick-3-bold"
+      chevron="app:magic"
       @click="openSplashStylePicker()"
     />
   </settings-section>

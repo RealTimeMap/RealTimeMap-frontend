@@ -43,7 +43,7 @@ onMounted(load)
       class="ach__state"
     >
       <u-icon
-        icon="line-md:loading-twotone-loop"
+        icon="app:loading"
         height="28"
       />
     </div>
@@ -81,7 +81,7 @@ onMounted(load)
           :class="earned ? 'is-earned' : 'is-locked'"
         >
           <u-icon
-            :icon="earned ? 'solar:check-circle-bold' : 'solar:lock-keyhole-minimalistic-bold'"
+            :icon="earned ? 'app:check-circle' : 'app:lock'"
             width="13"
           />
           {{ earned ? 'Получено' : 'Не получено' }}

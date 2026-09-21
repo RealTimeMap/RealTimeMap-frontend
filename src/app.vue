@@ -5,7 +5,6 @@ import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
 import { pageTransition, prefetchNavData, prefetchNavPages } from './components/00.shared/lib/pageTransition'
-import { useNotificationStore } from './components/00.shared/stores/notification'
 import { initPlacesSync } from './components/00.shared/stores/places'
 import { useSettingsStore } from './components/00.shared/stores/settings'
 import AccountBan from './components/02.features/AccountBan'
@@ -29,7 +28,6 @@ const layoutComponent = computed(() => {
 
 const transitionKey = computed(() => route.path)
 
-const notificationStore = useNotificationStore()
 const { initNetworkListener } = useNetworkWatch()
 const { xpGain } = useGamificationFeedback()
 const authStore = useAuthStore()
@@ -43,7 +41,6 @@ const splashAnim = computed(() =>
 )
 
 onMounted(async () => {
-  await notificationStore.requestPermissions()
   initUpdateChecker()
   initNetworkListener()
   initBugReport()

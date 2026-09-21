@@ -1,5 +1,4 @@
 // Генерирует icons/preview.html — витрину локальных анимированных иконок
-// (icons/*.json). Запуск: node scripts/buildIconsPreview.mjs
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -7,8 +6,27 @@ import { fileURLToPath } from 'node:url'
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const iconsDir = join(scriptDir, '..', 'icons')
 
-// Человекочитаемые названия для иконок достижений (ключ → подпись).
 const TITLES = {
+  // Навигация и основные разделы
+  'map-loop': 'Карта',
+  'places-loop': 'Места',
+  'chat-loop': 'Чаты',
+  'profile-loop': 'Профиль',
+  'layers-loop': 'Слои',
+  'admin-loop': 'Админ',
+  'home': 'Дом',
+  'city': 'Город',
+  'locate-loop': 'Геолокация',
+  'gps': 'Навигатор',
+  'route': 'Маршрут',
+  'route-loop': 'Путешественник',
+  'pin': 'Метка',
+  'pin-wave': 'На карте',
+  'pin-plus': 'Добавить метку',
+  'pin-off': 'Без метки',
+  'map-pin-star-loop': 'Мастер меток',
+
+  // Достижения, бейджи и ивенты
   'trophy-loop': 'Кубок',
   'medal-loop': 'Медаль',
   'star-loop': 'Звезда',
@@ -17,8 +35,6 @@ const TITLES = {
   'target-loop': 'Цель',
   'rocket-loop': 'Прогресс',
   'compass-loop': 'Исследователь',
-  'map-pin-star-loop': 'Мастер меток',
-  'route-loop': 'Путешественник',
   'flag-loop': 'Первопроходец',
   'heart-loop': 'Любимые места',
   'people-loop': 'Сообщество',
@@ -29,34 +45,111 @@ const TITLES = {
   'camera-loop': 'Фотограф',
   'globe-loop': 'Весь мир',
   'levelup-loop': 'Новый уровень',
-  'map-loop': 'Карта',
-  'places-loop': 'Места',
-  'chat-loop': 'Чаты',
-  'profile-loop': 'Профиль',
-  'layers-loop': 'Слои',
-  'admin-loop': 'Админ',
+  'rosette-loop': 'Орден',
+  'certificate-loop': 'Сертификат',
+  'podium-loop': 'Пьедестал',
+  'streak-loop': 'Серия дней',
+  'ticket-loop': 'Билет',
+  'summit-loop': 'Вершина',
+  'night-loop': 'Полуночник',
+  'beta-flask-loop': 'Бета-тестер',
+  'bug-hunter-loop': 'Охотник за багами',
+  'early-bird-loop': 'Ранняя пташка',
+  'beta-key-loop': 'Бета-ключ',
+  'feedback-loop': 'Отзыв',
+  'invite-loop': 'Приглашение',
+  'share-loop': 'Поделиться',
+
+  // Категории событий
+  'concert-loop': 'Концерт',
+  'exhibition': 'Выставка',
+  'sport-loop': 'Спорт',
+  'festival-loop': 'Фестиваль',
+  'lecture-loop': 'Лекция',
+  'workshop-loop': 'Мастер-класс',
+  'nature-loop': 'Природа',
+
+  // Транспорт
+  'walk': 'Пешком',
+  'car': 'Автомобиль',
+  'bike': 'Велосипед',
+
+  // Действия и элементы управления
   'plus': 'Плюс',
   'minus': 'Минус',
-  'locate-loop': 'Геолокация',
-  'settings': 'Настройки',
-  'edit': 'Редактор',
-  'chevron-right': 'Шеврон',
+  'add-circle': 'Добавить',
   'close': 'Закрыть',
   'check': 'Галочка',
+  'check-circle': 'Успешно',
+  'close-circle': 'Ошибка',
+  'edit': 'Редактор',
   'copy': 'Копировать',
+  'trash': 'Удалить',
+  'unlink': 'Открепить',
+  'search': 'Поиск',
+  'refresh': 'Обновить',
+  'rotate': 'Повернуть',
+  'download': 'Скачать',
+  'upload': 'Загрузить',
+  'send': 'Отправить',
+  'reply': 'Ответить',
+  'zoom-in': 'Приблизить',
+  'zoom-out': 'Отдалить',
+  'magic': 'Автоматически',
+  'settings': 'Настройки',
+  'cog-loop': 'Обработка',
+  'loading': 'Загрузка',
+  'logout': 'Выход',
+
+  // Стрелки и шевроны
+  'chevron-right': 'Шеврон вправо',
+  'chevron-left': 'Шеврон влево',
+  'chevron-down': 'Свернуть',
+  'chevron-up': 'Развернуть',
+  'arrow-left': 'Назад',
+  'arrow-right': 'Вперёд',
+  'arrow-down': 'Вниз',
+  'arrow-filled': 'Стрелка',
+
+  // Индикация, данные и статусы
   'eye': 'Показать',
   'eye-off': 'Скрыть',
   'cloud-check': 'Синхр. готово',
   'cloud-upload': 'Синхр. ожидает',
-  'folder': 'Папка',
+  'warning': 'Предупреждение',
+  'alert-loop': 'Внимание',
+  'bell': 'Уведомления',
+  'info': 'Информация',
+  'gauge': 'Спидометр',
+  'stats-up': 'Статистика',
   'lock': 'Замок',
-  'pin': 'Метка',
-  'pin-wave': 'На карте',
+  'folder': 'Папка',
   'note': 'Заметка',
-  'trash': 'Удалить',
-  'add-circle': 'Добавить',
-  'unlink': 'Открепить',
   'list-check': 'Список',
+  'gallery': 'Галерея',
+  'camera': 'Камера',
+  'calendar': 'Календарь',
+  'cart': 'Покупки',
+  'suitcase': 'Чемодан',
+  'cup': 'Кофе',
+  'star': 'Звезда',
+  'flag': 'Флаг',
+  'heart': 'Лайк',
+  'heart-filled': 'Лайк (вкл)',
+
+  // Пользователи и устройства
+  'user': 'Пользователь',
+  'user-plus': 'Добавить контакт',
+  'mail': 'Почта',
+  'monitor': 'Десктоп',
+  'laptop': 'Ноутбук',
+  'tablet': 'Планшет',
+  'smartphone': 'Телефон',
+
+  // Сервисы / Провайдеры
+  'google': 'Google',
+  'yandex': 'Яндекс',
+  'github': 'GitHub',
 }
 
 const cards = []

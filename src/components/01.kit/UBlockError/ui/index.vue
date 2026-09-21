@@ -23,7 +23,7 @@ const emit = defineEmits<{
   >
     <u-icon
       class="u-block-error__icon"
-      icon="solar:danger-triangle-bold-duotone"
+      icon="app:warning"
       :width="compact ? 22 : 26"
       :height="compact ? 22 : 26"
     />
@@ -41,7 +41,7 @@ const emit = defineEmits<{
       @click="emit('retry')"
     >
       <u-icon
-        :icon="retrying ? 'line-md:loading-twotone-loop' : 'solar:refresh-linear'"
+        :icon="retrying ? 'app:loading' : 'app:refresh'"
         width="15"
         height="15"
       />

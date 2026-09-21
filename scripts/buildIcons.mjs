@@ -15,17 +15,40 @@ const files = readdirSync(srcDir, { recursive: true })
 const tokenRe = /['"`]([a-z0-9]+(?:-[a-z0-9]+)*:[a-z0-9]+(?:-[a-z0-9]+)*)['"`]/g
 const byPrefix = new Map()
 
+// Легаси-иконки, которые могли быть сохранены в данных (mark.icon/group.icon)
+// до перехода на кастомную app-палитру. В коде их больше нет, но держим в
+// бандле, чтобы уже созданные метки/группы отображались офлайн.
+const SAFELIST = [
+  'solar:map-point-linear',
+  'solar:home-2-linear',
+  'solar:cup-hot-linear',
+  'solar:star-linear',
+  'solar:flag-linear',
+  'solar:heart-linear',
+  'solar:camera-linear',
+  'solar:cart-large-2-linear',
+  'solar:folder-linear',
+  'solar:suitcase-linear',
+  'solar:city-linear',
+]
+
+function addToken(token) {
+  const [prefix, name] = token.split(':')
+  if (!byPrefix.has(prefix))
+    byPrefix.set(prefix, new Set())
+  byPrefix.get(prefix).add(name)
+}
+
 for (const rel of files) {
   const content = readFileSync(join(srcDir, rel), 'utf8')
   let m = tokenRe.exec(content)
   while (m) {
-    const [prefix, name] = m[1].split(':')
-    if (!byPrefix.has(prefix))
-      byPrefix.set(prefix, new Set())
-    byPrefix.get(prefix).add(name)
+    addToken(m[1])
     m = tokenRe.exec(content)
   }
 }
+
+SAFELIST.forEach(addToken)
 
 const subsets = []
 let total = 0

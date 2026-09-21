@@ -76,7 +76,7 @@ onMounted(() => load(false))
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Метки</h2>
       <span
@@ -129,7 +129,7 @@ onMounted(() => load(false))
         >
           <u-icon
             v-if="isLoadingMore"
-            icon="line-md:loading-twotone-loop"
+            icon="app:loading"
             height="20"
           />
           <template v-else>

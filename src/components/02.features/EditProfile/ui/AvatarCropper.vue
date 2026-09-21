@@ -198,7 +198,7 @@ onUnmounted(() => URL.revokeObjectURL(objectUrl))
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Фото</h2>
       <button
@@ -239,7 +239,7 @@ onUnmounted(() => URL.revokeObjectURL(objectUrl))
     <div class="cropper__controls">
       <div class="cropper__row">
         <u-icon
-          icon="solar:minimalistic-magnifer-zoom-out-linear"
+          icon="app:zoom-out"
           height="18"
         />
         <input
@@ -252,7 +252,7 @@ onUnmounted(() => URL.revokeObjectURL(objectUrl))
           step="0.01"
         >
         <u-icon
-          icon="solar:minimalistic-magnifer-zoom-in-linear"
+          icon="app:zoom-in"
           height="18"
         />
       </div>
@@ -265,7 +265,7 @@ onUnmounted(() => URL.revokeObjectURL(objectUrl))
           @click="rotate90"
         >
           <u-icon
-            icon="solar:restart-linear"
+            icon="app:rotate"
             height="18"
           />
         </button>
@@ -288,7 +288,7 @@ onUnmounted(() => URL.revokeObjectURL(objectUrl))
         @click="reset"
       >
         <u-icon
-          icon="solar:refresh-linear"
+          icon="app:refresh"
           height="16"
         />
         Сбросить

@@ -44,7 +44,7 @@ const { closing, requestClose } = useMenuClose(() => emit('close'))
         >
           <span class="orbit__circle">
             <u-icon
-              icon="solar:map-point-bold"
+              icon="app:pin"
               height="22"
             />
           </span>
@@ -61,7 +61,7 @@ const { closing, requestClose } = useMenuClose(() => emit('close'))
         >
           <span class="orbit__circle orbit__circle--muted">
             <u-icon
-              icon="solar:user-bold"
+              icon="app:user"
               height="20"
             />
           </span>

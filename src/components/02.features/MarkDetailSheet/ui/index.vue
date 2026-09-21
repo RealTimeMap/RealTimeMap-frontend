@@ -409,7 +409,7 @@ onMounted(() => {
         >
           <u-icon
             :icon="isLiked ? 'app:heart-filled' : 'app:heart'"
-            width="16"
+            width="18"
           />
           <span>{{ likeDisplay }}</span>
         </span>
@@ -419,8 +419,8 @@ onMounted(() => {
           @click="onShareClick()"
         >
           <u-icon
-            icon="app:arrow-down"
-            width="16"
+            icon="app:share-loop"
+            width="18"
           />
           <span>{{ shareDisplay }}</span>
         </span>

@@ -46,7 +46,7 @@ loadMore()
       class="subs-list__state"
     >
       <u-icon
-        icon="line-md:loading-twotone-loop"
+        icon="app:loading"
         height="26"
       />
     </div>
@@ -88,7 +88,7 @@ loadMore()
             title="Закрытый профиль"
           >
             <u-icon
-              icon="solar:lock-keyhole-bold"
+              icon="app:lock"
               height="11"
             />
           </span>
@@ -110,7 +110,7 @@ loadMore()
         </div>
         <u-icon
           class="subs-item__chevron"
-          icon="line-md:chevron-right"
+          icon="app:chevron-right"
           height="18"
         />
       </button>
@@ -120,7 +120,7 @@ loadMore()
         class="subs-list__more"
       >
         <u-icon
-          icon="line-md:loading-twotone-loop"
+          icon="app:loading"
           height="22"
         />
       </div>
@@ -131,7 +131,7 @@ loadMore()
       class="subs-list__empty"
     >
       <u-icon
-        icon="solar:users-group-rounded-bold-duotone"
+        icon="app:people-loop"
         width="30"
         height="30"
       />

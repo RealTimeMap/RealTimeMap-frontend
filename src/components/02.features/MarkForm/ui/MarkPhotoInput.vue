@@ -84,7 +84,7 @@ onUnmounted(() => {
       @click="triggerInput"
     >
       <u-icon
-        icon="line-md:image"
+        icon="app:gallery"
         width="28"
         height="28"
       />
@@ -116,7 +116,7 @@ onUnmounted(() => {
             @click="emit('removeExisting', url)"
           >
             <u-icon
-              icon="line-md:close"
+              icon="app:close"
               width="13"
               height="13"
             />
@@ -140,7 +140,7 @@ onUnmounted(() => {
             @click="removeNewPhoto(photo.id)"
           >
             <u-icon
-              icon="line-md:close"
+              icon="app:close"
               width="13"
               height="13"
             />
@@ -154,7 +154,7 @@ onUnmounted(() => {
           @click="triggerInput"
         >
           <u-icon
-            icon="solar:add-square-linear"
+            icon="app:add-circle"
             width="24"
             height="24"
           />

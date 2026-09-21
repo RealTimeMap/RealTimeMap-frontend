@@ -101,7 +101,7 @@ onMounted(load)
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Достижения</h2>
       <span
@@ -183,7 +183,7 @@ onMounted(load)
               <span class="achive__next-hint">Далее</span>
               <u-icon
                 class="achive__arrow"
-                icon="solar:alt-arrow-right-linear"
+                icon="app:chevron-right"
                 width="14"
               />
               <span
@@ -197,7 +197,7 @@ onMounted(load)
               :class="{ 'is-earned': entry.row.earned }"
             >
               <u-icon
-                :icon="entry.row.earned ? 'solar:check-circle-bold' : 'solar:lock-keyhole-minimalistic-linear'"
+                :icon="entry.row.earned ? 'app:check-circle' : 'app:lock'"
                 width="13"
               />
               {{ entry.row.earned ? 'Получено' : 'Не получено' }}
@@ -211,7 +211,7 @@ onMounted(load)
         class="achievements-list__state"
       >
         <u-icon
-          icon="line-md:loading-twotone-loop"
+          icon="app:loading"
           height="26"
         />
       </div>

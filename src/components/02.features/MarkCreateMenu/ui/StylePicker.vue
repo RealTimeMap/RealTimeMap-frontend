@@ -25,7 +25,7 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
         type="button"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Меню метки</h2>
     </div>
@@ -68,7 +68,7 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
           <template v-else>
             <span class="pv-off">
               <u-icon
-                icon="solar:close-circle-linear"
+                icon="app:close-circle"
                 height="22"
               />
             </span>
@@ -83,7 +83,7 @@ const options: { id: MarkMenuStyle, title: string, hint: string }[] = [
         <u-icon
           v-if="markMenuStyle === opt.id"
           class="style-card__check"
-          icon="solar:check-circle-bold"
+          icon="app:check-circle"
           height="22"
         />
       </button>

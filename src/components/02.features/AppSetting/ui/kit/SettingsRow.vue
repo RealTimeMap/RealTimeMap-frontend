@@ -7,7 +7,7 @@ withDefaults(defineProps<{
 }>(), {
   hint: undefined,
   link: false,
-  chevron: 'line-md:chevron-right',
+  chevron: 'app:chevron-right',
 })
 
 const emit = defineEmits<{

@@ -6,9 +6,9 @@ const store = useRouteStore()
 const { profile, isBuilding, formattedDistance, formattedDuration } = storeToRefs(store)
 
 const modes: { id: RouteProfile, icon: string, label: string }[] = [
-  { id: 'foot-walking', icon: 'material-symbols:directions-walk-rounded', label: 'Пешком' },
-  { id: 'cycling-regular', icon: 'material-symbols:directions-bike-rounded', label: 'Вело' },
-  { id: 'driving-car', icon: 'material-symbols:directions-car-rounded', label: 'Авто' },
+  { id: 'foot-walking', icon: 'app:walk', label: 'Пешком' },
+  { id: 'cycling-regular', icon: 'app:bike', label: 'Вело' },
+  { id: 'driving-car', icon: 'app:car', label: 'Авто' },
 ]
 
 const expanded = ref(false)
@@ -56,7 +56,7 @@ function toggleExpand() {
     >
       <u-icon
         class="head__icon"
-        :icon="isBuilding ? 'line-md:loading-twotone-loop' : activeMode.icon"
+        :icon="isBuilding ? 'app:loading' : activeMode.icon"
         height="18"
       />
 
@@ -74,7 +74,7 @@ function toggleExpand() {
 
       <u-icon
         class="head__chevron"
-        icon="line-md:chevron-down"
+        icon="app:chevron-down"
         height="16"
       />
     </button>

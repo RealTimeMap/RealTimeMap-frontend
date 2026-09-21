@@ -66,7 +66,7 @@ const {
                 @click="close"
               >
                 <u-icon
-                  icon="material-symbols:close"
+                  icon="app:close"
                   height="24"
                 />
               </button>

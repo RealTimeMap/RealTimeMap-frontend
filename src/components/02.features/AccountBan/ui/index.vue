@@ -41,7 +41,7 @@ function logout() {
     <div class="ban__card">
       <div class="ban__icon">
         <u-icon
-          icon="line-md:cancel"
+          icon="app:close"
           width="26"
           height="26"
         />

@@ -37,7 +37,7 @@ function formatTime(dateStr: string) {
   <div class="period-block">
     <div class="period-block__header">
       <u-icon
-        icon="mynaui:calendar"
+        icon="app:calendar"
         class="header-icon"
       />
       <span class="label-text">ПЕРИОД АКТИВНОСТИ</span>

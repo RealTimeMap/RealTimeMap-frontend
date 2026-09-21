@@ -1,4 +1,4 @@
-import type { TokenPayload } from './index.type'
+import type { TokenPayload, TokenPayloadPatch, TokenResponsePatch } from './index.type'
 import { getCookie } from '@/components/00.shared/lib/cookie'
 
 function authConfig() {
@@ -8,6 +8,10 @@ function authConfig() {
 
 export const notificationApi = {
   postToken(payload: TokenPayload) {
-    apiService.post('/tokens', payload, authConfig())
+    return apiService.post<void>('/tokens', payload, authConfig())
+  },
+
+  patchTokens(payload: TokenPayloadPatch) {
+    return apiService.patch<TokenResponsePatch>('/tokens/me', payload, authConfig())
   },
 }

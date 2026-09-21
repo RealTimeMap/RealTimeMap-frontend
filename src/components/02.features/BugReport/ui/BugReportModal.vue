@@ -57,7 +57,7 @@ onMounted(loadContext)
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Сообщить о баге</h2>
     </div>

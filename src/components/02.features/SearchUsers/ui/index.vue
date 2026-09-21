@@ -56,7 +56,7 @@ watch(hasQuery, (active) => {
     <div class="user-search__bar">
       <u-icon
         class="user-search__icon"
-        icon="line-md:search"
+        icon="app:search"
         height="20"
       />
       <input
@@ -74,7 +74,7 @@ watch(hasQuery, (active) => {
         @click="clear"
       >
         <u-icon
-          icon="line-md:close"
+          icon="app:close"
           height="18"
         />
       </button>
@@ -86,7 +86,7 @@ watch(hasQuery, (active) => {
         class="user-search__hint"
       >
         <u-icon
-          icon="line-md:search"
+          icon="app:search"
           height="18"
         />
         <span>Ищите людей по тегу. Скоро — места и другое</span>
@@ -97,7 +97,7 @@ watch(hasQuery, (active) => {
           @click="hideSearchHint"
         >
           <u-icon
-            icon="line-md:close"
+            icon="app:close"
             height="14"
           />
         </button>
@@ -114,7 +114,7 @@ watch(hasQuery, (active) => {
           class="user-search__state"
         >
           <u-icon
-            icon="line-md:loading-twotone-loop"
+            icon="app:loading"
             height="24"
           />
         </div>
@@ -154,7 +154,7 @@ watch(hasQuery, (active) => {
                 <span class="result__meta">
                   <u-icon
                     v-if="person.isPrivate"
-                    icon="solar:lock-keyhole-minimalistic-bold"
+                    icon="app:lock"
                     height="13"
                   />
                   @{{ person.tag }}
@@ -162,7 +162,7 @@ watch(hasQuery, (active) => {
               </div>
               <u-icon
                 class="result__chevron"
-                icon="line-md:chevron-right"
+                icon="app:chevron-right"
                 height="18"
               />
             </button>

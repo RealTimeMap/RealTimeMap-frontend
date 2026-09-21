@@ -8,6 +8,7 @@ import AboutSection from './sections/AboutSection.vue'
 import AccountSection from './sections/AccountSection.vue'
 import AppSection from './sections/AppSection.vue'
 import ExperimentalSection from './sections/ExperimentalSection.vue'
+import NotificationsSection from './sections/NotificationsSection.vue'
 import StorageSection from './sections/StorageSection.vue'
 
 declare const __APP_VERSION__: string
@@ -54,7 +55,7 @@ function openEditProfile() {
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Настройки</h2>
     </div>
@@ -68,7 +69,7 @@ function openEditProfile() {
       <profile :user="user" />
       <u-icon
         class="profile-button__chevron"
-        icon="line-md:chevron-right"
+        icon="app:chevron-right"
         height="20"
       />
     </button>
@@ -81,7 +82,7 @@ function openEditProfile() {
     >
       <div class="guest-cta__icon">
         <u-icon
-          icon="solar:user-plus-bold"
+          icon="app:user-plus"
           height="22"
         />
       </div>
@@ -91,12 +92,13 @@ function openEditProfile() {
       </div>
       <u-icon
         class="profile-button__chevron"
-        icon="line-md:chevron-right"
+        icon="app:chevron-right"
         height="20"
       />
     </button>
 
     <account-section />
+    <notifications-section v-if="user" />
     <app-section />
     <experimental-section />
     <storage-section />
@@ -107,7 +109,7 @@ function openEditProfile() {
       class="button-logout"
       @click="logoutProfile"
     >
-      <u-icon icon="line-md:logout" />
+      <u-icon icon="app:logout" />
       Выйти из аккаунта
     </button>
     <span class="version">

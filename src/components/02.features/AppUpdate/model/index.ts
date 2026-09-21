@@ -66,7 +66,7 @@ export async function initUpdateChecker() {
       title: `Доступно обновление v${latestVersion}`,
       description: summarizeRelease(latestRelease.body),
       type: 'default',
-      icon: 'solar:download-square-bold',
+      icon: 'app:download',
       duration: 0,
       action,
     })
@@ -107,7 +107,7 @@ export async function checkForUpdates() {
       title: `Доступно обновление v${latestVersion}`,
       description: summarizeRelease(latestRelease.body),
       type: 'default',
-      icon: 'solar:download-square-bold',
+      icon: 'app:download',
       duration: 0,
       action,
     })

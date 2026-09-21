@@ -18,7 +18,7 @@ const {
   draggable = false,
   color = '#fff',
   media = null,
-  icon = 'solar:map-point-linear',
+  icon = 'app:pin',
   variant = 'default',
 } = defineProps<Props>()
 
@@ -106,7 +106,7 @@ onUnmounted(() => {
             class="marker-photo marker-photo--placeholder"
           >
             <u-icon
-              icon="solar:user-bold"
+              icon="app:user"
               height="20"
             />
           </div>

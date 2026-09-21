@@ -83,7 +83,7 @@ onMounted(loadAchievements)
       >
         Все
         <u-icon
-          icon="weui:arrow-filled"
+          icon="app:arrow-filled"
           width="8"
         />
       </button>

@@ -4,7 +4,7 @@ import { Icon } from '@iconify/vue'
 defineProps<{
   /**
    * Icon name from Iconify collection
-   * @example 'mdi:home' or 'lucide:arrow-left'
+   * @example 'app:home' or 'app:arrow-left'
    */
   icon: string
   width?: string | number

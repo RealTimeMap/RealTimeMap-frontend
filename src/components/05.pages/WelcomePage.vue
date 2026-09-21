@@ -54,10 +54,10 @@ onMounted(() => {
 })
 
 const slides = [
-  { key: 'about', color: '#2080f0', icon: 'line-md:map-marker-twotone-loop' },
-  { key: 'team', color: '#18a058', icon: 'line-md:laptop-twotone' },
-  { key: 'download', color: '#7c4dff', icon: 'solar:smartphone-2-bold-duotone' },
-  { key: 'safety', color: '#d03050', icon: 'line-md:alert-twotone-loop' },
+  { key: 'about', color: '#2080f0', icon: 'app:pin-wave' },
+  { key: 'team', color: '#18a058', icon: 'app:laptop' },
+  { key: 'download', color: '#7c4dff', icon: 'app:smartphone' },
+  { key: 'safety', color: '#d03050', icon: 'app:alert-loop' },
 ]
 
 const isLastSlide = computed(() => currentIndex.value === totalSlides - 1)
@@ -274,7 +274,7 @@ function openGithub() {
                   @click="downloadAndroidApp"
                 >
                   <u-icon
-                    icon="solar:download-minimalistic-bold"
+                    icon="app:download"
                     height="18"
                     width="18"
                   />
@@ -345,7 +345,7 @@ function openGithub() {
                   @click="openGithub"
                 >
                   <u-icon
-                    icon="line-md:github-loop"
+                    icon="app:github"
                     height="16"
                     width="16"
                   />

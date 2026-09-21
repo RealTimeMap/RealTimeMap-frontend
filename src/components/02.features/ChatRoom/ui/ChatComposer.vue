@@ -74,7 +74,7 @@ function handleKeydown(event: KeyboardEvent) {
       @click="emit('attach')"
     >
       <u-icon
-        icon="lucide:plus"
+        icon="app:plus"
         width="22"
       />
     </button> -->
@@ -100,7 +100,7 @@ function handleKeydown(event: KeyboardEvent) {
         @click="handleSend"
       >
         <u-icon
-          icon="lucide:send-horizontal"
+          icon="app:send"
           width="18"
         />
       </button>

@@ -53,14 +53,14 @@ function toggleGroup(id: string) {
 }
 
 const ICONS = [
-  'solar:map-point-linear',
-  'solar:home-2-linear',
-  'solar:cup-hot-linear',
-  'solar:star-linear',
-  'solar:flag-linear',
-  'solar:heart-linear',
-  'solar:camera-linear',
-  'solar:cart-large-2-linear',
+  'app:pin',
+  'app:home',
+  'app:cup',
+  'app:star',
+  'app:flag',
+  'app:heart',
+  'app:camera',
+  'app:cart',
 ]
 const COLORS = ['#7c3aed', '#3399ff', '#16a34a', '#eab308', '#ff5a5f', '#ec4899']
 
@@ -191,7 +191,7 @@ async function handleSubmit() {
       <div class="u-block mark-form__coords">
         <u-icon
           class="mark-form__coords-icon"
-          icon="line-md:my-location-loop"
+          icon="app:locate-loop"
           width="22"
           height="22"
         />
@@ -288,7 +288,7 @@ async function handleSubmit() {
             @click="toggleGroup(group.id)"
           >
             <u-icon
-              :icon="group.icon || 'solar:folder-linear'"
+              :icon="group.icon || 'app:folder'"
               height="16"
             />
             {{ group.name }}
@@ -307,7 +307,7 @@ async function handleSubmit() {
             @click="openGroupForm()"
           >
             <u-icon
-              icon="solar:add-circle-linear"
+              icon="app:add-circle"
               height="18"
             />
             Создать группу

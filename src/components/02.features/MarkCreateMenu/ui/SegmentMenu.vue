@@ -81,7 +81,7 @@ function confirm() {
             @click="selected = 'public'"
           >
             <u-icon
-              icon="solar:map-point-bold"
+              icon="app:pin"
               height="16"
             />
             Публичная
@@ -93,7 +93,7 @@ function confirm() {
             @click="selected = 'private'"
           >
             <u-icon
-              icon="solar:user-bold"
+              icon="app:user"
               height="15"
             />
             Личная
