@@ -87,10 +87,10 @@ async function revokeOthers() {
 function deviceIcon(ua: string): string {
   const s = ua.toLowerCase()
   if (/ipad|tablet/.test(s))
-    return 'solar:tablet-linear'
+    return 'app:tablet'
   if (/mobile|android|iphone/.test(s))
-    return 'solar:smartphone-linear'
-  return 'solar:monitor-linear'
+    return 'app:smartphone'
+  return 'app:monitor'
 }
 
 function lastUsedLabel(iso: string): string {
@@ -119,7 +119,7 @@ onMounted(load)
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Активные сессии</h2>
     </div>
@@ -199,8 +199,8 @@ onMounted(load)
             >
               <u-icon
                 :icon="revokingId === session.session_id
-                  ? 'line-md:loading-twotone-loop'
-                  : 'solar:trash-bin-trash-linear'"
+                  ? 'app:loading'
+                  : 'app:trash'"
                 height="18"
               />
             </button>
@@ -214,7 +214,7 @@ onMounted(load)
           @click="confirmingAll = true"
         >
           <u-icon
-            icon="solar:logout-3-linear"
+            icon="app:logout"
             height="18"
           />
           Завершить все, кроме текущей
@@ -227,7 +227,7 @@ onMounted(load)
           @click="revokeOthers"
         >
           <u-icon
-            :icon="revokingAll ? 'line-md:loading-twotone-loop' : 'solar:danger-triangle-linear'"
+            :icon="revokingAll ? 'app:loading' : 'app:warning'"
             height="18"
           />
           Точно завершить {{ otherCount }}?

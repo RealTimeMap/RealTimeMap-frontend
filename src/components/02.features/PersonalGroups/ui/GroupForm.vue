@@ -14,14 +14,14 @@ const props = defineProps<{
 }>()
 
 const ICONS = [
-  'solar:folder-linear',
-  'solar:home-2-linear',
-  'solar:cup-hot-linear',
-  'solar:star-linear',
-  'solar:map-point-linear',
-  'solar:heart-linear',
-  'solar:suitcase-linear',
-  'solar:city-linear',
+  'app:folder',
+  'app:home',
+  'app:cup',
+  'app:star',
+  'app:pin',
+  'app:heart',
+  'app:suitcase',
+  'app:city',
 ]
 const COLORS = ['#7c3aed', '#3399ff', '#16a34a', '#eab308', '#ff5a5f', '#ec4899']
 

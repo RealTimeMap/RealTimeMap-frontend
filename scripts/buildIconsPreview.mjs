@@ -1,5 +1,4 @@
 // Генерирует icons/preview.html — витрину локальных анимированных иконок
-// (icons/*.json). Запуск: node scripts/buildIconsPreview.mjs
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -7,7 +6,6 @@ import { fileURLToPath } from 'node:url'
 const scriptDir = dirname(fileURLToPath(import.meta.url))
 const iconsDir = join(scriptDir, '..', 'icons')
 
-// Человекочитаемые названия для иконок достижений (ключ → подпись).
 const TITLES = {
   'trophy-loop': 'Кубок',
   'medal-loop': 'Медаль',
@@ -57,6 +55,31 @@ const TITLES = {
   'add-circle': 'Добавить',
   'unlink': 'Открепить',
   'list-check': 'Список',
+  'arrow-down': 'Вниз',
+  'chevron-down': 'Свернуть',
+  'chevron-up': 'Развернуть',
+  'heart': 'Лайк',
+  'heart-filled': 'Лайк (вкл)',
+  'loading': 'Загрузка',
+  'gallery': 'Галерея',
+  'route': 'Маршрут',
+  'reply': 'Ответить',
+  'home': 'Дом',
+  'cup': 'Кофе',
+  'star': 'Звезда',
+  'flag': 'Флаг',
+  'camera': 'Камера',
+  'cart': 'Покупки',
+  'suitcase': 'Чемодан',
+  'city': 'Город',
+  'arrow-left': 'Назад',
+  'gauge': 'Спидометр',
+  'zoom-in': 'Зум',
+  'warning': 'Предупреждение',
+  'logout': 'Выход',
+  'monitor': 'Десктоп',
+  'smartphone': 'Телефон',
+  'tablet': 'Планшет',
 }
 
 const cards = []
