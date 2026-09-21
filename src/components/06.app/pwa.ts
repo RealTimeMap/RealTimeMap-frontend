@@ -35,7 +35,7 @@ export async function setupPWA() {
         title: 'Доступно обновление',
         description: 'Перезагрузите страницу, чтобы применить новую версию.',
         type: 'default',
-        icon: 'solar:refresh-bold',
+        icon: 'app:refresh',
         duration: 0,
         action: {
           text: 'Обновить',

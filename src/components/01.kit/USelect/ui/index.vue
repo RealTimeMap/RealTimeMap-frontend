@@ -82,7 +82,7 @@ onClickOutside(selectRef, () => {
     <u-icon
       class="u-select__arrow"
       :class="{ 'is-open': dropDown }"
-      icon="fe:arrow-left"
+      icon="app:chevron-left"
       width="16"
       height="16"
     />

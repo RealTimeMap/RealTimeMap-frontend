@@ -31,7 +31,7 @@ const imgLoaded = ref(false)
         class="mark-card__placeholder"
       >
         <u-icon
-          icon="solar:map-point-bold"
+          icon="app:pin"
           height="26"
         />
       </div>
@@ -41,7 +41,7 @@ const imgLoaded = ref(false)
         class="mark-card__count"
       >
         <u-icon
-          icon="solar:gallery-bold"
+          icon="app:gallery"
           width="12"
           height="12"
         />

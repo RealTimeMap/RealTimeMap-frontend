@@ -223,7 +223,7 @@ function onViewportResize() {
         @click="scrollToBottom(true)"
       >
         <u-icon
-          icon="solar:alt-arrow-down-linear"
+          icon="app:chevron-down"
           width="20"
           height="20"
         />

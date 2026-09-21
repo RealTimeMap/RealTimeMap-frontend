@@ -63,7 +63,7 @@ function subtitle(mark: LocalPersonalMark): string {
       @click="startCreate"
     >
       <u-icon
-        icon="solar:add-circle-linear"
+        icon="app:add-circle"
         height="20"
       />
       Новая личная метка
@@ -81,7 +81,7 @@ function subtitle(mark: LocalPersonalMark): string {
         :style="{ borderColor: mark.color || 'var(--primary-color)' }"
       >
         <u-icon
-          :icon="mark.icon || 'solar:map-point-linear'"
+          :icon="mark.icon || 'app:pin'"
           height="22"
         />
       </span>
@@ -101,7 +101,7 @@ function subtitle(mark: LocalPersonalMark): string {
             title="Не синхронизировано"
           >
             <u-icon
-              icon="solar:cloud-upload-linear"
+              icon="app:cloud-upload"
               height="14"
             />
           </span>
@@ -116,7 +116,7 @@ function subtitle(mark: LocalPersonalMark): string {
         @click.stop="toggleVisibility(mark.id, mark.isVisible)"
       >
         <u-icon
-          :icon="mark.isVisible ? 'solar:eye-linear' : 'solar:eye-closed-linear'"
+          :icon="mark.isVisible ? 'app:eye' : 'app:eye-off'"
           height="18"
         />
       </div>

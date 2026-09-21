@@ -15,7 +15,6 @@ dist-ssr
 coverage
 *.local
 
-/icons/preview.html
 /cypress/videos/
 /cypress/screenshots/
 
@@ -34,3 +33,4 @@ coverage
 .env
 plans/
 public/models/_original/*.glb
+/icons/preview.html

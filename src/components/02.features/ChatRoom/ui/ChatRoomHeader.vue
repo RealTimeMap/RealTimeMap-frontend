@@ -32,7 +32,7 @@ function goToProfile() {
       @click="emit('back')"
     >
       <u-icon
-        icon="lucide:chevron-left"
+        icon="app:chevron-left"
         width="22"
       />
     </button>

@@ -34,7 +34,7 @@ const showHaptics = false
       link
       label="Редактор карты"
       hint="Какие кнопки показывать на карте"
-      chevron="solar:pen-2-bold"
+      chevron="app:edit"
       @click="openMapEditor('panel')"
     />
 
@@ -62,7 +62,7 @@ const showHaptics = false
       link
       label="Скачать приложение"
       hint="Версия для Android (.apk)"
-      chevron="solar:download-minimalistic-bold"
+      chevron="app:download"
       @click="downloadAndroidApp()"
     />
 
@@ -71,7 +71,7 @@ const showHaptics = false
       link
       label="Проверить обновление"
       hint="Скачать последнюю версию, если доступна"
-      chevron="solar:refresh-bold"
+      chevron="app:refresh"
       @click="checkForUpdates()"
     />
   </settings-section>

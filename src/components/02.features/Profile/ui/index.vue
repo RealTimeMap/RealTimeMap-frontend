@@ -103,19 +103,19 @@ const { activeTip: profileTip, dismiss: dismissProfileTip } = useCoachOnView(
     {
       id: 'profile_level',
       el: levelRef,
-      icon: 'solar:medal-ribbons-star-bold-duotone',
+      icon: 'app:medal-loop',
       text: 'Это ваш уровень — растёт за активность на карте',
     },
     {
       id: 'profile_achievements',
       el: achiveRef,
-      icon: 'solar:cup-star-bold-duotone',
+      icon: 'app:trophy-loop',
       text: 'Достижения открываются за ваши действия — вот бейджи',
     },
     {
       id: 'profile_stats',
       el: statsRef,
-      icon: 'solar:chart-2-bold-duotone',
+      icon: 'app:stats-up',
       text: 'Статистика — ваша активность в цифрах',
     },
   ],
@@ -186,7 +186,7 @@ function openMark(markId: number) {
         @click="chatsStore.newChat(user.userId)"
       >
         <u-icon
-          icon="line-md:chat-round"
+          icon="app:chat-loop"
           height="20"
         />
       </button>
@@ -279,7 +279,7 @@ function openMark(markId: number) {
       >
         Показать все метки
         <u-icon
-          icon="weui:arrow-filled"
+          icon="app:arrow-filled"
           width="8"
         />
       </button>
@@ -290,7 +290,7 @@ function openMark(markId: number) {
       class="user-profile-view__empty"
     >
       <u-icon
-        icon="solar:point-on-map-bold-duotone"
+        icon="app:pin"
         width="26"
         height="26"
       />
@@ -303,7 +303,7 @@ function openMark(markId: number) {
       @click="openSettings()"
     >
       <u-icon
-        icon="line-md:cog-loop"
+        icon="app:cog-loop"
         height="20"
       />
     </div>

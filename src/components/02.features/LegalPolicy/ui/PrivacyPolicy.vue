@@ -13,7 +13,7 @@ const { close } = useDialogStore()
         type="button"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Конфиденциальность</h2>
     </div>

@@ -58,7 +58,7 @@ async function submit() {
             v-model="email"
             placeholder="Email"
             type="email"
-            icon="solar:letter-outline"
+            icon="app:mail"
             :disabled="isLoading"
             :loading="isLoading"
             :error="!!error"
@@ -84,7 +84,7 @@ async function submit() {
     >
       <div class="forgot__done-icon">
         <u-icon
-          icon="solar:letter-opened-bold-duotone"
+          icon="app:mail"
           height="40"
         />
       </div>

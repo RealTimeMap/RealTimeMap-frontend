@@ -56,7 +56,7 @@ async function submit() {
     <div class="reset__card">
       <div class="reset__icon">
         <u-icon
-          icon="solar:lock-password-bold-duotone"
+          icon="app:lock"
           height="40"
         />
       </div>
@@ -76,7 +76,7 @@ async function submit() {
               v-model="password"
               placeholder="Новый пароль"
               type="password"
-              icon="solar:lock-outline"
+              icon="app:lock"
               :disabled="isLoading"
               :error="!!error"
               @input="error = ''"
@@ -85,7 +85,7 @@ async function submit() {
               v-model="confirm"
               placeholder="Повторите пароль"
               type="password"
-              icon="solar:lock-outline"
+              icon="app:lock"
               :disabled="isLoading"
               :error="!!error"
               :error-message="error"

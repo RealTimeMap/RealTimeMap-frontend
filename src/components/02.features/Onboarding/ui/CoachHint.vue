@@ -31,7 +31,7 @@ const emit = defineEmits<{
       @click="emit('close')"
     >
       <u-icon
-        icon="line-md:close"
+        icon="app:close"
         width="16"
         height="16"
       />

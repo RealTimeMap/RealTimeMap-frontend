@@ -32,7 +32,7 @@ const {
         :disabled="isLoading"
         :loading="isLoading"
         :error="!!formErrors.username"
-        icon="line-md:account"
+        icon="app:user"
         @input="clearError('username')"
       />
 
@@ -43,7 +43,7 @@ const {
         :disabled="isLoading"
         :loading="isLoading"
         :error="!!formErrors.email"
-        icon="solar:letter-outline"
+        icon="app:mail"
         @input="clearError('email')"
       />
 
@@ -54,7 +54,7 @@ const {
         :disabled="isLoading"
         :error="!!formErrors.password"
         type="password"
-        icon="solar:lock-outline"
+        icon="app:lock"
         @input="clearError('password')"
       />
     </div>
@@ -80,7 +80,7 @@ const {
       <span class="auth-form__consent-box">
         <u-icon
           class="auth-form__consent-check"
-          icon="material-symbols:check-rounded"
+          icon="app:check"
           height="15"
         />
       </span>
@@ -123,7 +123,7 @@ const {
         @click="googleAuth()"
       >
         <u-icon
-          icon="uil:google"
+          icon="app:google"
           width="16"
           height="16"
         />

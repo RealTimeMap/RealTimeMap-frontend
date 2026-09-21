@@ -27,31 +27,31 @@ const errorView = computed(() => {
   switch (reason) {
     case 'denied':
       return {
-        icon: 'solar:map-point-remove-bold-duotone',
+        icon: 'app:pin-off',
         title: 'Нет доступа к геолокации',
         description: `Приложению нужен доступ к вашему местоположению, чтобы показать карту. ${enableHint}`,
       }
     case 'unavailable':
       return {
-        icon: 'solar:gps-bold-duotone',
+        icon: 'app:gps',
         title: 'Геолокация выключена',
         description: `Не удалось определить местоположение. Проверьте, что геолокация включена. ${enableHint}`,
       }
     case 'timeout':
       return {
-        icon: 'solar:gps-bold-duotone',
+        icon: 'app:gps',
         title: 'Не удалось найти вас',
         description: 'Определение местоположения заняло слишком много времени. Проверьте сигнал GPS и попробуйте ещё раз.',
       }
     case 'unsupported':
       return {
-        icon: 'line-md:alert-loop',
+        icon: 'app:alert-loop',
         title: 'Геолокация недоступна',
         description: props.error ?? 'Ваше устройство не поддерживает геолокацию.',
       }
     default:
       return {
-        icon: 'line-md:alert-loop',
+        icon: 'app:alert-loop',
         title: 'Произошла ошибка',
         description: props.error ?? 'Не удалось получить местоположение.',
       }
@@ -107,7 +107,7 @@ onUnmounted(() => {
       class="state-content"
     >
       <u-icon
-        icon="line-md:loading-twotone-loop"
+        icon="app:loading"
         height="30"
         width="30"
       />
@@ -144,7 +144,7 @@ onUnmounted(() => {
           @click="emit('retry')"
         >
           <u-icon
-            icon="solar:refresh-linear"
+            icon="app:refresh"
             width="16"
             height="16"
           />

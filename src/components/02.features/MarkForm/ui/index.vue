@@ -101,7 +101,7 @@ onUnmounted(dismissDateTip)
       <div class="u-block mark-form__coords">
         <u-icon
           class="mark-form__coords-icon"
-          icon="line-md:my-location-loop"
+          icon="app:locate-loop"
           width="22"
           height="22"
         />

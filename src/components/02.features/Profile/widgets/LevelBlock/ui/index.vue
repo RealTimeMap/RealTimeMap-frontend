@@ -55,7 +55,7 @@ const remainingXp = computed(() => {
       <span class="footer-label">Следующее звание</span>
       <div class="next-rank">
         <u-icon
-          icon="solar:crown-bold"
+          icon="app:crown-loop"
           width="16"
         />
         <span class="next-rank__name">

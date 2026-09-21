@@ -127,7 +127,7 @@ onUnmounted(() => {
       <div class="uploader__content">
         <div class="uploader__icon">
           <u-icon
-            icon="line-md:image"
+            icon="app:gallery"
             width="28"
             height="28"
           />

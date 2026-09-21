@@ -27,7 +27,7 @@ function previewMarks(groupId: EntityId) {
       @click="openGroupForm()"
     >
       <u-icon
-        icon="solar:add-circle-linear"
+        icon="app:add-circle"
         height="20"
       />
       Новый список
@@ -53,7 +53,7 @@ function previewMarks(groupId: EntityId) {
               title="Не синхронизировано"
             >
               <u-icon
-                icon="solar:cloud-upload-linear"
+                icon="app:cloud-upload"
                 height="13"
               />
             </span>
@@ -84,7 +84,7 @@ function previewMarks(groupId: EntityId) {
 
         <u-icon
           class="list-card__chevron"
-          icon="line-md:chevron-right"
+          icon="app:chevron-right"
           height="20"
         />
       </button>
@@ -94,7 +94,7 @@ function previewMarks(groupId: EntityId) {
         type="button"
       >
         <u-icon
-          icon="solar:upload-linear"
+          icon="app:upload"
           height="16"
         />
         Поделиться списком

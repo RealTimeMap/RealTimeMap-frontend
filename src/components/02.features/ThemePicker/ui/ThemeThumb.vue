@@ -27,7 +27,7 @@ defineEmits<{ select: [] }>()
         class="theme-thumb__check"
       >
         <u-icon
-          icon="material-symbols:check-rounded"
+          icon="app:check"
           height="12"
         />
       </div>

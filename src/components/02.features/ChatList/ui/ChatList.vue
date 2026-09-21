@@ -22,7 +22,7 @@ const { chats } = useChatList()
         <div class="icon">
           <u-icon
             width="34"
-            icon="line-md:chat-bubble"
+            icon="app:chat-loop"
           />
         </div>
         <div class="chats-content">

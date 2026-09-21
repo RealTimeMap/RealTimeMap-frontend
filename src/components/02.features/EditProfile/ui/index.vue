@@ -56,7 +56,7 @@ onUnmounted(dispose)
         class="button-back"
         @click="close"
       >
-        <u-icon icon="line-md:arrow-small-left" />
+        <u-icon icon="app:arrow-left" />
       </button>
       <h2>Профиль</h2>
       <button
@@ -82,7 +82,7 @@ onUnmounted(dispose)
         />
         <span class="avatar-button__edit">
           <u-icon
-            icon="solar:pen-bold"
+            icon="app:edit"
             height="16"
           />
         </span>

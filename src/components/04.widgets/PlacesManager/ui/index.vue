@@ -62,7 +62,7 @@ onUnmounted(() => {
       </h1>
       <p class="places__subtitle">
         <u-icon
-          icon="solar:lock-keyhole-minimalistic-linear"
+          icon="app:lock"
           height="13"
         />
         Всё приватно, пока вы не поделитесь списком
@@ -75,7 +75,7 @@ onUnmounted(() => {
     >
       <span class="sync-bar__status">
         <u-icon
-          :icon="isSyncing ? 'line-md:loading-twotone-loop' : 'solar:refresh-linear'"
+          :icon="isSyncing ? 'app:loading' : 'app:refresh'"
           height="15"
         />
         {{ syncStatus.text }}

@@ -236,7 +236,7 @@ watch(model, (newVal) => {
     <div class="dp-input-wrapper">
       <div class="dp-input">
         <u-icon
-          icon="line-md:calendar"
+          icon="app:calendar"
           class="icon-cal"
           width="20"
           height="20"
@@ -324,7 +324,7 @@ watch(model, (newVal) => {
         @click="prevMonth"
       >
         <u-icon
-          icon="fe:arrow-left"
+          icon="app:chevron-left"
           width="16"
           height="16"
         />
@@ -332,7 +332,7 @@ watch(model, (newVal) => {
       <div class="current-month">
         {{ displayViewMonth }}
         <u-icon
-          icon="fe:arrow-down"
+          icon="app:chevron-down"
           width="14"
           height="14"
           class="chevron"
@@ -344,7 +344,7 @@ watch(model, (newVal) => {
         @click="nextMonth"
       >
         <u-icon
-          icon="fe:arrow-right"
+          icon="app:chevron-right"
           width="16"
           height="16"
         />

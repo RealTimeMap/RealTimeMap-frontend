@@ -21,7 +21,7 @@ const endMax = computed(() => new Date(Date.now() + 7 * DAY_MS))
     <div class="date-block__header">
       <u-icon
         class=""
-        icon="line-md:calendar"
+        icon="app:calendar"
         width="16"
         height="16"
       />

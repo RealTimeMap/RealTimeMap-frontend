@@ -165,11 +165,11 @@ const style = computed<Record<string, string>>(() => {
 })
 
 const defaultIcons = {
-  info: 'solar:info-circle-bold',
-  error: 'solar:danger-circle-bold',
-  success: 'solar:check-circle-bold',
-  warning: 'solar:danger-bold',
-  default: 'solar:bell-bing-bold',
+  info: 'app:info',
+  error: 'app:warning',
+  success: 'app:check-circle',
+  warning: 'app:warning',
+  default: 'app:bell',
 }
 </script>
 

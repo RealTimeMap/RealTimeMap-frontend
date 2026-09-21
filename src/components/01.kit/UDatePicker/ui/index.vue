@@ -90,7 +90,7 @@ const displayEnd = computed(() => (endAt.value ? formatter.format(endAt.value) :
     </div>
 
     <u-icon
-      icon="line-md:arrow-right"
+      icon="app:arrow-right"
       height="20"
       width="20"
     />

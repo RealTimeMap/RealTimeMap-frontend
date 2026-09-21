@@ -28,7 +28,7 @@ function centerOnUser() {
       @click="centerOnUser"
     >
       <u-icon
-        icon="line-md:my-location"
+        icon="app:locate-loop"
         width="20"
         height="20"
       />

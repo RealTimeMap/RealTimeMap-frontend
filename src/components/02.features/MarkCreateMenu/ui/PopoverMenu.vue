@@ -73,14 +73,14 @@ const coordsStyle = computed(() => {
         >
           <span class="mark-pop__ic mark-pop__ic--public">
             <u-icon
-              icon="solar:map-point-bold"
+              icon="app:pin"
               height="18"
             />
           </span>
           <span class="mark-pop__text">Публичная</span>
           <u-icon
             class="mark-pop__chevron"
-            icon="line-md:chevron-right"
+            icon="app:chevron-right"
             height="16"
           />
         </button>
@@ -94,14 +94,14 @@ const coordsStyle = computed(() => {
         >
           <span class="mark-pop__ic mark-pop__ic--private">
             <u-icon
-              icon="solar:user-bold"
+              icon="app:user"
               height="16"
             />
           </span>
           <span class="mark-pop__text">Личная</span>
           <u-icon
             class="mark-pop__chevron"
-            icon="line-md:chevron-right"
+            icon="app:chevron-right"
             height="16"
           />
         </button>

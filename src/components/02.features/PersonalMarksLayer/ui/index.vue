@@ -18,7 +18,7 @@ onMounted(() => store.hydrate())
       v-memo="[mark.coordinates, mark.icon, mark.color]"
       :coordinates="mark.coordinates as MapPoint"
       variant="personal"
-      :icon="mark.icon || 'solar:map-point-linear'"
+      :icon="mark.icon || 'app:pin'"
       :color="mark.color || 'var(--primary-color)'"
       @click="openPersonalMarkDetail(mark.id)"
     />
