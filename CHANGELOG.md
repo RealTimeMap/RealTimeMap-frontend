@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.1.54
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.53...v0.1.54)
+
+### 🚀 Функциональность
+
+- **ui:** New custom icon more ([e30720e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e30720e))
+- **mark:** Ограничения конца — не раньше сейчас, максимум 7 дней от текущей даты ([9327c35](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/9327c35))
+- **ui:** Полный переход на кастомные иконки! ([771054b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/771054b))
+
+### 💅 Рефакторинг
+
+- **notifications:** Удали кастомные уведы, перенес на firebase ([33357a6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/33357a6))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.53
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.52...v0.1.53)
