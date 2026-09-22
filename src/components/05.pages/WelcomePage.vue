@@ -4,12 +4,13 @@ import { downloadAndroidApp } from '@/components/02.features/AppUpdate'
 import { openCommunityRules } from '@/components/02.features/CommunityRules'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
 import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
+import { RoadmapTimeline } from '@/components/02.features/Roadmap'
 
 declare const __APP_VERSION__: string
 
 const { completeOnboarding } = useOnboarding()
 const currentIndex = ref(0)
-const totalSlides = 4
+const totalSlides = 5
 
 const appVersion = __APP_VERSION__
 const isNative = Capacitor.isNativePlatform()
@@ -57,6 +58,7 @@ const slides = [
   { key: 'about', color: '#2080f0', icon: 'app:pin-wave' },
   { key: 'team', color: '#18a058', icon: 'app:laptop' },
   { key: 'download', color: '#7c4dff', icon: 'app:smartphone' },
+  { key: 'roadmap', color: '#f0a020', icon: 'app:route' },
   { key: 'safety', color: '#d03050', icon: 'app:alert-loop' },
 ]
 
@@ -283,9 +285,38 @@ function openGithub() {
               </div>
             </div>
 
-            <!-- Слайд 4: Важно -->
+            <!-- Слайд 4: Дорожная карта -->
             <div
               v-else-if="currentIndex === 3"
+              key="roadmap"
+              class="slide-wrapper"
+            >
+              <div class="slide-scroll-area">
+                <div
+                  class="icon-box"
+                  :style="{ background: `rgba(240, 160, 32, 0.1)`, color: '#f0a020' }"
+                >
+                  <u-icon
+                    :icon="slides[3].icon"
+                    height="56"
+                    width="56"
+                  />
+                </div>
+
+                <h2 class="slide-title">
+                  Планы развития
+                </h2>
+                <p class="description">
+                  Мы активно развиваем приложение. Вот что уже в работе и что впереди.
+                </p>
+
+                <roadmap-timeline compact />
+              </div>
+            </div>
+
+            <!-- Слайд 5: Важно -->
+            <div
+              v-else-if="currentIndex === 4"
               key="safety"
               class="slide-wrapper"
             >
@@ -295,7 +326,7 @@ function openGithub() {
                   :style="{ background: `rgba(208, 48, 80, 0.1)`, color: '#d03050' }"
                 >
                   <u-icon
-                    :icon="slides[3].icon"
+                    :icon="slides[4].icon"
                     height="56"
                     width="56"
                   />
