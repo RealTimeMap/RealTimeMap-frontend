@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.1.56
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.55...v0.1.56)
+
+### 🚀 Функциональность
+
+- **ui:** Road map ([d4585b7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d4585b7))
+
+### 🩹 Исправления
+
+- **places:** Устранение гонки очереди мутаций, защита pull от зацикливания ([2cdde2e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/2cdde2e))
+
+### 🎨 Стили
+
+- **chat:** Индикатор статуса сообщения как трек на карте ([e0636ea](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e0636ea))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.55
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.54...v0.1.55)
