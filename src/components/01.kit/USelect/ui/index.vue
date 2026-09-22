@@ -19,7 +19,10 @@ const { options, parentPadding = 0 } = defineProps<Props>()
 
 const modal = defineModel<number | null>()
 const selectRef = ref<HTMLElement | null>(null)
+const searchRef = ref<HTMLInputElement | null>(null)
 const dropDown = ref(false)
+const search = ref('')
+
 const activeOption = computed<UOption | undefined>(() => {
   return options.find(
     option => option.value === modal.value,
@@ -32,6 +35,13 @@ const value = computed(() => {
   )?.label ?? 'Выберите категорию'
 })
 
+const filteredOptions = computed<UOption[]>(() => {
+  const query = search.value.trim().toLowerCase()
+  if (!query)
+    return options
+  return options.filter(option => option.label.toLowerCase().includes(query))
+})
+
 function selectOption(value: UOption) {
   modal.value = value.value
   dropDown.value = false
@@ -40,6 +50,18 @@ function selectOption(value: UOption) {
 function visibleSelect() {
   dropDown.value = !dropDown.value
 }
+
+function clearSearch() {
+  search.value = ''
+  searchRef.value?.focus()
+}
+
+watch(dropDown, (open) => {
+  if (open) {
+    search.value = ''
+    nextTick(() => searchRef.value?.focus())
+  }
+})
 
 onClickOutside(selectRef, () => {
   dropDown.value = false
@@ -93,9 +115,41 @@ onClickOutside(selectRef, () => {
         class="u-select__list"
         @click.stop
       >
-        <div class="u-select__list-wrapper">
+        <div class="u-select__search">
+          <u-icon
+            class="u-select__search-icon"
+            icon="app:search"
+            width="16"
+            height="16"
+          />
+          <input
+            ref="searchRef"
+            v-model="search"
+            type="text"
+            class="u-select__search-input value-text"
+            placeholder="Поиск категории"
+          >
+          <button
+            v-if="search"
+            type="button"
+            class="u-select__search-clear"
+            aria-label="Очистить"
+            @click="clearSearch"
+          >
+            <u-icon
+              icon="app:close"
+              width="14"
+              height="14"
+            />
+          </button>
+        </div>
+
+        <div
+          v-if="filteredOptions.length"
+          class="u-select__list-wrapper"
+        >
           <div
-            v-for="item in options"
+            v-for="item in filteredOptions"
             :key="item.value"
             class="u-select__list-item"
             :class="{ 'is-active': item.value === modal }"
@@ -111,6 +165,13 @@ onClickOutside(selectRef, () => {
             </div>
             <span>{{ item.label }}</span>
           </div>
+        </div>
+
+        <div
+          v-else
+          class="u-select__empty"
+        >
+          Ничего не найдено
         </div>
       </div>
     </transition>
@@ -166,9 +227,14 @@ onClickOutside(selectRef, () => {
     background: var(--popover-bg);
 
     &-wrapper {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      display: flex;
+      flex-direction: column;
       gap: 6px;
+
+      max-height: 240px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
     }
 
     &-item {
@@ -188,6 +254,64 @@ onClickOutside(selectRef, () => {
         background: transparent;
       }
     }
+  }
+
+  &__search {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding: 0 10px;
+    height: 38px;
+    border-radius: 10px;
+    background: var(--surface-subtle);
+    border: 0.5px solid var(--border-subtle);
+
+    &-icon {
+      flex-shrink: 0;
+      color: var(--text-secondary, currentColor);
+      opacity: 0.6;
+    }
+
+    &-input {
+      flex: 1 1 0%;
+      min-width: 0;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: inherit;
+
+      &::placeholder {
+        color: var(--text-secondary, currentColor);
+        opacity: 0.6;
+      }
+    }
+
+    &-clear {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 2px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary, currentColor);
+      opacity: 0.6;
+      cursor: pointer;
+      transition: 150ms;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
+
+  &__empty {
+    padding: 20px 10px;
+    text-align: center;
+    color: var(--text-secondary, currentColor);
+    opacity: 0.7;
   }
 
   &__arrow {
