@@ -4,9 +4,7 @@ import type { User } from '@/components/00.shared/services/user/index.type'
 import { markApi } from '@/components/00.shared/services/mark'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
-import AppSettings from '@/components/02.features/AppSetting'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
-import MarkDetailsSheet from '@/components/02.features/MarkDetailSheet'
 import { useCoachOnView } from '@/components/02.features/Onboarding/model/useCoachOnView'
 import CoachHint from '@/components/02.features/Onboarding/ui/CoachHint.vue'
 import { openUserMarks } from '@/components/02.features/UserMarksList'
@@ -23,6 +21,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'colorExtracted', color: string): void
 }>()
+
+const AppSettings = defineAsyncComponent(() => import('@/components/02.features/AppSetting'))
+const MarkDetailsSheet = defineAsyncComponent(() => import('@/components/02.features/MarkDetailSheet'))
 
 const chatsStore = useChatsStore()
 const authStore = useAuthStore()
