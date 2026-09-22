@@ -1,6 +1,26 @@
 # Changelog
 
 
+## v0.1.55
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.54...v0.1.55)
+
+### 🚀 Функциональность
+
+- **ui:** Поиск категорий в USelect с фильтрацией и новым выводом ([fe04db6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fe04db6))
+
+### 🔥 Производительность
+
+- **profile:** Ленивая загрузка модалок настроек и метки — легче первый рендер профиля ([543d41f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/543d41f))
+
+### 🗑 Удаление
+
+- **share:** Html icons ([acbf77e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/acbf77e))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.54
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.53...v0.1.54)
