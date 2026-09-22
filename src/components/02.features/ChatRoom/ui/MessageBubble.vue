@@ -94,7 +94,22 @@ function handleRetry() {
           :aria-label="statusText"
           @click="handleRetry"
         >
-          <i class="status__core" />
+          <svg
+            class="status__track"
+            viewBox="0 0 22 8"
+            aria-hidden="true"
+          >
+            <path
+              class="status__line"
+              d="M1 4 H16"
+            />
+            <circle
+              class="status__goal"
+              cx="19"
+              cy="4"
+              r="2.4"
+            />
+          </svg>
         </component>
       </span>
     </div>
@@ -172,11 +187,6 @@ function handleRetry() {
     user-select: none;
   }
 
-  /*
-   * У своих сообщений фон — яркий градиент, на котором тонет и время,
-   * и индикатор. Уводим их на тёмную стеклянную подложку: она даёт
-   * постоянный контраст независимо от того, на какую часть градиента попала.
-   */
   &--own &__time {
     margin-top: 4px;
     padding: 3px 7px;
@@ -187,128 +197,84 @@ function handleRetry() {
   }
 }
 
-/*
- * Статус доставки как радар-пинг: тот же визуальный язык,
- * что у меток и геолокации на карте.
- */
 .status {
-  position: relative;
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 11px;
-  height: 11px;
   padding: 0;
   border: 0;
   background: none;
   flex-shrink: 0;
+  line-height: 0;
 
-  &__core {
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: currentColor;
+  &__track {
+    width: 22px;
+    height: 8px;
+    overflow: visible;
   }
 
-  // кольца радара
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border: 1.5px solid currentColor;
-    border-radius: 50%;
-    opacity: 0;
+  &__line {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
   }
 
-  // уходит — кольцо расходится бесконечно
+  &__goal {
+    fill: currentColor;
+  }
+
   &--sending {
     color: rgba(255, 255, 255, 0.85);
 
-    &::after {
-      animation: radar-ping 1.4s ease-out infinite;
+    .status__line {
+      stroke-dasharray: 2 3;
+      animation: track-run 0.8s linear infinite;
     }
   }
 
-  // дошло — точка и одно статичное кольцо
   &--sent {
     color: rgba(255, 255, 255, 0.85);
-
-    &::before {
-      opacity: 0.55;
-      transform: scale(0.62);
-    }
   }
 
-  // прочитано — два кольца разово расходятся и остаются.
-  // циан выбран как самый контрастный к индиго-фиолетовому градиенту пузыря
   &--read {
     color: #5eeaff;
 
-    .status__core {
-      box-shadow: 0 0 8px currentColor;
+    .status__line {
+      animation: track-fill 0.45s ease-out;
     }
 
-    &::before {
-      opacity: 1;
-      transform: scale(0.62);
-      animation: radar-expand-inner 0.45s ease-out;
-    }
-
-    &::after {
-      opacity: 0.75;
-      animation: radar-expand-outer 0.45s ease-out 0.08s backwards;
+    .status__goal {
+      filter: drop-shadow(0 0 4px currentColor);
     }
   }
 
-  // не ушло — оборванный контур, клик повторяет отправку
   &--failed {
     color: #ff8b8f;
     cursor: pointer;
 
-    &::before {
-      opacity: 1;
-      border-style: dashed;
+    .status__line {
+      stroke-dasharray: 2 2;
     }
   }
 }
 
-@keyframes radar-ping {
-  from {
-    transform: scale(0.35);
-    opacity: 0.7;
-  }
+@keyframes track-run {
   to {
-    transform: scale(1);
-    opacity: 0;
+    stroke-dashoffset: -5;
   }
 }
 
-@keyframes radar-expand-inner {
+@keyframes track-fill {
   from {
-    transform: scale(0.2);
-    opacity: 0;
+    stroke-dasharray: 0 24;
   }
   to {
-    transform: scale(0.62);
-    opacity: 1;
-  }
-}
-
-@keyframes radar-expand-outer {
-  from {
-    transform: scale(0.3);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 0.75;
+    stroke-dasharray: 24 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .status::before,
-  .status::after {
+  .status__line {
     animation: none !important;
   }
 }

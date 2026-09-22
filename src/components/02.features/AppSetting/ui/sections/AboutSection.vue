@@ -2,12 +2,20 @@
 import { openBugReport } from '@/components/02.features/BugReport'
 import { openCommunityRules } from '@/components/02.features/CommunityRules'
 import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
+import { openRoadmap } from '@/components/02.features/Roadmap'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
 </script>
 
 <template>
   <settings-section title="О приложении">
+    <settings-row
+      link
+      label="Дорожная карта"
+      hint="Что уже в работе и что в планах"
+      @click="openRoadmap()"
+    />
+
     <settings-row
       link
       label="Сообщить о баге"

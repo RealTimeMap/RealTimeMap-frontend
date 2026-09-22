@@ -23,11 +23,11 @@ function resolveAppVersion(): string {
   }
 }
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   plugins: [
     vue(),
 
-    vueDevTools(),
+    ...(command === 'serve' ? [vueDevTools()] : []),
 
     autoImport({
       imports: [
@@ -143,4 +143,4 @@ export default defineConfig({
       },
     },
   },
-})
+}))
