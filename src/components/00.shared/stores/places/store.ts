@@ -15,7 +15,7 @@ import { personalMarkApi } from '@/components/00.shared/services/personal-mark'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { applyRemoved, mergeGroups, mergeUpserted, syncGroupToLocal, syncMarkToLocal } from './mappers'
 import { PermanentMutationError, playMutation } from './mutationQueue'
-import { LOCAL_PHOTO_PREFIX, savePendingPhoto } from './photoStore'
+import { LOCAL_PHOTO_PREFIX, removePendingPhoto, savePendingPhoto } from './photoStore'
 import { placesStorage } from './storage'
 
 const SYNC_PAGE_LIMIT = 200
@@ -23,12 +23,35 @@ const SYNC_PAGE_LIMIT = 200
 function uuid(): string {
   return crypto.randomUUID()
 }
+function createLock() {
+  let tail: Promise<unknown> = Promise.resolve()
+  return function withLock<T>(fn: () => Promise<T>): Promise<T> {
+    const run = tail.then(fn, fn)
+    tail = run.then(() => { }, () => { })
+    return run
+  }
+}
+
+async function savePendingPhotos(files: Blob[]): Promise<PendingPhoto[]> {
+  const saved: PendingPhoto[] = []
+  try {
+    for (const file of files)
+      saved.push(await savePendingPhoto(file))
+    return saved
+  }
+  catch (error) {
+    await Promise.all(saved.map(removePendingPhoto))
+    throw error
+  }
+}
 
 export const usePlacesStore = defineStore('places', () => {
   const marks = ref<LocalPersonalMark[]>([])
   const groups = ref<LocalGroup[]>([])
   const queue = ref<Mutation[]>([])
   const cursor = ref<number | undefined>(undefined)
+
+  const withLock = createLock()
 
   const isSyncing = ref(false)
   const isHydrated = ref(false)
@@ -100,9 +123,7 @@ export const usePlacesStore = defineStore('places', () => {
     photoFiles: Blob[] = [],
   ): Promise<LocalPersonalMark> {
     const localId = uuid()
-    const photos: PendingPhoto[] = []
-    for (const file of photoFiles)
-      photos.push(await savePendingPhoto(file))
+    const photos = await savePendingPhotos(photoFiles)
 
     const mark: LocalPersonalMark = {
       id: localId,
@@ -146,40 +167,41 @@ export const usePlacesStore = defineStore('places', () => {
     if (patch.longitude != null && patch.latitude != null)
       mark.coordinates = [patch.longitude, patch.latitude]
 
-    const photos: PendingPhoto[] = []
-    for (const file of photoFiles)
-      photos.push(await savePendingPhoto(file))
+    const photos = await savePendingPhotos(photoFiles)
 
     // Оптимистично убираем помеченные на удаление фото...
     if (patch.photosToDelete?.length) {
       const toDelete = new Set(patch.photosToDelete)
       mark.photos = mark.photos.filter(p => !toDelete.has(p))
     }
-    // ...и дописываем новые (local://-путь резолвится из Filesystem), чтобы
-    // изменения были видны сразу — до подтверждения синком.
     if (photos.length)
       mark.photos = [...mark.photos, ...photos.map(p => `${LOCAL_PHOTO_PREFIX}${p.path}`)]
 
     await persistMarks()
-    // Локальные (ещё не созданные) метки правим прямо в pending create-мутации.
-    if (typeof id === 'string')
-      await mergeIntoPendingCreate(id, patch, photos)
-    else
-      await enqueue({ id: uuid(), kind: 'mark.update', target: id, payload: patch, photos })
+    await withLock(async () => {
+      if (mark.localId)
+        await mergeIntoPendingCreate(mark.localId, patch, photos)
+      else
+        await enqueue({ id: uuid(), kind: 'mark.update', target: mark.id, payload: patch, photos })
+    })
     void trySync()
   }
 
   async function deleteMark(id: EntityId) {
+    const mark = marks.value.find(m => m.id === id)
     marks.value = marks.value.filter(m => m.id !== id)
     await persistMarks()
-    if (typeof id === 'string') {
-      // Локальная метка ещё не на сервере — удаляем её create-мутацию из очереди.
-      queue.value = queue.value.filter(mut => !('localId' in mut && mut.localId === id))
-      await persistQueue()
-    }
-    else {
-      await enqueue({ id: uuid(), kind: 'mark.delete', target: id })
-    }
+    await withLock(async () => {
+      const localId = mark?.localId
+      if (localId) {
+        queue.value = queue.value.filter(mut => !('localId' in mut && mut.localId === localId))
+        await persistQueue()
+      }
+      else {
+        const target = mark?.id ?? id
+        await enqueue({ id: uuid(), kind: 'mark.delete', target })
+      }
+    })
     void trySync()
   }
 
@@ -215,28 +237,31 @@ export const usePlacesStore = defineStore('places', () => {
       pending: true,
     })
     await persistGroups()
-    // Ещё не отправленную группу (есть localId) правим прямо в её create-мутации,
-    // иначе — обычный update по серверному uuid.
-    if (group.localId)
-      await mergeGroupIntoPendingCreate(group.localId, payload)
-    else
-      await enqueue({ id: uuid(), kind: 'group.update', target: id, payload })
+    await withLock(async () => {
+      if (group.localId)
+        await mergeGroupIntoPendingCreate(group.localId, payload)
+      else
+        await enqueue({ id: uuid(), kind: 'group.update', target: group.id, payload })
+    })
     void trySync()
   }
 
   async function deleteGroup(id: EntityId) {
     const group = groups.value.find(g => g.id === id)
-    const localId = group?.localId
     groups.value = groups.value.filter(g => g.id !== id)
     await persistGroups()
-    if (localId) {
-      // Локальная группа ещё не на сервере — удаляем её create-мутацию из очереди.
-      queue.value = queue.value.filter(mut => !('localId' in mut && mut.localId === localId))
-      await persistQueue()
-    }
-    else {
-      await enqueue({ id: uuid(), kind: 'group.delete', target: id })
-    }
+    await withLock(async () => {
+      const localId = group?.localId
+      if (localId) {
+        // Локальная группа ещё не на сервере — удаляем её create-мутацию из очереди.
+        queue.value = queue.value.filter(mut => !('localId' in mut && mut.localId === localId))
+        await persistQueue()
+      }
+      else {
+        const target = group?.id ?? id
+        await enqueue({ id: uuid(), kind: 'group.delete', target })
+      }
+    })
     void trySync()
   }
 
@@ -303,27 +328,38 @@ export const usePlacesStore = defineStore('places', () => {
 
   /** Проигрывание всей очереди мутаций (push). */
   async function pushQueue() {
+    let entitiesTouched = false
     while (queue.value.length > 0) {
-      const mutation = queue.value[0]
-      try {
-        const result = await playMutation(mutation)
-        if (result)
-          remapId(result.localId, result.serverId, result.revision)
-        else
-          clearPending(mutation)
-      }
-      catch (error) {
-        if (error instanceof PermanentMutationError) {
-          // Невосстановимая ошибка — выбрасываем мутацию, чтобы не блокировать очередь.
-          clearPending(mutation)
+      await withLock(async () => {
+        const mutation = queue.value[0]
+        try {
+          const result = await playMutation(mutation)
+          if (result) {
+            remapId(result.localId, result.serverId, result.revision)
+            await persistMarks()
+            await persistGroups()
+          }
+          else {
+            clearPending(mutation)
+            entitiesTouched = true
+          }
         }
-        else {
-          // Сетевая/временная ошибка — прекращаем, повторим в следующий sync.
-          throw error
+        catch (error) {
+          if (error instanceof PermanentMutationError) {
+            // Невосстановимая ошибка — выбрасываем мутацию, чтобы не блокировать очередь.
+            clearPending(mutation)
+            entitiesTouched = true
+          }
+          else {
+            // Сетевая/временная ошибка — прекращаем, повторим в следующий sync.
+            throw error
+          }
         }
-      }
-      queue.value.shift()
-      await persistQueue()
+        queue.value.shift()
+        await persistQueue()
+      })
+    }
+    if (entitiesTouched) {
       await persistMarks()
       await persistGroups()
     }
@@ -346,7 +382,8 @@ export const usePlacesStore = defineStore('places', () => {
     const userId = currentUserId()
     let hasMore = true
     while (hasMore) {
-      const res = await personalMarkApi.syncPersonalData({ since: cursor.value, limit: SYNC_PAGE_LIMIT })
+      const since = cursor.value
+      const res = await personalMarkApi.syncPersonalData({ since, limit: SYNC_PAGE_LIMIT })
 
       const incomingMarks = res.sections.personalMarks.upserted.map(m => syncMarkToLocal(m, userId))
       marks.value = mergeUpserted(marks.value, incomingMarks)
@@ -359,6 +396,11 @@ export const usePlacesStore = defineStore('places', () => {
       cursor.value = res.updateTo
       await placesStorage.saveCursor(res.updateTo)
       hasMore = res.hasMore
+
+      if (hasMore && since != null && res.updateTo === since) {
+        console.warn('[places sync] курсор не продвинулся, прерываю pull во избежание бесконечного цикла')
+        break
+      }
     }
     await persistMarks()
     await persistGroups()

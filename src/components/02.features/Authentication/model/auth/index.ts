@@ -40,10 +40,11 @@ export const useAuthStore = defineStore('auth', () => {
     api.defaults.headers.common.Authorization = `Bearer ${newToken}`
   }
 
+  // ! [TODO] не используется
   const getToken = () => {
     if (token.value)
       return token.value
-    token.value = localStorage.getItem('token')
+    token.value = getCookie('token')
     return token.value
   }
 

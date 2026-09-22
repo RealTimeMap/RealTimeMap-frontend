@@ -129,7 +129,7 @@ export async function downloadAndroidApp() {
     const apkAsset = latestRelease.assets?.find(
       (asset: any) => asset.name.endsWith('.apk'),
     )
-    window.open(apkAsset?.browser_download_url ?? GITHUB_RELEASES_PAGE, '_blank')
+    window.open(apkAsset?.browser_download_url ?? GITHUB_RELEASES_PAGE, '_blank', 'noopener,noreferrer')
   }
   catch (error) {
     console.error('Не удалось получить ссылку на APK:', error)
