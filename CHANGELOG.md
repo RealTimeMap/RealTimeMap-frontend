@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.57
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.56...v0.1.57)
+
+### 🩹 Исправления
+
+- **ui:** Отображение подписок пользователей ([f499de7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f499de7))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.56
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.55...v0.1.56)
