@@ -5,6 +5,8 @@ export interface StatsSummary {
   friendsCount: string
   /* Общее количество подписчиков */
   subscribersCount: string
+  /* Количество подписок пользователя (на скольких он подписан), отформатировано */
+  subscriptionsCount: string
 }
 
 export interface StatsMonthy {
