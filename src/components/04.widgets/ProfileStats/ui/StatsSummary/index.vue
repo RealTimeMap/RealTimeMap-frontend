@@ -75,7 +75,7 @@ const subscribersCount = computed(() => {
 const subscriptionsCount = computed(() => {
   if (isOwn.value && subscriptionsStore.mySubscriptionsCount != null)
     return subscriptionsStore.mySubscriptionsCount
-  return stats.value?.friendsCount ?? 0
+  return stats.value?.subscriptionsCount ?? 0
 })
 
 interface StatItem {
@@ -111,9 +111,10 @@ function openSubscriptions(tab?: SubscriptionListType) {
     return
 
   dialog.open(SubscriptionsModal, { initialTab: tab }, {
-    title: 'Ваши связи',
+    headerModal: false,
     width: '500px',
     height: '80%',
+    closeable: false,
     position: 'end center',
   })
 }
