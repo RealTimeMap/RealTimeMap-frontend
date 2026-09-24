@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.58
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.57...v0.1.58)
+
+### 🩹 Исправления
+
+- **ui:** Анимация при открытии профиля ([ada9898](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ada9898))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.57
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.56...v0.1.57)
