@@ -115,8 +115,25 @@ bun dev
 | `bun run typecheck`         | только проверка типов                                              |
 | `bun run lint` / `lint:fix` | ESLint                                                             |
 | `bun run apk-build`         | сборка веба и синхронизация с нативными проектами                  |
+| `bun run test:e2e`          | E2E-тесты (Playwright)                                             |
 | `bun run bump`              | посмотреть, какой станет версия (см. [RELEASING.md](RELEASING.md)) |
 | `bun run models:optimize`   | оптимизировать 3D-модели из `models-src/` в `public/models/`       |
+
+## Тесты
+
+E2E-тесты на Playwright лежат в `e2e/` и проверяют прод-сборку в эмуляции Pixel 7:
+
+```sh
+bun run test:e2e        # все тесты в консоли
+bun run test:e2e:ui     # интерактивный режим
+```
+
+- Перед запуском автоматически собирается отдельная сборка в `.e2e-dist` (основной `dist/` для Capacitor не затрагивается).
+- Бэкенд не нужен: сборка ходит на несуществующий `https://api.e2e.test`, а все запросы отвечают моки из `e2e/support/mockApi.ts`. Подменить ответ в тесте — `api.respond(/путь/, данные)`, уронить сервер — `api.setServerDown(true)`.
+- Тайлы карты грузятся из сети, поэтому для тестов нужен интернет.
+- Регрессионные тесты производительности (`performance.spec.ts`) замеряют паузы между кадрами с замедлением CPU в 4 раза.
+
+Если браузер Playwright не установлен: `bunx playwright install chromium`.
 
 ## Мобильная сборка
 
