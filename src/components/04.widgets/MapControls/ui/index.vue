@@ -161,7 +161,7 @@ function openSettings() {
 .map-controls {
   position: absolute;
   right: 14px;
-  bottom: calc(200px + var(--safe-bottom));
+  bottom: calc(300px + var(--safe-bottom));
   z-index: 5;
   display: flex;
   flex-direction: column;

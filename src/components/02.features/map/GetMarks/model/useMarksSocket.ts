@@ -83,11 +83,21 @@ export function useMarksSocket() {
     })
   }
 
+  /** Метки, пришедшие по сокету только что — их показываем с анимацией падения. */
+  const recentlyCreated = shallowRef<ReadonlySet<number>>(new Set())
+  const RECENT_MS = 3000
+
   const handleMarkCreated = (newMark: Mark) => {
     const exists = marks.value.find(m => m.id === newMark.id)
 
     if (!exists) {
       marks.value.push(newMark)
+      recentlyCreated.value = new Set([...recentlyCreated.value, newMark.id])
+      setTimeout(() => {
+        const next = new Set(recentlyCreated.value)
+        next.delete(newMark.id)
+        recentlyCreated.value = next
+      }, RECENT_MS)
     }
   }
 
@@ -116,6 +126,7 @@ export function useMarksSocket() {
     clusters: readonly(clusters),
     isLoading: readonly(isLoading),
     error: readonly(error),
+    recentlyCreated,
     fetchMarks,
   }
 }

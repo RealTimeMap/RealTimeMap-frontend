@@ -103,6 +103,14 @@ export class MockApi {
   private overrides: Array<[RegExp, Handler]> = []
   /** Метки, которые socket.io-сервер `/marks` отдаёт на запрос карты. */
   mapMarks: MapMark[] = []
+  private marksSocket: { send: (message: string) => void } | null = null
+
+  /** Сервер сообщает о новой метке, как событие marksCreated в реальном времени. */
+  pushCreatedMark(mark: MapMark) {
+    this.mapMarks.push(mark)
+    this.marksSocket?.send(`42/marks,${JSON.stringify(['marksCreated', mark])}`)
+  }
+
   private down = false
   readonly requests: string[] = []
 
@@ -123,6 +131,7 @@ export class MockApi {
     await context.routeWebSocket(new RegExp(origin), ws => ws.close())
     // Регистрация позже — приоритет выше: мини-сервер socket.io для меток на карте
     await context.routeWebSocket(new RegExp(`${origin}/marks/socket\\.io`), (ws) => {
+      this.marksSocket = ws
       // engine.io: пакет открытия «0» + параметры соединения
       ws.send(`0${JSON.stringify({ sid: 'e2e', upgrades: [], pingInterval: 600000, pingTimeout: 600000, maxPayload: 1e6 })}`)
       ws.onMessage((message) => {

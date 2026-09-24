@@ -10,7 +10,7 @@ import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
 import { Buildings3D } from '@/components/02.features/map/Buildings3D'
 import { GeolocationFeedback } from '@/components/02.features/map/Geolocation'
 import { useGeolocation } from '@/components/02.features/map/Geolocation/model/useGeolocation'
-import MarksLayer from '@/components/02.features/map/GetMarks/ui/MarksLayer.vue'
+import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
 import { LandmarksLayer } from '@/components/02.features/map/LandmarksLayer'
 import { BaseMapView } from '@/components/02.features/map/MapCore'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
@@ -226,6 +226,10 @@ watch(userPosition, (pos) => {
       />
     </base-map-view>
     <search-users v-if="mapInitialCenter" />
+    <nearby-marks
+      v-if="showPublicMarks"
+      :user-coordinates="userPosition"
+    />
     <route-banner v-if="routeStore.hasRoute" />
     <map-controls
       :map-api="mapApi"

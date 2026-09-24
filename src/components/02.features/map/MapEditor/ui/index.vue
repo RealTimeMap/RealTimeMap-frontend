@@ -14,6 +14,7 @@ const {
   showMapSettings,
   showMapZoomLevel,
   showBuildings3D,
+  markPreviewSwipe,
 } = storeToRefs(settings)
 const { close } = useDialogStore()
 </script>
@@ -147,6 +148,18 @@ const { close } = useDialogStore()
           <span class="me-row__hint">Объёмные дома на крупном масштабе — лучше видно с наклоном</span>
         </div>
         <u-switch v-model="showBuildings3D" />
+      </div>
+
+      <div class="me-row">
+        <span class="me-row__icon"><u-icon
+          icon="app:arrow-right"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">Листание меток</span>
+          <span class="me-row__hint">Свайп по карточке метки переключает на соседние</span>
+        </div>
+        <u-switch v-model="markPreviewSwipe" />
       </div>
     </div>
   </div>
