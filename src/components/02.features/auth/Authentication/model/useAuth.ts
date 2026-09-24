@@ -1,8 +1,8 @@
-import type { LoginPayload, RegistrationPayload } from '@/components/02.features/auth/Authentication/model/auth'
+import type { LoginPayload, RegistrationPayload } from '@/components/00.shared/stores/auth'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 
 export function useAuth() {
   const authStore = useAuthStore()

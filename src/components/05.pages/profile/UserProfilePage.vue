@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import type { User } from '@/components/00.shared/services/user/index.type'
 import { userApi } from '@/components/00.shared/services/user'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useProfilePreviewStore } from '@/components/00.shared/stores/profilePreview'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 import profileUserView from '@/components/04.widgets/Profile'
 
 const { userId } = defineProps<{

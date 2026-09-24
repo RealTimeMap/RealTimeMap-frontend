@@ -5,8 +5,8 @@ import { useDebounceFn } from '@vueuse/core'
 import { useGeocoding } from '@/components/00.shared/composables/useGeocoding'
 import { hapticLight } from '@/components/00.shared/lib/haptics'
 import { markApi } from '@/components/00.shared/services/mark'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 
 function parseCount(value: string | number): number {
   if (typeof value === 'number')

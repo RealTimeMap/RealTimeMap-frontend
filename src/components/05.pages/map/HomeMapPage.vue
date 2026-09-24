@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import type { Map } from 'maplibre-gl'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useMapCoach } from '@/components/02.features/app/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 // import { Buildings3D } from '@/components/02.features/map/Buildings3D'
 import { GeolocationFeedback } from '@/components/02.features/map/Geolocation'
 import { useGeolocation } from '@/components/02.features/map/Geolocation/model/useGeolocation'

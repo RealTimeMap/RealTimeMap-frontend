@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { useViewportHeight } from '@/components/00.shared/composables/useViewportHeight'
 import { formatLastSeen } from '@/components/00.shared/lib/lastSeen/index.ts'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 import { useChatMessages } from '../model/useChatMessages'
 import { useChatTyping } from '../model/useChatTyping.ts'
 import ChatComposer from './ChatComposer.vue'

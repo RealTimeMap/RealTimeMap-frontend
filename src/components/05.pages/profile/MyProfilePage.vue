@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import profileUserView from '@/components/04.widgets/Profile'
 
 const emit = defineEmits<{

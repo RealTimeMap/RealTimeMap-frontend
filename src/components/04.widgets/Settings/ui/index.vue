@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth/index.ts'
 import EditProfile from '@/components/02.features/profile/EditProfile'
 import Profile from './profile.vue'
 import AboutSection from './sections/AboutSection.vue'

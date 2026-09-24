@@ -2,7 +2,7 @@ import type { Ref } from 'vue'
 import type { ChatTypingPayload } from '@/components/00.shared/services/chats/index.type'
 import { useThrottleFn } from '@vueuse/core'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 
 /** Контракт бэкенда: typing.start слать не чаще раза в ~2 секунды, пока идёт набор */
 const TYPING_THROTTLE_MS = 2000

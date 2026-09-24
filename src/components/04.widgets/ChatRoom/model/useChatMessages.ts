@@ -4,8 +4,8 @@ import { Preferences } from '@capacitor/preferences'
 import { useDocumentVisibility, useThrottleFn } from '@vueuse/core'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { chatApi } from '@/components/00.shared/services/chats'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 
 /** Контракт бэкенда: отметку прочтения слать не чаще раза в 1–2 секунды */
 const READ_THROTTLE_MS = 1500

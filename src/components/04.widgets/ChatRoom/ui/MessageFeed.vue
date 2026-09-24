@@ -2,7 +2,7 @@
 import type { ChatMessage } from '@/components/00.shared/services/chats/index.type'
 import { useInfiniteScroll } from '@vueuse/core'
 import { formatDayLabel } from '@/components/00.shared/lib/date/FormatDate'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import MessageBubble from './MessageBubble.vue'
 
 const props = defineProps<{

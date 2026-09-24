@@ -24,7 +24,7 @@ api.interceptors.response.use(
     if (status === 401 && !AUTH_ENDPOINT_RE.test(url)) {
       try {
         const [{ useAuthStore }, { default: router }] = await Promise.all([
-          import('@/components/02.features/auth/Authentication/model/auth'),
+          import('@/components/00.shared/stores/auth'),
           import('@/components/00.shared/lib/router'),
         ])
         useAuthStore().removeToken()

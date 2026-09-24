@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useMediaQuery } from '@vueuse/core'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import ShareRender from '@/components/02.features/mark/Share/index'
 import BottomNavigation from '@/components/04.widgets/BottomNav'
 

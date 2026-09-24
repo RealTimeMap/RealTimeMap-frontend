@@ -1,10 +1,10 @@
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import type { RouteSeo } from '@/components/00.shared/lib/seo'
 import { createRouter, createWebHistory } from 'vue-router'
+import { hasSeenOnboarding } from '@/components/00.shared/lib/onboardingFlag'
 import { pageTransition, resolvePageTransition } from '@/components/00.shared/lib/pageTransition'
 import { applyRouteSeo } from '@/components/00.shared/lib/seo'
-import { useOnboarding } from '@/components/02.features/app/Onboarding/model/useOnboarding'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 
 const AuthProcessingComponent = {
   template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>',
@@ -210,7 +210,6 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  const { hasSeenOnboarding } = useOnboarding()
 
   const seen = await hasSeenOnboarding()
   const isAuthenticated = authStore.isAuthenticated

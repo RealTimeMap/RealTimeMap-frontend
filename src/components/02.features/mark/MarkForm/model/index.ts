@@ -3,9 +3,9 @@ import type { MapPoint } from '@/types/shared/map'
 import { useGeocoding } from '@/components/00.shared/composables/useGeocoding'
 import { hapticSuccess } from '@/components/00.shared/lib/haptics'
 import { markApi } from '@/components/00.shared/services/mark'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 
 export function useMarkAdd(coords: MapPoint) {
   const { address, fetchAddress } = useGeocoding()

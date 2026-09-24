@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 import { openActiveSessions } from '@/components/02.features/settings/ActiveSessions'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'

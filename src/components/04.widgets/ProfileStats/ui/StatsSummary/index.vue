@@ -3,9 +3,9 @@ import type { StatsSummary } from '@/components/00.shared/services/statistics/in
 import type { SubscriptionListType } from '@/components/02.features/profile/Subscriptions'
 import { isSameStats, loadProfileStats, profileStatsCache } from '@/components/00.shared/lib/profileCache'
 import { subscriptionApi } from '@/components/00.shared/services/subscriptions'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSubscriptionsStore } from '@/components/00.shared/stores/subscriptions'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 import SubscriptionsModal from '@/components/02.features/profile/Subscriptions'
 import { openUserMarks } from '@/components/02.features/profile/UserMarksList'
 

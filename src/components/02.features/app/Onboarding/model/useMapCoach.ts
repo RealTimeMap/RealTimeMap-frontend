@@ -1,6 +1,6 @@
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 import { useCoachmarks } from './useCoachmarks'
 
 type MapHintId = 'clusters' | 'guest'

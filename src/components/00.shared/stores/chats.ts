@@ -7,7 +7,7 @@ import type {
 } from '@/components/00.shared/services/chats/index.type'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { chatApi } from '@/components/00.shared/services/chats'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 
 export const useChatsStore = defineStore('chats', () => {
   const chats = shallowRef<Chat[]>([])

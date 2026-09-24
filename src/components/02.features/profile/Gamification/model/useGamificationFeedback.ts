@@ -1,5 +1,5 @@
 import { storeToRefs } from 'pinia'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 
 export interface XpGain {
   amount: number

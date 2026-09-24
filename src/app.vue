@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { initUpdateChecker } from '@/components/02.features/app/AppUpdate'
 import { initBugReport } from '@/components/02.features/app/BugReport'
 import NotificationProvider from '@/components/02.features/app/NotificationProvider/index'
 import { initPushManager } from '@/components/02.features/app/PushManager'
 import AccountBan from '@/components/02.features/auth/AccountBan'
-import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 import { ExpGain, useGamificationFeedback } from '@/components/02.features/profile/Gamification'
 import { AppSplash } from '@/components/02.features/settings/SplashScreen'
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
