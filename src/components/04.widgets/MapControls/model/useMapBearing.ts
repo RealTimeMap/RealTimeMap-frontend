@@ -1,6 +1,9 @@
 import type { Map } from 'maplibre-gl'
 
-/** Поворот и наклон карты для кнопки «на север». */
+/** Наклон вида «со стороны»: здания видны объёмом, но горизонт ещё не лезет в кадр. */
+const TILTED_PITCH = 60
+
+/** Поворот и наклон карты для кнопок «на север» и «2D / 3D». */
 export function useMapBearing(map: () => Map | null) {
   const bearing = ref(0)
   const pitch = ref(0)
@@ -26,11 +29,17 @@ export function useMapBearing(map: () => Map | null) {
     map()?.off('pitch', sync)
   })
 
-  const isRotated = computed(() => Math.abs(bearing.value) > 0.5 || pitch.value > 0.5)
+  const isRotated = computed(() => Math.abs(bearing.value) > 0.5)
 
   function resetNorth() {
-    map()?.resetNorthPitch({ duration: 400 })
+    map()?.resetNorth({ duration: 400 })
   }
 
-  return { bearing, isRotated, resetNorth }
+  const isTilted = computed(() => pitch.value > 10)
+
+  function togglePitch() {
+    map()?.easeTo({ pitch: isTilted.value ? 0 : TILTED_PITCH, duration: 600, essential: true })
+  }
+
+  return { bearing, isRotated, isTilted, resetNorth, togglePitch }
 }

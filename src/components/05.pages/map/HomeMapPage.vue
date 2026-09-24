@@ -8,7 +8,7 @@ import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useMapCoach } from '@/components/02.features/app/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
 import { Buildings3D } from '@/components/02.features/map/Buildings3D'
-import { GeolocationFeedback } from '@/components/02.features/map/Geolocation'
+import { GeolocationFeedback, HeadingCone, useCompass } from '@/components/02.features/map/Geolocation'
 import { useGeolocation } from '@/components/02.features/map/Geolocation/model/useGeolocation'
 import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
 import { LandmarksLayer } from '@/components/02.features/map/LandmarksLayer'
@@ -38,6 +38,7 @@ const routeStore = useRouteStore()
 const shareStore = useShareStore()
 const notify = useNotificationStore()
 const settingsStore = useSettingsStore()
+const { heading } = useCompass()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
 const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D } = storeToRefs(settingsStore)
@@ -217,6 +218,11 @@ watch(userPosition, (pos) => {
       <personal-marks-layer v-if="showPersonalMarks" />
       <buildings3-d v-if="showBuildings3D" />
       <landmarks-layer />
+      <heading-cone
+        v-if="userPosition && heading !== null"
+        :coordinates="userPosition"
+        :heading="heading"
+      />
       <u-marker
         v-if="userPosition"
         :coordinates="userPosition"

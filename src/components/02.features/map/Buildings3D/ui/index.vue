@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
+import type { SunPosition } from '@/components/00.shared/lib/sun'
 import { storeToRefs } from 'pinia'
 import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { themeBase } from '@/components/00.shared/lib/theme'
@@ -9,16 +10,29 @@ import {
   BUILDINGS_LAYER_ID,
   buildingsBeforeId,
   buildingsColor,
+  buildShadows,
   createBuildingsLayer,
+  createShadowLayer,
+  createSunlitLayer,
   DEFAULT_LIGHT,
-  SOFT_LIGHT,
+  SHADOW_LAYER_ID,
+  SHADOW_SOURCE_ID,
+  shadowColor,
+  shadowOpacity,
   SOURCE_ID,
   SOURCE_LAYER,
+  sunLight,
+  SUNLIT_AREA,
+  SUNLIT_LAYER_ID,
+  SUNLIT_SOURCE_ID,
+  sunlitOpacity,
+  sunPosition,
 } from '../model/useBuildingsLayer'
 
 /** Сколько растёт одно здание и на сколько растянута волна от центра к краям экрана. */
 const GROW_DURATION = 700
 const WAVE_DURATION = 700
+const SUN_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const { resolvedTheme } = storeToRefs(useSettingsStore())
@@ -129,9 +143,13 @@ function revealNewLayer(instance: maplibregl.Map) {
     for (const building of buildings)
       instance.setFeatureState({ ...STATE_TARGET, id: building.id }, { rise: 0 })
     instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value)), buildingsBeforeId(instance.getStyle().layers))
+    addShadowLayer(instance)
     instance.once('idle', () => {
-      if (!disposed)
-        runWave(instance, buildings)
+      if (disposed)
+        return
+      runWave(instance, buildings)
+      updateShadows(instance)
+      applyShadowOpacity(instance)
     })
   })
 }
@@ -142,26 +160,107 @@ function applyLight(instance: maplibregl.Map, light: maplibregl.LightSpecificati
     instance.setLight(light)
 }
 
-function addLayer(instance: maplibregl.Map) {
-  const layers = instance.getStyle().layers
-  const beforeId = buildingsBeforeId(layers)
-  applyLight(instance, SOFT_LIGHT)
+// Солнце считается по таймеру, а не при каждом styledata: setLight сам вызывает styledata,
+// и со свежим временем значение каждый раз немного другое — получился бы бесконечный цикл
+let sun: { position: SunPosition, lat: number } | null = null
 
-  // setStyle с diff сохраняет слой, но слои нового стиля могут оказаться над ним.
+function currentSun(instance: maplibregl.Map) {
+  if (!sun) {
+    const { lng, lat } = instance.getCenter()
+    sun = { position: sunPosition(new Date(), lng, lat), lat }
+  }
+  return sun
+}
+
+const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+
+function addShadowLayer(instance: maplibregl.Map) {
+  if (!instance.getSource(SHADOW_SOURCE_ID))
+    instance.addSource(SHADOW_SOURCE_ID, { type: 'geojson', data: EMPTY })
+  if (!instance.getLayer(SHADOW_LAYER_ID))
+    instance.addLayer(createShadowLayer(themeBase(resolvedTheme.value)), BUILDINGS_LAYER_ID)
+  if (!instance.getSource(SUNLIT_SOURCE_ID))
+    instance.addSource(SUNLIT_SOURCE_ID, { type: 'geojson', data: SUNLIT_AREA })
+  if (!instance.getLayer(SUNLIT_LAYER_ID))
+    instance.addLayer(createSunlitLayer(), SHADOW_LAYER_ID)
+}
+
+// Тени пересчитываются, когда карта остановилась и тайлы догрузились, — и только если что-то поменялось
+let shadowsKey = ''
+
+function updateShadows(instance: maplibregl.Map) {
+  const source = instance.getSource<maplibregl.GeoJSONSource>(SHADOW_SOURCE_ID)
+  if (!source || !instance.getLayer(BUILDINGS_LAYER_ID))
+    return
+  const { position, lat } = currentSun(instance)
+  const key = `${instance.getBounds().toArray().flat().map(v => v.toFixed(5))}|${position.azimuth}|${instance.getZoom().toFixed(2)}`
+  if (key === shadowsKey)
+    return
+  shadowsKey = key
+  const features = instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER })
+  source.setData(buildShadows(features, position, lat))
+}
+
+function onIdle() {
+  const instance = map?.value
+  if (instance && !disposed)
+    updateShadows(instance)
+}
+
+/** Тени проявляются вместе с волной зданий, а не раньше неё. */
+function applyShadowOpacity(instance: maplibregl.Map) {
+  if (!instance.getLayer(SHADOW_LAYER_ID) || !instance.getLayer(SUNLIT_LAYER_ID))
+    return
+  const base = themeBase(resolvedTheme.value)
+  const { position } = currentSun(instance)
+  const transition = { duration: GROW_DURATION + WAVE_DURATION, delay: 0 }
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', transition)
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position))
+  instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity-transition', transition)
+  instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity', sunlitOpacity(base, position))
+}
+
+const sunTimer = setInterval(() => {
+  const instance = map?.value
+  if (!instance || disposed || !instance.getLayer(BUILDINGS_LAYER_ID))
+    return
+  sun = null
+  applyLight(instance, sunLight(currentSun(instance).position))
+  updateShadows(instance)
+  applyShadowOpacity(instance)
+}, SUN_UPDATE_MS)
+
+/** Порядок: подсветка земли, тени, здания — сразу перед beforeId. */
+const OWN_ORDER = [SUNLIT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID]
+
+function addLayer(instance: maplibregl.Map) {
+  applyLight(instance, sunLight(currentSun(instance).position))
+
+  // setStyle с diff сохраняет слои, но слои нового стиля могут оказаться над ними.
   // Двигаем только при неверном порядке: moveLayer сам вызывает styledata
   if (instance.getLayer(BUILDINGS_LAYER_ID)) {
-    const own = layers.findIndex(layer => layer.id === BUILDINGS_LAYER_ID)
-    const target = beforeId ? layers.findIndex(layer => layer.id === beforeId) : layers.length
-    if (own !== target - 1)
-      instance.moveLayer(BUILDINGS_LAYER_ID, beforeId)
+    addShadowLayer(instance)
+    const ids = instance.getStyle().layers.map(layer => layer.id)
+    const beforeId = buildingsBeforeId(instance.getStyle().layers)
+    const target = beforeId ? ids.indexOf(beforeId) : ids.length
+    if (ids.slice(target - OWN_ORDER.length, target).join() !== OWN_ORDER.join()) {
+      for (const id of OWN_ORDER)
+        instance.moveLayer(id, beforeId)
+    }
     return
   }
   revealNewLayer(instance)
 }
 
 function removeLayer(instance: maplibregl.Map) {
-  if (instance.getLayer(BUILDINGS_LAYER_ID))
-    instance.removeLayer(BUILDINGS_LAYER_ID)
+  for (const id of OWN_ORDER) {
+    if (instance.getLayer(id))
+      instance.removeLayer(id)
+  }
+  for (const id of [SHADOW_SOURCE_ID, SUNLIT_SOURCE_ID]) {
+    if (instance.getSource(id))
+      instance.removeSource(id)
+  }
 }
 
 let waitingForIdle = false
@@ -189,7 +288,9 @@ watch(
   () => map?.value,
   (instance, previous) => {
     previous?.off('styledata', sync)
+    previous?.off('idle', onIdle)
     instance?.on('styledata', sync)
+    instance?.on('idle', onIdle)
     sync()
   },
   { immediate: true },
@@ -198,18 +299,25 @@ watch(
 // Цвет зданий зависит от темы, а setStyle с diff может слой и сохранить
 watch(resolvedTheme, (theme) => {
   const instance = map?.value
-  if (instance?.getLayer(BUILDINGS_LAYER_ID))
-    instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(themeBase(theme)))
+  if (!instance?.getLayer(BUILDINGS_LAYER_ID))
+    return
+  const base = themeBase(theme)
+  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base))
+  if (instance.getLayer(SHADOW_LAYER_ID))
+    instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-color', shadowColor(base))
+  applyShadowOpacity(instance)
 })
 
 onUnmounted(() => {
   disposed = true
+  clearInterval(sunTimer)
   cancelAnimationFrame(riseFrame)
   stopWaitingVisible?.()
   const instance = map?.value
   if (!instance)
     return
   instance.off('styledata', sync)
+  instance.off('idle', onIdle)
   removeLayer(instance)
   instance.removeFeatureState(STATE_TARGET)
   applyLight(instance, DEFAULT_LIGHT)

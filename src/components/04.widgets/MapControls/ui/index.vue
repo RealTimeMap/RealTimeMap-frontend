@@ -4,6 +4,7 @@ import type { MapPoint } from '@/types/shared/map'
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { useCompass } from '@/components/02.features/map/Geolocation'
 import { openMapEditor } from '@/components/02.features/map/MapEditor'
 import { openMapLayers } from '@/components/02.features/map/MapLayers'
 import AppSettings from '@/components/04.widgets/Settings'
@@ -28,7 +29,20 @@ function zoomOut() {
 }
 
 const { following, toggle: toggleFollow } = useFollowUser(() => mapApi, () => userPosition)
-const { bearing, isRotated, resetNorth } = useMapBearing(() => mapApi)
+const compass = useCompass()
+
+// Компас нужен только в режиме следования — датчик не держим включённым зря
+function onFollowClick() {
+  toggleFollow()
+  if (following.value)
+    compass.start()
+}
+watch(following, (value) => {
+  if (!value)
+    compass.stop()
+})
+onUnmounted(compass.stop)
+const { bearing, isRotated, isTilted, resetNorth, togglePitch } = useMapBearing(() => mapApi)
 
 function openSettings() {
   open(AppSettings, {}, {
@@ -75,6 +89,17 @@ function openSettings() {
     </div>
 
     <button
+      class="map-controls__group map-controls__btn"
+      :class="{ 'map-controls__btn--active': isTilted }"
+      type="button"
+      :aria-label="isTilted ? 'Вид сверху' : 'Вид со стороны'"
+      :aria-pressed="isTilted"
+      @click="togglePitch"
+    >
+      <span class="map-controls__pitch">{{ isTilted ? '2D' : '3D' }}</span>
+    </button>
+
+    <button
       v-if="isRotated"
       class="map-controls__group map-controls__btn"
       type="button"
@@ -100,7 +125,7 @@ function openSettings() {
       type="button"
       :aria-label="following ? 'Перестать следовать за мной' : 'Следовать за мной'"
       :aria-pressed="following"
-      @click="toggleFollow"
+      @click="onFollowClick"
     >
       <u-icon
         icon="app:locate-loop"
@@ -202,6 +227,13 @@ function openSettings() {
   &__compass {
     display: grid;
     place-items: center;
+  }
+
+  &__pitch {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
   }
 
   &__divider {
