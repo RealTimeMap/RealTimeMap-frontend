@@ -2,6 +2,7 @@
 import type { ShallowRef } from 'vue'
 import type { MapPoint } from '@/types/shared/map'
 import * as maplibregl from 'maplibre-gl'
+import { useCachedImage } from '@/components/00.shared/lib/imageCache'
 import { patchMarkerOpacity } from '@/components/00.shared/lib/patchMarker'
 
 interface Props {
@@ -23,6 +24,8 @@ const {
 } = defineProps<Props>()
 
 const emit = defineEmits<{ click: [] }>()
+
+const mediaSrc = useCachedImage(() => media)
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const marker = shallowRef<maplibregl.Marker | null>(null)
@@ -94,7 +97,7 @@ onUnmounted(() => {
             :style="variant === 'user' ? undefined : { borderColor: color }"
           >
             <img
-              :src="media"
+              :src="mediaSrc"
               class="marker-photo__img"
               :class="{ 'marker-photo__img--loaded': photoLoaded }"
               alt="photo"

@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { useProfileNavigation } from '@/components/00.shared/composables/useProfileNavigation.ts'
 import { formatRelativeDate } from '@/components/00.shared/lib/date/FormatRelativeDate'
+import { useCachedImages } from '@/components/00.shared/lib/imageCache'
 import { useDialogStore } from '@/components/00.shared/stores/dialog.ts'
 import { useCoachmarks } from '@/components/02.features/app/Onboarding/model/useCoachmarks'
 import CoachSpotlight from '@/components/02.features/app/Onboarding/ui/CoachSpotlight.vue'
@@ -63,6 +64,8 @@ const {
   markIdRef.value,
   scrollContainerRef,
 )
+
+const galleryPhotos = useCachedImages(() => mark.value?.photos)
 
 function handleRoute() {
   if (!mark.value)
@@ -304,9 +307,9 @@ onMounted(() => {
           class="gallery-block"
         >
           <img
-            v-for="(src, i) in mark.photos"
+            v-for="(src, i) in galleryPhotos"
             :key="i"
-            :src="src"
+            :src="src || undefined"
             class="gallery-img"
             alt="Фото"
           >
