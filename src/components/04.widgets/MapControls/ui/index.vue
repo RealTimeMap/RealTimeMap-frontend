@@ -84,6 +84,7 @@ function openSettings() {
     >
       <u-icon
         icon="app:locate-loop"
+        :loop="false"
         width="18"
       />
     </button>
@@ -109,6 +110,7 @@ function openSettings() {
     >
       <u-icon
         icon="app:layers-loop"
+        :loop="false"
         width="18"
       />
     </button>

@@ -125,6 +125,7 @@ onUnmounted(() => window.removeEventListener('resize', handleResize))
         <span class="bottom-nav__icon-wrap">
           <u-icon
             :icon="item.icon"
+            :loop="activeItemId === item.id"
             height="24"
             width="24"
             class="bottom-nav__icon"
