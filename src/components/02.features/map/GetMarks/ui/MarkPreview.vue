@@ -92,7 +92,6 @@ onBeforeUnmount(() => {
   >
     <button
       class="mark-preview__card"
-      :style="details?.category?.color ? { '--category-color': details.category.color } : undefined"
       type="button"
       :aria-label="`Открыть метку «${mark.markName}»`"
       @click.stop="emit('open')"
@@ -164,8 +163,9 @@ onBeforeUnmount(() => {
     height: 48px;
     border-radius: 12px;
     overflow: hidden;
-    color: #fff;
-    background: var(--category-color, var(--primary-color));
+    // Цвета темы, а не категории с сервера — иначе карточка выбивается из оформления
+    color: var(--primary-color);
+    background: color-mix(in srgb, var(--primary-color) 14%, var(--bg-color-block));
 
     img {
       width: 100%;
@@ -185,7 +185,7 @@ onBeforeUnmount(() => {
   &__category {
     @include label-text(10px, uppercase);
     letter-spacing: 0.6px;
-    color: var(--category-color, var(--text-color-secondary));
+    color: var(--primary-color);
   }
 
   &__title {

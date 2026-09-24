@@ -165,14 +165,12 @@ function handleClusterClick(coordinates: MapPoint) {
 // --- Быстрый просмотр ---
 // Первое нажатие показывает карточку над меткой, второе (или нажатие на карточку) — полную шторку
 const previewMark = shallowRef<Mark | null>(null)
-let lastMarkTapAt = 0
 
 function closePreview() {
   previewMark.value = null
 }
 
 function handleMarkTap(markId: number) {
-  lastMarkTapAt = performance.now()
   if (previewMark.value?.id === markId) {
     closePreview()
     handleMarkClick(markId)
@@ -188,18 +186,38 @@ function openPreviewed() {
     handleMarkClick(mark.id)
 }
 
-// Нажатие по пустой карте закрывает карточку; клик по DOM-метке тоже доходит до карты — отсекаем его
-function onMapClick() {
-  if (performance.now() - lastMarkTapAt > 300)
+// Короткое касание пустой карты закрывает карточку. Ловим на canvas сами: click от MapLibre
+// иногда не приходит (микросдвиг пальца, распознавание двойного касания). DOM-метки — не canvas,
+// поэтому нажатия по ним сюда не попадают
+let tapStart: { x: number, y: number, at: number } | null = null
+
+function onCanvasPointerDown(event: PointerEvent) {
+  tapStart = { x: event.clientX, y: event.clientY, at: performance.now() }
+}
+
+function onCanvasPointerUp(event: PointerEvent) {
+  const start = tapStart
+  tapStart = null
+  if (!start || performance.now() - start.at > 500)
+    return
+  if (Math.hypot(event.clientX - start.x, event.clientY - start.y) < 10)
     closePreview()
 }
 
 watch(() => map?.value, (instance, previous) => {
-  previous?.off('click', onMapClick)
-  instance?.on('click', onMapClick)
+  const prevCanvas = previous?.getCanvas()
+  prevCanvas?.removeEventListener('pointerdown', onCanvasPointerDown)
+  prevCanvas?.removeEventListener('pointerup', onCanvasPointerUp)
+  const canvas = instance?.getCanvas()
+  canvas?.addEventListener('pointerdown', onCanvasPointerDown)
+  canvas?.addEventListener('pointerup', onCanvasPointerUp)
 }, { immediate: true })
 
-onUnmounted(() => map?.value?.off('click', onMapClick))
+onUnmounted(() => {
+  const canvas = map?.value?.getCanvas()
+  canvas?.removeEventListener('pointerdown', onCanvasPointerDown)
+  canvas?.removeEventListener('pointerup', onCanvasPointerUp)
+})
 
 // Метка ушла с экрана (например, стала кластером при отдалении)
 watch(displayMarks, (list) => {

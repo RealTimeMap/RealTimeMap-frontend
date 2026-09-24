@@ -1,11 +1,13 @@
 import type { RequestConfig } from '../api.types'
 import { getCookie } from '@/components/00.shared/lib/cookie'
+import { createIdbStore } from '@/components/00.shared/lib/idbStore'
 
-const DB_NAME = 'rtm-api-cache'
-const STORE = 'responses'
-const MAX_ENTRIES = 500
-const MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000
-const PRUNE_EVERY = 50
+const responses = createIdbStore({
+  store: 'responses',
+  maxEntries: 500,
+  maxAgeMs: 14 * 24 * 60 * 60 * 1000,
+  pruneEvery: 50,
+})
 
 const EXCLUDED = [
   /^\/auth\//,
@@ -14,54 +16,6 @@ const EXCLUDED = [
   /^\/personal\//,
   /^\/group\//,
 ]
-
-interface CacheEntry {
-  key: string
-  data: unknown
-  savedAt: number
-}
-
-let dbPromise: Promise<IDBDatabase | null> | null = null
-let writesSincePrune = 0
-
-function openDb(): Promise<IDBDatabase | null> {
-  if (dbPromise)
-    return dbPromise
-  dbPromise = new Promise((resolve) => {
-    if (typeof indexedDB === 'undefined') {
-      resolve(null)
-      return
-    }
-    const req = indexedDB.open(DB_NAME, 1)
-    req.onupgradeneeded = () => {
-      const store = req.result.createObjectStore(STORE, { keyPath: 'key' })
-      store.createIndex('savedAt', 'savedAt')
-    }
-    req.onsuccess = () => resolve(req.result)
-    req.onerror = () => resolve(null)
-    req.onblocked = () => resolve(null)
-  })
-  return dbPromise
-}
-
-function tx<T>(mode: IDBTransactionMode, run: (store: IDBObjectStore) => IDBRequest<T> | void): Promise<T | undefined> {
-  return openDb().then(db => new Promise((resolve) => {
-    if (!db) {
-      resolve(undefined)
-      return
-    }
-    try {
-      const transaction = db.transaction(STORE, mode)
-      const req = run(transaction.objectStore(STORE))
-      transaction.oncomplete = () => resolve(req ? req.result : undefined)
-      transaction.onerror = () => resolve(undefined)
-      transaction.onabort = () => resolve(undefined)
-    }
-    catch {
-      resolve(undefined)
-    }
-  }))
-}
 
 function sessionScope(): string {
   const token = getCookie('token') ?? ''
@@ -97,44 +51,14 @@ export function cacheKey(url: string, config: RequestConfig): string {
   return `${sessionScope()}|${url}|${serializeParams(config.params)}`
 }
 
-export async function readCache<T>(key: string): Promise<T | undefined> {
-  const entry = await tx<CacheEntry | undefined>('readonly', store => store.get(key))
-  if (!entry || Date.now() - entry.savedAt > MAX_AGE_MS)
-    return undefined
-  return entry.data as T
+export function readCache<T>(key: string): Promise<T | undefined> {
+  return responses.read<T>(key)
 }
 
 export function writeCache(key: string, data: unknown): void {
-  void tx('readwrite', store => store.put({ key, data, savedAt: Date.now() } satisfies CacheEntry))
-    .then(() => {
-      if (++writesSincePrune >= PRUNE_EVERY) {
-        writesSincePrune = 0
-        void pruneCache()
-      }
-    })
+  responses.write(key, data)
 }
 
-async function pruneCache(): Promise<void> {
-  const count = await tx<number>('readonly', store => store.count())
-  const excess = (count ?? 0) - MAX_ENTRIES
-  const expiredBefore = Date.now() - MAX_AGE_MS
-  await tx('readwrite', (store) => {
-    let removed = 0
-    const cursorReq = store.index('savedAt').openCursor()
-    cursorReq.onsuccess = () => {
-      const cursor = cursorReq.result
-      if (!cursor)
-        return
-      const entry = cursor.value as CacheEntry
-      if (removed < excess || entry.savedAt < expiredBefore) {
-        cursor.delete()
-        removed++
-        cursor.continue()
-      }
-    }
-  })
-}
-
-export async function clearApiCache(): Promise<void> {
-  await tx('readwrite', store => store.clear())
+export function clearApiCache(): Promise<void> {
+  return responses.clear()
 }

@@ -51,6 +51,33 @@ function page<T>(items: T[], total = items.length) {
 
 const emptySection = { upserted: [], removed: [], cursor: 1, hasMore: false }
 
+export interface MapMark {
+  id: number
+  markName: string
+  geom: { type: 'Point', coordinates: [number, number] }
+  photos: string[]
+}
+
+export function markFull(mark: MapMark) {
+  const now = Date.now()
+  return {
+    ...mark,
+    additionalInfo: 'Описание метки',
+    category: { id: 1, categoryName: 'Событие', color: '#7c3aed', icon: 'app:pin' },
+    owner: { id: 7, username: 'Other', avatar: '', tag: 'other' },
+    date: {
+      startAt: new Date(now - 3600_000).toISOString(),
+      endAt: new Date(now + 5 * 3600_000).toISOString(),
+      progressPercent: 20,
+      daysPassed: 0,
+      daysLeft: 0,
+    },
+    meta: { status: 'active', markType: 'user' },
+    like: { count: 3, isLiked: false, canLike: true },
+    share: { count: 1 },
+  }
+}
+
 type Handler = (url: URL) => unknown
 
 /** Ответы по умолчанию; путь — без префикса API_BASE. Первое совпадение выигрывает. */
@@ -65,6 +92,8 @@ const DEFAULT_HANDLERS: Array<[RegExp, Handler]> = [
   [/^\/subscriptions\/status\/\d+$/, () => ({ subscribed: false })],
   [/^\/subscriptions/, () => page([], 8)],
   [/^\/marks\/\d+\/list$/, () => page([1, 2, 3, 4].map(mark), 12)],
+  [/^\/\d+\/comments\/?$/, () => ({ items: [], hasMore: false })],
+  [/accrual\/\d+\/stat$/, () => ({ likes: '3', shares: '1', isLiked: false, canLike: true })],
   [/^\/chats\/?$/, () => []],
   [/^\/personal\/sync$/, () => ({ sections: { personalMarks: emptySection, groups: emptySection }, cursor: 1, hasMore: false, updateTo: 1 })],
   [/^\/group\/list$/, () => page([])],
@@ -72,6 +101,8 @@ const DEFAULT_HANDLERS: Array<[RegExp, Handler]> = [
 
 export class MockApi {
   private overrides: Array<[RegExp, Handler]> = []
+  /** Метки, которые socket.io-сервер `/marks` отдаёт на запрос карты. */
+  mapMarks: MapMark[] = []
   private down = false
   readonly requests: string[] = []
 
@@ -87,7 +118,23 @@ export class MockApi {
 
   async install(context: BrowserContext) {
     await context.route(`${API_ORIGIN}/**`, route => this.handle(route))
-    await context.routeWebSocket(new RegExp(API_ORIGIN.replace(/\./g, '\\.')), ws => ws.close())
+    // Сокеты ходят по wss://, поэтому сопоставляем по хосту, без протокола
+    const origin = new URL(API_ORIGIN).host.replace(/\./g, '\\.')
+    await context.routeWebSocket(new RegExp(origin), ws => ws.close())
+    // Регистрация позже — приоритет выше: мини-сервер socket.io для меток на карте
+    await context.routeWebSocket(new RegExp(`${origin}/marks/socket\\.io`), (ws) => {
+      // engine.io: пакет открытия «0» + параметры соединения
+      ws.send(`0${JSON.stringify({ sid: 'e2e', upgrades: [], pingInterval: 600000, pingTimeout: 600000, maxPayload: 1e6 })}`)
+      ws.onMessage((message) => {
+        const text = String(message)
+        if (text.startsWith('40/marks'))
+          ws.send('40/marks,{"sid":"e2e-marks"}')
+        // Запрос меток с ack: 42/marks,<id>["message",{...}] → 43/marks,<id>[{marks}]
+        const request = text.match(/^42\/marks,(\d+)\["message"/)
+        if (request)
+          ws.send(`43/marks,${request[1]}${JSON.stringify([{ marks: this.mapMarks }])}`)
+      })
+    })
   }
 
   private async handle(route: Route) {
@@ -104,6 +151,13 @@ export class MockApi {
       return route.fulfill({ status: 204, headers: { ...headers, 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' } })
     if (method !== 'GET')
       return route.fulfill({ json: {}, headers })
+
+    const full = path.match(/^\/marks\/(\d+)$/)
+    if (full) {
+      const found = this.mapMarks.find(m => m.id === Number(full[1]))
+      if (found)
+        return route.fulfill({ json: markFull(found), headers })
+    }
 
     const handler = [...this.overrides, ...DEFAULT_HANDLERS].find(([re]) => re.test(path))?.[1]
     return route.fulfill({ json: handler ? handler(url) : [], headers })

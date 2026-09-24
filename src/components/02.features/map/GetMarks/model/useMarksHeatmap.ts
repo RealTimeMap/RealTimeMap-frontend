@@ -1,37 +1,54 @@
-import type { GeoJSONSource, HeatmapLayerSpecification, Map } from 'maplibre-gl'
+import type { ExpressionSpecification, GeoJSONSource, HeatmapLayerSpecification, Map } from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
+import type { ThemeName } from '@/components/00.shared/lib/theme'
+import { themeBase } from '@/components/00.shared/lib/theme'
+import { mixRgb, onThemeApplied, readThemeColor, rgba } from '@/components/00.shared/lib/themeColors'
 
 const SOURCE_ID = 'marks-heat'
 const LAYER_ID = 'marks-heat'
 
-const HEATMAP_LAYER: HeatmapLayerSpecification = {
-  id: LAYER_ID,
-  type: 'heatmap',
-  source: SOURCE_ID,
-  paint: {
-    // Кластер из сотни меток горячее одиночной, но не в сто раз
-    'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 1, 0.25, 10, 0.6, 100, 1],
-    'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 14, 2],
-    'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 3, 18, 9, 32, 15, 48],
-    'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.85, 16, 0.4],
-    'heatmap-color': [
-      'interpolate',
-      ['linear'],
-      ['heatmap-density'],
-      0,
-      'rgba(124, 58, 237, 0)',
-      0.2,
-      'rgba(124, 58, 237, 0.35)',
-      0.45,
-      'rgba(168, 85, 247, 0.6)',
-      0.7,
-      'rgba(236, 72, 153, 0.8)',
-      0.9,
-      'rgba(249, 115, 22, 0.9)',
-      1,
-      'rgba(253, 224, 71, 0.95)',
-    ],
-  },
+/**
+ * Палитра из цветов текущей темы. «Горячее» ядро в тёмных темах светлее,
+ * в светлых — темнее: иначе оно теряется на фоне карты.
+ */
+function heatmapColor(): ExpressionSpecification {
+  const primary = readThemeColor('--primary-color')
+  const secondary = readThemeColor('--secondary-color', primary)
+  const theme = (document.documentElement.dataset.theme ?? 'light') as ThemeName
+  const core = themeBase(theme) === 'dark'
+    ? mixRgb(secondary, [255, 255, 255], 0.5)
+    : mixRgb(primary, [0, 0, 0], 0.3)
+  return [
+    'interpolate',
+    ['linear'],
+    ['heatmap-density'],
+    0,
+    rgba(primary, 0),
+    0.2,
+    rgba(primary, 0.3),
+    0.45,
+    rgba(primary, 0.55),
+    0.7,
+    rgba(secondary, 0.75),
+    1,
+    rgba(core, 0.95),
+  ]
+}
+
+function heatmapLayer(): HeatmapLayerSpecification {
+  return {
+    id: LAYER_ID,
+    type: 'heatmap',
+    source: SOURCE_ID,
+    paint: {
+      // Кластер из сотни меток горячее одиночной, но не в сто раз
+      'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 1, 0.25, 10, 0.6, 100, 1],
+      'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 14, 2],
+      'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 3, 18, 9, 32, 15, 48],
+      'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.85, 16, 0.4],
+      'heatmap-color': heatmapColor(),
+    },
+  }
 }
 
 type Coordinates = readonly [number, number]
@@ -109,7 +126,7 @@ export function useMarksHeatmap(
     const layers = instance.getStyle().layers
     const firstSymbol = layers.find(layer => layer.type === 'symbol')?.id
     if (!instance.getLayer(LAYER_ID)) {
-      instance.addLayer(HEATMAP_LAYER, firstSymbol)
+      instance.addLayer(heatmapLayer(), firstSymbol)
       return
     }
     const own = layers.findIndex(layer => layer.id === LAYER_ID)
@@ -137,7 +154,15 @@ export function useMarksHeatmap(
     instance?.on('styledata', onStyleData)
   }, { immediate: true })
 
+  // Смена темы: палитра берётся из CSS-переменных новой темы
+  const stopThemeWatch = onThemeApplied(() => {
+    const instance = map?.value
+    if (instance?.getLayer(LAYER_ID))
+      instance.setPaintProperty(LAYER_ID, 'heatmap-color', heatmapColor())
+  })
+
   onUnmounted(() => {
+    stopThemeWatch()
     const instance = map?.value
     if (!instance)
       return
