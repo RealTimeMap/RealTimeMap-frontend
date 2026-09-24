@@ -92,7 +92,8 @@ export function useWebSocket(): UseWebSocketReturn {
     })
 
     socket.on('connect_error', (error) => {
-      console.error(`[WebSocket] Connection Error for "${namespace}":`, error.message)
+      // Разрывы сети штатны: socket.io переподключится сам, это не повод для баг-репорта
+      console.warn(`[WebSocket] Connection Error for "${namespace}":`, error.message)
       state.isConnected = false
     })
 

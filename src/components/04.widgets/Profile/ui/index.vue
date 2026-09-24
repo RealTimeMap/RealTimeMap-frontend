@@ -1,0 +1,536 @@
+<script setup lang="ts">
+import type { Mark } from '@/components/00.shared/services/mark/index.type'
+import type { User } from '@/components/00.shared/services/user/index.type'
+import { isSameMarksPreview, loadProfileMarks, profileMarksCache } from '@/components/00.shared/lib/profileCache'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
+import { useChatsStore } from '@/components/00.shared/stores/chats'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useCoachOnView } from '@/components/02.features/app/Onboarding/model/useCoachOnView'
+import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
+import { openUserMarks } from '@/components/02.features/profile/UserMarksList'
+import { StatsFull, StatsSummary } from '@/components/04.widgets/ProfileStats'
+import { useSubscription } from '../model/useSubscription'
+import Achievements from '../widgets/Achievements/index'
+import LevelBlock from '../widgets/LevelBlock'
+
+const props = defineProps<{
+  user: User | null
+  isOwn?: boolean
+}>()
+
+const emit = defineEmits<{
+  (e: 'colorExtracted', color: string): void
+}>()
+
+const AppSettings = defineAsyncComponent(() => import('@/components/04.widgets/Settings'))
+const MarkDetailsSheet = defineAsyncComponent(() => import('@/components/02.features/mark/MarkDetailSheet'))
+
+const chatsStore = useChatsStore()
+const authStore = useAuthStore()
+
+const statsSummaryRef = ref<InstanceType<typeof StatsSummary> | null>(null)
+
+const { isSubscribed, isPending, isLoadingStatus, toggle } = useSubscription(
+  () => props.user?.userId,
+  {
+    enabled: () => !props.isOwn && authStore.isAuthenticated,
+    onChange: subscribed => statsSummaryRef.value?.bumpSubscribers(subscribed ? 1 : -1),
+  },
+)
+const gameStats = computed(() => props.user?.gamification)
+const currentLevel = computed(() => gameStats.value?.currentLevel ?? 0)
+const maxVal = computed(() => {
+  return gameStats.value?.progressPercent
+})
+const { open } = useDialogStore()
+
+const refetchingLevel = ref(false)
+async function retryLevel() {
+  refetchingLevel.value = true
+  try {
+    await authStore.fetchUser()
+  }
+  finally {
+    refetchingLevel.value = false
+  }
+}
+
+function openSettings() {
+  open(AppSettings, {
+    user: props.user,
+  }, {
+    height: '100%',
+    width: '500px',
+    headerModal: false,
+    transition: 'slide-right',
+    classModal: 'modal-settings',
+    position: 'center end',
+    swipeable: false,
+  })
+}
+
+const cachedMarks = props.user ? profileMarksCache.get(props.user.userId) : undefined
+const myMarks = shallowRef<Mark[] | undefined>(cachedMarks?.items)
+const myMarksTotal = ref(cachedMarks?.total ?? 0)
+async function getMyMark() {
+  const userId = props.user?.userId
+  if (!userId)
+    return
+
+  const prev = profileMarksCache.get(userId)
+  try {
+    const next = await loadProfileMarks(userId)
+    if (!prev || myMarks.value === undefined || !isSameMarksPreview(prev, next)) {
+      myMarks.value = next.items
+      myMarksTotal.value = next.total
+    }
+  }
+  catch (e) {
+    console.error(e)
+  }
+}
+
+watch(() => props.user?.userId, (id) => {
+  if (id)
+    getMyMark()
+}, { immediate: true })
+
+const levelRef = ref<HTMLElement | null>(null)
+const achiveRef = ref<HTMLElement | null>(null)
+const statsRef = ref<HTMLElement | null>(null)
+
+const { activeTip: profileTip, dismiss: dismissProfileTip } = useCoachOnView(
+  [
+    {
+      id: 'profile_level',
+      el: levelRef,
+      icon: 'app:medal-loop',
+      text: 'Это ваш уровень — растёт за активность на карте',
+    },
+    {
+      id: 'profile_achievements',
+      el: achiveRef,
+      icon: 'app:trophy-loop',
+      text: 'Достижения открываются за ваши действия — вот бейджи',
+    },
+    {
+      id: 'profile_stats',
+      el: statsRef,
+      icon: 'app:stats-up',
+      text: 'Статистика — ваша активность в цифрах',
+    },
+  ],
+  { enabled: () => !!props.isOwn && authStore.isAuthenticated },
+)
+
+function openMark(markId: number) {
+  open(MarkDetailsSheet, { markId, fromProfile: true, onDeleted: getMyMark }, {
+    headerModal: false,
+    position: 'end center',
+  })
+}
+</script>
+
+<template>
+  <div class="user-profile-view">
+    <div class="user-profile-view__header">
+      <u-experience-ring
+        :size="88"
+        :progress="maxVal"
+        :stroke-width="3"
+        :level="gameStats ? currentLevel : undefined"
+        :show-ring="false"
+      >
+        <u-avatar
+          :size="96"
+          rounded
+          extract-color
+          :alt-text="user?.username"
+          :src="user?.avatar"
+          @color-extracted="(color) => emit('colorExtracted', color)"
+        />
+      </u-experience-ring>
+
+      <div class="user-info">
+        <div class="user-info__name-row">
+          <h2>{{ user?.username || 'Guest' }}</h2>
+          <u-admin-badge
+            v-if="user?.isAdmin"
+            :size="18"
+          />
+        </div>
+        <span class="user-info__tag">
+          @{{ user?.tag || '' }}
+        </span>
+      </div>
+    </div>
+
+    <div
+      v-if="!isOwn && user && authStore.isAuthenticated"
+      class="user-action"
+    >
+      <button
+        class="button-sub"
+        :class="{
+          'button-sub--active': isSubscribed,
+          'button-sub--loading': isLoadingStatus,
+        }"
+        :disabled="isPending || isLoadingStatus"
+        @click="toggle"
+      >
+        <span v-if="!isLoadingStatus">
+          {{ isSubscribed ? 'Вы подписаны' : 'Подписаться' }}
+        </span>
+      </button>
+      <button
+        class="button-message"
+        @click="chatsStore.newChat(user.userId)"
+      >
+        <u-icon
+          icon="app:chat-loop"
+          height="20"
+        />
+      </button>
+    </div>
+
+    <div
+      ref="levelRef"
+      class="user-profile-view__level"
+      :class="{ 'coach-highlight': profileTip?.id === 'profile_level' }"
+    >
+      <level-block
+        v-if="user?.gamification"
+        :gamification="user.gamification"
+      />
+      <u-block-error
+        v-else-if="user && isOwn"
+        compact
+        title="Уровень недоступен"
+        :retrying="refetchingLevel"
+        @retry="retryLevel"
+      />
+      <div
+        v-else-if="user"
+        class="skeleton-block skeleton-block--level"
+      />
+    </div>
+
+    <div
+      ref="achiveRef"
+      class="user-profile-view__achive"
+      :class="{ 'coach-highlight': profileTip?.id === 'profile_achievements' }"
+    >
+      <achievements
+        v-if="user"
+        :user-id="user?.userId"
+        :is-own="isOwn"
+      />
+    </div>
+
+    <div
+      ref="statsRef"
+      class="user-profile-view__stats"
+      :class="{ 'coach-highlight': profileTip?.id === 'profile_stats' }"
+    >
+      <stats-summary
+        v-if="user"
+        ref="statsSummaryRef"
+        :user-id="user?.userId"
+      />
+      <stats-full
+        v-if="user"
+        :user-id="user?.userId"
+      />
+    </div>
+
+    <div
+      v-if="myMarks === undefined"
+      class="user-profile-view__marks"
+    >
+      <div class="user-profile-view__marks-grid">
+        <div
+          v-for="i in 4"
+          :key="i"
+          class="skeleton-block skeleton-block--mark"
+        />
+      </div>
+    </div>
+
+    <div
+      v-else-if="myMarks.length"
+      class="user-profile-view__marks"
+    >
+      <!-- <h3 class="user-profile-view__marks-title">
+        Метки
+      </h3> -->
+      <div class="user-profile-view__marks-grid">
+        <u-mark-card
+          v-for="item in myMarks"
+          :key="item.id"
+          :mark="item"
+          @click="openMark(item.id)"
+        />
+      </div>
+
+      <button
+        v-if="user && myMarksTotal > myMarks.length"
+        type="button"
+        class="user-profile-view__marks-all"
+        @click="openUserMarks(user.userId)"
+      >
+        Показать все метки
+        <u-icon
+          icon="app:arrow-filled"
+          width="8"
+        />
+      </button>
+    </div>
+
+    <div
+      v-else-if="isOwn"
+      class="user-profile-view__empty"
+    >
+      <u-icon
+        icon="app:pin"
+        width="26"
+        height="26"
+      />
+      <span>Пока нет меток — дважды коснитесь карты, чтобы создать первую</span>
+    </div>
+
+    <div
+      v-if="isOwn"
+      class="button-settings"
+      @click="openSettings()"
+    >
+      <u-icon
+        icon="app:cog-loop"
+        height="20"
+      />
+    </div>
+
+    <coach-hint
+      v-if="profileTip"
+      :text="profileTip.text"
+      :icon="profileTip.icon"
+      @close="dismissProfileTip"
+    />
+  </div>
+</template>
+
+<style lang="scss" scoped>
+.user-profile-view {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 90%;
+  max-width: 500px;
+  margin: 0 auto;
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+  }
+
+  &__achive,
+  &__level {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+
+  &__stats {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  &__marks {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  &__marks-title {
+    @include label-text(12px, uppercase);
+  }
+
+  &__marks-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  &__marks-all {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    @include glass-panel(14px, 12px, false);
+    @include value-text(13px, var(--primary-color), 700);
+    cursor: pointer;
+
+    &:active {
+      transform: scale(0.99);
+    }
+  }
+
+  &__empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    color: var(--text-color-secondary, var(--text-color));
+    @include glass-panel(16px, 18px, false);
+
+    span {
+      @include label-text(13px, none);
+      line-height: 1.4;
+    }
+  }
+}
+
+.coach-highlight {
+  border-radius: 18px;
+  outline: 2px solid var(--primary-color);
+  outline-offset: 8px;
+  transition: outline-color 0.3s ease;
+  animation: coach-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes coach-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--primary-color) 35%, transparent);
+  }
+  50% {
+    box-shadow: 0 0 0 10px color-mix(in srgb, var(--primary-color) 0%, transparent);
+  }
+}
+
+.button-settings {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 13px;
+  background: var(--bg-color-block);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-color-secondary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0px;
+
+  &__name-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    // Резерв высоты — чтобы бейдж не «толкал» контент при загрузке
+    min-height: 28px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+    // Резерв высоты строки, чтобы имя не «толкало» контент при загрузке
+    min-height: 28px;
+    line-height: 28px;
+  }
+
+  &__tag {
+    @include label-text(14px, none);
+    // Резерв под тег — иначе появление сдвигает контент ниже
+    min-height: 18px;
+    line-height: 18px;
+  }
+}
+
+.user-action {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.button-sub {
+  height: 44px;
+  @include glass-panel(14px, 11px, false, false);
+  @include gradient();
+  @include value-text(14px, #fff, 700);
+  width: 100%;
+  border: none;
+  transition: opacity 0.2s ease;
+
+  &:disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  &--active {
+    box-shadow: none;
+    background: var(--bg-color-block);
+    border: 1px solid var(--border-subtle);
+    @include value-text(14px, var(--text-color-secondary), 600);
+  }
+
+  &--loading {
+    box-shadow: none;
+    background: linear-gradient(100deg, var(--surface-subtle) 30%, var(--surface-hover) 50%, var(--surface-subtle) 70%);
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  }
+}
+
+.button-message {
+  @include glass-panel(14px, 11px, false, false, false);
+  color: var(--text-color);
+  height: 44px;
+  min-width: 44px;
+}
+
+.skeleton-block {
+  width: 100%;
+  border-radius: 16px;
+  background: linear-gradient(100deg, var(--surface-subtle) 30%, var(--surface-hover) 50%, var(--surface-subtle) 70%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+
+  &--level {
+    height: 120px;
+  }
+
+  &--mark {
+    aspect-ratio: 1.5 / 1;
+    border-radius: 12px;
+  }
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+</style>

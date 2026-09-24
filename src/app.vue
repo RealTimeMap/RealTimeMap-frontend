@@ -1,19 +1,21 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import NotificationProvider from '@/components/02.features/NotificationProvider/index'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
+import { initUpdateChecker } from '@/components/02.features/app/AppUpdate'
+import { initBugReport } from '@/components/02.features/app/BugReport'
+import NotificationProvider from '@/components/02.features/app/NotificationProvider/index'
+import { initPushManager } from '@/components/02.features/app/PushManager'
+import AccountBan from '@/components/02.features/auth/AccountBan'
+import { ExpGain, useGamificationFeedback } from '@/components/02.features/profile/Gamification'
+import { AppSplash } from '@/components/02.features/settings/SplashScreen'
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
 import { isPageTransitioning, pageTransition, prefetchNavData, prefetchNavPages } from './components/00.shared/lib/pageTransition'
 import { initPlacesSync } from './components/00.shared/stores/places'
 import { useSettingsStore } from './components/00.shared/stores/settings'
-import AccountBan from './components/02.features/AccountBan'
-import { initUpdateChecker } from './components/02.features/AppUpdate'
-import { useAuthStore } from './components/02.features/Authentication/model/auth'
-import { initBugReport } from './components/02.features/BugReport'
-import { ExpGain, useGamificationFeedback } from './components/02.features/Gamification'
-import { initPushManager } from './components/02.features/PushManager'
-import { AppSplash } from './components/02.features/SplashScreen'
+
+const ProfileWarmup = defineAsyncComponent(() => import('@/components/04.widgets/Profile/ui/Warmup.vue'))
 
 const layouts = {
   empty: EmptyLayout,
@@ -55,13 +57,18 @@ onMounted(async () => {
   prefetchNavData(authStore.isAuthenticated)
 })
 
+const isWarmingProfile = ref(false)
 let prefetchedProfileId: number | null = null
 watch([appReady, () => authStore.user?.userId], ([ready, userId]) => {
   if (!ready || !userId || userId === prefetchedProfileId)
     return
   prefetchedProfileId = userId
-  const run = () => void import('./components/02.features/Profile/model/prefetch')
+  const run = () => void import('@/components/04.widgets/Profile/model/prefetch')
     .then(m => m.prefetchProfile(userId, authStore.user?.avatar))
+    .then(() => {
+      if (route.name !== 'profile')
+        isWarmingProfile.value = true
+    })
     .catch(() => {})
   if ('requestIdleCallback' in window)
     requestIdleCallback(run, { timeout: 2000 })
@@ -91,6 +98,11 @@ watch([appReady, () => authStore.user?.userId], ([ready, userId]) => {
         </transition>
       </router-view>
     </component>
+
+    <profile-warmup
+      v-if="isWarmingProfile"
+      @done="isWarmingProfile = false"
+    />
 
     <notification-provider />
 

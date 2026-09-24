@@ -12,7 +12,7 @@ import type {
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 import { personalMarkApi } from '@/components/00.shared/services/personal-mark'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { applyRemoved, mergeGroups, mergeUpserted, syncGroupToLocal, syncMarkToLocal } from './mappers'
 import { PermanentMutationError, playMutation } from './mutationQueue'
 import { LOCAL_PHOTO_PREFIX, removePendingPhoto, savePendingPhoto } from './photoStore'

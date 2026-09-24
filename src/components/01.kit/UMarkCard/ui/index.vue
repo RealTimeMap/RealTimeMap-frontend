@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import type { Mark } from '@/components/00.shared/services/mark/index.type'
+import { useCachedImage } from '@/components/00.shared/lib/imageCache'
 
-defineProps<{
+const props = defineProps<{
   mark: Mark
 }>()
 
 const emit = defineEmits<{ click: [] }>()
+
+const photoSrc = useCachedImage(() => props.mark.photos?.[0])
 
 // blur-up: фото проявляется из размытия по мере загрузки
 const imgLoaded = ref(false)
@@ -20,7 +23,7 @@ const imgLoaded = ref(false)
     <div class="mark-card__media">
       <img
         v-if="mark.photos && mark.photos.length > 0"
-        :src="mark.photos[0]"
+        :src="photoSrc"
         class="mark-card__img"
         :class="{ 'mark-card__img--loaded': imgLoaded }"
         alt=""

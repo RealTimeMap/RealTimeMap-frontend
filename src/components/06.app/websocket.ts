@@ -3,8 +3,8 @@ import { App as CapacitorApp } from '@capacitor/app'
 import { Capacitor } from '@capacitor/core'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { useWebSocket } from '@/components/00.shared/composables/useWebSocket'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 
 const MARKS_NAMESPACE = '/marks'
 

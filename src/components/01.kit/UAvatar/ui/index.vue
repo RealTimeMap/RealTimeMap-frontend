@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { useCachedImage } from '@/components/00.shared/lib/imageCache'
+
 interface Props {
   size: number
   rounded: boolean
@@ -19,6 +21,8 @@ const {
 const emit = defineEmits<{
   colorExtracted: [color: string]
 }>()
+
+const avatarSrc = useCachedImage(() => src)
 
 const fontSize = computed(() => {
   return `${Math.round(size * 0.38)}px`
@@ -72,7 +76,7 @@ async function handleImageLoad(event: Event) {
   >
     <img
       v-if="src"
-      :src="src"
+      :src="avatarSrc"
       :alt="altText.slice(0, 2)"
       :crossorigin="extractColor ? 'anonymous' : undefined"
       @load="handleImageLoad"

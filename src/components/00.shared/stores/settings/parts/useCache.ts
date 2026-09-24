@@ -1,6 +1,8 @@
 import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
+import { clearApiCache } from '@/components/00.shared/api/cache'
 import { formatBytes } from '@/components/00.shared/lib/formatBytes'
+import { resetImageCacheIndex } from '@/components/00.shared/lib/imageCache'
 
 const CACHE_DIR = Directory.Cache
 
@@ -89,11 +91,13 @@ export function useCache() {
     try {
       if (Capacitor.isNativePlatform()) {
         await clearNativeCache()
+        resetImageCacheIndex()
       }
       else if ('caches' in window) {
         const keys = await caches.keys()
         await Promise.all(keys.map(key => caches.delete(key)))
       }
+      await clearApiCache()
       await calculateCacheSize()
     }
     catch (error) {

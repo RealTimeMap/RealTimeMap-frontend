@@ -1,10 +1,10 @@
 import type { RouteLocationNormalized, RouteRecordRaw } from 'vue-router'
 import type { RouteSeo } from '@/components/00.shared/lib/seo'
 import { createRouter, createWebHistory } from 'vue-router'
+import { hasSeenOnboarding } from '@/components/00.shared/lib/onboardingFlag'
 import { pageTransition, resolvePageTransition } from '@/components/00.shared/lib/pageTransition'
 import { applyRouteSeo } from '@/components/00.shared/lib/seo'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
-import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 
 const AuthProcessingComponent = {
   template: '<div style="display:flex;justify-content:center;align-items:center;height:100vh;">Авторизация...</div>',
@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     name: 'home-map',
-    component: () => import('@/components/05.pages/HomeMapPage.vue'),
+    component: () => import('@/components/05.pages/map/HomeMapPage.vue'),
     meta: {
       layout: 'default',
       fullBleed: true,
@@ -42,7 +42,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'login',
-    component: () => import('@/components/05.pages/AuthPage.vue'),
+    component: () => import('@/components/05.pages/auth/AuthPage.vue'),
     meta: {
       layout: 'default',
       guestOnly: true,
@@ -56,7 +56,7 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: '/profile',
-    component: () => import('@/components/05.pages/ProfilePage.vue'),
+    component: () => import('@/components/05.pages/profile/ProfilePage.vue'),
     meta: {
       layout: 'default',
       fullBleed: true,
@@ -78,7 +78,7 @@ const routes: RouteRecordRaw[] = [
           },
           depth: 1,
         },
-        component: () => import('@/components/05.pages/Profile/MyProfilePage.vue'),
+        component: () => import('@/components/05.pages/profile/MyProfilePage.vue'),
       },
       {
         path: ':userId(\\d+)',
@@ -90,7 +90,7 @@ const routes: RouteRecordRaw[] = [
           },
           depth: 2,
         },
-        component: () => import('@/components/05.pages/Profile/UserProfilePage.vue'),
+        component: () => import('@/components/05.pages/profile/UserProfilePage.vue'),
         props: route => ({ userId: Number(route.params.userId) }),
       },
     ],
@@ -99,7 +99,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/places',
     name: 'places',
-    component: () => import('@/components/05.pages/PlacesPage.vue'),
+    component: () => import('@/components/05.pages/places/PlacesPage.vue'),
     meta: {
       layout: 'default',
       requiresAuth: true,
@@ -114,7 +114,7 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: '/chats',
-    component: () => import('@/components/05.pages/ChatsPage.vue'),
+    component: () => import('@/components/05.pages/chats/ChatsPage.vue'),
     meta: {
       layout: 'default',
       requiresAuth: true,
@@ -125,7 +125,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: '',
         name: 'chats',
-        component: () => import('@/components/05.pages/Chats/ChatListPage.vue'),
+        component: () => import('@/components/05.pages/chats/ChatListPage.vue'),
         meta: {
           depth: 1,
           seo: {
@@ -137,7 +137,7 @@ const routes: RouteRecordRaw[] = [
       {
         path: ':chatId(\\d+)',
         name: 'chat-room',
-        component: () => import('@/components/05.pages/Chats/ChatRoomPage.vue'),
+        component: () => import('@/components/05.pages/chats/ChatRoomPage.vue'),
         props: route => ({ chatId: Number(route.params.chatId) }),
         meta: {
           depth: 2,
@@ -154,7 +154,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/password-reset',
     name: 'reset-password',
-    component: () => import('@/components/05.pages/ResetPasswordPage.vue'),
+    component: () => import('@/components/05.pages/auth/ResetPasswordPage.vue'),
     meta: {
       layout: 'empty',
       depth: 1,
@@ -210,7 +210,6 @@ const router = createRouter({
 
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
-  const { hasSeenOnboarding } = useOnboarding()
 
   const seen = await hasSeenOnboarding()
   const isAuthenticated = authStore.isAuthenticated

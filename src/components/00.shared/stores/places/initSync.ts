@@ -1,7 +1,7 @@
 import { App as CapacitorApp } from '@capacitor/app'
 import { onNetworkOnline, useIsOnline } from '@/components/00.shared/composables/useNetworkWatch'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
 import { usePlacesStore } from './store'
 
 /** Интервал фоновой синхронизации (мс). Настраивается здесь. */
