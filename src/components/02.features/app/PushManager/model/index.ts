@@ -66,7 +66,12 @@ async function initWebPush(store: ReturnType<typeof useNotificationStore>) {
     })
   }
   catch (e) {
-    console.error('Ошибка получения Web Push токена:', e)
+    // Пользователь запретил уведомления — штатная ситуация, не баг
+    const code = (e as { code?: string })?.code ?? ''
+    if (code.includes('permission'))
+      console.warn('Web Push недоступен: уведомления запрещены', code)
+    else
+      console.error('Ошибка получения Web Push токена:', e)
   }
 }
 

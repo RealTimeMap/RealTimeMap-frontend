@@ -154,6 +154,12 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
         if (item.landmark.rotationY)
           model.rotation.y = item.landmark.rotationY
 
+        // Слой успели удалить с карты, пока модель грузилась
+        if (refs.scene !== scene) {
+          disposeHierarchy(model)
+          return
+        }
+
         item.height = anchorModel(model)
         enableGroundClip(model)
 
@@ -255,6 +261,20 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
 
       map.on('moveend', checkVisibleModels)
       checkVisibleModels()
+    },
+
+    onRemove(map: Map) {
+      map.off('moveend', checkVisibleModels)
+      for (const item of refs.items ?? []) {
+        if (item.object)
+          disposeHierarchy(item.object)
+        item.object = null
+      }
+      loadedQueue.length = 0
+      // Контекст WebGL принадлежит MapLibre: освобождаем только ресурсы three.js
+      refs.renderer?.dispose()
+      for (const key of Object.keys(refs) as (keyof SceneRefs)[])
+        delete refs[key]
     },
 
     render(_gl, args: CustomRenderMethodInput) {

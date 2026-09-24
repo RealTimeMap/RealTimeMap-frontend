@@ -1,5 +1,6 @@
 import type { ApiError } from '@/components/00.shared/api/api.types'
 import type { BugTag } from '@/components/00.shared/services/bug/index.type'
+import { useIsOnline } from '@/components/00.shared/composables/useNetworkWatch'
 import { onBugError } from '@/components/00.shared/lib/bugLogger'
 import router from '@/components/00.shared/lib/router'
 import { bugApi } from '@/components/00.shared/services/bug'
@@ -61,8 +62,13 @@ export function initBugReport(): void {
   const notify = useNotificationStore()
   const SILENCED_ROUTES = new Set(['login'])
 
+  const isOnline = useIsOnline()
+
   onBugError(async (_info) => {
     if (SILENCED_ROUTES.has(String(router.currentRoute.value.name)))
+      return
+    // Без сети ошибки загрузки ожидаемы — не предлагаем баг-репорт
+    if (!isOnline.value || !navigator.onLine)
       return
     if (toastShown)
       return

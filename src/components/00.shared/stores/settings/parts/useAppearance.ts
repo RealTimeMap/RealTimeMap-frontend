@@ -1,4 +1,5 @@
-import type { ThemePreference } from '@/components/00.shared/lib/theme'
+import type { ThemeName, ThemePreference } from '@/components/00.shared/lib/theme'
+import { usePreferredDark } from '@vueuse/core'
 import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
 import {
   applyThemeAnimated,
@@ -17,7 +18,13 @@ export function useAppearance() {
   const isGlassEffectEnabled = ref<boolean>(savedPreference !== 'false')
 
   const theme = ref<ThemePreference>(readSavedPreference())
-  const resolvedTheme = computed(() => resolvePreference(theme.value))
+  // Реагирует на смену темы ОС в режиме «system» — иначе стиль карты не переключался
+  const prefersDark = usePreferredDark()
+  const resolvedTheme = computed<ThemeName>(() => {
+    if (theme.value === 'system')
+      return prefersDark.value ? 'dark' : 'light'
+    return theme.value
+  })
 
   // --- ACTIONS ---
   function toggleGlassEffect() {
