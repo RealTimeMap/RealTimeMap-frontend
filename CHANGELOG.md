@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.62
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.61...v0.1.62)
+
+### 🩹 Исправления
+
+- **ui:** Map controls pos ([481c282](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/481c282))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.61
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.60...v0.1.61)
