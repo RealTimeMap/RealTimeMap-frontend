@@ -52,7 +52,8 @@ public class LiveTrackingService extends Service {
                 );
 
             notificationBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
-              .setSmallIcon(android.R.drawable.ic_menu_compass)
+              .setSmallIcon(R.drawable.ic_stat_notification)
+              .setColor(getColor(R.color.notification_accent))
               .setContentTitle("Карта")
               .setContentText(text)
               .setOngoing(true)
