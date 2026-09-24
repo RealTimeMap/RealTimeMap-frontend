@@ -34,6 +34,7 @@ interface MapEmits {
 const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
 let offDoubleTap: (() => void) | null = null
+let resizeObserver: ResizeObserver | null = null
 
 const { resolvedTheme } = storeToRefs(useSettingsStore())
 
@@ -52,9 +53,22 @@ onMounted(() => {
     canvasContextAttributes: { antialias: true },
     fadeDuration: 0,
     refreshExpiredTiles: false,
+    trackResize: false,
   })
 
   map.value = mapInstance
+
+  const container = mapContainer.value!
+  let lastSize = `${container.clientWidth}x${container.clientHeight}`
+  resizeObserver = new ResizeObserver(([entry]) => {
+    const { width, height } = entry!.contentRect
+    const size = `${width}x${height}`
+    if (!width || !height || size === lastSize)
+      return
+    lastSize = size
+    mapInstance.resize()
+  })
+  resizeObserver.observe(container)
 
   mapInstance.on('style.load', () => {
     mapInstance.setProjection({
@@ -94,11 +108,8 @@ onUnmounted(() => {
   if (styleTimer)
     clearTimeout(styleTimer)
   offDoubleTap?.()
+  resizeObserver?.disconnect()
   map.value?.remove()
-})
-
-onActivated(() => {
-  map.value?.resize()
 })
 
 provide('map', map)

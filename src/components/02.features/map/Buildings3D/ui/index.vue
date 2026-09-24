@@ -4,7 +4,7 @@ import type { ShallowRef } from 'vue'
 import { storeToRefs } from 'pinia'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
-import { LAYER_ID as LANDMARKS_LAYER_ID } from '@/components/02.features/map/LandmarksLayer/model/useThreeLandmarks'
+import { LAYER_ID as LANDMARKS_LAYER_ID } from '@/components/02.features/map/LandmarksLayer/model/landmarks'
 import {
   BUILDINGS_HEIGHT,
   BUILDINGS_LAYER_ID,

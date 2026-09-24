@@ -1,13 +1,17 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
-import { DEMO_LANDMARKS } from '../model/landmarks'
-import { createLandmarksLayer, LAYER_ID } from '../model/useThreeLandmarks'
+import { DEMO_LANDMARKS, LAYER_ID } from '../model/landmarks'
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
+let disposed = false
 
-function addLayer(instance: maplibregl.Map) {
+async function addLayer(instance: maplibregl.Map) {
   if (instance.getLayer(LAYER_ID))
+    return
+
+  const { createLandmarksLayer } = await import('../model/useThreeLandmarks')
+  if (disposed || instance.getLayer(LAYER_ID))
     return
 
   instance.addLayer(createLandmarksLayer(DEMO_LANDMARKS))
@@ -24,15 +28,16 @@ watch(
   (instance) => {
     if (!instance)
       return
-    if (instance.isStyleLoaded())
-      addLayer(instance)
+    if (instance.loaded())
+      void addLayer(instance)
     else
-      instance.once('style.load', () => addLayer(instance))
+      instance.once('idle', () => void addLayer(instance))
   },
   { immediate: true },
 )
 
 onUnmounted(() => {
+  disposed = true
   if (map?.value)
     removeLayer(map.value)
 })

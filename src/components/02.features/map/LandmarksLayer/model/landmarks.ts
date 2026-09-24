@@ -1,5 +1,7 @@
 import type { MapPoint } from '@/types/shared/map'
 
+export const LAYER_ID = '3d-landmarks'
+
 export interface Landmark {
   id: string
   title: string

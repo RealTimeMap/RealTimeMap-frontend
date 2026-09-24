@@ -3,8 +3,7 @@ import type { Landmark } from './landmarks'
 import { MercatorCoordinate } from 'maplibre-gl'
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-
-const LAYER_ID = '3d-landmarks'
+import { LAYER_ID } from './landmarks'
 
 const MIN_LOAD_ZOOM = 12.0
 const MAX_CACHED_MODELS = 8
