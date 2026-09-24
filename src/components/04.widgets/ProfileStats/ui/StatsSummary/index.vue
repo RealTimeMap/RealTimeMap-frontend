@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { StatsSummary } from '@/components/00.shared/services/statistics/index.type'
 import type { SubscriptionListType } from '@/components/02.features/Subscriptions'
-import { statisticsApi } from '@/components/00.shared/services/statistics'
+import { isSameStats, loadProfileStats, profileStatsCache } from '@/components/00.shared/lib/profileCache'
 import { subscriptionApi } from '@/components/00.shared/services/subscriptions'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSubscriptionsStore } from '@/components/00.shared/stores/subscriptions'
@@ -19,7 +19,7 @@ const subscriptionsStore = useSubscriptionsStore()
 
 const isOwn = computed(() => authStore.user?.userId === props.userId)
 
-const stats = shallowRef<StatsSummary | null>(null)
+const stats = shallowRef<StatsSummary | null>(profileStatsCache.get(props.userId) ?? null)
 const isLoading = ref(false)
 const error = ref<unknown | null>(null)
 
@@ -27,14 +27,18 @@ async function loadStats() {
   if (!props.userId)
     return
 
-  isLoading.value = true
+  if (!stats.value)
+    isLoading.value = true
   error.value = null
 
   try {
-    stats.value = await statisticsApi.fetchStats(props.userId, 'summary')
+    const next = await loadProfileStats(props.userId)
+    if (!stats.value || !isSameStats(stats.value, next))
+      stats.value = next
   }
   catch (e) {
-    error.value = e
+    if (!stats.value)
+      error.value = e
     console.error('Failed to fetch stats:', e)
   }
   finally {
