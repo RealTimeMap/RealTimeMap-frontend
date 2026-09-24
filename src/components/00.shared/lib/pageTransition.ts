@@ -42,7 +42,7 @@ export function prefetchNavPages(): void {
   const run = () => loaders.forEach(load => load().catch(() => {}))
 
   if ('requestIdleCallback' in window)
-    requestIdleCallback(run)
+    requestIdleCallback(run, { timeout: 1500 })
   else
     setTimeout(run, 200)
 }
@@ -61,7 +61,7 @@ export function prefetchNavData(isAuthenticated: boolean): void {
   }
 
   if ('requestIdleCallback' in window)
-    requestIdleCallback(() => void run())
+    requestIdleCallback(() => void run(), { timeout: 2000 })
   else
     setTimeout(() => void run(), 300)
 }

@@ -54,6 +54,20 @@ onMounted(async () => {
   prefetchNavPages()
   prefetchNavData(authStore.isAuthenticated)
 })
+
+let prefetchedProfileId: number | null = null
+watch([appReady, () => authStore.user?.userId], ([ready, userId]) => {
+  if (!ready || !userId || userId === prefetchedProfileId)
+    return
+  prefetchedProfileId = userId
+  const run = () => void import('./components/02.features/Profile/model/prefetch')
+    .then(m => m.prefetchProfile(userId, authStore.user?.avatar))
+    .catch(() => {})
+  if ('requestIdleCallback' in window)
+    requestIdleCallback(run, { timeout: 2000 })
+  else
+    setTimeout(run, 300)
+})
 </script>
 
 <template>

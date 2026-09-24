@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { User } from '@/components/00.shared/services/user/index.type'
-import { markApi } from '@/components/00.shared/services/mark'
+import { isSameMarksPreview, loadProfileMarks, profileMarksCache } from '@/components/00.shared/lib/profileCache'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
@@ -69,21 +69,21 @@ function openSettings() {
   })
 }
 
-const myMarks = ref<Mark[]>()
-const myMarksTotal = ref(0)
+const cachedMarks = props.user ? profileMarksCache.get(props.user.userId) : undefined
+const myMarks = shallowRef<Mark[] | undefined>(cachedMarks?.items)
+const myMarksTotal = ref(cachedMarks?.total ?? 0)
 async function getMyMark() {
   const userId = props.user?.userId
   if (!userId)
     return
 
+  const prev = profileMarksCache.get(userId)
   try {
-    const data = await markApi.getAllMarks({
-      userid: userId,
-      page: 1,
-      pageSize: 4,
-    })
-    myMarks.value = data.items
-    myMarksTotal.value = data.total
+    const next = await loadProfileMarks(userId)
+    if (!prev || myMarks.value === undefined || !isSameMarksPreview(prev, next)) {
+      myMarks.value = next.items
+      myMarksTotal.value = next.total
+    }
   }
   catch (e) {
     console.error(e)

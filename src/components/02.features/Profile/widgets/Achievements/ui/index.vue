@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import type { WidgetData } from '../model/cache'
 import type { NearestAchievementItem } from '@/components/00.shared/services/achievement/index.type'
-import { achievementApi } from '@/components/00.shared/services/achievement'
 import { openAchievements } from '@/components/02.features/AchievementsList'
-import { achievementsWidgetCache as cache, isSameWidgetData as isSameData } from '../model/cache'
+import { achievementsWidgetCache as cache, isSameWidgetData as isSameData, loadAchievementsWidget } from '../model/cache'
 
 const props = defineProps<{
   userId: number
@@ -28,17 +26,7 @@ async function loadAchievements() {
     isLoading.value = true
   hasError.value = false
   try {
-    const [nearest, all, earned] = await Promise.all([
-      achievementApi.getNearestAchievements(props.userId),
-      achievementApi.getAllAchievements({ page: 1, pageSize: 500 }),
-      achievementApi.getAchiveUser({ id: props.userId, page: 1, pageSize: 1 }),
-    ])
-    const next: WidgetData = {
-      nearest: nearest.items,
-      total: Array.isArray(all) ? all.length : 0,
-      earned: earned.total ?? 0,
-    }
-    cache.set(props.userId, next)
+    const next = await loadAchievementsWidget(props.userId)
     if (!prev || !isSameData(prev, next)) {
       achievements.value = next.nearest
       totalCount.value = next.total
