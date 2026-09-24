@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { Capacitor } from '@capacitor/core'
-import { downloadAndroidApp } from '@/components/02.features/AppUpdate'
-import { openCommunityRules } from '@/components/02.features/CommunityRules'
-import { openPrivacyPolicy } from '@/components/02.features/LegalPolicy'
-import { useOnboarding } from '@/components/02.features/Onboarding/model/useOnboarding'
-import { RoadmapTimeline } from '@/components/02.features/Roadmap'
+import { downloadAndroidApp } from '@/components/02.features/app/AppUpdate'
+import { useOnboarding } from '@/components/02.features/app/Onboarding/model/useOnboarding'
+import { openCommunityRules } from '@/components/02.features/info/CommunityRules'
+import { openPrivacyPolicy } from '@/components/02.features/info/LegalPolicy'
+import { RoadmapTimeline } from '@/components/02.features/info/Roadmap'
 
 declare const __APP_VERSION__: string
 

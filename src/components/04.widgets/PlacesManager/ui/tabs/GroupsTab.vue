@@ -2,7 +2,7 @@
 import type { EntityId } from '@/components/00.shared/stores/places'
 import { storeToRefs } from 'pinia'
 import { useDeferredPendingSet, usePlacesStore } from '@/components/00.shared/stores/places'
-import { openGroupDetail, openGroupForm } from '@/components/02.features/PersonalGroups'
+import { openGroupDetail, openGroupForm } from '@/components/02.features/places/PersonalGroups'
 
 const store = usePlacesStore()
 const { groups } = storeToRefs(store)

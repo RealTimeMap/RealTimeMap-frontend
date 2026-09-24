@@ -24,11 +24,11 @@
 4. создаёт GitHub Release, где описанием служит свежая секция changelog;
 5. если ни один коммит не поднимает версию — **релиза не будет**, сборка просто пропускается.
 
-Приложение сравнивает свою версию с тегом последнего релиза ([AppUpdate](src/components/02.features/AppUpdate/model/index.ts)) и предлагает обновиться.
+Приложение сравнивает свою версию с тегом последнего релиза ([AppUpdate](src/components/02.features/app/AppUpdate/model/index.ts)) и предлагает обновиться.
 
 ## Текст в уведомлении об обновлении
 
-Полный changelog уходит на страницу GitHub Release, а в уведомлении показывается короткая сводка ([summarizeRelease](src/components/02.features/AppUpdate/model/summarizeRelease.ts)). Она выбирает самый человеческий источник из трёх:
+Полный changelog уходит на страницу GitHub Release, а в уведомлении показывается короткая сводка ([summarizeRelease](src/components/02.features/app/AppUpdate/model/summarizeRelease.ts)). Она выбирает самый человеческий источник из трёх:
 
 1. **заметки, написанные вами** — строка `Release-note:` в теле коммита;
 2. темы `feat`-коммитов, если заметок не было;

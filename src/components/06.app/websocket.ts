@@ -4,7 +4,7 @@ import { Capacitor } from '@capacitor/core'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { useWebSocket } from '@/components/00.shared/composables/useWebSocket'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
+import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
 
 const MARKS_NAMESPACE = '/marks'
 

@@ -32,5 +32,5 @@ coverage
 
 .env
 plans/
-public/models/_original/*.glb
+models-src/*.glb
 /icons/preview.html

@@ -3,7 +3,7 @@ import type { EntityId, LocalPersonalMark } from '@/components/00.shared/stores/
 import { storeToRefs } from 'pinia'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useDeferredPendingSet, usePlacesStore } from '@/components/00.shared/stores/places'
-import { openPersonalMarkDetail } from '@/components/02.features/PersonalMarkDetail'
+import { openPersonalMarkDetail } from '@/components/02.features/places/PersonalMarkDetail'
 
 const store = usePlacesStore()
 const { marks } = storeToRefs(store)

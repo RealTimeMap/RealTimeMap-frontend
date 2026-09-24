@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { StatsSummary } from '@/components/00.shared/services/statistics/index.type'
-import type { SubscriptionListType } from '@/components/02.features/Subscriptions'
+import type { SubscriptionListType } from '@/components/02.features/profile/Subscriptions'
 import { isSameStats, loadProfileStats, profileStatsCache } from '@/components/00.shared/lib/profileCache'
 import { subscriptionApi } from '@/components/00.shared/services/subscriptions'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSubscriptionsStore } from '@/components/00.shared/stores/subscriptions'
-import { useAuthStore } from '@/components/02.features/Authentication/model/auth'
-import SubscriptionsModal from '@/components/02.features/Subscriptions'
-import { openUserMarks } from '@/components/02.features/UserMarksList'
+import { useAuthStore } from '@/components/02.features/auth/Authentication/model/auth'
+import SubscriptionsModal from '@/components/02.features/profile/Subscriptions'
+import { openUserMarks } from '@/components/02.features/profile/UserMarksList'
 
 const props = defineProps<{
   userId: number

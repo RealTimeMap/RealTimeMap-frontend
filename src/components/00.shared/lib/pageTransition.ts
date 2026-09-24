@@ -31,12 +31,12 @@ function navIndex(name: unknown): number {
 
 export function prefetchNavPages(): void {
   const loaders = [
-    () => import('@/components/05.pages/PlacesPage.vue'),
-    () => import('@/components/05.pages/ChatsPage.vue'),
-    () => import('@/components/05.pages/Chats/ChatListPage.vue'),
-    () => import('@/components/05.pages/ProfilePage.vue'),
-    () => import('@/components/05.pages/Profile/MyProfilePage.vue'),
-    () => import('@/components/05.pages/AuthPage.vue'),
+    () => import('@/components/05.pages/places/PlacesPage.vue'),
+    () => import('@/components/05.pages/chats/ChatsPage.vue'),
+    () => import('@/components/05.pages/chats/ChatListPage.vue'),
+    () => import('@/components/05.pages/profile/ProfilePage.vue'),
+    () => import('@/components/05.pages/profile/MyProfilePage.vue'),
+    () => import('@/components/05.pages/auth/AuthPage.vue'),
   ]
 
   const run = () => loaders.forEach(load => load().catch(() => {}))

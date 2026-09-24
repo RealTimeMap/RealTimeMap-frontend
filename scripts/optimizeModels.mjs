@@ -6,7 +6,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import process from 'node:process'
 
-const SRC_DIR = 'public/models/_original'
+const SRC_DIR = 'models-src'
 const OUT_DIR = 'public/models'
 const CLI = ['--yes', '@gltf-transform/cli@latest']
 
