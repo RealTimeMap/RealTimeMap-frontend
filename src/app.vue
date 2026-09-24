@@ -4,7 +4,7 @@ import NotificationProvider from '@/components/02.features/NotificationProvider/
 import DefaultLayout from '@/components/03.layouts/DefaultLayout.vue'
 import EmptyLayout from '@/components/03.layouts/EmptyLayout.vue'
 import { useNetworkWatch } from './components/00.shared/composables/useNetworkWatch'
-import { pageTransition, prefetchNavData, prefetchNavPages } from './components/00.shared/lib/pageTransition'
+import { isPageTransitioning, pageTransition, prefetchNavData, prefetchNavPages } from './components/00.shared/lib/pageTransition'
 import { initPlacesSync } from './components/00.shared/stores/places'
 import { useSettingsStore } from './components/00.shared/stores/settings'
 import AccountBan from './components/02.features/AccountBan'
@@ -62,7 +62,12 @@ onMounted(async () => {
   >
     <component :is="layoutComponent">
       <router-view v-slot="{ Component }">
-        <transition :name="pageTransition">
+        <transition
+          :name="pageTransition"
+          @before-enter="isPageTransitioning = true"
+          @after-enter="isPageTransitioning = false"
+          @enter-cancelled="isPageTransitioning = false"
+        >
           <keep-alive :include="['HomeMapPage']">
             <component
               :is="Component"
