@@ -16,13 +16,34 @@ function timestamp(): string {
   return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`
 }
 
+// Логи уходят на сервер вместе с баг-репортом: токены и заголовки в них попадать не должны
+const HIDDEN_KEYS = new Set(['authorization', 'token', 'password', 'headers', 'raw', 'request', 'data'])
+
+function redact(text: string): string {
+  return text.replace(/Bearer\s+[\w.~+/=-]+/gi, 'Bearer [скрыто]')
+}
+
+interface RequestErrorLike {
+  message?: string
+  status?: number
+  config?: { method?: string, url?: string }
+}
+
+function isRequestError(arg: unknown): arg is RequestErrorLike {
+  return !!arg && typeof arg === 'object' && 'config' in arg && 'message' in arg
+}
+
 function stringifyArg(arg: unknown): string {
   if (typeof arg === 'string')
-    return arg
+    return redact(arg)
   if (arg instanceof Error)
-    return arg.stack || `${arg.name}: ${arg.message}`
+    return redact(arg.stack || `${arg.name}: ${arg.message}`)
+  if (isRequestError(arg)) {
+    const { config, status, message } = arg
+    return `${config?.method?.toUpperCase() ?? ''} ${config?.url ?? ''} → ${status ?? '—'}: ${message ?? ''}`
+  }
   try {
-    return JSON.stringify(arg)
+    return redact(JSON.stringify(arg, (key, value) => HIDDEN_KEYS.has(key.toLowerCase()) ? '[скрыто]' : value))
   }
   catch {
     return String(arg)
