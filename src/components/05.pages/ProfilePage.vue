@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { afterPageTransition } from '@/components/00.shared/lib/pageTransition'
+
 const route = useRoute()
 const dynamicColor = ref<string | null>(null)
 
 function handleColorExtracted(color: string) {
-  dynamicColor.value = color
+  afterPageTransition(() => {
+    dynamicColor.value = color
+  })
 }
 
 watch(() => route.fullPath, () => {
@@ -30,12 +34,6 @@ watch(() => route.fullPath, () => {
 </template>
 
 <style lang="scss" scoped>
-@property --user-color {
-  syntax: '<color>';
-  inherits: true;
-  initial-value: transparent;
-}
-
 .profile {
   height: calc(100dvh - var(--safe-top));
   width: 100%;
@@ -48,9 +46,6 @@ watch(() => route.fullPath, () => {
   inset: 0px;
   background: var(--profile-bg);
   color: var(--text-color);
-
-  // Плавный морф самого оттенка (для браузеров с поддержкой @property)
-  // transition: --user-color 0.6s ease;
 
   &-blum {
     position: absolute;
@@ -66,9 +61,7 @@ watch(() => route.fullPath, () => {
     pointer-events: none;
 
     opacity: 0;
-    transition:
-      opacity 0.6s ease,
-      --user-color 0.6s ease;
+    transition: opacity 0.6s ease;
   }
 
   &--tinted &-blum {

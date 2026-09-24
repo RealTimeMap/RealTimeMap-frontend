@@ -10,6 +10,20 @@ const NAV_ORDER: string[][] = [
 ]
 
 export const pageTransition = ref<PageTransitionName>('fade')
+export const isPageTransitioning = ref(false)
+
+export function afterPageTransition(fn: () => void): void {
+  if (!isPageTransitioning.value) {
+    fn()
+    return
+  }
+  const stop = watch(isPageTransitioning, (active) => {
+    if (active)
+      return
+    stop()
+    fn()
+  })
+}
 
 function navIndex(name: unknown): number {
   return NAV_ORDER.findIndex(group => group.includes(name as string))

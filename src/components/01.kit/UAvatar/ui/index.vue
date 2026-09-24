@@ -24,22 +24,37 @@ const fontSize = computed(() => {
   return `${Math.round(size * 0.38)}px`
 })
 
-function handleImageLoad(event: Event) {
-  if (!extractColor)
-    return
-  const imgElement = event.target as HTMLImageElement
+async function sampleColor(img: HTMLImageElement): Promise<string | null> {
   const canvas = document.createElement('canvas')
-  const ctx = canvas.getContext('2d')
-  if (!ctx)
-    return
-
   canvas.width = 1
   canvas.height = 1
+  const ctx = canvas.getContext('2d', { willReadFrequently: true })
+  if (!ctx)
+    return null
 
+  let source: CanvasImageSource = img
+  if ('createImageBitmap' in window) {
+    try {
+      source = await createImageBitmap(img, { resizeWidth: 1, resizeHeight: 1, resizeQuality: 'low' })
+    }
+    catch {}
+  }
+
+  ctx.drawImage(source, 0, 0, 1, 1)
+  if (source instanceof ImageBitmap)
+    source.close()
+
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
+  return `rgb(${r}, ${g}, ${b})`
+}
+
+async function handleImageLoad(event: Event) {
+  if (!extractColor)
+    return
   try {
-    ctx.drawImage(imgElement, 0, 0, 1, 1)
-    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data
-    emit('colorExtracted', `rgb(${r}, ${g}, ${b})`)
+    const color = await sampleColor(event.target as HTMLImageElement)
+    if (color)
+      emit('colorExtracted', color)
   }
   catch {}
 }
