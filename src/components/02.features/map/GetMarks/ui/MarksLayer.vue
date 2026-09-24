@@ -6,8 +6,10 @@ import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDebounceFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
+import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useRouteStore } from '@/components/02.features/map/RouteToMark'
 import MarkDetailsSheet from '@/components/02.features/mark/MarkDetailSheet'
+import { useMarksHeatmap } from '../model/useMarksHeatmap'
 import { useMarksSocket } from '../model/useMarksSocket'
 
 const props = defineProps<{
@@ -29,6 +31,7 @@ const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const { marks, clusters, fetchMarks } = useMarksSocket()
 
 const { pinnedMark } = storeToRefs(useRouteStore())
+const { showHeatmap } = storeToRefs(useSettingsStore())
 
 const displayMarks = computed<Mark[]>(() => {
   const base = [...marks.value] as Mark[]
@@ -37,6 +40,12 @@ const displayMarks = computed<Mark[]>(() => {
     return base
   return [...base, pin]
 })
+
+useMarksHeatmap(
+  map,
+  () => ({ marks: displayMarks.value, clusters: clusters.value }),
+  () => showHeatmap.value,
+)
 
 // Что сейчас на экране — для контекстных подсказок (метки и кластеры взаимоисключающи)
 watch(
@@ -189,7 +198,7 @@ onMounted(() => {
     />
 
     <u-cluster
-      v-for="cluster in clusters"
+      v-for="cluster in (showHeatmap ? [] : clusters)"
       :key="`cluster-${cluster.center.coordinates.join('-')}`"
       v-memo="[cluster.center.coordinates, cluster.count]"
       :coordinates="cluster.center.coordinates as MapPoint"

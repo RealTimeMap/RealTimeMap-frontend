@@ -51,6 +51,8 @@ onMounted(() => {
     attributionControl: false,
     transformRequest: buildTransformRequest(),
     canvasContextAttributes: { antialias: true },
+    // На экранах 3× разница с 2× почти не видна, а пикселей для GPU в 2,25 раза больше
+    pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
     fadeDuration: 0,
     refreshExpiredTiles: false,
     trackResize: false,

@@ -1,0 +1,123 @@
+import type { GeoJSONSource, HeatmapLayerSpecification, Map } from 'maplibre-gl'
+import type { ShallowRef } from 'vue'
+
+const SOURCE_ID = 'marks-heat'
+const LAYER_ID = 'marks-heat'
+
+const HEATMAP_LAYER: HeatmapLayerSpecification = {
+  id: LAYER_ID,
+  type: 'heatmap',
+  source: SOURCE_ID,
+  paint: {
+    // Кластер из сотни меток горячее одиночной, но не в сто раз
+    'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 1, 0.25, 10, 0.6, 100, 1],
+    'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 3, 0.8, 14, 2],
+    'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 3, 18, 9, 32, 15, 48],
+    'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 13, 0.85, 16, 0.4],
+    'heatmap-color': [
+      'interpolate',
+      ['linear'],
+      ['heatmap-density'],
+      0,
+      'rgba(124, 58, 237, 0)',
+      0.2,
+      'rgba(124, 58, 237, 0.35)',
+      0.45,
+      'rgba(168, 85, 247, 0.6)',
+      0.7,
+      'rgba(236, 72, 153, 0.8)',
+      0.9,
+      'rgba(249, 115, 22, 0.9)',
+      1,
+      'rgba(253, 224, 71, 0.95)',
+    ],
+  },
+}
+
+type Coordinates = readonly [number, number]
+
+interface HeatPoints {
+  marks: ReadonlyArray<{ geom: { coordinates: Coordinates } }>
+  clusters: ReadonlyArray<{ center: { coordinates: Coordinates }, count: number }>
+}
+
+function toFeatureCollection({ marks, clusters }: HeatPoints): GeoJSON.FeatureCollection<GeoJSON.Point, { weight: number }> {
+  const point = (coordinates: Coordinates, weight: number): GeoJSON.Feature<GeoJSON.Point, { weight: number }> => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [coordinates[0], coordinates[1]] },
+    properties: { weight },
+  })
+  return {
+    type: 'FeatureCollection',
+    features: [
+      ...clusters.map(c => point(c.center.coordinates, c.count)),
+      ...marks.map(m => point(m.geom.coordinates, 1)),
+    ],
+  }
+}
+
+/** Тепловая карта активности по меткам и кластерам сервера — вместо кружков-кластеров. */
+export function useMarksHeatmap(
+  map: ShallowRef<Map | null> | undefined,
+  points: () => HeatPoints,
+  enabled: () => boolean,
+) {
+  function remove(instance: Map) {
+    if (instance.getLayer(LAYER_ID))
+      instance.removeLayer(LAYER_ID)
+    if (instance.getSource(SOURCE_ID))
+      instance.removeSource(SOURCE_ID)
+  }
+
+  let waitingForIdle = false
+
+  function sync() {
+    const instance = map?.value
+    if (!instance)
+      return
+    // isStyleLoaded() ложно и пока грузятся тайлы — дожидаемся idle, а не теряем вызов
+    if (!instance.isStyleLoaded()) {
+      if (!waitingForIdle) {
+        waitingForIdle = true
+        instance.once('idle', () => {
+          waitingForIdle = false
+          sync()
+        })
+      }
+      return
+    }
+    if (!enabled()) {
+      remove(instance)
+      return
+    }
+
+    const data = toFeatureCollection(points())
+    const source = instance.getSource(SOURCE_ID) as GeoJSONSource | undefined
+    if (source)
+      source.setData(data)
+    else
+      instance.addSource(SOURCE_ID, { type: 'geojson', data })
+
+    if (!instance.getLayer(LAYER_ID)) {
+      // Под подписями, чтобы названия улиц оставались читаемыми
+      const beforeId = instance.getStyle().layers.find(layer => layer.type === 'symbol')?.id
+      instance.addLayer(HEATMAP_LAYER, beforeId)
+    }
+  }
+
+  watch([() => map?.value, enabled, points], sync, { immediate: true })
+
+  // setStyle при смене темы удаляет добавленные слои и источники
+  watch(() => map?.value, (instance, previous) => {
+    previous?.off('style.load', sync)
+    instance?.on('style.load', sync)
+  }, { immediate: true })
+
+  onUnmounted(() => {
+    const instance = map?.value
+    if (!instance)
+      return
+    instance.off('style.load', sync)
+    remove(instance)
+  })
+}
