@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.59
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.58...v0.1.59)
+
+### 🔥 Производительность
+
+- **profile:** Прогрев данных профиля в фоне ([ac17266](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ac17266))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.58
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.57...v0.1.58)
