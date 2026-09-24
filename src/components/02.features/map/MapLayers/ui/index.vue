@@ -5,6 +5,7 @@ const settings = useSettingsStore()
 const {
   showPublicMarks,
   showPersonalMarks,
+  showHeatmap,
 } = storeToRefs(settings)
 </script>
 
@@ -41,6 +42,18 @@ const {
           <span class="me-row__hint">Только ваши</span>
         </div>
         <u-switch v-model="showPersonalMarks" />
+      </div>
+
+      <div class="me-row">
+        <span class="me-row__icon"><u-icon
+          icon="app:flame-loop"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">Тепловая карта</span>
+          <span class="me-row__hint">Где больше всего активности — вместо кружков-кластеров</span>
+        </div>
+        <u-switch v-model="showHeatmap" />
       </div>
     </div>
   </div>

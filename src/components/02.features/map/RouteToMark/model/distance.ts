@@ -1,8 +1,4 @@
-export function formatDistance(meters: number): string {
-  if (meters < 1000)
-    return `${Math.round(meters)} м`
-  return `${(meters / 1000).toFixed(1)} км`
-}
+export { formatDistance } from '@/components/00.shared/lib/geo'
 
 export function formatDuration(seconds: number): string {
   const totalMinutes = Math.max(1, Math.round(seconds / 60))

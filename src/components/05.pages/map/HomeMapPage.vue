@@ -7,10 +7,10 @@ import { useNotificationStore } from '@/components/00.shared/stores/notification
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useMapCoach } from '@/components/02.features/app/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
-// import { Buildings3D } from '@/components/02.features/map/Buildings3D'
-import { GeolocationFeedback } from '@/components/02.features/map/Geolocation'
+import { Buildings3D } from '@/components/02.features/map/Buildings3D'
+import { GeolocationFeedback, HeadingCone, useCompass } from '@/components/02.features/map/Geolocation'
 import { useGeolocation } from '@/components/02.features/map/Geolocation/model/useGeolocation'
-import MarksLayer from '@/components/02.features/map/GetMarks/ui/MarksLayer.vue'
+import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
 import { LandmarksLayer } from '@/components/02.features/map/LandmarksLayer'
 import { BaseMapView } from '@/components/02.features/map/MapCore'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
@@ -38,9 +38,10 @@ const routeStore = useRouteStore()
 const shareStore = useShareStore()
 const notify = useNotificationStore()
 const settingsStore = useSettingsStore()
+const { heading } = useCompass()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle, showPublicMarks, showPersonalMarks } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -215,8 +216,13 @@ watch(userPosition, (pos) => {
         @update:cluster-count="handleClusterCount"
       />
       <personal-marks-layer v-if="showPersonalMarks" />
-      <!-- <buildings3-d /> -->
+      <buildings3-d v-if="showBuildings3D" />
       <landmarks-layer />
+      <heading-cone
+        v-if="userPosition && heading !== null"
+        :coordinates="userPosition"
+        :heading="heading"
+      />
       <u-marker
         v-if="userPosition"
         :coordinates="userPosition"
@@ -226,6 +232,10 @@ watch(userPosition, (pos) => {
       />
     </base-map-view>
     <search-users v-if="mapInitialCenter" />
+    <nearby-marks
+      v-if="showPublicMarks"
+      :user-coordinates="userPosition"
+    />
     <route-banner v-if="routeStore.hasRoute" />
     <map-controls
       :map-api="mapApi"

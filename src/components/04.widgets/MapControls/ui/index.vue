@@ -4,9 +4,12 @@ import type { MapPoint } from '@/types/shared/map'
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { useCompass } from '@/components/02.features/map/Geolocation'
 import { openMapEditor } from '@/components/02.features/map/MapEditor'
 import { openMapLayers } from '@/components/02.features/map/MapLayers'
 import AppSettings from '@/components/04.widgets/Settings'
+import { useFollowUser } from '../model/useFollowUser'
+import { useMapBearing } from '../model/useMapBearing'
 
 const { mapApi, userPosition, zoom } = defineProps<{
   mapApi: Map | null
@@ -25,11 +28,21 @@ function zoomOut() {
   mapApi?.zoomOut()
 }
 
-function locate() {
-  if (mapApi && userPosition) {
-    mapApi.flyTo({ center: userPosition, zoom: 15, essential: true })
-  }
+const { following, toggle: toggleFollow } = useFollowUser(() => mapApi, () => userPosition)
+const compass = useCompass()
+
+// Компас нужен только в режиме следования — датчик не держим включённым зря
+function onFollowClick() {
+  toggleFollow()
+  if (following.value)
+    compass.start()
 }
+watch(following, (value) => {
+  if (!value)
+    compass.stop()
+})
+onUnmounted(compass.stop)
+const { bearing, isRotated, isTilted, resetNorth, togglePitch } = useMapBearing(() => mapApi)
 
 function openSettings() {
   open(AppSettings, {}, {
@@ -76,15 +89,47 @@ function openSettings() {
     </div>
 
     <button
-      v-if="showMapLocate && userPosition"
+      class="map-controls__group map-controls__btn"
+      :class="{ 'map-controls__btn--active': isTilted }"
+      type="button"
+      :aria-label="isTilted ? 'Вид сверху' : 'Вид со стороны'"
+      :aria-pressed="isTilted"
+      @click="togglePitch"
+    >
+      <span class="map-controls__pitch">{{ isTilted ? '2D' : '3D' }}</span>
+    </button>
+
+    <button
+      v-if="isRotated"
       class="map-controls__group map-controls__btn"
       type="button"
-      aria-label="Моё местоположение"
-      @click="locate"
+      aria-label="Повернуть карту на север"
+      @click="resetNorth"
+    >
+      <span
+        class="map-controls__compass"
+        :style="{ transform: `rotate(${-bearing}deg)` }"
+      >
+        <u-icon
+          icon="app:compass-loop"
+          :loop="false"
+          width="20"
+        />
+      </span>
+    </button>
+
+    <button
+      v-if="showMapLocate && userPosition"
+      class="map-controls__group map-controls__btn"
+      :class="{ 'map-controls__btn--active': following }"
+      type="button"
+      :aria-label="following ? 'Перестать следовать за мной' : 'Следовать за мной'"
+      :aria-pressed="following"
+      @click="onFollowClick"
     >
       <u-icon
         icon="app:locate-loop"
-        :loop="false"
+        :loop="following"
         width="18"
       />
     </button>
@@ -141,7 +186,7 @@ function openSettings() {
 .map-controls {
   position: absolute;
   right: 14px;
-  bottom: calc(200px + var(--safe-bottom));
+  bottom: calc(300px + var(--safe-bottom));
   z-index: 5;
   display: flex;
   flex-direction: column;
@@ -173,6 +218,22 @@ function openSettings() {
     &:active {
       transform: scale(0.9);
     }
+
+    &--active {
+      color: var(--primary-color);
+    }
+  }
+
+  &__compass {
+    display: grid;
+    place-items: center;
+  }
+
+  &__pitch {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+    font-variant-numeric: tabular-nums;
   }
 
   &__divider {

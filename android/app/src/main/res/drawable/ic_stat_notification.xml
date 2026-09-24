@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Монохромная иконка уведомлений: Android рисует её по альфа-каналу, цвета игнорируются.
+     Щит залит, пин вырезан, точка внутри пина снова залита (evenOdd). Геометрия — из public/favicon.svg. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
+    <group
+        android:translateX="20"
+        android:translateY="10">
+        <path
+            android:fillColor="#FFFFFFFF"
+            android:fillType="evenOdd"
+            android:pathData="M100,8 C130,8 150,14 176,22 C186,25 190,32 190,44 L190,118 C190,168 152,198 100,214 C48,198 10,168 10,118 L10,44 C10,32 14,25 24,22 C50,14 70,8 100,8 Z M100,44 C126,44 146,64 146,90 C146,118 118,142 100,178 C82,142 54,118 54,90 C54,64 74,44 100,44 Z M82,90 A18,18 0 1,0 118,90 A18,18 0 1,0 82,90 Z" />
+    </group>
+</vector>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { initUpdateChecker } from '@/components/02.features/app/AppUpdate'
 import { initBugReport } from '@/components/02.features/app/BugReport'
@@ -37,7 +38,8 @@ const { banInfo } = storeToRefs(authStore)
 const { splashStyle } = storeToRefs(useSettingsStore())
 
 const appReady = ref(false)
-const splashVisible = ref(splashStyle.value !== 'off')
+const splashVisible = isSplashVisible
+splashVisible.value = splashStyle.value !== 'off'
 const splashAnim = computed(() =>
   splashStyle.value === 'off' ? 'shield' : splashStyle.value,
 )

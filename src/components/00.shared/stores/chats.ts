@@ -19,6 +19,20 @@ export const useChatsStore = defineStore('chats', () => {
 
   const router = useRouter()
 
+  function reset() {
+    chats.value = []
+    error.value = null
+    onlineUserIds.value = new Set()
+    lastSeenAt.value = new Map()
+    activeChatId.value = null
+  }
+
+  // Смена аккаунта: чаты прошлого пользователя не должны остаться в памяти
+  watch(() => useAuthStore().token, (token) => {
+    if (!token)
+      reset()
+  })
+
   const isPeerOnline = (userId?: number) =>
     userId != null && onlineUserIds.value.has(userId)
 

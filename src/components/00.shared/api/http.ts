@@ -27,7 +27,7 @@ api.interceptors.response.use(
           import('@/components/00.shared/stores/auth'),
           import('@/components/00.shared/lib/router'),
         ])
-        useAuthStore().removeToken()
+        await useAuthStore().clearSession()
         if (router.currentRoute.value.name !== 'login')
           await router.push('/login')
       }

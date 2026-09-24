@@ -10,14 +10,16 @@ async function registerDeviceOnBackend(token: string, platform: 'web' | 'android
     const deviceId = localStorage.getItem('device_id') || crypto.randomUUID()
     localStorage.setItem('device_id', deviceId)
 
-    notificationApi.postToken({
+    await notificationApi.postToken({
       token,
       deviceId,
       platform,
     })
   }
   catch (e) {
-    console.error('Ошибка отправки токена на бэкенд:', e)
+    // Без регистрации токена пуши не придут, но приложение работает — это не повод для баг-репорта
+    const status = (e as { status?: number })?.status
+    console.warn('Не удалось зарегистрировать push-токен на бэкенде', status ?? e)
   }
 }
 

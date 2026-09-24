@@ -51,6 +51,8 @@ onMounted(() => {
     attributionControl: false,
     transformRequest: buildTransformRequest(),
     canvasContextAttributes: { antialias: true },
+    // На экранах 3× разница с 2× почти не видна, а пикселей для GPU в 2,25 раза больше
+    pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
     fadeDuration: 0,
     refreshExpiredTiles: false,
     trackResize: false,
@@ -77,14 +79,19 @@ onMounted(() => {
     mapInstance.setMinZoom(3)
   })
 
-  mapInstance.on('load', () => {
-    emit('mapReady', mapInstance)
-  })
-
-  mapInstance.on('moveend', () => {
+  const emitBounds = () => {
     const bounds = mapInstance.getBounds().toArray() as [[number, number], [number, number]]
     emit('update:bounds', bounds)
+  }
+
+  mapInstance.on('load', () => {
+    emit('mapReady', mapInstance)
+    // Если карта ещё ни разу не двигалась (позиция пришла до загрузки), moveend не будет —
+    // без начальных границ слой меток не узнает, что загружать
+    emitBounds()
   })
+
+  mapInstance.on('moveend', emitBounds)
   offDoubleTap = onDoubleTap(mapInstance, (e) => {
     emit('dblClickMarker', [e.lngLat.lng, e.lngLat.lat])
   })

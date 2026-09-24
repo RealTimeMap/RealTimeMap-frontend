@@ -5,6 +5,7 @@ import type { PositionWatcher } from './watchPosition'
 import type { Mark } from '@/components/00.shared/services/mark/index.type'
 import type { MapPoint } from '@/types/shared/map'
 import { defineStore } from 'pinia'
+import { distanceMeters } from '@/components/00.shared/lib/geo'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 import { useShareStore } from '@/components/02.features/mark/Share/model'
 import { formatDistance, formatDuration } from './distance'
@@ -15,19 +16,6 @@ import { watchPosition } from './watchPosition'
 
 const REBUILD_MIN_METERS = 25
 const ARRIVAL_METERS = 20
-
-function distanceMeters(a: MapPoint, b: MapPoint): number {
-  const R = 6371000
-  const toRad = (d: number) => (d * Math.PI) / 180
-  const dLat = toRad(b[1] - a[1])
-  const dLng = toRad(b[0] - a[0])
-  const lat1 = toRad(a[1])
-  const lat2 = toRad(b[1])
-  const h
-    = Math.sin(dLat / 2) ** 2
-      + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2
-  return 2 * R * Math.asin(Math.sqrt(h))
-}
 
 const PROFILE_LABELS: Record<RouteProfile, string> = {
   'foot-walking': 'пешком',

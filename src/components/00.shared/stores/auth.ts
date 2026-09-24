@@ -7,6 +7,7 @@ import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
 import router from '@/components/00.shared/lib/router'
 import { authApi } from '@/components/00.shared/services/auth'
 import { userApi } from '@/components/00.shared/services/user'
+import { useDialogStore } from '@/components/00.shared/stores/dialog'
 
 const USER_CACHE_KEY = 'map_cached_user'
 
@@ -74,6 +75,18 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Google Auth Error:', error)
     }
   }
+  /** Локальный сброс сессии: при выходе и когда сервер отозвал токен (401), например с другого устройства. */
+  const clearSession = async () => {
+    removeToken()
+    user.value = null
+    banInfo.value = null
+    useDialogStore().destroy()
+    await Promise.allSettled([
+      Preferences.remove({ key: USER_CACHE_KEY }),
+      clearApiCache(),
+    ])
+  }
+
   const logout = async () => {
     try {
       await authApi.logout()
@@ -83,11 +96,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.error('Logout request failed', error)
     }
     finally {
-      await setUser(null)
-      removeToken()
-      banInfo.value = null
-      await Preferences.remove({ key: USER_CACHE_KEY })
-      await clearApiCache()
+      await clearSession()
     }
   }
 
@@ -173,6 +182,7 @@ export const useAuthStore = defineStore('auth', () => {
     registration,
     fetchUser,
     logout,
+    clearSession,
     initAuth,
   }
 })
