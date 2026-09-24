@@ -1,6 +1,37 @@
 # Changelog
 
 
+## v0.1.60
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.59...v0.1.60)
+
+### 🚀 Функциональность
+
+- **api:** Офлайн-кэш GET-ответов в IndexedDB ([3d25eb7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3d25eb7))
+- **offline:** Кэш картинок — service worker в вебе, Filesystem на нативе ([c9473e9](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c9473e9))
+
+### 🔥 Производительность
+
+- **map:** Без пересоздания WebGL-буфера при возврате на карту, ленивая загрузка three.js ([9eff419](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/9eff419))
+- **ui:** Бесконечные анимации иконок только у активного пункта навигации ([b8aacf3](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b8aacf3))
+
+### 🩹 Исправления
+
+- **core:** Карта следует системной теме, без ложного тоста об ошибке, очистка 3D-слоя ([a0a7f39](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/a0a7f39))
+
+### 💅 Рефакторинг
+
+- **structure:** Группы слайсов в features, составные блоки в widgets, README для слоёв ([4eec001](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4eec001))
+- **shared:** Стор сессии и флаг онбординга в shared — shared не импортирует фичи ([7f35bc5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/7f35bc5))
+
+### ✅ Тесты
+
+- **e2e:** Playwright с моками API — навигация, профиль, офлайн, производительность, тема ([6af3035](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6af3035))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.59
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.58...v0.1.59)
