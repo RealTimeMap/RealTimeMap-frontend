@@ -22,4 +22,6 @@ export interface NotificationOptions {
 
 export interface RequestConfig extends AxiosRequestConfig {
   suppressErrorNotify?: NotificationOptions
+  /** false — не сохранять ответ GET-запроса для офлайна и не отдавать его из кэша */
+  offlineCache?: boolean
 }

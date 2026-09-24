@@ -2,6 +2,7 @@ import type { LoginPayload, RegistrationPayload } from '@/components/00.shared/s
 import type { User } from '@/components/00.shared/services/user/index.type'
 import { Preferences } from '@capacitor/preferences'
 import { defineStore } from 'pinia'
+import { clearApiCache } from '@/components/00.shared/api/cache'
 import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
 import router from '@/components/00.shared/lib/router'
 import { authApi } from '@/components/00.shared/services/auth'
@@ -86,6 +87,7 @@ export const useAuthStore = defineStore('auth', () => {
       removeToken()
       banInfo.value = null
       await Preferences.remove({ key: USER_CACHE_KEY })
+      await clearApiCache()
     }
   }
 

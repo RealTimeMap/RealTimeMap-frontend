@@ -1,5 +1,8 @@
 import type { AxiosError, Method } from 'axios'
 import type { ApiError, BackendErrorDetail, RequestConfig } from './api.types'
+import axios from 'axios'
+import { useIsOnline } from '@/components/00.shared/composables/useNetworkWatch'
+import { cacheKey, isCacheable, readCache, writeCache } from './cache'
 import { api } from './http'
 
 function isBackendError(data: any): data is BackendErrorDetail {
@@ -40,6 +43,15 @@ async function request<T>(
   config: RequestConfig = {},
   data?: any,
 ): Promise<T> {
+  const cacheable = method === 'GET' && isCacheable(url, config)
+  const key = cacheable ? cacheKey(url, config) : ''
+
+  if (cacheable && !useIsOnline().value) {
+    const cached = await readCache<T>(key)
+    if (cached !== undefined)
+      return cached
+  }
+
   try {
     const response = await api.request<T>({
       method,
@@ -47,11 +59,18 @@ async function request<T>(
       data,
       ...config,
     })
+    if (cacheable)
+      writeCache(key, response.data)
     return response.data
   }
   catch (error) {
-    const normalizedError = normalizeError(error as AxiosError)
-    throw normalizedError
+    const axiosError = error as AxiosError
+    if (cacheable && !axiosError.response && !axios.isCancel(error)) {
+      const cached = await readCache<T>(key)
+      if (cached !== undefined)
+        return cached
+    }
+    throw normalizeError(axiosError)
   }
 }
 
