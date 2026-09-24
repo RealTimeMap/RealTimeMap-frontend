@@ -1,6 +1,28 @@
 # Changelog
 
 
+## v0.1.61
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.60...v0.1.61)
+
+### 🚀 Функциональность
+
+- **map:** Кнопка «на север», режим следования, тепловая карта, pixelRatio ≤ 2 ([3e51fb1](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3e51fb1))
+- **map:** 3D-здания в редакторе карты — волна появления через feature-state без перезагрузки тайлов ([c7b4d11](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c7b4d11))
+- **map:** Кэш меток в IndexedDB с лимитом, цвета превью и тепловой карты по теме ([0ea8d49](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/0ea8d49))
+- **map:** Лента «Что рядом», листание меток в карточке, раскрытие наложенных меток веером и тд ([4371c60](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4371c60))
+- **map:** Тени зданий по солнцу для обеих тем, кнопка 2D/3D ([580747e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/580747e))
+
+### 🩹 Исправления
+
+- **android:** Монохромная иконка и цвет для пуш-уведомлений ([289756f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/289756f))
+- **auth:** Отзыв сессии с другого устройства полностью сбрасывает аккаунт ([d778e74](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d778e74))
+- **bug-report:** Без токенов в логах, ошибка регистрации пуш-токена не показывает тост ([1edd5c0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1edd5c0))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.60
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.59...v0.1.60)
