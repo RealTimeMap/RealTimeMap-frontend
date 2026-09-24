@@ -1,12 +1,13 @@
 import type { Cluster, Mark, MarksOrClusterResponse } from '@/components/00.shared/services/mark/index.type'
 import type { MarksRequestPayload } from '@/types/socketEvents'
 import { Network } from '@capacitor/network'
-import { Preferences } from '@capacitor/preferences'
 import { useWebSocket } from '@/components/00.shared/composables/useWebSocket'
+import { purgeLegacyMarksCache, readLastMarksArea, readMarksArea, writeMarksArea } from './marksCache'
 
 const MARKS_NAMESPACE = '/marks'
 
 export function useMarksSocket() {
+  void purgeLegacyMarksCache()
   const { on, emit, getSocketState } = useWebSocket()
 
   const marks = ref<Mark[]>([])
@@ -25,7 +26,10 @@ export function useMarksSocket() {
     return `map_cache_${ltLat}_${ltLon}_${rbLat}_${rbLon}_z${zoom}`
   }
 
+  let lastParams: MarksRequestPayload | null = null
+
   const fetchMarks = async (params: MarksRequestPayload) => {
+    lastParams = params
     const socketState = getSocketState(MARKS_NAMESPACE)
     const networkStatus = await Network.getStatus()
 
@@ -41,23 +45,14 @@ export function useMarksSocket() {
 
       isLoading.value = true
       try {
-        const { value } = await Preferences.get({ key: cacheKey })
-        if (value) {
-          const cachedData = JSON.parse(value)
+        const cachedData = await readMarksArea(cacheKey) ?? await readLastMarksArea()
+        if (cachedData) {
           marks.value = cachedData.marks || []
           clusters.value = cachedData.clusters || []
           error.value = null
         }
         else {
-          const { value: lastGlobal } = await Preferences.get({ key: 'map_last_visible_marks' })
-          if (lastGlobal) {
-            const globalData = JSON.parse(lastGlobal)
-            marks.value = globalData.marks || []
-            clusters.value = globalData.clusters || []
-          }
-          else {
-            error.value = 'Данные карты недоступны без интернета.'
-          }
+          error.value = 'Данные карты недоступны без интернета.'
         }
       }
       catch (e) {
@@ -83,23 +78,8 @@ export function useMarksSocket() {
         marks.value = []
       }
 
-      if (cacheKey) {
-        const dataToCache = { marks: marks.value, clusters: clusters.value }
-
-        try {
-          await Preferences.set({
-            key: cacheKey,
-            value: JSON.stringify(dataToCache),
-          })
-          await Preferences.set({
-            key: 'map_last_visible_marks',
-            value: JSON.stringify(dataToCache),
-          })
-        }
-        catch (e) {
-          console.error('[Cache Write Error]', e)
-        }
-      }
+      if (cacheKey)
+        writeMarksArea(cacheKey, { marks: toRaw(marks.value), clusters: toRaw(clusters.value) })
     })
   }
 
@@ -116,8 +96,19 @@ export function useMarksSocket() {
     on(MARKS_NAMESPACE, 'marksCreated', handleMarkCreated),
   ]
 
+  // Первый запрос мог уйти до подключения сокета и отработать как офлайн (из кэша).
+  // Границы с тех пор не менялись, поэтому MarksLayer сам не повторит — повторяем при подключении
+  const stopReconnectWatch = watch(
+    () => getSocketState(MARKS_NAMESPACE)?.isConnected,
+    (connected, wasConnected) => {
+      if (connected && !wasConnected && lastParams)
+        void fetchMarks(lastParams)
+    },
+  )
+
   onUnmounted(() => {
     unsubscribes.forEach(fn => fn())
+    stopReconnectWatch()
   })
 
   return {

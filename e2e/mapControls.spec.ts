@@ -47,3 +47,19 @@ test('режим следования держит пользователя в �
 
   await expect(page.getByRole('button', { name: 'Следовать за мной' })).toHaveAttribute('aria-pressed', 'false')
 })
+
+test('3D-здания включаются и выключаются в редакторе карты без ошибок', async ({ page }) => {
+  await openApp(page)
+  await expect(page.locator('.maplibregl-canvas')).toBeVisible()
+  await page.waitForTimeout(2000)
+
+  await page.getByRole('button', { name: 'Редактор карты' }).click()
+  const row = page.locator('.me-row', { hasText: '3D-здания' })
+  await expect(row).toBeVisible()
+
+  const toggle = row.locator('input, [role="switch"], .u-switch').first()
+  await toggle.click()
+  await page.waitForTimeout(2000)
+  await toggle.click()
+  await page.waitForTimeout(500)
+})

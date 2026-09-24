@@ -13,6 +13,7 @@ const {
   showMapLocate,
   showMapSettings,
   showMapZoomLevel,
+  showBuildings3D,
 } = storeToRefs(settings)
 const { close } = useDialogStore()
 </script>
@@ -130,6 +131,24 @@ const { close } = useDialogStore()
         <u-switch v-model="showMapZoomLevel" />
       </div>
     </div>
+
+    <p class="map-editor__hint map-editor__hint--section">
+      Вид карты
+    </p>
+
+    <div class="map-editor__rows">
+      <div class="me-row">
+        <span class="me-row__icon"><u-icon
+          icon="app:city"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">3D-здания</span>
+          <span class="me-row__hint">Объёмные дома на крупном масштабе — лучше видно с наклоном</span>
+        </div>
+        <u-switch v-model="showBuildings3D" />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -160,6 +179,10 @@ const { close } = useDialogStore()
   &__hint {
     @include label-text(13px, none);
     margin: -8px 0 0;
+
+    &--section {
+      margin: 4px 0 -8px;
+    }
   }
 
   &__preview {

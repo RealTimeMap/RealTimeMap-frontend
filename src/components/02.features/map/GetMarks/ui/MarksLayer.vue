@@ -11,6 +11,7 @@ import { useRouteStore } from '@/components/02.features/map/RouteToMark'
 import MarkDetailsSheet from '@/components/02.features/mark/MarkDetailSheet'
 import { useMarksHeatmap } from '../model/useMarksHeatmap'
 import { useMarksSocket } from '../model/useMarksSocket'
+import MarkPreview from './MarkPreview.vue'
 
 const props = defineProps<{
   userCoordinates: MapPoint
@@ -161,6 +162,53 @@ function handleClusterClick(coordinates: MapPoint) {
   })
 }
 
+// --- Быстрый просмотр ---
+// Первое нажатие показывает карточку над меткой, второе (или нажатие на карточку) — полную шторку
+const previewMark = shallowRef<Mark | null>(null)
+let lastMarkTapAt = 0
+
+function closePreview() {
+  previewMark.value = null
+}
+
+function handleMarkTap(markId: number) {
+  lastMarkTapAt = performance.now()
+  if (previewMark.value?.id === markId) {
+    closePreview()
+    handleMarkClick(markId)
+    return
+  }
+  previewMark.value = displayMarks.value.find(m => m.id === markId) ?? null
+}
+
+function openPreviewed() {
+  const mark = previewMark.value
+  closePreview()
+  if (mark)
+    handleMarkClick(mark.id)
+}
+
+// Нажатие по пустой карте закрывает карточку; клик по DOM-метке тоже доходит до карты — отсекаем его
+function onMapClick() {
+  if (performance.now() - lastMarkTapAt > 300)
+    closePreview()
+}
+
+watch(() => map?.value, (instance, previous) => {
+  previous?.off('click', onMapClick)
+  instance?.on('click', onMapClick)
+}, { immediate: true })
+
+onUnmounted(() => map?.value?.off('click', onMapClick))
+
+// Метка ушла с экрана (например, стала кластером при отдалении)
+watch(displayMarks, (list) => {
+  if (previewMark.value && !list.some(m => m.id === previewMark.value!.id))
+    closePreview()
+})
+
+onDeactivated(closePreview)
+
 function handleMarkClick(markId: number) {
   router.replace({
     query: {
@@ -194,7 +242,16 @@ onMounted(() => {
       v-memo="[mark.geom.coordinates, mark.photos?.[0]]"
       :coordinates="mark.geom.coordinates as MapPoint"
       :media="mark.photos ? mark.photos[0] : null"
-      @click="handleMarkClick(mark.id)"
+      @click="handleMarkTap(mark.id)"
+    />
+
+    <mark-preview
+      v-if="previewMark && map"
+      :key="previewMark.id"
+      :map="map"
+      :mark="previewMark"
+      :user-coordinates="userCoordinates"
+      @open="openPreviewed"
     />
 
     <u-cluster

@@ -79,14 +79,19 @@ onMounted(() => {
     mapInstance.setMinZoom(3)
   })
 
-  mapInstance.on('load', () => {
-    emit('mapReady', mapInstance)
-  })
-
-  mapInstance.on('moveend', () => {
+  const emitBounds = () => {
     const bounds = mapInstance.getBounds().toArray() as [[number, number], [number, number]]
     emit('update:bounds', bounds)
+  }
+
+  mapInstance.on('load', () => {
+    emit('mapReady', mapInstance)
+    // Если карта ещё ни разу не двигалась (позиция пришла до загрузки), moveend не будет —
+    // без начальных границ слой меток не узнает, что загружать
+    emitBounds()
   })
+
+  mapInstance.on('moveend', emitBounds)
   offDoubleTap = onDoubleTap(mapInstance, (e) => {
     emit('dblClickMarker', [e.lngLat.lng, e.lngLat.lat])
   })

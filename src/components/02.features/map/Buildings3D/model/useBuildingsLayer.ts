@@ -1,20 +1,20 @@
 import type {
   ExpressionSpecification,
   FillExtrusionLayerSpecification,
+  LayerSpecification,
+  LightSpecification,
 } from 'maplibre-gl'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 
 export const BUILDINGS_LAYER_ID = '3d-buildings'
 
 /** Векторный источник и слой зданий в стилях CARTO (carto.streets). */
-const SOURCE_ID = 'carto'
-const SOURCE_LAYER = 'building'
+export const SOURCE_ID = 'carto'
+export const SOURCE_LAYER = 'building'
 
-/** Здания появляются только на городских зумах. */
+/** Здания появляются только на городских зумах и дорастают до полной высоты к FULL_ZOOM. */
 const MIN_ZOOM = 13
-
-/** Целевая прозрачность (используется и для анимации появления). */
-export const BUILDINGS_OPACITY = 0.85
+const FULL_ZOOM = 15.5
 
 // Высота/база берутся из атрибутов тайла, если они есть, иначе — типовое значение.
 const RAW_HEIGHT: ExpressionSpecification = [
@@ -26,18 +26,7 @@ const RAW_HEIGHT: ExpressionSpecification = [
   12,
 ]
 
-/** Высота с плавным «прорастанием» по зуму. */
-export const BUILDINGS_HEIGHT: ExpressionSpecification = [
-  'interpolate',
-  ['linear'],
-  ['zoom'],
-  MIN_ZOOM,
-  0,
-  15.5,
-  RAW_HEIGHT,
-]
-
-const BASE: ExpressionSpecification = [
+const RAW_BASE: ExpressionSpecification = [
   'case',
   ['has', 'render_min_height'],
   ['get', 'render_min_height'],
@@ -46,15 +35,71 @@ const BASE: ExpressionSpecification = [
   0,
 ]
 
-const COLORS: Record<ThemeBase, string> = {
-  dark: '#2c313a',
-  light: '#dfe3ea',
+/**
+ * Доля высоты для анимации появления. Живёт в feature-state, а не в выражении:
+ * смена data-driven выражения через setPaintProperty перезагружает тайлы всего источника,
+ * а feature-state обновляет значения прямо в буферах. Без состояния — полная высота.
+ */
+const RISE: ExpressionSpecification = ['coalesce', ['feature-state', 'rise'], 1]
+
+/** Zoom-выражение допустимо только на верхнем уровне, поэтому rise умножается внутри interpolate. */
+function byZoom(value: ExpressionSpecification): ExpressionSpecification {
+  return ['interpolate', ['linear'], ['zoom'], MIN_ZOOM, 0, FULL_ZOOM, ['*', value, RISE]]
+}
+
+/** База растёт вместе с высотой — иначе посреди анимации она оказалась бы выше крыши. */
+const HEIGHT = byZoom(RAW_HEIGHT)
+const BASE = byZoom(RAW_BASE)
+
+/** Цвет по высоте: объём читается без прозрачности. */
+const COLORS: Record<ThemeBase, [low: string, high: string]> = {
+  dark: ['#2b2f36', '#3b414b'],
+  light: ['#ecebe7', '#dddbd5'],
 }
 
 /**
- * Слой 3D-зданий. Ставится ПОД слой достопримечательностей, а сами модели
- * достопримечательностей рендерятся с очисткой depth-буфера — поэтому здания
- * их никогда не перекрывают.
+ * Мягкий свет: при стандартной интенсивности 0.5 теневые стороны почти чёрные.
+ * Свет почти сверху и слабый — грани отличаются, но без резкого контраста.
+ */
+export const SOFT_LIGHT: LightSpecification = {
+  anchor: 'viewport',
+  color: '#ffffff',
+  intensity: 0.22,
+  position: [1.15, 200, 25],
+}
+
+/** Значения MapLibre по умолчанию — возвращаем их, когда здания выключают. */
+export const DEFAULT_LIGHT: LightSpecification = {
+  anchor: 'viewport',
+  color: '#ffffff',
+  intensity: 0.5,
+  position: [1.15, 210, 30],
+}
+
+const OWN_LAYER_TYPES = new Set(['symbol', 'custom', 'heatmap'])
+
+/**
+ * Куда вставить здания: сразу после последнего слоя с геометрией стиля (дороги, мосты, заливки),
+ * чтобы дороги не рисовались поверх крыш, но подписи остались выше.
+ * В Positron часть подписей идёт раньше дорог, поэтому «перед первой подписью» не подходит.
+ */
+export function buildingsBeforeId(layers: LayerSpecification[]): string | undefined {
+  let lastGeometry = -1
+  layers.forEach((layer, index) => {
+    if (layer.id !== BUILDINGS_LAYER_ID && !OWN_LAYER_TYPES.has(layer.type))
+      lastGeometry = index
+  })
+  return layers.slice(lastGeometry + 1).find(layer => layer.id !== BUILDINGS_LAYER_ID)?.id
+}
+
+export function buildingsColor(base: ThemeBase): ExpressionSpecification {
+  const [low, high] = COLORS[base]
+  return ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
+}
+
+/**
+ * Слой 3D-зданий. Непрозрачный: fill-extrusion-opacity < 1 применяется ко всему слою,
+ * и сквозь здания становятся видны задние грани и соседние дома.
  */
 export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecification {
   return {
@@ -64,10 +109,11 @@ export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecifi
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
     'paint': {
-      'fill-extrusion-color': COLORS[base],
-      'fill-extrusion-height': BUILDINGS_HEIGHT,
+      'fill-extrusion-color': buildingsColor(base),
+      'fill-extrusion-height': HEIGHT,
       'fill-extrusion-base': BASE,
-      'fill-extrusion-opacity': BUILDINGS_OPACITY,
+      'fill-extrusion-opacity': 1,
+      'fill-extrusion-vertical-gradient': true,
     },
   }
 }

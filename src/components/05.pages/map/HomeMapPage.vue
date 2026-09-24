@@ -7,7 +7,7 @@ import { useNotificationStore } from '@/components/00.shared/stores/notification
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useMapCoach } from '@/components/02.features/app/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
-// import { Buildings3D } from '@/components/02.features/map/Buildings3D'
+import { Buildings3D } from '@/components/02.features/map/Buildings3D'
 import { GeolocationFeedback } from '@/components/02.features/map/Geolocation'
 import { useGeolocation } from '@/components/02.features/map/Geolocation/model/useGeolocation'
 import MarksLayer from '@/components/02.features/map/GetMarks/ui/MarksLayer.vue'
@@ -40,7 +40,7 @@ const notify = useNotificationStore()
 const settingsStore = useSettingsStore()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle, showPublicMarks, showPersonalMarks } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -215,7 +215,7 @@ watch(userPosition, (pos) => {
         @update:cluster-count="handleClusterCount"
       />
       <personal-marks-layer v-if="showPersonalMarks" />
-      <!-- <buildings3-d /> -->
+      <buildings3-d v-if="showBuildings3D" />
       <landmarks-layer />
       <u-marker
         v-if="userPosition"

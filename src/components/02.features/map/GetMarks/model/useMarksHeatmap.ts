@@ -98,26 +98,50 @@ export function useMarksHeatmap(
     else
       instance.addSource(SOURCE_ID, { type: 'geojson', data })
 
+    ensureLayer(instance)
+  }
+
+  // Под подписями, чтобы названия улиц оставались читаемыми.
+  // Двигаем только при неверном порядке: moveLayer сам вызывает styledata
+  function ensureLayer(instance: Map) {
+    if (!enabled() || !instance.isStyleLoaded() || !instance.getSource(SOURCE_ID))
+      return
+    const layers = instance.getStyle().layers
+    const firstSymbol = layers.find(layer => layer.type === 'symbol')?.id
     if (!instance.getLayer(LAYER_ID)) {
-      // Под подписями, чтобы названия улиц оставались читаемыми
-      const beforeId = instance.getStyle().layers.find(layer => layer.type === 'symbol')?.id
-      instance.addLayer(HEATMAP_LAYER, beforeId)
+      instance.addLayer(HEATMAP_LAYER, firstSymbol)
+      return
     }
+    const own = layers.findIndex(layer => layer.id === LAYER_ID)
+    const target = firstSymbol ? layers.findIndex(layer => layer.id === firstSymbol) : layers.length
+    if (own > target)
+      instance.moveLayer(LAYER_ID, firstSymbol)
+  }
+
+  function onStyleData() {
+    const instance = map?.value
+    if (!instance || !enabled())
+      return
+    // После полной замены стиля источника нет — пересоздаём вместе с данными
+    if (!instance.getSource(SOURCE_ID))
+      sync()
+    else
+      ensureLayer(instance)
   }
 
   watch([() => map?.value, enabled, points], sync, { immediate: true })
 
-  // setStyle при смене темы удаляет добавленные слои и источники
+  // Смена темы (setStyle с diff) даёт только styledata, style.load не приходит
   watch(() => map?.value, (instance, previous) => {
-    previous?.off('style.load', sync)
-    instance?.on('style.load', sync)
+    previous?.off('styledata', onStyleData)
+    instance?.on('styledata', onStyleData)
   }, { immediate: true })
 
   onUnmounted(() => {
     const instance = map?.value
     if (!instance)
       return
-    instance.off('style.load', sync)
+    instance.off('styledata', onStyleData)
     remove(instance)
   })
 }
