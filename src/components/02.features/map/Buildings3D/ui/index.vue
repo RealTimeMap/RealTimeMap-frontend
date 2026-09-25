@@ -13,6 +13,7 @@ import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { sunStrength, useWeatherStore } from '@/components/02.features/map/Weather'
 import {
+  BUILDING_FILTER,
   BUILDINGS_LAYER_ID,
   buildingsBeforeId,
   buildingsColor,
@@ -251,9 +252,10 @@ function updateShadows(instance: maplibregl.Map) {
   if (key === shadowsKey)
     return
   shadowsKey = key
-  // Низкие дома отсеиваем по свойству, не трогая геометрию: так в воркер уходит в разы меньше данных
-  const features = instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER })
-    .filter(feature => !feature.properties.hide_3d && Number(feature.properties.render_height ?? feature.properties.height ?? 12) >= SHADOW_MIN_HEIGHT)
+  // Низкие дома отсеиваем по свойству, не трогая геометрию: так в воркер уходит в разы меньше данных.
+  // Фильтр слоя — чтобы у зданий, убранных из-под достопримечательностей, не осталось теней
+  const features = instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER, filter: BUILDING_FILTER })
+    .filter(feature => Number(feature.properties.render_height ?? feature.properties.height ?? 12) >= SHADOW_MIN_HEIGHT)
   shadowWorker.request({ features: plainFeatures(features), sun: position, lat, area: shadowArea(instance) }, (shadows) => {
     if (!disposed)
       source.setData(shadows)
