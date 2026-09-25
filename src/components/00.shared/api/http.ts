@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
@@ -6,6 +7,11 @@ export const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
+    if (!config.headers.Authorization) {
+      const token = getAuthToken()
+      if (token)
+        config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {
@@ -21,7 +27,11 @@ api.interceptors.response.use(
     const status = error?.response?.status
     const url: string = error?.config?.url ?? ''
 
-    if (status === 401 && !AUTH_ENDPOINT_RE.test(url)) {
+    const sent = String(error?.config?.headers?.Authorization ?? '')
+    const current = getAuthToken()
+    const rejectedCurrent = !!current && sent === `Bearer ${current}`
+
+    if (status === 401 && rejectedCurrent && !AUTH_ENDPOINT_RE.test(url)) {
       try {
         const [{ useAuthStore }, { default: router }] = await Promise.all([
           import('@/components/00.shared/stores/auth'),

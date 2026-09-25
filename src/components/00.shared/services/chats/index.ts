@@ -1,11 +1,11 @@
 import type { Chat, DirectChat, HistoryResponse, Message } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 export const chatApi = {
   getAllChats: () =>
     apiService.get<Chat[]>(`/chats/`, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
 
@@ -14,7 +14,7 @@ export const chatApi = {
       peerId,
     }, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
 
@@ -24,7 +24,7 @@ export const chatApi = {
     apiService.get<HistoryResponse>(`/chats/${chatId}/history`, {
       params,
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
 
@@ -34,14 +34,14 @@ export const chatApi = {
   }) =>
     apiService.post<Message>(`/chats/${chatId}/messages`, payload, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
 
   postReadChat: (chatId: number) =>
     apiService.post<void>(`/chats/${chatId}/read`, {}, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
 }

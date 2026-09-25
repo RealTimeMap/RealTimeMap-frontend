@@ -3,7 +3,7 @@ import type { User } from '@/components/00.shared/services/user/index.type'
 import { Preferences } from '@capacitor/preferences'
 import { defineStore } from 'pinia'
 import { clearApiCache } from '@/components/00.shared/api/cache'
-import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken, removeAuthToken, setAuthToken } from '@/components/00.shared/lib/authToken'
 import router from '@/components/00.shared/lib/router'
 import { authApi } from '@/components/00.shared/services/auth'
 import { userApi } from '@/components/00.shared/services/user'
@@ -30,14 +30,14 @@ export const useAuthStore = defineStore('auth', () => {
   // --- STATE ---
   const user = ref<User | null>(null)
   const banInfo = ref<BanInfo | null>(null)
-  const token = ref<string | null>((typeof document !== 'undefined') ? getCookie('token') : null)
+  const token = ref<string | null>(getAuthToken())
 
   // --- GETTERS ---
   const isAuthenticated = computed(() => !!token.value)
 
   // --- ACTIONS ---
   const setToken = (newToken: string) => {
-    setCookie('token', newToken, 7)
+    setAuthToken(newToken)
     token.value = newToken
     api.defaults.headers.common.Authorization = `Bearer ${newToken}`
   }
@@ -46,12 +46,12 @@ export const useAuthStore = defineStore('auth', () => {
   const getToken = () => {
     if (token.value)
       return token.value
-    token.value = getCookie('token')
+    token.value = getAuthToken()
     return token.value
   }
 
   const removeToken = () => {
-    setCookie('token', '', -1)
+    removeAuthToken()
     token.value = null
     delete api.defaults.headers.common.Authorization
   }
@@ -143,7 +143,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   const initAuth = async () => {
-    const cookieToken = (typeof document !== 'undefined') ? getCookie('token') : null
+    const cookieToken = getAuthToken()
 
     if (cookieToken) {
       token.value = cookieToken

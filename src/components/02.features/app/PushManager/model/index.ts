@@ -94,38 +94,25 @@ async function initWebPush(store: ReturnType<typeof useNotificationStore>) {
 // без нажатия молча отказывают, Chrome прячет запрос в значок адресной строки. Поэтому сначала
 // своё ненавязчивое предложение, а системное окно — по кнопке в нём
 
-const OFFER_KEY = 'rtm_push_offer_at'
-/** Отказались или закрыли — не предлагаем снова неделю. */
-const OFFER_PAUSE_MS = 7 * 24 * 60 * 60_000
 /** После входа и заставки — не с порога. */
 const OFFER_DELAY_MS = 4000
 
-function offeredRecently(): boolean {
-  try {
-    return Date.now() - Number(localStorage.getItem(OFFER_KEY) ?? 0) < OFFER_PAUSE_MS
-  }
-  catch {
-    return false
-  }
-}
-
-function rememberOffer() {
-  try {
-    localStorage.setItem(OFFER_KEY, String(Date.now()))
-  }
-  catch {}
-}
+/**
+ * Предложение — раз за запуск, пока в браузере не выбрали «Разрешить» или «Блокировать».
+ * Закрыли приложение, не ответив, — при следующем запуске спросим снова.
+ */
+let offeredThisSession = false
 
 async function offerWebPush(store: ReturnType<typeof useNotificationStore>) {
-  if (offeredRecently())
+  if (offeredThisSession)
     return
   // iOS Safari без установки на экран «Домой» и режим инкогнито пуши не поддерживают — нечего предлагать
   if (!await getFirebaseMessaging())
     return
   setTimeout(() => {
-    if (Notification.permission !== 'default')
+    if (Notification.permission !== 'default' || offeredThisSession)
       return
-    rememberOffer()
+    offeredThisSession = true
     store.add({
       title: 'Включить уведомления?',
       description: 'Сообщения, комментарии и новые подписчики',

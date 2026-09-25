@@ -27,3 +27,15 @@ test('отзыв сессии сбрасывает аккаунт, а не то�
   await expect(page.locator('.maplibregl-canvas')).toBeVisible()
   await expect(avatarMarker).toHaveCount(0)
 })
+
+// В установленном PWA браузер может стереть cookie, записанную скриптом
+test('вход сохраняется, даже если браузер стёр cookie с токеном', async ({ page, context }) => {
+  await openApp(page)
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('rtm_auth_token'))).toBe('e2e-token')
+
+  await context.clearCookies()
+  await page.reload()
+
+  await expect(navItem(page, 'Чаты')).toBeVisible()
+  await expect(page).not.toHaveURL(/\/login/)
+})

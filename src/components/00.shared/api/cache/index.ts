@@ -1,5 +1,5 @@
 import type { RequestConfig } from '../api.types'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 import { createIdbStore } from '@/components/00.shared/lib/idbStore'
 
 const responses = createIdbStore({
@@ -18,7 +18,7 @@ const EXCLUDED = [
 ]
 
 function sessionScope(): string {
-  const token = getCookie('token') ?? ''
+  const token = getAuthToken() ?? ''
   let hash = 0x811C9DC5
   for (let i = 0; i < token.length; i++) {
     hash ^= token.charCodeAt(i)

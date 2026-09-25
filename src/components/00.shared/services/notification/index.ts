@@ -1,8 +1,8 @@
 import type { TokenPayload, TokenPayloadPatch, TokenResponsePatch } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 function authConfig() {
-  const token = getCookie('token')
+  const token = getAuthToken()
   return token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
 }
 

@@ -1,9 +1,9 @@
 import type { BugCreatePayload } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 export const bugApi = {
   create: (payload: BugCreatePayload) => {
-    const token = getCookie('token')
+    const token = getAuthToken()
     return apiService.post<Record<string, never>>(
       '/bug/create',
       payload,
