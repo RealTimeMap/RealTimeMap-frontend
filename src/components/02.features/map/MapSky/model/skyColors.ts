@@ -66,6 +66,8 @@ export function skyFor(base: ThemeBase, sun: SunPosition, overcast = 0): SkySpec
     'horizon-fog-blend': 1,
     // Дымка ложится на землю с середины пути до горизонта — даль уходит в туман постепенно
     'fog-ground-blend': 0.45,
-    'atmosphere-blend': 0,
+    // Атмосфера шара освещена настоящим солнцем: видна граница дня и ночи и свечение по краю.
+    // Шар в любой теме тёмный (см. BaseMapView), поэтому свечение работает и в светлой теме
+    'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 4, 0.8, 7, 0],
   }
 }

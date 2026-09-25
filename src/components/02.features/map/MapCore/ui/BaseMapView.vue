@@ -31,6 +31,12 @@ const MAX_PITCH = 70
 /** С этого зума и дальше карта только плоская; наклон растёт до полного к FULL_PITCH_ZOOM. */
 const FLAT_ZOOM = 9
 const FULL_PITCH_ZOOM = 12
+/**
+ * Светлый шар на тёмном космосе выглядел пятном: ниже GLOBE_ZOOM карта берёт тёмный стиль, выше
+ * GLOBE_EXIT_ZOOM — стиль темы. Зазор между порогами — чтобы не переключаться туда-обратно на границе.
+ */
+const GLOBE_ZOOM = 4.5
+const GLOBE_EXIT_ZOOM = 5
 
 const shareStore = useShareStore()
 interface MapEmits {
@@ -42,17 +48,18 @@ interface MapEmits {
 
 const mapContainer = ref<HTMLElement | null>(null)
 const map = shallowRef<maplibregl.Map | null>(null)
+const { resolvedTheme } = storeToRefs(useSettingsStore())
+const globeView = ref(props.zoomLevel < GLOBE_ZOOM)
+const styleBase = computed(() => globeView.value ? 'dark' : themeBase(resolvedTheme.value))
 let offDoubleTap: (() => void) | null = null
 let resizeObserver: ResizeObserver | null = null
-
-const { resolvedTheme } = storeToRefs(useSettingsStore())
 
 onMounted(() => {
   registerOfflineMapProtocol()
 
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
-    style: MAP_STYLES[themeBase(resolvedTheme.value)],
+    style: MAP_STYLES[styleBase.value],
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
     renderWorldCopies: false,
@@ -86,7 +93,7 @@ onMounted(() => {
     mapInstance.setProjection({
       type: 'globe',
     })
-    mapInstance.setMinZoom(3)
+    mapInstance.setMinZoom(2.5)
   })
 
   const emitBounds = () => {
@@ -96,13 +103,9 @@ onMounted(() => {
 
   mapInstance.on('load', () => {
     emit('mapReady', mapInstance)
-    // Если карта ещё ни разу не двигалась (позиция пришла до загрузки), moveend не будет —
-    // без начальных границ слой меток не узнает, что загружать
     emitBounds()
   })
 
-  // Вдали 3D не нужен, а дымка у горизонта и небо ломают вид целой страны:
-  // допустимый наклон уменьшается вместе с зумом, и карта плавно ложится в 2D
   const limitPitch = () => {
     const zoom = mapInstance.getZoom()
     const allowed = Math.round(MAX_PITCH * Math.min(1, Math.max(0, (zoom - FLAT_ZOOM) / (FULL_PITCH_ZOOM - FLAT_ZOOM))))
@@ -123,14 +126,30 @@ onMounted(() => {
   shareStore.registerMap(mapInstance)
 })
 
+function trackGlobe() {
+  const zoom = map.value?.getZoom()
+  if (zoom === undefined)
+    return
+  if (!globeView.value && zoom < GLOBE_ZOOM)
+    globeView.value = true
+  else if (globeView.value && zoom > GLOBE_EXIT_ZOOM)
+    globeView.value = false
+}
+
+watch(map, (instance, previous) => {
+  previous?.off('zoom', trackGlobe)
+  instance?.on('zoom', trackGlobe)
+})
+
 let styleTimer: ReturnType<typeof setTimeout> | null = null
-watch(resolvedTheme, (next) => {
+function applyStyle(delay: number) {
   if (styleTimer)
     clearTimeout(styleTimer)
-  styleTimer = setTimeout(() => {
-    map.value?.setStyle(MAP_STYLES[themeBase(next)])
-  }, 550)
-})
+  styleTimer = setTimeout(() => map.value?.setStyle(MAP_STYLES[styleBase.value]), delay)
+}
+
+watch(resolvedTheme, () => applyStyle(550))
+watch(globeView, () => applyStyle(0))
 
 onUnmounted(() => {
   if (styleTimer)

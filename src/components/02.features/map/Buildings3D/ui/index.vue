@@ -220,6 +220,19 @@ function addShadowLayer(instance: maplibregl.Map) {
 // Тени пересчитываются, когда карта остановилась и тайлы догрузились, — и только если что-то поменялось
 let shadowsKey = ''
 
+/** Радиус теней — в размерах экрана вокруг центра: при наклоне дальние тени меньше пикселя. */
+const SHADOW_RADIUS_SCREENS = 0.8
+
+function shadowArea(instance: maplibregl.Map) {
+  const { lng, lat } = instance.getCenter()
+  const canvas = instance.getCanvas()
+  const metersPerPixel = 40_075_016.686 * Math.cos(lat * Math.PI / 180) / (512 * 2 ** instance.getZoom())
+  const radius = Math.max(canvas.clientWidth, canvas.clientHeight) * SHADOW_RADIUS_SCREENS * metersPerPixel
+  const dLat = radius / 110_540
+  const dLng = radius / (111_320 * Math.cos(lat * Math.PI / 180))
+  return { west: lng - dLng, south: lat - dLat, east: lng + dLng, north: lat + dLat }
+}
+
 function updateShadows(instance: maplibregl.Map) {
   const source = instance.getSource<maplibregl.GeoJSONSource>(SHADOW_SOURCE_ID)
   if (!source || !instance.getLayer(BUILDINGS_LAYER_ID))
@@ -230,7 +243,7 @@ function updateShadows(instance: maplibregl.Map) {
     return
   shadowsKey = key
   const features = instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER })
-  source.setData(buildShadows(features, position, lat))
+  source.setData(buildShadows(features, position, lat, shadowArea(instance)))
 }
 
 function onIdle() {
@@ -239,16 +252,44 @@ function onIdle() {
     updateShadows(instance)
 }
 
+// --- Тени на время жеста гаснут ---
+// Слой теней — плоский fill-extrusion: так пересечения не темнеют полосами, но рисуется он в два прохода
+// и на слабом телефоне почти вдвое снижает плавность перетаскивания. Слой с нулевой прозрачностью
+// MapLibre не рисует, поэтому пока палец двигает карту, тени плавно гаснут, а после — проявляются
+let gesture = false
+const SHADOW_FADE_OUT_MS = 150
+const SHADOW_FADE_IN_MS = 350
+
+function onMoveStart(event: { originalEvent?: Event }) {
+  const instance = map?.value
+  // Программные перелёты (к метке, к пользователю) тени не трогают — только жесты
+  if (!instance || !event.originalEvent || gesture || !instance.getLayer(SHADOW_LAYER_ID))
+    return
+  gesture = true
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', { duration: SHADOW_FADE_OUT_MS, delay: 0 })
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', 0)
+}
+
+function onMoveEnd() {
+  const instance = map?.value
+  if (!instance || !gesture)
+    return
+  gesture = false
+  applyShadowOpacity(instance, SHADOW_FADE_IN_MS)
+}
+
 /** Тени проявляются вместе с волной зданий, а не раньше неё. */
-function applyShadowOpacity(instance: maplibregl.Map) {
+function applyShadowOpacity(instance: maplibregl.Map, fadeMs = GROW_DURATION + WAVE_DURATION) {
   if (!instance.getLayer(SHADOW_LAYER_ID) || !instance.getLayer(SUNLIT_LAYER_ID))
     return
   const base = themeBase(resolvedTheme.value)
   const { position } = currentSun(instance)
-  const transition = { duration: GROW_DURATION + WAVE_DURATION, delay: 0 }
-  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', transition)
+  const transition = { duration: fadeMs, delay: 0 }
   const strength = sunStrength(weatherStore.weather)
-  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position, strength))
+  if (!gesture) {
+    instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', transition)
+    instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position, strength))
+  }
   instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity-transition', transition)
   instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity', sunlitOpacity(base, position, strength))
 }
@@ -334,8 +375,12 @@ watch(
   (instance, previous) => {
     previous?.off('styledata', sync)
     previous?.off('idle', onIdle)
+    previous?.off('movestart', onMoveStart)
+    previous?.off('moveend', onMoveEnd)
     instance?.on('styledata', sync)
     instance?.on('idle', onIdle)
+    instance?.on('movestart', onMoveStart)
+    instance?.on('moveend', onMoveEnd)
     sync()
   },
   { immediate: true },
@@ -371,6 +416,8 @@ onUnmounted(() => {
     return
   instance.off('styledata', sync)
   instance.off('idle', onIdle)
+  instance.off('movestart', onMoveStart)
+  instance.off('moveend', onMoveEnd)
   removeLayer(instance)
   instance.removeFeatureState(STATE_TARGET)
   applyLight(instance, DEFAULT_LIGHT)

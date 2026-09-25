@@ -21,10 +21,8 @@ const OWN_LAYERS = [STILL_LAYER, FLOW_LAYER]
 /** Слой воды стиля CARTO — блики кладём сразу над ним. */
 const WATER_LAYER = 'water'
 const CARTO_SOURCE = 'carto'
-/** Шаг кадров: ~15 в секунду — движение плавное, а полоса узора маленькая и обновляется дёшево. */
-const FRAME_MS = 66
-/** Сколько вода «живёт» после движения карты — потом замирает, и карта не перерисовывается впустую. */
-const ACTIVE_MS = 20_000
+const FRAME_MS = 125
+const ACTIVE_MS = 10_000
 /** Мельче вода — линии и пятна, блики на них не видны. */
 const MIN_ZOOM = 12
 
@@ -172,7 +170,14 @@ function frame() {
   instance.triggerRepaint()
 }
 
+function riverInView(instance: maplibregl.Map): boolean {
+  return instance.queryRenderedFeatures({ layers: [FLOW_LAYER] }).length > 0
+}
+
 function wake() {
+  const instance = map?.value
+  if (instance && !instance.isMoving() && !riverInView(instance))
+    return
   sleepAt = Date.now() + ACTIVE_MS
   if (!frameTimer)
     frameTimer = setInterval(frame, FRAME_MS)
@@ -208,9 +213,9 @@ const slowTimer = setInterval(refresh, 10 * 60_000)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)
-  previous?.off('movestart', wake)
+  previous?.off('moveend', wake)
   instance?.on('styledata', sync)
-  instance?.on('movestart', wake)
+  instance?.on('moveend', wake)
   sync()
 }, { immediate: true })
 
@@ -237,7 +242,7 @@ onUnmounted(() => {
   if (!instance)
     return
   instance.off('styledata', sync)
-  instance.off('movestart', wake)
+  instance.off('moveend', wake)
   for (const id of OWN_LAYERS) {
     if (instance.getLayer(id))
       instance.removeLayer(id)

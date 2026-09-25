@@ -297,7 +297,18 @@ function featureHeight(properties: Record<string, unknown>): number {
  * Тени домов. Id в тайлах не уникальны между домами, поэтому тень строится для каждого многоугольника,
  * а одинаковые копии дома из соседних тайлов отсеиваются по id и первой точке.
  */
-export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat: number): GeoJSON.FeatureCollection {
+/** Тень ниже такой высоты — пара метров у стены, её не видно, а многоугольник рисуется. */
+const SHADOW_MIN_HEIGHT = 6
+
+export interface ShadowArea {
+  west: number
+  south: number
+  east: number
+  north: number
+}
+
+/** area — где строить тени: около экрана, а не по всем загруженным тайлам до горизонта. */
+export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat: number, area: ShadowArea): GeoJSON.FeatureCollection {
   if (sun.altitude < SHADOW_MIN_ALTITUDE)
     return { type: 'FeatureCollection', features: [] }
   const ratio = Math.min(1 / Math.tan(sun.altitude * Math.PI / 180), SHADOW_MAX_LENGTH_RATIO)
@@ -311,7 +322,13 @@ export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat:
   for (const feature of features) {
     if (feature.properties?.hide_3d)
       continue
-    const length = featureHeight(feature.properties ?? {}) * ratio
+    const height = featureHeight(feature.properties ?? {})
+    if (height < SHADOW_MIN_HEIGHT)
+      continue
+    const first = outerRings(feature.geometry)[0]?.[0]
+    if (!first || first[0]! < area.west || first[0]! > area.east || first[1]! < area.south || first[1]! > area.north)
+      continue
+    const length = height * ratio
     const dx = length * perMeterLng
     const dy = length * perMeterLat
     for (const ring of outerRings(feature.geometry)) {

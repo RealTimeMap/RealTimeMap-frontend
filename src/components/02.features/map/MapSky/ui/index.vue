@@ -7,6 +7,7 @@ import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { overcast, useWeatherStore } from '@/components/02.features/map/Weather'
 import { skyFor } from '../model/skyColors'
+import { starfield } from '../model/space'
 
 const SKY_UPDATE_MS = 5 * 60_000
 
@@ -121,6 +122,10 @@ watch(() => map?.value, (instance, previous) => {
     const canvas = instance.getCanvas()
     canvas.after(haze)
     scheduleHaze()
+    // Фон за шаром: при отдалении вокруг Земли космос, а не пустота
+    const container = instance.getContainer()
+    container.classList.add('map-space')
+    container.style.setProperty('--map-stars', `url(${starfield()})`)
   }
   apply()
 }, { immediate: true })
@@ -140,6 +145,12 @@ onUnmounted(() => {
 </template>
 
 <style lang="scss">
+.map-space {
+  background:
+    var(--map-stars) 0 0 / 256px 256px repeat,
+    radial-gradient(ellipse at 50% 60%, #16213d 0%, #0a0f1f 55%, #05070d 100%);
+}
+
 .map-haze {
   position: absolute;
   left: 0;
