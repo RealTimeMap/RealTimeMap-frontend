@@ -356,52 +356,55 @@ onMounted(() => {
         :meta="mark.meta"
       />
 
-      <div
-        class="block owner-block"
-      >
-        <u-avatar
-          rounded
-          :size="40"
-          :src="mark.owner.avatar"
-          :alt-text="mark.owner.username"
-          @click="openProfile(mark.owner.id, {
-            username: mark.owner.username,
-            avatar: mark.owner.avatar,
-          })"
-        />
-        <div class="owner-info">
-          <div class="owner-info__name">
-            {{ mark.owner.username }}
-            <u-admin-badge
-              v-if="mark.owner.isAdmin"
-              :size="14"
-            />
-          </div>
-          <div class="owner-info__dop">
-            {{ mark.owner.tag }} · {{ formatRelativeDate(mark.date.startAt) }}
+      <div class="author-card">
+        <div class="owner-block">
+          <u-avatar
+            rounded
+            :size="40"
+            :src="mark.owner.avatar"
+            :alt-text="mark.owner.username"
+            @click="openProfile(mark.owner.id, {
+              username: mark.owner.username,
+              avatar: mark.owner.avatar,
+            })"
+          />
+          <div class="owner-info">
+            <div class="owner-info__name">
+              {{ mark.owner.username }}
+              <u-admin-badge
+                v-if="mark.owner.isAdmin"
+                :size="14"
+              />
+            </div>
+            <div class="owner-info__dop">
+              <template v-if="mark.owner.tag && mark.owner.tag !== mark.owner.username">
+                @{{ mark.owner.tag }} ·
+              </template>
+              {{ formatRelativeDate(mark.date.startAt) }}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div
-        v-if="mark.additionalInfo"
-        class="desc-wrapper"
-      >
-        <p
-          ref="descRef"
-          class="desc-block"
-          :class="{ 'is-expanded': isExpanded }"
+        <div
+          v-if="mark.additionalInfo"
+          class="desc-wrapper"
         >
-          {{ mark.additionalInfo }}
-        </p>
+          <p
+            ref="descRef"
+            class="desc-block"
+            :class="{ 'is-expanded': isExpanded }"
+          >
+            {{ mark.additionalInfo }}
+          </p>
 
-        <button
-          v-if="canExpand"
-          class="expand-btn"
-          @click="isExpanded = !isExpanded"
-        >
-          {{ isExpanded ? 'Скрыть' : 'Читать полностью' }}
-        </button>
+          <button
+            v-if="canExpand"
+            class="expand-btn"
+            @click="isExpanded = !isExpanded"
+          >
+            {{ isExpanded ? 'Скрыть' : 'Читать полностью' }}
+          </button>
+        </div>
       </div>
 
       <div class="actions-bar">

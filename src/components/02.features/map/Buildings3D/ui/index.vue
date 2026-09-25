@@ -3,9 +3,11 @@ import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
 import type { SunPosition } from '@/components/00.shared/lib/sun'
 import { storeToRefs } from 'pinia'
+import { fixedFoliage, foliageAt } from '@/components/00.shared/lib/season'
 import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { sunStrength, useWeatherStore } from '@/components/02.features/map/Weather'
 import {
   BUILDINGS_LAYER_ID,
   buildingsBeforeId,
@@ -13,12 +15,18 @@ import {
   buildShadows,
   createBuildingsLayer,
   createShadowLayer,
+  createSnowLayer,
   createSunlitLayer,
   DEFAULT_LIGHT,
+  isNight,
+  ROOF_SNOW_MIN,
   SHADOW_LAYER_ID,
   SHADOW_SOURCE_ID,
   shadowColor,
   shadowOpacity,
+  SNOW_LAYER_ID,
+  snowColor,
+  snowOpacity,
   SOURCE_ID,
   SOURCE_LAYER,
   sunLight,
@@ -35,7 +43,8 @@ const WAVE_DURATION = 700
 const SUN_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
-const { resolvedTheme } = storeToRefs(useSettingsStore())
+const { resolvedTheme, mapSeason } = storeToRefs(useSettingsStore())
+const weatherStore = useWeatherStore()
 
 let riseFrame = 0
 let disposed = false
@@ -142,8 +151,9 @@ function revealNewLayer(instance: maplibregl.Map) {
     const buildings = buildingsInView(instance)
     for (const building of buildings)
       instance.setFeatureState({ ...STATE_TARGET, id: building.id }, { rise: 0 })
-    instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value)), buildingsBeforeId(instance.getStyle().layers))
+    instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value), isNight(currentSun(instance).position)), buildingsBeforeId(instance.getStyle().layers))
     addShadowLayer(instance)
+    addSnowLayer(instance)
     instance.once('idle', () => {
       if (disposed)
         return
@@ -174,6 +184,28 @@ function currentSun(instance: maplibregl.Map) {
 
 const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
 
+/** Снег для крыш: в «Авто» — настоящий из прогноза, иначе по выбранному сезону. */
+function currentSnow(instance: maplibregl.Map): number {
+  const mode = mapSeason.value
+  if (mode === 'auto')
+    return foliageAt(new Date(), instance.getCenter().lat, weatherStore.snowDepth).snow
+  return mode === 'off' ? 0 : fixedFoliage(mode).snow
+}
+
+function addSnowLayer(instance: maplibregl.Map) {
+  if (!instance.getLayer(SNOW_LAYER_ID) && instance.getLayer(BUILDINGS_LAYER_ID))
+    instance.addLayer(createSnowLayer(themeBase(resolvedTheme.value), currentSnow(instance)), buildingsBeforeId(instance.getStyle().layers))
+}
+
+function applySnow(instance: maplibregl.Map) {
+  if (!instance.getLayer(SNOW_LAYER_ID))
+    return
+  const snow = currentSnow(instance)
+  instance.setLayoutProperty(SNOW_LAYER_ID, 'visibility', snow >= ROOF_SNOW_MIN ? 'visible' : 'none')
+  instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-opacity', snowOpacity(snow))
+  instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-color', snowColor(themeBase(resolvedTheme.value)))
+}
+
 function addShadowLayer(instance: maplibregl.Map) {
   if (!instance.getSource(SHADOW_SOURCE_ID))
     instance.addSource(SHADOW_SOURCE_ID, { type: 'geojson', data: EMPTY })
@@ -188,6 +220,19 @@ function addShadowLayer(instance: maplibregl.Map) {
 // Тени пересчитываются, когда карта остановилась и тайлы догрузились, — и только если что-то поменялось
 let shadowsKey = ''
 
+/** Радиус теней — в размерах экрана вокруг центра: при наклоне дальние тени меньше пикселя. */
+const SHADOW_RADIUS_SCREENS = 0.8
+
+function shadowArea(instance: maplibregl.Map) {
+  const { lng, lat } = instance.getCenter()
+  const canvas = instance.getCanvas()
+  const metersPerPixel = 40_075_016.686 * Math.cos(lat * Math.PI / 180) / (512 * 2 ** instance.getZoom())
+  const radius = Math.max(canvas.clientWidth, canvas.clientHeight) * SHADOW_RADIUS_SCREENS * metersPerPixel
+  const dLat = radius / 110_540
+  const dLng = radius / (111_320 * Math.cos(lat * Math.PI / 180))
+  return { west: lng - dLng, south: lat - dLat, east: lng + dLng, north: lat + dLat }
+}
+
 function updateShadows(instance: maplibregl.Map) {
   const source = instance.getSource<maplibregl.GeoJSONSource>(SHADOW_SOURCE_ID)
   if (!source || !instance.getLayer(BUILDINGS_LAYER_ID))
@@ -198,7 +243,7 @@ function updateShadows(instance: maplibregl.Map) {
     return
   shadowsKey = key
   const features = instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER })
-  source.setData(buildShadows(features, position, lat))
+  source.setData(buildShadows(features, position, lat, shadowArea(instance)))
 }
 
 function onIdle() {
@@ -207,31 +252,71 @@ function onIdle() {
     updateShadows(instance)
 }
 
+// --- Тени на время жеста гаснут ---
+// Слой теней — плоский fill-extrusion: так пересечения не темнеют полосами, но рисуется он в два прохода
+// и на слабом телефоне почти вдвое снижает плавность перетаскивания. Слой с нулевой прозрачностью
+// MapLibre не рисует, поэтому пока палец двигает карту, тени плавно гаснут, а после — проявляются
+let gesture = false
+const SHADOW_FADE_OUT_MS = 150
+const SHADOW_FADE_IN_MS = 350
+
+function onMoveStart(event: { originalEvent?: Event }) {
+  const instance = map?.value
+  // Программные перелёты (к метке, к пользователю) тени не трогают — только жесты
+  if (!instance || !event.originalEvent || gesture || !instance.getLayer(SHADOW_LAYER_ID))
+    return
+  gesture = true
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', { duration: SHADOW_FADE_OUT_MS, delay: 0 })
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', 0)
+}
+
+function onMoveEnd() {
+  const instance = map?.value
+  if (!instance || !gesture)
+    return
+  gesture = false
+  applyShadowOpacity(instance, SHADOW_FADE_IN_MS)
+}
+
 /** Тени проявляются вместе с волной зданий, а не раньше неё. */
-function applyShadowOpacity(instance: maplibregl.Map) {
+function applyShadowOpacity(instance: maplibregl.Map, fadeMs = GROW_DURATION + WAVE_DURATION) {
   if (!instance.getLayer(SHADOW_LAYER_ID) || !instance.getLayer(SUNLIT_LAYER_ID))
     return
   const base = themeBase(resolvedTheme.value)
   const { position } = currentSun(instance)
-  const transition = { duration: GROW_DURATION + WAVE_DURATION, delay: 0 }
-  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', transition)
-  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position))
+  const transition = { duration: fadeMs, delay: 0 }
+  const strength = sunStrength(weatherStore.weather)
+  if (!gesture) {
+    instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', transition)
+    instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position, strength))
+  }
   instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity-transition', transition)
-  instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity', sunlitOpacity(base, position))
+  instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity', sunlitOpacity(base, position, strength))
 }
+
+// Облака набежали или разошлись — тени бледнеют или проступают
+watch(() => weatherStore.weather, () => {
+  const instance = map?.value
+  if (instance)
+    applyShadowOpacity(instance)
+})
 
 const sunTimer = setInterval(() => {
   const instance = map?.value
   if (!instance || disposed || !instance.getLayer(BUILDINGS_LAYER_ID))
     return
+  const wasNight = isNight(currentSun(instance).position)
   sun = null
-  applyLight(instance, sunLight(currentSun(instance).position))
+  const { position } = currentSun(instance)
+  if (isNight(position) !== wasNight)
+    instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(themeBase(resolvedTheme.value), isNight(position)))
+  applyLight(instance, sunLight(position))
   updateShadows(instance)
   applyShadowOpacity(instance)
 }, SUN_UPDATE_MS)
 
 /** Порядок: подсветка земли, тени, здания — сразу перед beforeId. */
-const OWN_ORDER = [SUNLIT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID]
+const OWN_ORDER = [SUNLIT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID, SNOW_LAYER_ID]
 
 function addLayer(instance: maplibregl.Map) {
   applyLight(instance, sunLight(currentSun(instance).position))
@@ -240,6 +325,7 @@ function addLayer(instance: maplibregl.Map) {
   // Двигаем только при неверном порядке: moveLayer сам вызывает styledata
   if (instance.getLayer(BUILDINGS_LAYER_ID)) {
     addShadowLayer(instance)
+    addSnowLayer(instance)
     const ids = instance.getStyle().layers.map(layer => layer.id)
     const beforeId = buildingsBeforeId(instance.getStyle().layers)
     const target = beforeId ? ids.indexOf(beforeId) : ids.length
@@ -289,8 +375,12 @@ watch(
   (instance, previous) => {
     previous?.off('styledata', sync)
     previous?.off('idle', onIdle)
+    previous?.off('movestart', onMoveStart)
+    previous?.off('moveend', onMoveEnd)
     instance?.on('styledata', sync)
     instance?.on('idle', onIdle)
+    instance?.on('movestart', onMoveStart)
+    instance?.on('moveend', onMoveEnd)
     sync()
   },
   { immediate: true },
@@ -302,10 +392,18 @@ watch(resolvedTheme, (theme) => {
   if (!instance?.getLayer(BUILDINGS_LAYER_ID))
     return
   const base = themeBase(theme)
-  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base))
+  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base, isNight(currentSun(instance).position)))
   if (instance.getLayer(SHADOW_LAYER_ID))
     instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-color', shadowColor(base))
   applyShadowOpacity(instance)
+  applySnow(instance)
+})
+
+// Выпал или сошёл снег, сменили сезон — крыши белеют или очищаются
+watch([mapSeason, () => weatherStore.snowDepth], () => {
+  const instance = map?.value
+  if (instance)
+    applySnow(instance)
 })
 
 onUnmounted(() => {
@@ -318,6 +416,8 @@ onUnmounted(() => {
     return
   instance.off('styledata', sync)
   instance.off('idle', onIdle)
+  instance.off('movestart', onMoveStart)
+  instance.off('moveend', onMoveEnd)
   removeLayer(instance)
   instance.removeFeatureState(STATE_TARGET)
   applyLight(instance, DEFAULT_LIGHT)

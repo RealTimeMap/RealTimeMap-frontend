@@ -6,6 +6,7 @@ const {
   showPublicMarks,
   showPersonalMarks,
   showHeatmap,
+  showWeather,
 } = storeToRefs(settings)
 </script>
 
@@ -54,6 +55,18 @@ const {
           <span class="me-row__hint">Где больше всего активности — вместо кружков-кластеров</span>
         </div>
         <u-switch v-model="showHeatmap" />
+      </div>
+
+      <div class="me-row">
+        <span class="me-row__icon"><u-icon
+          icon="app:weather-partly"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">Погода</span>
+          <span class="me-row__hint">Температура и когда начнётся дождь или снег</span>
+        </div>
+        <u-switch v-model="showWeather" />
       </div>
     </div>
   </div>

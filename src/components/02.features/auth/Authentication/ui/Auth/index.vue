@@ -15,7 +15,6 @@ const {
   clearError,
   isRegister,
   isConsentGiven,
-  googleAuth,
   toggleMode,
 } = useAuth()
 </script>
@@ -114,7 +113,7 @@ const {
       <span v-else>{{ isRegister ? 'Создать аккаунт' : 'Войти' }}</span>
     </button>
 
-    <u-drawer text="или" />
+    <!-- <u-drawer text="или" />
 
     <div class="auth-form__social">
       <button
@@ -129,7 +128,7 @@ const {
         />
         Google
       </button>
-    </div>
+    </div> -->
 
     <div class="auth-form__footer">
       {{ isRegister ? 'Уже есть аккаунт?' : 'Нет аккаунта?' }}

@@ -13,7 +13,12 @@ import { useGeolocation } from '@/components/02.features/map/Geolocation/model/u
 import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
 import { LandmarksLayer } from '@/components/02.features/map/LandmarksLayer'
 import { BaseMapView } from '@/components/02.features/map/MapCore'
+import { MapSeasons } from '@/components/02.features/map/MapSeasons'
+import { MapSky } from '@/components/02.features/map/MapSky'
+import { MapTrees } from '@/components/02.features/map/MapTrees'
+import { MapWater } from '@/components/02.features/map/MapWater'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
+import { useWeatherTracking, WeatherChip } from '@/components/02.features/map/Weather'
 import MarkCreateMenu from '@/components/02.features/mark/MarkCreateMenu'
 import MarkForm from '@/components/02.features/mark/MarkForm'
 import { useShareStore } from '@/components/02.features/mark/Share/model'
@@ -38,10 +43,11 @@ const routeStore = useRouteStore()
 const shareStore = useShareStore()
 const notify = useNotificationStore()
 const settingsStore = useSettingsStore()
+useWeatherTracking(() => userPosition.value)
 const { heading } = useCompass()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D, showTrees, animateWater, showWeather } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -217,6 +223,10 @@ watch(userPosition, (pos) => {
       />
       <personal-marks-layer v-if="showPersonalMarks" />
       <buildings3-d v-if="showBuildings3D" />
+      <map-trees v-if="showTrees" />
+      <map-sky />
+      <map-seasons />
+      <map-water v-if="animateWater" />
       <landmarks-layer />
       <heading-cone
         v-if="userPosition && heading !== null"
@@ -232,6 +242,7 @@ watch(userPosition, (pos) => {
       />
     </base-map-view>
     <search-users v-if="mapInitialCenter" />
+    <weather-chip v-if="showWeather" />
     <nearby-marks
       v-if="showPublicMarks"
       :user-coordinates="userPosition"

@@ -2,6 +2,7 @@ import type {
   ExpressionSpecification,
   FillExtrusionLayerSpecification,
   FillLayerSpecification,
+  FilterSpecification,
   LayerSpecification,
   LightSpecification,
 } from 'maplibre-gl'
@@ -53,6 +54,12 @@ function byZoom(value: ExpressionSpecification): ExpressionSpecification {
 /** База растёт вместе с высотой — иначе посреди анимации она оказалась бы выше крыши. */
 const HEIGHT = byZoom(RAW_HEIGHT)
 const BASE = byZoom(RAW_BASE)
+
+/**
+ * Общий контур здания, разбитого на части (building:parts): его стены совпадают со стенами частей,
+ * и совпадающие грани мерцают рябью. По схеме тайлов такой контур в 3D не рисуется.
+ */
+const SOLID_BUILDING: FilterSpecification = ['!', ['to-boolean', ['get', 'hide_3d']]]
 
 /** Цвет по высоте: объём читается без прозрачности. */
 const COLORS: Record<ThemeBase, [low: string, high: string]> = {
@@ -160,18 +167,59 @@ export const SUNLIT_AREA: GeoJSON.Feature = {
   geometry: { type: 'Polygon', coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]]] },
 }
 
+export const SNOW_LAYER_ID = '3d-buildings-snow'
+
 export function isBuildingsLayer(id: string): boolean {
-  return id === BUILDINGS_LAYER_ID || id === SHADOW_LAYER_ID || id === SUNLIT_LAYER_ID
+  return id === BUILDINGS_LAYER_ID || id === SHADOW_LAYER_ID || id === SUNLIT_LAYER_ID || id === SNOW_LAYER_ID
+}
+
+// --- Снег на крышах ---
+// Тонкая белая шапка поверх каждого дома. Слой включён только при снеге: иначе геометрия
+// зданий строилась бы дважды впустую
+
+/** Толщина снежной шапки, м. */
+const SNOW_CAP = 0.6
+/** Меньше этого снега крыши не белеют — пороша тает на тёплых крышах первой. */
+export const ROOF_SNOW_MIN = 0.3
+
+const SNOW_COLOR: Record<ThemeBase, string> = { light: '#fbfdff', dark: '#aab3bd' }
+
+export function createSnowLayer(base: ThemeBase, snow: number): FillExtrusionLayerSpecification {
+  return {
+    'id': SNOW_LAYER_ID,
+    'type': 'fill-extrusion',
+    'source': SOURCE_ID,
+    'source-layer': SOURCE_LAYER,
+    'minzoom': MIN_ZOOM,
+    'filter': SOLID_BUILDING,
+    'layout': { visibility: snow >= ROOF_SNOW_MIN ? 'visible' : 'none' },
+    'paint': {
+      'fill-extrusion-color': SNOW_COLOR[base],
+      'fill-extrusion-base': HEIGHT,
+      'fill-extrusion-height': byZoom(['+', RAW_HEIGHT, SNOW_CAP]),
+      'fill-extrusion-opacity': snowOpacity(snow),
+      'fill-extrusion-vertical-gradient': false,
+    },
+  }
+}
+
+export function snowColor(base: ThemeBase): string {
+  return SNOW_COLOR[base]
+}
+
+export function snowOpacity(snow: number): number {
+  return Math.round(Math.min(1, 0.4 + snow * 0.6) * 100) / 100
 }
 
 function sunFade(sun: SunPosition): number {
   return Math.min(0.5 + sun.altitude / SHADOW_FULL_ALTITUDE / 2, 1)
 }
 
-export function sunlitOpacity(base: ThemeBase, sun: SunPosition): ExpressionSpecification | number {
+/** sunStrength — сколько солнца пробивается сквозь облака: 1 — ясно, около 0 — пасмурно или дождь. */
+export function sunlitOpacity(base: ThemeBase, sun: SunPosition, sunStrength = 1): ExpressionSpecification | number {
   if (sun.altitude < SHADOW_MIN_ALTITUDE || !SUNLIT_OPACITY[base])
     return 0
-  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SUNLIT_OPACITY[base] * sunFade(sun) * 100) / 100]
+  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SUNLIT_OPACITY[base] * sunFade(sun) * sunStrength * 100) / 100]
 }
 
 export function createSunlitLayer(): FillLayerSpecification {
@@ -188,10 +236,11 @@ export function shadowColor(base: ThemeBase): string {
   return SHADOW_STYLE[base].color
 }
 
-export function shadowOpacity(base: ThemeBase, sun: SunPosition): ExpressionSpecification | number {
+/** В пасмурную погоду тени почти пропадают — как и в жизни. */
+export function shadowOpacity(base: ThemeBase, sun: SunPosition, sunStrength = 1): ExpressionSpecification | number {
   if (sun.altitude < SHADOW_MIN_ALTITUDE)
     return 0
-  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SHADOW_STYLE[base].opacity * sunFade(sun) * 100) / 100]
+  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SHADOW_STYLE[base].opacity * sunFade(sun) * sunStrength * 100) / 100]
 }
 
 export function createShadowLayer(base: ThemeBase): FillExtrusionLayerSpecification {
@@ -248,7 +297,18 @@ function featureHeight(properties: Record<string, unknown>): number {
  * Тени домов. Id в тайлах не уникальны между домами, поэтому тень строится для каждого многоугольника,
  * а одинаковые копии дома из соседних тайлов отсеиваются по id и первой точке.
  */
-export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat: number): GeoJSON.FeatureCollection {
+/** Тень ниже такой высоты — пара метров у стены, её не видно, а многоугольник рисуется. */
+const SHADOW_MIN_HEIGHT = 6
+
+export interface ShadowArea {
+  west: number
+  south: number
+  east: number
+  north: number
+}
+
+/** area — где строить тени: около экрана, а не по всем загруженным тайлам до горизонта. */
+export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat: number, area: ShadowArea): GeoJSON.FeatureCollection {
   if (sun.altitude < SHADOW_MIN_ALTITUDE)
     return { type: 'FeatureCollection', features: [] }
   const ratio = Math.min(1 / Math.tan(sun.altitude * Math.PI / 180), SHADOW_MAX_LENGTH_RATIO)
@@ -260,7 +320,15 @@ export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat:
   const seen = new Set<string>()
   const shadows: GeoJSON.Feature[] = []
   for (const feature of features) {
-    const length = featureHeight(feature.properties ?? {}) * ratio
+    if (feature.properties?.hide_3d)
+      continue
+    const height = featureHeight(feature.properties ?? {})
+    if (height < SHADOW_MIN_HEIGHT)
+      continue
+    const first = outerRings(feature.geometry)[0]?.[0]
+    if (!first || first[0]! < area.west || first[0]! > area.east || first[1]! < area.south || first[1]! > area.north)
+      continue
+    const length = height * ratio
     const dx = length * perMeterLng
     const dy = length * perMeterLat
     for (const ring of outerRings(feature.geometry)) {
@@ -297,24 +365,46 @@ export function buildingsBeforeId(layers: LayerSpecification[]): string | undefi
   return layers.slice(lastGeometry + 1).find(layer => !isBuildingsLayer(layer.id))?.id
 }
 
-export function buildingsColor(base: ThemeBase): ExpressionSpecification {
+/** Ночью в части домов «горит свет»: [приглушённый, яркий] тёплый оттенок. */
+const NIGHT_LIT: Record<ThemeBase, [dim: string, bright: string]> = {
+  dark: ['#3a3a36', '#54492f'],
+  light: ['#eee6d6', '#f0dfbd'],
+}
+
+/** Солнце ниже этой высоты — сумерки кончились, в городе зажигается свет. */
+const NIGHT_ALTITUDE = -3
+
+export function isNight(sun: SunPosition): boolean {
+  return sun.altitude < NIGHT_ALTITUDE
+}
+
+/**
+ * Цвет по высоте, ночью часть домов светится. Какие — решает остаток от id: рисунок одинаковый
+ * при каждой загрузке, без мигания. Смена выражения перезагружает тайлы, поэтому меняется только на закате и рассвете.
+ */
+export function buildingsColor(base: ThemeBase, night = false): ExpressionSpecification {
   const [low, high] = COLORS[base]
-  return ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
+  const byHeight: ExpressionSpecification = ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
+  if (!night)
+    return byHeight
+  const [dim, bright] = NIGHT_LIT[base]
+  return ['match', ['%', ['to-number', ['id'], 0], 20], [0, 7], bright, [3, 11, 15], dim, byHeight]
 }
 
 /**
  * Слой 3D-зданий. Непрозрачный: fill-extrusion-opacity < 1 применяется ко всему слою,
  * и сквозь здания становятся видны задние грани и соседние дома.
  */
-export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecification {
+export function createBuildingsLayer(base: ThemeBase, night = false): FillExtrusionLayerSpecification {
   return {
     'id': BUILDINGS_LAYER_ID,
     'type': 'fill-extrusion',
     'source': SOURCE_ID,
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
+    'filter': SOLID_BUILDING,
     'paint': {
-      'fill-extrusion-color': buildingsColor(base),
+      'fill-extrusion-color': buildingsColor(base, night),
       'fill-extrusion-height': HEIGHT,
       'fill-extrusion-base': BASE,
       'fill-extrusion-opacity': 1,
