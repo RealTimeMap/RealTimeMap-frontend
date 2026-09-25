@@ -1,6 +1,37 @@
 # Changelog
 
 
+## v0.1.63
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.62...v0.1.63)
+
+### 🚀 Функциональность
+
+- **map:** Небо по времени суток, ночной город, сезонные цвета карты, деревья по сезону ([d7c85c5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d7c85c5))
+- **map:** Живая вода ([fa8a964](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/fa8a964))
+- **map:** Погода — плашка с прогнозом осадков, облака влияют на небо, тени и воду ([062396e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/062396e))
+- **map:** Настоящий снег из прогноза, снег на крышах, листопад по неделям, 2D при отдалении ([bb854d0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bb854d0))
+
+### 🔥 Производительность
+
+- **map:** Вода только с рекой в кадра, тёмный шар со звёздами в любой теме ([b7a2eff](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b7a2eff))
+
+### 🩹 Исправления
+
+- **map:** Без ряби на стенах — наклон до 70°, контуры зданий из частей не рисуются в 3D ([45525bb](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/45525bb))
+
+### 🎨 Стили
+
+- **mark:** Автор, описание и комментарии в карточках, тег автора с @ без повтора имени ([b72a4d7](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b72a4d7))
+
+### 🗑 Удаление
+
+- **ui:** Google auth ([3ef84d0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3ef84d0))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.62
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.61...v0.1.62)
