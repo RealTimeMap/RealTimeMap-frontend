@@ -1,7 +1,7 @@
 import type { Map } from 'maplibre-gl'
 
 /** Наклон вида «со стороны»: здания видны объёмом, у верхнего края — горизонт и небо. */
-const TILTED_PITCH = 75
+const TILTED_PITCH = 70
 /** С такого зума наклон доступен полностью. */
 const TILT_MIN_ZOOM = 14
 

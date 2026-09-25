@@ -2,6 +2,7 @@ import type {
   ExpressionSpecification,
   FillExtrusionLayerSpecification,
   FillLayerSpecification,
+  FilterSpecification,
   LayerSpecification,
   LightSpecification,
 } from 'maplibre-gl'
@@ -53,6 +54,12 @@ function byZoom(value: ExpressionSpecification): ExpressionSpecification {
 /** База растёт вместе с высотой — иначе посреди анимации она оказалась бы выше крыши. */
 const HEIGHT = byZoom(RAW_HEIGHT)
 const BASE = byZoom(RAW_BASE)
+
+/**
+ * Общий контур здания, разбитого на части (building:parts): его стены совпадают со стенами частей,
+ * и совпадающие грани мерцают рябью. По схеме тайлов такой контур в 3D не рисуется.
+ */
+const SOLID_BUILDING: FilterSpecification = ['!', ['to-boolean', ['get', 'hide_3d']]]
 
 /** Цвет по высоте: объём читается без прозрачности. */
 const COLORS: Record<ThemeBase, [low: string, high: string]> = {
@@ -184,6 +191,7 @@ export function createSnowLayer(base: ThemeBase, snow: number): FillExtrusionLay
     'source': SOURCE_ID,
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
+    'filter': SOLID_BUILDING,
     'layout': { visibility: snow >= ROOF_SNOW_MIN ? 'visible' : 'none' },
     'paint': {
       'fill-extrusion-color': SNOW_COLOR[base],
@@ -301,6 +309,8 @@ export function buildShadows(features: GeoJSON.Feature[], sun: SunPosition, lat:
   const seen = new Set<string>()
   const shadows: GeoJSON.Feature[] = []
   for (const feature of features) {
+    if (feature.properties?.hide_3d)
+      continue
     const length = featureHeight(feature.properties ?? {}) * ratio
     const dx = length * perMeterLng
     const dy = length * perMeterLat
@@ -375,6 +385,7 @@ export function createBuildingsLayer(base: ThemeBase, night = false): FillExtrus
     'source': SOURCE_ID,
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
+    'filter': SOLID_BUILDING,
     'paint': {
       'fill-extrusion-color': buildingsColor(base, night),
       'fill-extrusion-height': HEIGHT,
