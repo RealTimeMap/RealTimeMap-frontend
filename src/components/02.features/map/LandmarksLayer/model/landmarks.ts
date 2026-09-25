@@ -2,6 +2,7 @@ import type { MapPoint } from '@/types/shared/map'
 
 export const LAYER_ID = '3d-landmarks'
 
+// Координаты — центр контура здания в OpenStreetMap: модель встаёт ровно на своё место на карте.
 export interface Landmark {
   id: string
   title: string
@@ -17,6 +18,9 @@ export interface Landmark {
   // Двусторонний рендер граней. Нужен ажурным конструкциям (решётка башни),
   // но у плотных моделей вызывает z-fighting — по умолчанию выключен.
   doubleSide?: boolean
+  // Радиус расчистки (метры): 3D-здания ближе к точке не рисуются, чтобы не прорастали сквозь модель.
+  // Примерно половина большей стороны модели с учётом scale.
+  clearRadius?: number
 }
 
 // ! ПРОМТ для генерации 3д
@@ -43,29 +47,32 @@ export const DEMO_LANDMARKS: Landmark[] = [
   {
     id: 'eiffel-tower',
     title: 'Эйфелева башня',
-    coordinates: [2.2945, 48.85835],
+    coordinates: [2.2945006, 48.8582599],
     modelUrl: '/models/eiffelTower.glb',
     scale: 3.15,
     rotationY: 2.4,
     doubleSide: false,
+    clearRadius: 90,
   },
   {
     id: 'pisa-tower',
     title: 'Пизанская башня',
-    coordinates: [10.396584, 43.723013],
+    coordinates: [10.3966322, 43.7230159],
     modelUrl: '/models/pisaTower.glb',
     scale: 0.9,
     rotationY: 0,
     doubleSide: false,
+    clearRadius: 18,
   },
   {
     id: 'isaac-cathedral',
     title: 'Исаакиевский собор',
-    coordinates: [30.3061, 59.9343],
+    coordinates: [30.306142, 59.9340785],
     modelUrl: '/models/isaacCathedral.glb',
     scale: 2,
     rotationY: 10,
     doubleSide: false,
+    clearRadius: 80,
   },
   {
     id: 'clock-tower',
@@ -75,23 +82,31 @@ export const DEMO_LANDMARKS: Landmark[] = [
     scale: 2.4,
     rotationY: 30,
     doubleSide: false,
+    clearRadius: 35,
   },
   {
     id: 'philharmonic',
     title: 'Сургутская Филармония',
-    coordinates: [73.3909, 61.2412],
+    coordinates: [73.390811, 61.241188],
     modelUrl: '/models/philharmonic.glb',
     scale: 1.9,
     rotationY: 2.1,
     doubleSide: false,
+    clearRadius: 50,
   },
   {
     id: 'colosseum',
     title: 'Колизей',
-    coordinates: [12.492338, 41.890197],
+    coordinates: [12.491903, 41.8909421],
     modelUrl: '/models/colosseum.glb',
     scale: 2.2,
     rotationY: 2.1,
     doubleSide: false,
+    clearRadius: 85,
   },
 ]
+
+/** Места под моделями, где не должно быть 3D-зданий. */
+export const LANDMARK_CLEARINGS = DEMO_LANDMARKS
+  .filter(landmark => landmark.modelUrl && landmark.clearRadius)
+  .map(landmark => ({ coordinates: landmark.coordinates, radius: landmark.clearRadius! }))

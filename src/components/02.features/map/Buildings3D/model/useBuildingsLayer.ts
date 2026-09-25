@@ -9,6 +9,7 @@ import type {
 import type { SunPosition } from '@/components/00.shared/lib/sun'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { sunPosition } from '@/components/00.shared/lib/sun'
+import { LANDMARK_CLEARINGS } from '@/components/02.features/map/LandmarksLayer/model/landmarks'
 
 export const BUILDINGS_LAYER_ID = '3d-buildings'
 
@@ -59,7 +60,18 @@ const BASE = byZoom(RAW_BASE)
  * Общий контур здания, разбитого на части (building:parts): его стены совпадают со стенами частей,
  * и совпадающие грани мерцают рябью. По схеме тайлов такой контур в 3D не рисуется.
  */
-const SOLID_BUILDING: FilterSpecification = ['!', ['to-boolean', ['get', 'hide_3d']]]
+const SOLID_BUILDING: ExpressionSpecification = ['!', ['to-boolean', ['get', 'hide_3d']]]
+
+/**
+ * Под 3D-моделью достопримечательности здания не рисуются: дом (часто это она сама в OSM)
+ * иначе прорастает сквозь модель. Фильтр считается один раз при разборе тайла, в кадре не стоит ничего.
+ */
+const OUTSIDE_LANDMARKS: ExpressionSpecification[] = LANDMARK_CLEARINGS.map(({ coordinates, radius }) =>
+  ['>', ['distance', { type: 'Point', coordinates }], radius],
+)
+
+/** Какие здания рисуются в 3D: и для слоя, и для теней. */
+export const BUILDING_FILTER: FilterSpecification = ['all', SOLID_BUILDING, ...OUTSIDE_LANDMARKS]
 
 /** Цвет по высоте: объём читается без прозрачности. */
 const COLORS: Record<ThemeBase, [low: string, high: string]> = {
@@ -191,7 +203,7 @@ export function createSnowLayer(base: ThemeBase, snow: number): FillExtrusionLay
     'source': SOURCE_ID,
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
-    'filter': SOLID_BUILDING,
+    'filter': BUILDING_FILTER,
     'layout': { visibility: snow >= ROOF_SNOW_MIN ? 'visible' : 'none' },
     'paint': {
       'fill-extrusion-color': SNOW_COLOR[base],
@@ -382,7 +394,7 @@ export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecifi
     'source': SOURCE_ID,
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
-    'filter': SOLID_BUILDING,
+    'filter': BUILDING_FILTER,
     'paint': {
       'fill-extrusion-color': buildingsColor(base),
       'fill-extrusion-height': HEIGHT,

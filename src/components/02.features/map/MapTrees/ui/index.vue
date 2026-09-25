@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
-import type { ViewBounds } from '../model/trees'
+import type { Planting, TreeLook, ViewBounds } from '../model/trees'
+import type { TreesLayer } from '../model/treesLayer'
 import type { Foliage, SeasonBlend } from '@/components/00.shared/lib/season'
 import { storeToRefs } from 'pinia'
 import { latestWorker, plainFeatures } from '@/components/00.shared/lib/latestWorker'
@@ -9,20 +10,21 @@ import { mapNow } from '@/components/00.shared/lib/mapClock'
 import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
 import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { fixedFoliage, fixedSeason, foliageAt, seasonAt } from '@/components/00.shared/lib/season'
+import { sunPosition } from '@/components/00.shared/lib/sun'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useWeatherStore } from '@/components/02.features/map/Weather'
-import { litterColor, litterFilter, litterOpacity, treeColor, treeFilter } from '../model/trees'
+import { litterColor, litterFilter, litterOpacity } from '../model/trees'
 
 const SOURCE_ID = 'map-trees'
 const LAYER_ID = 'map-trees'
-/** Ковёр опавшей листвы — плоский слой под деревьями. */
+/** Ковёр опавшей листвы — плоский слой под деревьями; сами деревья — слой three.js. */
 const LITTER_LAYER_ID = 'map-trees-litter'
 /** Векторный источник CARTO и слой с лесами и газонами. */
 const CARTO_SOURCE = 'carto'
 const LANDCOVER_LAYER = 'landcover'
-/** Раньше крона меньше пикселя. К FULL_ZOOM деревья дорастают до полной высоты. */
+const BUILDING_LAYER = 'building'
+/** Раньше крона меньше пикселя — не сажаем. */
 const MIN_ZOOM = 15
-const FULL_ZOOM = 15.5
 /** Под 3D-зданиями, если они есть, — иначе под подписями. */
 const BUILDINGS_LAYER_ID = '3d-buildings'
 const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
@@ -50,9 +52,29 @@ function foliage(instance: maplibregl.Map): Foliage {
   return fixedFoliage(mapSeason.value === 'off' ? 'summer' : mapSeason.value)
 }
 
-function color(instance: maplibregl.Map) {
-  return treeColor(styleBase.value, season(instance), foliage(instance))
+function look(instance: maplibregl.Map): TreeLook {
+  return { base: styleBase.value, blend: season(instance), foliage: foliage(instance) }
 }
+
+function sunAzimuth(instance: maplibregl.Map): number {
+  const { lng, lat } = instance.getCenter()
+  return sunPosition(mapNow(), lng, lat).azimuth
+}
+
+let disposed = false
+
+// three.js грузится отдельным куском — карта открывается, не дожидаясь его
+let treesLayer: TreesLayer | null = null
+let lastPlanting: Planting | null = null
+
+void import('../model/treesLayer').then(({ createTreesLayer }) => {
+  if (disposed)
+    return
+  treesLayer = createTreesLayer(LAYER_ID)
+  if (lastPlanting)
+    treesLayer.setTrees(lastPlanting.trees)
+  sync()
+})
 
 function beforeId(instance: maplibregl.Map): string | undefined {
   if (instance.getLayer(BUILDINGS_LAYER_ID))
@@ -63,35 +85,24 @@ function beforeId(instance: maplibregl.Map): string | undefined {
 function ensureLayer(instance: maplibregl.Map) {
   if (!instance.getSource(SOURCE_ID))
     instance.addSource(SOURCE_ID, { type: 'geojson', data: EMPTY })
-  if (instance.getLayer(LAYER_ID))
-    return
-  const state = foliage(instance)
-  instance.addLayer({
-    id: LITTER_LAYER_ID,
-    type: 'fill',
-    source: SOURCE_ID,
-    minzoom: MIN_ZOOM,
-    filter: litterFilter(state),
-    paint: {
-      'fill-color': litterColor(styleBase.value),
-      'fill-opacity': litterOpacity(state),
-    },
-  }, beforeId(instance))
-  instance.addLayer({
-    id: LAYER_ID,
-    type: 'fill-extrusion',
-    source: SOURCE_ID,
-    minzoom: MIN_ZOOM,
-    filter: treeFilter(state),
-    paint: {
-      'fill-extrusion-color': color(instance),
-      // Деревья вырастают вместе с приближением, как и здания; основание растёт вместе с высотой
-      'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], MIN_ZOOM, 0, FULL_ZOOM, ['get', 'base']],
-      'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], MIN_ZOOM, 0, FULL_ZOOM, ['get', 'height']],
-      'fill-extrusion-opacity': 1,
-      'fill-extrusion-vertical-gradient': true,
-    },
-  }, beforeId(instance))
+  if (!instance.getLayer(LITTER_LAYER_ID)) {
+    const state = foliage(instance)
+    instance.addLayer({
+      id: LITTER_LAYER_ID,
+      type: 'fill',
+      source: SOURCE_ID,
+      minzoom: MIN_ZOOM,
+      filter: litterFilter(state),
+      paint: {
+        'fill-color': litterColor(styleBase.value),
+        'fill-opacity': litterOpacity(state),
+      },
+    }, beforeId(instance))
+  }
+  if (treesLayer && !instance.getLayer(LAYER_ID)) {
+    treesLayer.setLook(look(instance), sunAzimuth(instance))
+    instance.addLayer(treesLayer, beforeId(instance))
+  }
 }
 
 // --- Расстановка: когда карта остановилась, и только если вид изменился ---
@@ -117,12 +128,10 @@ function plantingArea(instance: maplibregl.Map): ViewBounds {
 }
 
 let plantedKey = ''
-
-let disposed = false
 let stopSettled: (() => void) | null = null
 
 /** Расстановка — в отдельном потоке: сотни многоугольников и проверки «внутри парка» не тормозят карту. */
-const planter = latestWorker<{ features: GeoJSON.Feature[], area: ViewBounds }, GeoJSON.FeatureCollection>(
+const planter = latestWorker<{ features: GeoJSON.Feature[], buildings: GeoJSON.Feature[], area: ViewBounds }, Planting>(
   () => new Worker(new URL('../model/trees.worker.ts', import.meta.url), { type: 'module' }),
 )
 
@@ -135,20 +144,26 @@ function replant() {
     if (plantedKey) {
       plantedKey = ''
       source.setData(EMPTY)
+      lastPlanting = null
+      treesLayer?.setTrees([])
     }
     return
   }
   const area = plantingArea(instance)
   const features = instance.querySourceFeatures(CARTO_SOURCE, { sourceLayer: LANDCOVER_LAYER })
     .filter(feature => feature.properties.class === 'wood' || feature.properties.class === 'grass')
-  // Число зелёных зон в ключе: тайлы догружаются после остановки карты, и тогда деревья нужно досадить
-  const key = [...Object.values(area).map(v => v.toFixed(5)), features.length].join()
+  const buildings = instance.querySourceFeatures(CARTO_SOURCE, { sourceLayer: BUILDING_LAYER })
+  // Число зелёных зон и домов в ключе: тайлы догружаются после остановки карты, и тогда деревья нужно досадить
+  const key = [...Object.values(area).map(v => v.toFixed(5)), features.length, buildings.length].join()
   if (key === plantedKey)
     return
   plantedKey = key
-  planter.request({ features: plainFeatures(features), area }, (trees) => {
-    if (!disposed)
-      source.setData(trees)
+  planter.request({ features: plainFeatures(features), buildings: plainFeatures(buildings), area }, (planting) => {
+    if (disposed)
+      return
+    lastPlanting = planting
+    source.setData(planting.litter)
+    treesLayer?.setTrees(planting.trees)
   })
 }
 
@@ -180,19 +195,20 @@ function sync() {
 
 function recolor() {
   const instance = map?.value
-  if (!instance?.getLayer(LAYER_ID) || !instance.getLayer(LITTER_LAYER_ID))
+  if (!instance)
+    return
+  treesLayer?.setLook(look(instance), sunAzimuth(instance))
+  if (!instance.getLayer(LITTER_LAYER_ID))
     return
   const state = foliage(instance)
-  instance.setPaintProperty(LAYER_ID, 'fill-extrusion-color', color(instance))
-  instance.setFilter(LAYER_ID, treeFilter(state))
   instance.setFilter(LITTER_LAYER_ID, litterFilter(state))
   instance.setPaintProperty(LITTER_LAYER_ID, 'fill-color', litterColor(styleBase.value))
   instance.setPaintProperty(LITTER_LAYER_ID, 'fill-opacity', litterOpacity(state))
 }
 
 watch([mapSeason, styleBase, () => weatherStore.snowDepth], recolor)
-// Сезон в режиме «Авто» меняется медленно — раз в час достаточно
-const timer = setInterval(recolor, 60 * 60_000)
+// Сезон меняется медленно, солнце для света на гранях — заметнее: раз в 10 минут достаточно
+const timer = setInterval(recolor, 10 * 60_000)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)
