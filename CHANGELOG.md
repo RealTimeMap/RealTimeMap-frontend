@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.65
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.64...v0.1.65)
+
+### 🩹 Исправления
+
+- **push:** Запрос уведомлений при входе и через очередь разрешений, токен APNs на iOS ([5a33017](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/5a33017))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.64
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.63...v0.1.64)
