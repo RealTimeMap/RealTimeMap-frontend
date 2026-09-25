@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.66
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.65...v0.1.66)
+
+### 🩹 Исправления
+
+- **auth:** Токен дублируется в localStorage, 401 разлогинивает только при отказе действующего токена ([045414f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/045414f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.65
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.64...v0.1.65)
