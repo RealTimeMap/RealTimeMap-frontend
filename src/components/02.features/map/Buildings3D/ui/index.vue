@@ -3,6 +3,7 @@ import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
 import type { SunPosition } from '@/components/00.shared/lib/sun'
 import { storeToRefs } from 'pinia'
+import { fixedFoliage, foliageAt } from '@/components/00.shared/lib/season'
 import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
@@ -14,13 +15,18 @@ import {
   buildShadows,
   createBuildingsLayer,
   createShadowLayer,
+  createSnowLayer,
   createSunlitLayer,
   DEFAULT_LIGHT,
   isNight,
+  ROOF_SNOW_MIN,
   SHADOW_LAYER_ID,
   SHADOW_SOURCE_ID,
   shadowColor,
   shadowOpacity,
+  SNOW_LAYER_ID,
+  snowColor,
+  snowOpacity,
   SOURCE_ID,
   SOURCE_LAYER,
   sunLight,
@@ -37,7 +43,7 @@ const WAVE_DURATION = 700
 const SUN_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
-const { resolvedTheme } = storeToRefs(useSettingsStore())
+const { resolvedTheme, mapSeason } = storeToRefs(useSettingsStore())
 const weatherStore = useWeatherStore()
 
 let riseFrame = 0
@@ -147,6 +153,7 @@ function revealNewLayer(instance: maplibregl.Map) {
       instance.setFeatureState({ ...STATE_TARGET, id: building.id }, { rise: 0 })
     instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value), isNight(currentSun(instance).position)), buildingsBeforeId(instance.getStyle().layers))
     addShadowLayer(instance)
+    addSnowLayer(instance)
     instance.once('idle', () => {
       if (disposed)
         return
@@ -176,6 +183,28 @@ function currentSun(instance: maplibregl.Map) {
 }
 
 const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+
+/** Снег для крыш: в «Авто» — настоящий из прогноза, иначе по выбранному сезону. */
+function currentSnow(instance: maplibregl.Map): number {
+  const mode = mapSeason.value
+  if (mode === 'auto')
+    return foliageAt(new Date(), instance.getCenter().lat, weatherStore.snowDepth).snow
+  return mode === 'off' ? 0 : fixedFoliage(mode).snow
+}
+
+function addSnowLayer(instance: maplibregl.Map) {
+  if (!instance.getLayer(SNOW_LAYER_ID) && instance.getLayer(BUILDINGS_LAYER_ID))
+    instance.addLayer(createSnowLayer(themeBase(resolvedTheme.value), currentSnow(instance)), buildingsBeforeId(instance.getStyle().layers))
+}
+
+function applySnow(instance: maplibregl.Map) {
+  if (!instance.getLayer(SNOW_LAYER_ID))
+    return
+  const snow = currentSnow(instance)
+  instance.setLayoutProperty(SNOW_LAYER_ID, 'visibility', snow >= ROOF_SNOW_MIN ? 'visible' : 'none')
+  instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-opacity', snowOpacity(snow))
+  instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-color', snowColor(themeBase(resolvedTheme.value)))
+}
 
 function addShadowLayer(instance: maplibregl.Map) {
   if (!instance.getSource(SHADOW_SOURCE_ID))
@@ -246,7 +275,7 @@ const sunTimer = setInterval(() => {
 }, SUN_UPDATE_MS)
 
 /** Порядок: подсветка земли, тени, здания — сразу перед beforeId. */
-const OWN_ORDER = [SUNLIT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID]
+const OWN_ORDER = [SUNLIT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID, SNOW_LAYER_ID]
 
 function addLayer(instance: maplibregl.Map) {
   applyLight(instance, sunLight(currentSun(instance).position))
@@ -255,6 +284,7 @@ function addLayer(instance: maplibregl.Map) {
   // Двигаем только при неверном порядке: moveLayer сам вызывает styledata
   if (instance.getLayer(BUILDINGS_LAYER_ID)) {
     addShadowLayer(instance)
+    addSnowLayer(instance)
     const ids = instance.getStyle().layers.map(layer => layer.id)
     const beforeId = buildingsBeforeId(instance.getStyle().layers)
     const target = beforeId ? ids.indexOf(beforeId) : ids.length
@@ -321,6 +351,14 @@ watch(resolvedTheme, (theme) => {
   if (instance.getLayer(SHADOW_LAYER_ID))
     instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-color', shadowColor(base))
   applyShadowOpacity(instance)
+  applySnow(instance)
+})
+
+// Выпал или сошёл снег, сменили сезон — крыши белеют или очищаются
+watch([mapSeason, () => weatherStore.snowDepth], () => {
+  const instance = map?.value
+  if (instance)
+    applySnow(instance)
 })
 
 onUnmounted(() => {

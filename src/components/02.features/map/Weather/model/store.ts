@@ -32,5 +32,8 @@ export const useWeatherStore = defineStore('weather', () => {
     }
   }
 
-  return { weather, refresh }
+  /** Высота снега из прогноза, м; null — прогноза нет, снег считается по календарю. */
+  const snowDepth = computed(() => weather.value?.snowDepth ?? null)
+
+  return { weather, snowDepth, refresh }
 })

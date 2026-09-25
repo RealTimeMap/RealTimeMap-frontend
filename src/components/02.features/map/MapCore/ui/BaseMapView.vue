@@ -23,6 +23,12 @@ const MAP_STYLES = {
 
 maplibregl.setWorkerUrl(maplibreWorkerUrl)
 
+/** Выше 60° виден горизонт и небо — MapLibre вдали берёт тайлы помельче, поэтому это недорого. */
+const MAX_PITCH = 75
+/** С этого зума и дальше карта только плоская; наклон растёт до полного к FULL_PITCH_ZOOM. */
+const FLAT_ZOOM = 9
+const FULL_PITCH_ZOOM = 12
+
 const shareStore = useShareStore()
 interface MapEmits {
   (e: 'mapReady', mapInstance: maplibregl.Map): void
@@ -56,8 +62,7 @@ onMounted(() => {
     fadeDuration: 0,
     refreshExpiredTiles: false,
     trackResize: false,
-    // Выше 60° становится виден горизонт и небо — MapLibre вдали берёт тайлы помельче, поэтому это недорого
-    maxPitch: 75,
+    maxPitch: MAX_PITCH,
   })
 
   map.value = mapInstance
@@ -92,6 +97,17 @@ onMounted(() => {
     // без начальных границ слой меток не узнает, что загружать
     emitBounds()
   })
+
+  // Вдали 3D не нужен, а дымка у горизонта и небо ломают вид целой страны:
+  // допустимый наклон уменьшается вместе с зумом, и карта плавно ложится в 2D
+  const limitPitch = () => {
+    const zoom = mapInstance.getZoom()
+    const allowed = Math.round(MAX_PITCH * Math.min(1, Math.max(0, (zoom - FLAT_ZOOM) / (FULL_PITCH_ZOOM - FLAT_ZOOM))))
+    if (allowed !== mapInstance.getMaxPitch())
+      mapInstance.setMaxPitch(allowed)
+  }
+  mapInstance.on('zoom', limitPitch)
+  limitPitch()
 
   mapInstance.on('moveend', emitBounds)
   offDoubleTap = onDoubleTap(mapInstance, (e) => {

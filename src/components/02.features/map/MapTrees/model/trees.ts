@@ -1,5 +1,5 @@
-import type { ExpressionSpecification } from 'maplibre-gl'
-import type { Season, SeasonBlend } from '@/components/00.shared/lib/season'
+import type { ExpressionSpecification, FilterSpecification } from 'maplibre-gl'
+import type { Foliage, Season, SeasonBlend } from '@/components/00.shared/lib/season'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { mixHex } from '@/components/00.shared/lib/colorMix'
 
@@ -67,12 +67,17 @@ function disc(lng: number, lat: number, radius: number, turn: number): GeoJSON.P
   return [...ring, ring[0]!]
 }
 
-type Part = 'trunk' | 'crown'
+/**
+ * Части дерева. twigs — голые ветки облетевшего лиственного дерева, узкая бурая «крона»;
+ * litter — плоский ковёр листвы под ним. Какие части видны, решают фильтры слоёв по phase.
+ */
+type Part = 'trunk' | 'crown' | 'twigs' | 'litter'
 
-function part(kind: Part, conifer: boolean, shade: number, ring: GeoJSON.Position[], base: number, height: number): GeoJSON.Feature {
+/** phase — когда дерево желтеет и облетает: 0 — первым, 1 — последним. Рисунок листопада постоянный. */
+function part(kind: Part, conifer: boolean, shade: number, phase: number, ring: GeoJSON.Position[], base: number, height: number): GeoJSON.Feature {
   return {
     type: 'Feature',
-    properties: { part: kind, conifer, shade, base, height },
+    properties: { part: kind, conifer, shade, phase, base, height },
     geometry: { type: 'Polygon', coordinates: [ring] },
   }
 }
@@ -81,14 +86,14 @@ function part(kind: Part, conifer: boolean, shade: number, ring: GeoJSON.Positio
  * Дерево из ярусов: у лиственного — уже снизу, шире в середине, уже сверху (округлая крона),
  * у ели — два сужающихся яруса. Ствол — тонкий столбик под кроной.
  */
-function tree(lng: number, lat: number, conifer: boolean, size: number, shade: number, turn: number): GeoJSON.Feature[] {
+function tree(lng: number, lat: number, conifer: boolean, size: number, shade: number, turn: number, phase: number): GeoJSON.Feature[] {
   if (conifer) {
     const height = 9 + size * 5
     const radius = 2.2 + size * 0.8
     return [
-      part('trunk', true, shade, disc(lng, lat, 0.35, turn), 0, 1.5),
-      part('crown', true, shade, disc(lng, lat, radius, turn), 1.5, height * 0.55),
-      part('crown', true, shade, disc(lng, lat, radius * 0.62, turn), height * 0.55, height),
+      part('trunk', true, shade, phase, disc(lng, lat, 0.35, turn), 0, 1.5),
+      part('crown', true, shade, phase, disc(lng, lat, radius, turn), 1.5, height * 0.55),
+      part('crown', true, shade, phase, disc(lng, lat, radius * 0.62, turn), height * 0.55, height),
     ]
   }
   const trunk = 2.5 + size * 1.2
@@ -96,10 +101,12 @@ function tree(lng: number, lat: number, conifer: boolean, size: number, shade: n
   const radius = 2.8 + size * 1.8
   const crown = top - trunk
   return [
-    part('trunk', false, shade, disc(lng, lat, 0.4, turn), 0, trunk),
-    part('crown', false, shade, disc(lng, lat, radius * 0.78, turn), trunk, trunk + crown * 0.25),
-    part('crown', false, shade, disc(lng, lat, radius, turn), trunk + crown * 0.25, trunk + crown * 0.75),
-    part('crown', false, shade, disc(lng, lat, radius * 0.72, turn), trunk + crown * 0.75, top),
+    part('litter', false, shade, phase, disc(lng, lat, radius * 1.35, turn + 0.4), 0, 0),
+    part('trunk', false, shade, phase, disc(lng, lat, 0.4, turn), 0, trunk),
+    part('crown', false, shade, phase, disc(lng, lat, radius * 0.78, turn), trunk, trunk + crown * 0.25),
+    part('crown', false, shade, phase, disc(lng, lat, radius, turn), trunk + crown * 0.25, trunk + crown * 0.75),
+    part('crown', false, shade, phase, disc(lng, lat, radius * 0.72, turn), trunk + crown * 0.75, top),
+    part('twigs', false, shade, phase, disc(lng, lat, radius * 0.42, turn), trunk, top * 0.95),
   ]
 }
 
@@ -185,7 +192,7 @@ export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds): GeoJS
           continue
         planted.add(key)
         const conifer = hash(ix, iy, 3) < CONIFER_SHARE[kind]
-        trees.push(...tree(lng, lat, conifer, hash(ix, iy, 4), Math.floor(hash(ix, iy, 5) * 4), hash(ix, iy, 6) * Math.PI))
+        trees.push(...tree(lng, lat, conifer, hash(ix, iy, 4), Math.floor(hash(ix, iy, 5) * 4), hash(ix, iy, 6) * Math.PI, hash(ix, iy, 8)))
         // Запас на ошибку оценки — дальше не строим
         if (planted.size >= MAX_TREES * 1.3)
           return { type: 'FeatureCollection', features: trees }
@@ -195,46 +202,95 @@ export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds): GeoJS
   return { type: 'FeatureCollection', features: trees }
 }
 
-// --- Цвета крон по сезону ---
+// --- Цвета и видимость по сезону ---
 
-interface TreePalette {
-  /** Четыре оттенка лиственных — у каждого дерева свой, лес не выглядит заливкой. */
-  leaves: [string, string, string, string]
+interface Leaves {
+  /** Четыре оттенка — у каждого дерева свой, лес не выглядит заливкой. */
+  green: [string, string, string, string]
+  autumn: [string, string, string, string]
   conifer: string
+  twigs: string
+  trunk: string
+  snow: string
 }
 
-const TRUNK: Record<ThemeBase, string> = { light: '#a08a74', dark: '#3a3029' }
-
-const PALETTES: Record<ThemeBase, Record<Season, TreePalette>> = {
+const LEAVES: Record<ThemeBase, Leaves> = {
   light: {
-    spring: { leaves: ['#a8d88b', '#b6df98', '#98cc7e', '#f0cfdc'], conifer: '#6a9e66' },
-    summer: { leaves: ['#8fc27a', '#7fb46c', '#9dcc86', '#86bb72'], conifer: '#5c9160' },
-    autumn: { leaves: ['#e9b84c', '#e39a3b', '#d6c35a', '#cf7038'], conifer: '#6b8f5e' },
-    winter: { leaves: ['#eaeff3', '#dfe6ec', '#d4dce4', '#e5ebf0'], conifer: '#7a988a' },
+    green: ['#8fc27a', '#7fb46c', '#9dcc86', '#86bb72'],
+    autumn: ['#e9b84c', '#e39a3b', '#d6c35a', '#cf7038'],
+    conifer: '#5c9160',
+    twigs: '#a8988a',
+    trunk: '#a08a74',
+    snow: '#eef3f7',
   },
   dark: {
-    spring: { leaves: ['#3d6e37', '#467640', '#355f31', '#7a4d63'], conifer: '#25492c' },
-    summer: { leaves: ['#2f5a33', '#27502c', '#366239', '#2b5530'], conifer: '#1f4428' },
-    autumn: { leaves: ['#8c6325', '#7f501f', '#8f7a30', '#733b1b'], conifer: '#29452b' },
-    winter: { leaves: ['#56616d', '#4c5661', '#5f6a76', '#48525c'], conifer: '#2b3f35' },
+    green: ['#2f5a33', '#27502c', '#366239', '#2b5530'],
+    autumn: ['#8c6325', '#7f501f', '#8f7a30', '#733b1b'],
+    conifer: '#1f4428',
+    twigs: '#3d352f',
+    trunk: '#3a3029',
+    snow: '#5d6873',
   },
 }
 
-function mixPalette(a: TreePalette, b: TreePalette, t: number): TreePalette {
-  return {
-    leaves: a.leaves.map((color, i) => mixHex(color, b.leaves[i]!, t)) as TreePalette['leaves'],
-    conifer: mixHex(a.conifer, b.conifer, t),
-  }
+/** Весенняя листва светлее и сочнее летней. */
+const SPRING_GREEN: Record<ThemeBase, Leaves['green']> = {
+  light: ['#a8d88b', '#b6df98', '#98cc7e', '#aedb90'],
+  dark: ['#3d6e37', '#467640', '#355f31', '#40703a'],
 }
 
-export function treeColor(base: ThemeBase, { from, to, t }: SeasonBlend): ExpressionSpecification {
-  const { leaves, conifer } = mixPalette(PALETTES[base][from], PALETTES[base][to], t)
+function shades(colors: Leaves['green']): ExpressionSpecification {
+  return ['match', ['get', 'shade'], 0, colors[0], 1, colors[1], 2, colors[2], colors[3]]
+}
+
+/** Весна — доля весенней зелени в листве (0 — летняя). */
+function greenFor(base: ThemeBase, blend: SeasonBlend): Leaves['green'] {
+  const share = (season: Season) => season === 'spring' ? 1 : 0
+  const spring = share(blend.from) * (1 - blend.t) + share(blend.to) * blend.t
+  return LEAVES[base].green.map((color, i) => mixHex(color, SPRING_GREEN[base][i]!, spring)) as Leaves['green']
+}
+
+/**
+ * Цвет частей дерева: пожелтевшие — те, чья phase меньше доли пожелтевших;
+ * хвоя, ветки и стволы под снегом светлеют.
+ */
+export function treeColor(base: ThemeBase, blend: SeasonBlend, foliage: Foliage): ExpressionSpecification {
+  const leaves = LEAVES[base]
+  const snowy = (color: string, amount: number) => mixHex(color, leaves.snow, foliage.snow * amount)
   return [
     'case',
     ['==', ['get', 'part'], 'trunk'],
-    TRUNK[base],
+    leaves.trunk,
+    ['==', ['get', 'part'], 'twigs'],
+    snowy(leaves.twigs, 0.7),
     ['get', 'conifer'],
-    conifer,
-    ['match', ['get', 'shade'], 0, leaves[0], 1, leaves[1], 2, leaves[2], leaves[3]],
+    snowy(leaves.conifer, 0.45),
+    ['<', ['get', 'phase'], foliage.turned],
+    shades(leaves.autumn),
+    shades(greenFor(base, blend)),
   ]
+}
+
+/** Облетевшие лиственные стоят голыми ветками, остальные — с кроной; ковёр листвы — отдельный слой. */
+export function treeFilter(foliage: Foliage): FilterSpecification {
+  const fallen: ExpressionSpecification = ['all', ['!', ['get', 'conifer']], ['<', ['get', 'phase'], foliage.fallen]]
+  return [
+    'any',
+    ['==', ['get', 'part'], 'trunk'],
+    ['all', ['==', ['get', 'part'], 'crown'], ['!', fallen]],
+    ['all', ['==', ['get', 'part'], 'twigs'], fallen],
+  ]
+}
+
+/** Листва лежит под облетевшими деревьями, пока её не засыплет снег. */
+export function litterFilter(foliage: Foliage): FilterSpecification {
+  return ['all', ['==', ['get', 'part'], 'litter'], ['<', ['get', 'phase'], foliage.fallen]]
+}
+
+export function litterColor(base: ThemeBase): ExpressionSpecification {
+  return shades(LEAVES[base].autumn)
+}
+
+export function litterOpacity(foliage: Foliage): number {
+  return Math.round(0.8 * (1 - foliage.snow) * 100) / 100
 }

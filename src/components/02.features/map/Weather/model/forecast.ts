@@ -23,12 +23,14 @@ export interface Weather {
   isDay: boolean
   /** Облачность, 0..1 — для неба и теней карты. */
   cloudCover: number
+  /** Высота снежного покрова, м. */
+  snowDepth: number
   slots: Slot[]
   fetchedAt: number
 }
 
 interface Response {
-  current: { temperature_2m: number, weather_code: number, cloud_cover: number, is_day: number }
+  current: { temperature_2m: number, weather_code: number, cloud_cover: number, is_day: number, snow_depth?: number }
   minutely_15: { time: number[], precipitation: number[], snowfall: number[] }
 }
 
@@ -53,7 +55,7 @@ export async function fetchWeather([lng, lat]: MapPoint, signal?: AbortSignal): 
   const params = new URLSearchParams({
     latitude: lat.toFixed(3),
     longitude: lng.toFixed(3),
-    current: 'temperature_2m,weather_code,cloud_cover,is_day',
+    current: 'temperature_2m,weather_code,cloud_cover,is_day,snow_depth',
     minutely_15: 'precipitation,snowfall',
     forecast_minutely_15: String(SLOTS),
     timeformat: 'unixtime',
@@ -68,6 +70,7 @@ export async function fetchWeather([lng, lat]: MapPoint, signal?: AbortSignal): 
     sky: skyFromCode(current.weather_code),
     isDay: current.is_day === 1,
     cloudCover: current.cloud_cover / 100,
+    snowDepth: current.snow_depth ?? 0,
     slots: minutely.time.map((time, i) => ({
       time: time * 1000,
       mm: minutely.precipitation[i] ?? 0,

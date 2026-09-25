@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import type { Sky } from '../model/forecast'
-import type { MapPoint } from '@/types/shared/map'
 import { storeToRefs } from 'pinia'
 import { describe, HEAVY_MM, WET_MM } from '../model/forecast'
 import { useWeatherStore } from '../model/store'
-
-const props = defineProps<{
-  userCoordinates: MapPoint | null
-}>()
-
-const REFRESH_MS = 15 * 60_000
 
 const store = useWeatherStore()
 const { weather } = storeToRefs(store)
@@ -59,21 +52,7 @@ function clockLabel(time: number): string {
   return new Date(time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })
 }
 
-watch(() => props.userCoordinates, point => store.refresh(point), { immediate: true })
-const timer = setInterval(() => store.refresh(props.userCoordinates), REFRESH_MS)
-
-function onVisibility() {
-  if (document.visibilityState === 'visible')
-    store.refresh(props.userCoordinates)
-}
-document.addEventListener('visibilitychange', onVisibility)
-onActivated(() => store.refresh(props.userCoordinates))
-
-onUnmounted(() => {
-  clearInterval(timer)
-  clearInterval(clock)
-  document.removeEventListener('visibilitychange', onVisibility)
-})
+onUnmounted(() => clearInterval(clock))
 </script>
 
 <template>

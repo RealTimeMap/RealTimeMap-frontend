@@ -2,15 +2,18 @@
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
 import type { ViewBounds } from '../model/trees'
-import type { SeasonBlend } from '@/components/00.shared/lib/season'
+import type { Foliage, SeasonBlend } from '@/components/00.shared/lib/season'
 import { storeToRefs } from 'pinia'
-import { fixedSeason, seasonAt } from '@/components/00.shared/lib/season'
+import { fixedFoliage, fixedSeason, foliageAt, seasonAt } from '@/components/00.shared/lib/season'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
-import { plantTrees, treeColor } from '../model/trees'
+import { useWeatherStore } from '@/components/02.features/map/Weather'
+import { litterColor, litterFilter, litterOpacity, plantTrees, treeColor, treeFilter } from '../model/trees'
 
 const SOURCE_ID = 'map-trees'
 const LAYER_ID = 'map-trees'
+/** Ковёр опавшей листвы — плоский слой под деревьями. */
+const LITTER_LAYER_ID = 'map-trees-litter'
 /** Векторный источник CARTO и слой с лесами и газонами. */
 const CARTO_SOURCE = 'carto'
 const LANDCOVER_LAYER = 'landcover'
@@ -28,6 +31,7 @@ const PLANT_SNAP = 0.25
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const { mapSeason, resolvedTheme } = storeToRefs(useSettingsStore())
+const weatherStore = useWeatherStore()
 
 function season(instance: maplibregl.Map): SeasonBlend {
   if (mapSeason.value === 'auto')
@@ -35,8 +39,15 @@ function season(instance: maplibregl.Map): SeasonBlend {
   return fixedSeason(mapSeason.value === 'off' ? 'summer' : mapSeason.value)
 }
 
+/** Листопад и снег: в «Авто» — по дате и настоящему снегу из прогноза. */
+function foliage(instance: maplibregl.Map): Foliage {
+  if (mapSeason.value === 'auto')
+    return foliageAt(new Date(), instance.getCenter().lat, weatherStore.snowDepth)
+  return fixedFoliage(mapSeason.value === 'off' ? 'summer' : mapSeason.value)
+}
+
 function color(instance: maplibregl.Map) {
-  return treeColor(themeBase(resolvedTheme.value), season(instance))
+  return treeColor(themeBase(resolvedTheme.value), season(instance), foliage(instance))
 }
 
 function beforeId(instance: maplibregl.Map): string | undefined {
@@ -50,11 +61,24 @@ function ensureLayer(instance: maplibregl.Map) {
     instance.addSource(SOURCE_ID, { type: 'geojson', data: EMPTY })
   if (instance.getLayer(LAYER_ID))
     return
+  const state = foliage(instance)
+  instance.addLayer({
+    id: LITTER_LAYER_ID,
+    type: 'fill',
+    source: SOURCE_ID,
+    minzoom: MIN_ZOOM,
+    filter: litterFilter(state),
+    paint: {
+      'fill-color': litterColor(themeBase(resolvedTheme.value)),
+      'fill-opacity': litterOpacity(state),
+    },
+  }, beforeId(instance))
   instance.addLayer({
     id: LAYER_ID,
     type: 'fill-extrusion',
     source: SOURCE_ID,
     minzoom: MIN_ZOOM,
+    filter: treeFilter(state),
     paint: {
       'fill-extrusion-color': color(instance),
       // Деревья вырастают вместе с приближением, как и здания; основание растёт вместе с высотой
@@ -141,11 +165,17 @@ function sync() {
 
 function recolor() {
   const instance = map?.value
-  if (instance?.getLayer(LAYER_ID))
-    instance.setPaintProperty(LAYER_ID, 'fill-extrusion-color', color(instance))
+  if (!instance?.getLayer(LAYER_ID) || !instance.getLayer(LITTER_LAYER_ID))
+    return
+  const state = foliage(instance)
+  instance.setPaintProperty(LAYER_ID, 'fill-extrusion-color', color(instance))
+  instance.setFilter(LAYER_ID, treeFilter(state))
+  instance.setFilter(LITTER_LAYER_ID, litterFilter(state))
+  instance.setPaintProperty(LITTER_LAYER_ID, 'fill-color', litterColor(themeBase(resolvedTheme.value)))
+  instance.setPaintProperty(LITTER_LAYER_ID, 'fill-opacity', litterOpacity(state))
 }
 
-watch([mapSeason, resolvedTheme], recolor)
+watch([mapSeason, resolvedTheme, () => weatherStore.snowDepth], recolor)
 // Сезон в режиме «Авто» меняется медленно — раз в час достаточно
 const timer = setInterval(recolor, 60 * 60_000)
 
@@ -164,8 +194,10 @@ onUnmounted(() => {
     return
   instance.off('styledata', sync)
   instance.off('idle', replant)
-  if (instance.getLayer(LAYER_ID))
-    instance.removeLayer(LAYER_ID)
+  for (const id of [LAYER_ID, LITTER_LAYER_ID]) {
+    if (instance.getLayer(id))
+      instance.removeLayer(id)
+  }
   if (instance.getSource(SOURCE_ID))
     instance.removeSource(SOURCE_ID)
 })

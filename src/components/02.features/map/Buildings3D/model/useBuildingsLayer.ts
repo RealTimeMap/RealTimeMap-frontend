@@ -160,8 +160,47 @@ export const SUNLIT_AREA: GeoJSON.Feature = {
   geometry: { type: 'Polygon', coordinates: [[[-180, -85], [180, -85], [180, 85], [-180, 85], [-180, -85]]] },
 }
 
+export const SNOW_LAYER_ID = '3d-buildings-snow'
+
 export function isBuildingsLayer(id: string): boolean {
-  return id === BUILDINGS_LAYER_ID || id === SHADOW_LAYER_ID || id === SUNLIT_LAYER_ID
+  return id === BUILDINGS_LAYER_ID || id === SHADOW_LAYER_ID || id === SUNLIT_LAYER_ID || id === SNOW_LAYER_ID
+}
+
+// --- Снег на крышах ---
+// Тонкая белая шапка поверх каждого дома. Слой включён только при снеге: иначе геометрия
+// зданий строилась бы дважды впустую
+
+/** Толщина снежной шапки, м. */
+const SNOW_CAP = 0.6
+/** Меньше этого снега крыши не белеют — пороша тает на тёплых крышах первой. */
+export const ROOF_SNOW_MIN = 0.3
+
+const SNOW_COLOR: Record<ThemeBase, string> = { light: '#fbfdff', dark: '#aab3bd' }
+
+export function createSnowLayer(base: ThemeBase, snow: number): FillExtrusionLayerSpecification {
+  return {
+    'id': SNOW_LAYER_ID,
+    'type': 'fill-extrusion',
+    'source': SOURCE_ID,
+    'source-layer': SOURCE_LAYER,
+    'minzoom': MIN_ZOOM,
+    'layout': { visibility: snow >= ROOF_SNOW_MIN ? 'visible' : 'none' },
+    'paint': {
+      'fill-extrusion-color': SNOW_COLOR[base],
+      'fill-extrusion-base': HEIGHT,
+      'fill-extrusion-height': byZoom(['+', RAW_HEIGHT, SNOW_CAP]),
+      'fill-extrusion-opacity': snowOpacity(snow),
+      'fill-extrusion-vertical-gradient': false,
+    },
+  }
+}
+
+export function snowColor(base: ThemeBase): string {
+  return SNOW_COLOR[base]
+}
+
+export function snowOpacity(snow: number): number {
+  return Math.round(Math.min(1, 0.4 + snow * 0.6) * 100) / 100
 }
 
 function sunFade(sun: SunPosition): number {

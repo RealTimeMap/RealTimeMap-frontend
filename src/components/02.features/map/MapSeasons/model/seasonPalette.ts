@@ -40,8 +40,23 @@ function mixPalettes(a: SeasonPalette, b: SeasonPalette, t: number): SeasonPalet
   return Object.fromEntries(keys.map(key => [key, mixHex(a[key], b[key], t)])) as unknown as SeasonPalette
 }
 
+/** Зима без снега: пожухлая трава, голые серо-бурые леса, холодная тёмная вода. */
+const BARE: Record<ThemeBase, SeasonPalette> = {
+  light: { ground: '#f7f6f3', green: '#e6e6da', wood: '#dcd8cc', water: '#cad4d9', waterway: '#c3cdd2' },
+  dark: { ground: '#0f0f0f', green: '#151612', wood: '#191713', water: '#262f35', waterway: '#374a57' },
+}
+
 export function paletteFor(base: ThemeBase, { from, to, t }: SeasonBlend): SeasonPalette {
   return mixPalettes(PALETTES[base][from], PALETTES[base][to], t)
+}
+
+/**
+ * Палитра с настоящим снегом: календарная зима заменяется бесснежной, а белизна — по снежному покрову.
+ * Снег выпал в октябре — карта белеет; в январе оттепель и снег сошёл — земля снова серая.
+ */
+export function paletteWithSnow(base: ThemeBase, { from, to, t }: SeasonBlend, snow: number): SeasonPalette {
+  const season = (value: Season) => value === 'winter' ? BARE[base] : PALETTES[base][value]
+  return mixPalettes(mixPalettes(season(from), season(to), t), PALETTES[base].winter, snow)
 }
 
 /** Какие слои стиля CARTO и каким свойством перекрашиваются. */

@@ -4,9 +4,10 @@ import type { ShallowRef } from 'vue'
 import type { SeasonPalette, SeasonProperty } from '../model/seasonPalette'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { storeToRefs } from 'pinia'
-import { fixedSeason, seasonAt } from '@/components/00.shared/lib/season'
+import { fixedSeason, foliageAt, seasonAt } from '@/components/00.shared/lib/season'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
-import { paletteFor, SEASON_TARGETS, seasonValue } from '../model/seasonPalette'
+import { useWeatherStore } from '@/components/02.features/map/Weather'
+import { paletteFor, paletteWithSnow, SEASON_TARGETS, seasonValue } from '../model/seasonPalette'
 
 /** Сезон меняется медленно — раз в час достаточно. */
 const UPDATE_MS = 60 * 60_000
@@ -15,6 +16,7 @@ const STYLE_BASE: Record<string, ThemeBase> = { 'Positron': 'light', 'Dark Matte
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const { mapSeason } = storeToRefs(useSettingsStore())
+const weatherStore = useWeatherStore()
 
 // Исходные цвета стиля — чтобы вернуть их при «Выкл.» и при уходе со страницы
 const originals = new Map<string, Map<string, unknown>>()
@@ -41,8 +43,12 @@ function setIfChanged(instance: maplibregl.Map, layer: string, property: SeasonP
 function palette(base: ThemeBase, instance: maplibregl.Map): SeasonPalette | null {
   if (mapSeason.value === 'off')
     return null
-  if (mapSeason.value === 'auto')
-    return paletteFor(base, seasonAt(new Date(), instance.getCenter().lat))
+  if (mapSeason.value === 'auto') {
+    const date = new Date()
+    const { lat } = instance.getCenter()
+    const { snow } = foliageAt(date, lat, weatherStore.snowDepth)
+    return paletteWithSnow(base, seasonAt(date, lat), snow)
+  }
   return paletteFor(base, fixedSeason(mapSeason.value))
 }
 
@@ -75,7 +81,8 @@ function scheduleApply() {
   })
 }
 
-watch(mapSeason, apply)
+// Снег выпал или сошёл — карта перекрашивается
+watch([mapSeason, () => weatherStore.snowDepth], apply)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', scheduleApply)
