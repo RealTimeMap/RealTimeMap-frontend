@@ -104,7 +104,7 @@ onMounted(() => {
     mapInstance.setProjection({
       type: 'globe',
     })
-    mapInstance.setMinZoom(3)
+    mapInstance.setMinZoom(2)
   })
 
   const emitBounds = () => {
