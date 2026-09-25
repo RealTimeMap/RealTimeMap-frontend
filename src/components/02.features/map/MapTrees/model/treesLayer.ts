@@ -1,4 +1,4 @@
-import type { CustomLayerInterface, CustomRenderMethodInput, Map } from 'maplibre-gl'
+import type { CustomLayerInterface, CustomRenderMethodInput, Map as MapLibreMap } from 'maplibre-gl'
 import type { TreeLook, TreeSpot } from './trees'
 import { MercatorCoordinate } from 'maplibre-gl'
 import * as THREE from 'three'
@@ -14,6 +14,31 @@ const FULL_ZOOM = 15.5
 /** Голые ветки облетевшего дерева — узкая крона того же силуэта. */
 const BARE_WIDTH = 0.5
 const BARE_HEIGHT = 0.85
+/** Новое дерево вырастает из земли за это время, с. Разброс старта — чтобы роща не вставала разом. */
+const GROW_SECONDS = 0.6
+const GROW_SCATTER = 0.35
+
+/**
+ * Рост в вершинном шейдере: доля роста — от времени рождения экземпляра, дерево растёт от своего основания.
+ * В кадре на процессоре ничего не пересчитывается — меняется одно число uTime.
+ */
+function withGrowth(material: THREE.Material, time: { value: number }) {
+  material.onBeforeCompile = (shader) => {
+    shader.uniforms.uTime = time
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nattribute float aBorn;\nuniform float uTime;')
+      .replace('#include <project_vertex>', `
+        float growT = clamp((uTime - aBorn) / ${GROW_SECONDS.toFixed(2)}, 0.0, 1.0);
+        float grow = 1.0 - pow(1.0 - growT, 3.0);
+        vec4 mvPosition = instanceMatrix * vec4(transformed, 1.0);
+        mvPosition.xz = mix(instanceMatrix[3].xz, mvPosition.xz, grow);
+        mvPosition.y *= grow;
+        mvPosition = modelViewMatrix * mvPosition;
+        gl_Position = projectionMatrix * mvPosition;
+      `)
+  }
+}
+
 /** Высота солнца для света на гранях: настоящая ночью ушла бы под землю, а днём давала бы плоский свет. */
 const LIGHT_ALTITUDE = 50 * Math.PI / 180
 
@@ -32,7 +57,11 @@ interface Placed {
   spot: TreeSpot
   x: number
   z: number
+  /** Когда дерево начинает расти, с от начала работы слоя. */
+  born: number
 }
+
+const treeKey = (spot: TreeSpot) => `${spot.lng.toFixed(6)},${spot.lat.toFixed(6)}`
 
 interface Meshes {
   trunk: THREE.InstancedMesh
@@ -58,9 +87,14 @@ export function createTreesLayer(id: string): TreesLayer {
   let origin = new MercatorCoordinate(0, 0, 0)
   let originScale = 1
   let dirty = false
+  const epoch = performance.now()
+  const seconds = () => (performance.now() - epoch) / 1000
+  const time = { value: 0 }
+  /** Пока кто-то растёт, карта перерисовывается каждый кадр; потом — только когда двигается. */
+  let growUntil = 0
   let lastAzimuth = 180
 
-  let map: Map | null = null
+  let map: MapLibreMap | null = null
   let renderer: THREE.WebGLRenderer | null = null
   let scene: THREE.Scene | null = null
   let camera: THREE.Camera | null = null
@@ -70,14 +104,16 @@ export function createTreesLayer(id: string): TreesLayer {
   function instanced(geometry: THREE.BufferGeometry, material: THREE.Material, perTree = 1): THREE.InstancedMesh {
     const mesh = new THREE.InstancedMesh(geometry, material, MAX_TREE_COUNT * perTree)
     mesh.count = 0
+    mesh.geometry.setAttribute('aBorn', new THREE.InstancedBufferAttribute(new Float32Array(MAX_TREE_COUNT * perTree), 1))
     // Экземпляры разбросаны по всему участку — границы единичной формы для отсечения не годятся
     mesh.frustumCulled = false
     mesh.setColorAt(0, _color)
     return mesh
   }
 
-  function put(mesh: THREE.InstancedMesh, x: number, z: number, base: number, height: number, width: number, turn: number, color: THREE.Color) {
+  function put(mesh: THREE.InstancedMesh, x: number, z: number, base: number, height: number, width: number, turn: number, color: THREE.Color, born: number) {
     const index = mesh.count++
+    ;(mesh.geometry.getAttribute('aBorn') as THREE.InstancedBufferAttribute).setX(index, born)
     _position.set(x, base, z)
     _rotation.setFromAxisAngle(_up, turn)
     _scale.set(width, height, width)
@@ -93,19 +129,20 @@ export function createTreesLayer(id: string): TreesLayer {
     for (const mesh of Object.values(meshes))
       mesh.count = 0
 
-    for (const { spot, x, z } of placed) {
+    for (const { spot, x, z, born } of placed) {
       const shape = treeShape(spot)
       const bare = isBare(spot, look.foliage)
-      put(meshes.trunk, x, z, 0, shape.trunk.height, shape.trunk.diameter, spot.turn, _trunkColor)
+      put(meshes.trunk, x, z, 0, shape.trunk.height, shape.trunk.diameter, spot.turn, _trunkColor, born)
       _color.set(paint(spot))
       for (const crown of shape.crowns) {
         const width = crown.diameter * (bare ? BARE_WIDTH : 1)
         const height = crown.height * (bare ? BARE_HEIGHT : 1)
-        put(crown.cone ? meshes.cone : meshes.blob, x, z, crown.base, height, width, spot.turn, _color)
+        put(crown.cone ? meshes.cone : meshes.blob, x, z, crown.base, height, width, spot.turn, _color, born)
       }
     }
 
     for (const mesh of Object.values(meshes)) {
+      mesh.geometry.getAttribute('aBorn').needsUpdate = true
       mesh.instanceMatrix.needsUpdate = true
       if (mesh.instanceColor)
         mesh.instanceColor.needsUpdate = true
@@ -120,10 +157,15 @@ export function createTreesLayer(id: string): TreesLayer {
       origin = MercatorCoordinate.fromLngLat([lng, lat], 0)
       originScale = origin.meterInMercatorCoordinateUnits()
     }
+    // Деревья, которые уже стояли, не растут заново — только новые
+    const now = seconds()
+    const previous = new Map(placed.map(item => [treeKey(item.spot), item.born]))
     placed = trees.map((spot) => {
       const point = MercatorCoordinate.fromLngLat([spot.lng, spot.lat], 0)
-      return { spot, x: (point.x - origin.x) / originScale, z: (point.y - origin.y) / originScale }
+      const born = previous.get(treeKey(spot)) ?? now + spot.phase * GROW_SCATTER
+      return { spot, x: (point.x - origin.x) / originScale, z: (point.y - origin.y) / originScale, born }
     })
+    growUntil = Math.max(growUntil, now + GROW_SCATTER + GROW_SECONDS)
     dirty = true
     map?.triggerRepaint()
   }
@@ -149,7 +191,7 @@ export function createTreesLayer(id: string): TreesLayer {
     setTrees,
     setLook,
 
-    onAdd(instance: Map, gl: WebGLRenderingContext | WebGL2RenderingContext) {
+    onAdd(instance: MapLibreMap, gl: WebGLRenderingContext | WebGL2RenderingContext) {
       map = instance
       scene = new THREE.Scene()
       camera = new THREE.Camera()
@@ -160,6 +202,7 @@ export function createTreesLayer(id: string): TreesLayer {
       // Плоские грани — узнаваемый low-poly: каждая грань своего оттенка от света.
       // Формы минимальные: додекаэдр — 36 треугольников, у ствола и конусов нет невидимых донышек
       const material = new THREE.MeshLambertMaterial({ flatShading: true })
+      withGrowth(material, time)
       meshes = {
         trunk: instanced(unit(new THREE.CylinderGeometry(0.4, 0.5, 1, 5, 1, true)), material),
         blob: instanced(unit(new THREE.DodecahedronGeometry(0.5)), material),
@@ -210,8 +253,11 @@ export function createTreesLayer(id: string): TreesLayer {
       camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
 
       // Глубину не чистим: здания и деревья закрывают друг друга честно
+      time.value = seconds()
       renderer.resetState()
       renderer.render(scene, camera)
+      if (time.value < growUntil)
+        map.triggerRepaint()
     },
   }
 }
