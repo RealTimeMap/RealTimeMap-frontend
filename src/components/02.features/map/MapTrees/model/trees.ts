@@ -15,14 +15,73 @@ import { mixHex } from '@/components/00.shared/lib/colorMix'
 const SPACING = { wood: 20, park: 28, grass: 64 }
 /** Предохранитель на случай огромного лесопарка в кадре — в обычном городе не срабатывает. */
 const MAX_TREES = 4000
-const CONIFER_SHARE = { wood: 0.22, park: 0.06, grass: 0.04 }
+export const MAX_TREE_COUNT = Math.ceil(MAX_TREES * 1.3)
+const CONIFER_SHARE = { wood: 0.35, park: 0.15, grass: 0.1 }
 const PARK_SUBCLASSES = new Set(['park', 'garden', 'recreation_ground', 'village_green', 'cemetery'])
 const METERS_PER_DEGREE_LAT = 110_540
 const METERS_PER_DEGREE_LNG = 111_320
-const CROWN_SIDES = 10
+const LITTER_SIDES = 12
 
 type Kind = keyof typeof SPACING
 type Ring = GeoJSON.Position[]
+
+/** Форма дерева: круглая крона, узкий тополь, ёлка. */
+export type TreeForm = 'round' | 'tall' | 'fir'
+
+/** Одно дерево: где стоит и чем отличается от соседей. Геометрию строит слой на видеокарте. */
+export interface TreeSpot {
+  lng: number
+  lat: number
+  form: TreeForm
+  /** 0..1 — размер внутри своей формы. */
+  size: number
+  /** Один из четырёх оттенков листвы. */
+  shade: number
+  /** Поворот вокруг оси, радианы, — грани соседних деревьев не смотрят в одну сторону. */
+  turn: number
+  /** Когда дерево желтеет и облетает: 0 — первым, 1 — последним. Рисунок листопада постоянный. */
+  phase: number
+}
+
+export interface CrownShape {
+  base: number
+  height: number
+  diameter: number
+  cone: boolean
+}
+
+export interface TreeShape {
+  trunk: { height: number, diameter: number }
+  crowns: CrownShape[]
+}
+
+/** Размеры частей дерева в метрах. Крона начинается чуть ниже верха ствола — без щели между ними. */
+export function treeShape({ form, size }: TreeSpot): TreeShape {
+  if (form === 'fir') {
+    const height = 8 + size * 5
+    const diameter = 4.4 + size * 1.6
+    return {
+      trunk: { height: 1.2, diameter: 0.45 },
+      crowns: [
+        { base: 1, height: height * 0.62, diameter, cone: true },
+        { base: height * 0.4, height: height * 0.6, diameter: diameter * 0.68, cone: true },
+      ],
+    }
+  }
+  if (form === 'tall') {
+    const trunk = 1.4 + size * 0.6
+    return {
+      trunk: { height: trunk, diameter: 0.45 },
+      crowns: [{ base: trunk * 0.8, height: 8 + size * 5, diameter: 2.8 + size * 1.2, cone: false }],
+    }
+  }
+  const trunk = 1.8 + size
+  const diameter = 5 + size * 3
+  return {
+    trunk: { height: trunk, diameter: 0.55 },
+    crowns: [{ base: trunk * 0.85, height: diameter * 0.95, diameter, cone: false }],
+  }
+}
 
 /** Детерминированный хеш клетки → [0, 1). */
 function hash(ix: number, iy: number, salt: number): number {
@@ -56,58 +115,64 @@ function polygons(geometry: GeoJSON.Geometry): Ring[][] {
   return []
 }
 
-/** Ярус дерева — многоугольник вокруг точки: сверху круг, в 3D — объёмный диск. */
-function disc(lng: number, lat: number, radius: number, turn: number): GeoJSON.Position[] {
-  const dLng = radius / (METERS_PER_DEGREE_LNG * Math.cos(lat * Math.PI / 180))
+/** Ковёр листвы под деревом — плоский многоугольник вокруг ствола. */
+function litter(spot: TreeSpot, radius: number): GeoJSON.Feature {
+  const dLng = radius / (METERS_PER_DEGREE_LNG * Math.cos(spot.lat * Math.PI / 180))
   const dLat = radius / METERS_PER_DEGREE_LAT
-  const ring = Array.from({ length: CROWN_SIDES }, (_, i) => {
-    const angle = turn + (i / CROWN_SIDES) * Math.PI * 2
-    return [lng + Math.cos(angle) * dLng, lat + Math.sin(angle) * dLat]
+  const ring = Array.from({ length: LITTER_SIDES }, (_, i) => {
+    const angle = spot.turn + (i / LITTER_SIDES) * Math.PI * 2
+    return [spot.lng + Math.cos(angle) * dLng, spot.lat + Math.sin(angle) * dLat]
   })
-  return [...ring, ring[0]!]
-}
-
-/**
- * Части дерева. twigs — голые ветки облетевшего лиственного дерева, узкая бурая «крона»;
- * litter — плоский ковёр листвы под ним. Какие части видны, решают фильтры слоёв по phase.
- */
-type Part = 'trunk' | 'crown' | 'twigs' | 'litter'
-
-/** phase — когда дерево желтеет и облетает: 0 — первым, 1 — последним. Рисунок листопада постоянный. */
-function part(kind: Part, conifer: boolean, shade: number, phase: number, ring: GeoJSON.Position[], base: number, height: number): GeoJSON.Feature {
   return {
     type: 'Feature',
-    properties: { part: kind, conifer, shade, phase, base, height },
-    geometry: { type: 'Polygon', coordinates: [ring] },
+    properties: { shade: spot.shade, phase: spot.phase },
+    geometry: { type: 'Polygon', coordinates: [[...ring, ring[0]!]] },
   }
 }
 
+/** Клетка индекса зданий в градусах — около 50 м. */
+const BUILDING_CELL = 0.0005
+
 /**
- * Дерево из ярусов: у лиственного — уже снизу, шире в середине, уже сверху (округлая крона),
- * у ели — два сужающихся яруса. Ствол — тонкий столбик под кроной.
+ * Где стоят здания: газон в тайлах часто лежит и под домами, и без проверки дерево вырастало бы сквозь крышу.
+ * Контуры разложены по клеткам сетки — точка проверяется только с домами своей клетки.
  */
-function tree(lng: number, lat: number, conifer: boolean, size: number, shade: number, turn: number, phase: number): GeoJSON.Feature[] {
-  if (conifer) {
-    const height = 9 + size * 5
-    const radius = 2.2 + size * 0.8
-    return [
-      part('trunk', true, shade, phase, disc(lng, lat, 0.35, turn), 0, 1.5),
-      part('crown', true, shade, phase, disc(lng, lat, radius, turn), 1.5, height * 0.55),
-      part('crown', true, shade, phase, disc(lng, lat, radius * 0.62, turn), height * 0.55, height),
-    ]
+function buildingIndex(buildings: GeoJSON.Feature[]): (point: number[]) => boolean {
+  const cells = new Map<string, Ring[]>()
+  for (const building of buildings) {
+    for (const rings of polygons(building.geometry)) {
+      const outer = rings[0]
+      if (!outer || outer.length < 4)
+        continue
+      let [west, south, east, north] = [Infinity, Infinity, -Infinity, -Infinity]
+      for (const [x, y] of outer) {
+        west = Math.min(west, x!)
+        east = Math.max(east, x!)
+        south = Math.min(south, y!)
+        north = Math.max(north, y!)
+      }
+      for (let cx = Math.floor(west / BUILDING_CELL); cx <= Math.floor(east / BUILDING_CELL); cx++) {
+        for (let cy = Math.floor(south / BUILDING_CELL); cy <= Math.floor(north / BUILDING_CELL); cy++) {
+          const key = `${cx}:${cy}`
+          const list = cells.get(key)
+          if (list)
+            list.push(outer)
+          else
+            cells.set(key, [outer])
+        }
+      }
+    }
   }
-  const trunk = 2.5 + size * 1.2
-  const top = trunk + 4.5 + size * 3
-  const radius = 2.8 + size * 1.8
-  const crown = top - trunk
-  return [
-    part('litter', false, shade, phase, disc(lng, lat, radius * 1.35, turn + 0.4), 0, 0),
-    part('trunk', false, shade, phase, disc(lng, lat, 0.4, turn), 0, trunk),
-    part('crown', false, shade, phase, disc(lng, lat, radius * 0.78, turn), trunk, trunk + crown * 0.25),
-    part('crown', false, shade, phase, disc(lng, lat, radius, turn), trunk + crown * 0.25, trunk + crown * 0.75),
-    part('crown', false, shade, phase, disc(lng, lat, radius * 0.72, turn), trunk + crown * 0.75, top),
-    part('twigs', false, shade, phase, disc(lng, lat, radius * 0.42, turn), trunk, top * 0.95),
-  ]
+  return (point) => {
+    const rings = cells.get(`${Math.floor(point[0]! / BUILDING_CELL)}:${Math.floor(point[1]! / BUILDING_CELL)}`)
+    return !!rings?.some(ring => insideRing(point, ring))
+  }
+}
+
+function formOf(kind: Kind, ix: number, iy: number): TreeForm {
+  if (hash(ix, iy, 3) < CONIFER_SHARE[kind])
+    return 'fir'
+  return hash(ix, iy, 9) < 0.18 ? 'tall' : 'round'
 }
 
 export interface ViewBounds {
@@ -133,7 +198,14 @@ function ringArea(ring: Ring, mx: number, my: number): number {
   return Math.abs(sum) / 2
 }
 
-export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds): GeoJSON.FeatureCollection {
+export interface Planting {
+  trees: TreeSpot[]
+  /** Ковёр листвы под лиственными — рисуется плоским слоем карты. */
+  litter: GeoJSON.FeatureCollection
+}
+
+export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds, buildings: GeoJSON.Feature[] = []): Planting {
+  const inBuilding = buildingIndex(buildings)
   // Масштаб сетки по долготе — от широты, округлённой до градуса, а не от центра вида:
   // иначе при каждом сдвиге карты сетка чуть растягивается и деревья переезжают
   const gridLat = Math.round((view.south + view.north) / 2)
@@ -173,7 +245,9 @@ export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds): GeoJS
   // иначе деревья достаются только первым участкам, а остальная часть экрана пустая
   const keep = Math.min(1, MAX_TREES / Math.max(estimate, 1))
   const planted = new Set<string>()
-  const trees: GeoJSON.Feature[] = []
+  const trees: TreeSpot[] = []
+  const litters: GeoJSON.Feature[] = []
+  const result = (): Planting => ({ trees, litter: { type: 'FeatureCollection', features: litters } })
 
   for (const { kind, rings, west, south, east, north } of plots) {
     const step = SPACING[kind]
@@ -188,18 +262,28 @@ export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds): GeoJS
         const lng = (ix + 0.15 + hash(ix, iy, 1) * 0.7) * step / mx
         const lat = (iy + 0.15 + hash(ix, iy, 2) * 0.7) * step / my
         const point = [lng, lat]
-        if (!insideRing(point, outer) || rings.slice(1).some(hole => insideRing(point, hole)))
+        if (!insideRing(point, outer) || rings.slice(1).some(hole => insideRing(point, hole)) || inBuilding(point))
           continue
         planted.add(key)
-        const conifer = hash(ix, iy, 3) < CONIFER_SHARE[kind]
-        trees.push(...tree(lng, lat, conifer, hash(ix, iy, 4), Math.floor(hash(ix, iy, 5) * 4), hash(ix, iy, 6) * Math.PI, hash(ix, iy, 8)))
+        const spot: TreeSpot = {
+          lng,
+          lat,
+          form: formOf(kind, ix, iy),
+          size: hash(ix, iy, 4),
+          shade: Math.floor(hash(ix, iy, 5) * 4),
+          turn: hash(ix, iy, 6) * Math.PI,
+          phase: hash(ix, iy, 8),
+        }
+        trees.push(spot)
+        if (spot.form !== 'fir')
+          litters.push(litter(spot, treeShape(spot).crowns[0]!.diameter * 0.65))
         // Запас на ошибку оценки — дальше не строим
-        if (planted.size >= MAX_TREES * 1.3)
-          return { type: 'FeatureCollection', features: trees }
+        if (planted.size >= MAX_TREE_COUNT)
+          return result()
       }
     }
   }
-  return { type: 'FeatureCollection', features: trees }
+  return result()
 }
 
 // --- Цвета и видимость по сезону ---
@@ -250,41 +334,44 @@ function greenFor(base: ThemeBase, blend: SeasonBlend): Leaves['green'] {
   return LEAVES[base].green.map((color, i) => mixHex(color, SPRING_GREEN[base][i]!, spring)) as Leaves['green']
 }
 
-/**
- * Цвет частей дерева: пожелтевшие — те, чья phase меньше доли пожелтевших;
- * хвоя, ветки и стволы под снегом светлеют.
- */
-export function treeColor(base: ThemeBase, blend: SeasonBlend, foliage: Foliage): ExpressionSpecification {
-  const leaves = LEAVES[base]
-  const snowy = (color: string, amount: number) => mixHex(color, leaves.snow, foliage.snow * amount)
-  return [
-    'case',
-    ['==', ['get', 'part'], 'trunk'],
-    leaves.trunk,
-    ['==', ['get', 'part'], 'twigs'],
-    snowy(leaves.twigs, 0.7),
-    ['get', 'conifer'],
-    snowy(leaves.conifer, 0.45),
-    ['<', ['get', 'phase'], foliage.turned],
-    shades(leaves.autumn),
-    shades(greenFor(base, blend)),
-  ]
+export interface TreeLook {
+  base: ThemeBase
+  blend: SeasonBlend
+  foliage: Foliage
 }
 
-/** Облетевшие лиственные стоят голыми ветками, остальные — с кроной; ковёр листвы — отдельный слой. */
-export function treeFilter(foliage: Foliage): FilterSpecification {
-  const fallen: ExpressionSpecification = ['all', ['!', ['get', 'conifer']], ['<', ['get', 'phase'], foliage.fallen]]
-  return [
-    'any',
-    ['==', ['get', 'part'], 'trunk'],
-    ['all', ['==', ['get', 'part'], 'crown'], ['!', fallen]],
-    ['all', ['==', ['get', 'part'], 'twigs'], fallen],
-  ]
+/** Облетевшее лиственное дерево стоит голыми ветками. */
+export function isBare(spot: TreeSpot, foliage: Foliage): boolean {
+  return spot.form !== 'fir' && spot.phase < foliage.fallen
+}
+
+/**
+ * Цвет кроны: пожелтевшие — те, чья phase меньше доли пожелтевших;
+ * хвоя и голые ветки под снегом светлеют. Считается один раз на смену сезона, не в кадре.
+ */
+export function crownPainter({ base, blend, foliage }: TreeLook): (spot: TreeSpot) => string {
+  const leaves = LEAVES[base]
+  const snowy = (color: string, amount: number) => mixHex(color, leaves.snow, foliage.snow * amount)
+  const green = greenFor(base, blend)
+  const twigs = snowy(leaves.twigs, 0.7)
+  // У ёлок тоже чуть разные оттенки — иначе ельник сливается в пятно
+  const firs = green.map(color => snowy(mixHex(leaves.conifer, color, 0.15), 0.45))
+  return (spot) => {
+    if (spot.form === 'fir')
+      return firs[spot.shade]!
+    if (isBare(spot, foliage))
+      return twigs
+    return spot.phase < foliage.turned ? leaves.autumn[spot.shade]! : green[spot.shade]!
+  }
+}
+
+export function trunkColor(base: ThemeBase): string {
+  return LEAVES[base].trunk
 }
 
 /** Листва лежит под облетевшими деревьями, пока её не засыплет снег. */
 export function litterFilter(foliage: Foliage): FilterSpecification {
-  return ['all', ['==', ['get', 'part'], 'litter'], ['<', ['get', 'phase'], foliage.fallen]]
+  return ['<', ['get', 'phase'], foliage.fallen]
 }
 
 export function litterColor(base: ThemeBase): ExpressionSpecification {
