@@ -4,11 +4,11 @@ import type {
   SubscriptionStatus,
   SubscriptionUser,
 } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 function authHeaders() {
   return {
-    Authorization: `Bearer ${getCookie('token')}`,
+    Authorization: `Bearer ${getAuthToken()}`,
   }
 }
 

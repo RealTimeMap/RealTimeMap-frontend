@@ -14,10 +14,10 @@ import type {
   MarkStat,
   RepliesQuery,
 } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 function authConfig() {
-  const token = getCookie('token')
+  const token = getAuthToken()
   return token ? { headers: { Authorization: `Bearer ${token}` } } : undefined
 }
 
@@ -31,7 +31,7 @@ export const markApi = {
   postMarkAdd: (payload: MarkAddPayload | FormData) =>
     apiService.post<Mark>('/marks/create', payload, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
 
@@ -76,7 +76,7 @@ export const markApi = {
     apiService.post<MarkShare>(`accrual/${id}/share`),
 
   getMarkStat: (id: number) => {
-    const token = getCookie('token')
+    const token = getAuthToken()
     return apiService.get<MarkStat>(
       `accrual/${id}/stat`,
       token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,

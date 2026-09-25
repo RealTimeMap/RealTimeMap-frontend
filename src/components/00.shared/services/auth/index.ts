@@ -6,7 +6,7 @@ import type {
   RegistrationPayload,
   ResetPasswordPayload,
 } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 export const authApi = {
   login(payload: LoginPayload): Promise<AuthResponse> {
@@ -36,7 +36,7 @@ export const authApi = {
   logout(): Promise<void> {
     return apiService.post<void>('/auth/logout', null, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     })
   },

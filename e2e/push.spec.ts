@@ -21,3 +21,14 @@ test('уведомления в браузере: предложение пос�
   await page.getByRole('button', { name: 'Включить' }).click()
   await expect.poll(() => page.evaluate(() => (window as unknown as { __asked: number }).__asked)).toBe(1)
 })
+
+test('не ответили на предложение — после перезапуска оно появляется снова', async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Notification, 'permission', { get: () => 'default' })
+  })
+  await openApp(page)
+  await expect(page.getByText('Включить уведомления?')).toBeVisible({ timeout: 10_000 })
+
+  await page.reload()
+  await expect(page.getByText('Включить уведомления?')).toBeVisible({ timeout: 10_000 })
+})

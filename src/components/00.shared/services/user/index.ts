@@ -7,7 +7,7 @@ import type {
   User,
   UserSettings,
 } from './index.type'
-import { getCookie } from '@/components/00.shared/lib/cookie'
+import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 export const userApi = {
   getProfile(params?: GetProfileParams): Promise<User> {
@@ -21,7 +21,7 @@ export const userApi = {
 
     return apiService.get<User>('/profile/me', {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
       params: queryParams,
     })
@@ -48,7 +48,7 @@ export const userApi = {
 
     return apiService.patch<User>('/profile/me', formData, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     })
   },
@@ -56,7 +56,7 @@ export const userApi = {
   settingsProfile() {
     return apiService.get<UserSettings>(`/profile/settings`, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     })
   },
@@ -64,7 +64,7 @@ export const userApi = {
   updateSettingsProfile(payload: UpdateUserSettings) {
     return apiService.patch<UserSettings>(`/profile/settings`, payload, {
       headers: {
-        Authorization: `Bearer ${getCookie('token')}`,
+        Authorization: `Bearer ${getAuthToken()}`,
       },
     })
   },
