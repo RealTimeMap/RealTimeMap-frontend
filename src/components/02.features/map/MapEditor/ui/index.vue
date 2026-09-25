@@ -16,6 +16,7 @@ const {
   showMapZoomLevel,
   showBuildings3D,
   showTrees,
+  animateWater,
   markPreviewSwipe,
   mapSeason,
 } = storeToRefs(settings)
@@ -174,6 +175,17 @@ const { close } = useDialogStore()
         <u-switch v-model="showTrees" />
       </div>
 
+      <div class="me-row">
+        <span class="me-row__icon"><u-icon
+          icon="app:map-loop"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">Живая вода</span>
+          <span class="me-row__hint">Блики на реках и прудах, зимой — лёд</span>
+        </div>
+        <u-switch v-model="animateWater" />
+      </div>
       <div class="me-row">
         <span class="me-row__icon"><u-icon
           icon="app:arrow-right"

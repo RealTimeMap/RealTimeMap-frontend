@@ -16,6 +16,7 @@ import { BaseMapView } from '@/components/02.features/map/MapCore'
 import { MapSeasons } from '@/components/02.features/map/MapSeasons'
 import { MapSky } from '@/components/02.features/map/MapSky'
 import { MapTrees } from '@/components/02.features/map/MapTrees'
+import { MapWater } from '@/components/02.features/map/MapWater'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
 import MarkCreateMenu from '@/components/02.features/mark/MarkCreateMenu'
 import MarkForm from '@/components/02.features/mark/MarkForm'
@@ -44,7 +45,7 @@ const settingsStore = useSettingsStore()
 const { heading } = useCompass()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D, showTrees } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D, showTrees, animateWater } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -223,6 +224,7 @@ watch(userPosition, (pos) => {
       <map-trees v-if="showTrees" />
       <map-sky />
       <map-seasons />
+      <map-water v-if="animateWater" />
       <landmarks-layer />
       <heading-cone
         v-if="userPosition && heading !== null"
