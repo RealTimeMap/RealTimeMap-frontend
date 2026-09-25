@@ -120,6 +120,19 @@
   }
 }
 
+/* Автор и описание — одна карточка, как заголовок и период выше */
+.author-card {
+  @include glass-panel(16px, 14px, true, false);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  .desc-wrapper {
+    padding-top: 12px;
+    border-top: 0.5px solid var(--border-subtle);
+  }
+}
+
 .owner-block {
   display: flex;
   gap: 12px;
@@ -181,9 +194,11 @@
 }
 
 /* --- COMMENTS STYLES --- */
+/* Комментарии — карточкой, как остальные блоки метки */
 .comments-section {
   display: flex;
   flex-direction: column;
+  @include glass-panel(16px, 14px, true, false);
 
   h3 {
     font-size: 16px;
@@ -196,8 +211,8 @@
 .comments-list {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  min-height: 120px;
+  gap: 12px;
+  min-height: 80px;
   // max-height: 280px;
   // overflow-y: auto;
   // padding-right: 8px;
