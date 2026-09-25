@@ -298,7 +298,7 @@ function featureHeight(properties: Record<string, unknown>): number {
  * а одинаковые копии дома из соседних тайлов отсеиваются по id и первой точке.
  */
 /** Тень ниже такой высоты — пара метров у стены, её не видно, а многоугольник рисуется. */
-const SHADOW_MIN_HEIGHT = 6
+export const SHADOW_MIN_HEIGHT = 6
 
 export interface ShadowArea {
   west: number

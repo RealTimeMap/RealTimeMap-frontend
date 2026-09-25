@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
+import type { ShadowArea } from '../model/useBuildingsLayer'
 import type { SunPosition } from '@/components/00.shared/lib/sun'
 import { storeToRefs } from 'pinia'
+import { latestWorker, plainFeatures } from '@/components/00.shared/lib/latestWorker'
+import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
 import { fixedFoliage, foliageAt } from '@/components/00.shared/lib/season'
 import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { themeBase } from '@/components/00.shared/lib/theme'
@@ -12,7 +15,6 @@ import {
   BUILDINGS_LAYER_ID,
   buildingsBeforeId,
   buildingsColor,
-  buildShadows,
   createBuildingsLayer,
   createShadowLayer,
   createSnowLayer,
@@ -21,6 +23,7 @@ import {
   isNight,
   ROOF_SNOW_MIN,
   SHADOW_LAYER_ID,
+  SHADOW_MIN_HEIGHT,
   SHADOW_SOURCE_ID,
   shadowColor,
   shadowOpacity,
@@ -233,6 +236,11 @@ function shadowArea(instance: maplibregl.Map) {
   return { west: lng - dLng, south: lat - dLat, east: lng + dLng, north: lat + dLat }
 }
 
+/** Тени считаются в отдельном потоке: выпуклые оболочки для сотен домов — заметная работа. */
+const shadowWorker = latestWorker<{ features: GeoJSON.Feature[], sun: SunPosition, lat: number, area: ShadowArea }, GeoJSON.FeatureCollection>(
+  () => new Worker(new URL('../model/shadows.worker.ts', import.meta.url), { type: 'module' }),
+)
+
 function updateShadows(instance: maplibregl.Map) {
   const source = instance.getSource<maplibregl.GeoJSONSource>(SHADOW_SOURCE_ID)
   if (!source || !instance.getLayer(BUILDINGS_LAYER_ID))
@@ -242,9 +250,16 @@ function updateShadows(instance: maplibregl.Map) {
   if (key === shadowsKey)
     return
   shadowsKey = key
+  // Низкие дома отсеиваем по свойству, не трогая геометрию: так в воркер уходит в разы меньше данных
   const features = instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER })
-  source.setData(buildShadows(features, position, lat, shadowArea(instance)))
+    .filter(feature => !feature.properties.hide_3d && Number(feature.properties.render_height ?? feature.properties.height ?? 12) >= SHADOW_MIN_HEIGHT)
+  shadowWorker.request({ features: plainFeatures(features), sun: position, lat, area: shadowArea(instance) }, (shadows) => {
+    if (!disposed)
+      source.setData(shadows)
+  })
 }
+
+let stopSettled: (() => void) | null = null
 
 function onIdle() {
   const instance = map?.value
@@ -374,11 +389,11 @@ watch(
   () => map?.value,
   (instance, previous) => {
     previous?.off('styledata', sync)
-    previous?.off('idle', onIdle)
+    stopSettled?.()
     previous?.off('movestart', onMoveStart)
     previous?.off('moveend', onMoveEnd)
     instance?.on('styledata', sync)
-    instance?.on('idle', onIdle)
+    stopSettled = instance ? onMapSettled(instance, onIdle) : null
     instance?.on('movestart', onMoveStart)
     instance?.on('moveend', onMoveEnd)
     sync()
@@ -415,7 +430,8 @@ onUnmounted(() => {
   if (!instance)
     return
   instance.off('styledata', sync)
-  instance.off('idle', onIdle)
+  stopSettled?.()
+  shadowWorker.dispose()
   instance.off('movestart', onMoveStart)
   instance.off('moveend', onMoveEnd)
   removeLayer(instance)

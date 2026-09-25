@@ -28,7 +28,7 @@ export function useMapLayers() {
   const showHeatmap = ref(readOptIn(COOKIE.heatmap))
   const showBuildings3D = ref(readOptIn(COOKIE.buildings))
   const showTrees = ref(readOptIn(COOKIE.trees))
-  const animateWater = ref(read(COOKIE.water))
+  const animateWater = ref(readOptIn(COOKIE.water))
   const showWeather = ref(read(COOKIE.weather))
   const markPreviewSwipe = ref(read(COOKIE.previewSwipe))
   const showNearbyStrip = ref(read(COOKIE.nearbyStrip))

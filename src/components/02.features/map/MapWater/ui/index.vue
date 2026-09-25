@@ -4,6 +4,7 @@ import type { ShallowRef } from 'vue'
 import type { Season } from '@/components/00.shared/lib/season'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { storeToRefs } from 'pinia'
+import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
 import { seasonAt } from '@/components/00.shared/lib/season'
 import { sunPosition } from '@/components/00.shared/lib/sun'
 import { themeBase } from '@/components/00.shared/lib/theme'
@@ -171,8 +172,13 @@ function frame() {
 }
 
 function riverInView(instance: maplibregl.Map): boolean {
+  // Во время смены стиля (переход к шару и обратно) слоя ещё нет — спрашивать его нельзя
+  if (!instance.getLayer(FLOW_LAYER))
+    return false
   return instance.queryRenderedFeatures({ layers: [FLOW_LAYER] }).length > 0
 }
+
+let stopSettled: (() => void) | null = null
 
 function wake() {
   const instance = map?.value
@@ -213,9 +219,9 @@ const slowTimer = setInterval(refresh, 10 * 60_000)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)
-  previous?.off('moveend', wake)
+  stopSettled?.()
   instance?.on('styledata', sync)
-  instance?.on('moveend', wake)
+  stopSettled = instance ? onMapSettled(instance, wake) : null
   sync()
 }, { immediate: true })
 
@@ -242,7 +248,7 @@ onUnmounted(() => {
   if (!instance)
     return
   instance.off('styledata', sync)
-  instance.off('moveend', wake)
+  stopSettled?.()
   for (const id of OWN_LAYERS) {
     if (instance.getLayer(id))
       instance.removeLayer(id)

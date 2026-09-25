@@ -37,6 +37,10 @@ const FULL_PITCH_ZOOM = 12
  */
 const GLOBE_ZOOM = 4.5
 const GLOBE_EXIT_ZOOM = 5
+/** Угол обзора по вертикали: стандартный MapLibre и расширенный при полном наклоне. */
+const BASE_FOV = 36.87
+const WIDE_FOV = 60
+const WIDE_FROM_PITCH = 45
 
 const shareStore = useShareStore()
 interface MapEmits {
@@ -93,7 +97,7 @@ onMounted(() => {
     mapInstance.setProjection({
       type: 'globe',
     })
-    mapInstance.setMinZoom(2.5)
+    mapInstance.setMinZoom(3)
   })
 
   const emitBounds = () => {
@@ -114,6 +118,17 @@ onMounted(() => {
   }
   mapInstance.on('zoom', limitPitch)
   limitPitch()
+
+  // При сильном наклоне угол обзора расширяется: над горизонтом видно небо, звёзды и луну.
+  // Наклон больше 70° не даём из-за ряби на стенах — расширение обзора даёт тот же вид без неё
+  const widenView = () => {
+    const t = Math.min(1, Math.max(0, (mapInstance.getPitch() - WIDE_FROM_PITCH) / (MAX_PITCH - WIDE_FROM_PITCH)))
+    const fov = Math.round((BASE_FOV + (WIDE_FOV - BASE_FOV) * t) * 10) / 10
+    if (Math.abs(fov - mapInstance.getVerticalFieldOfView()) > 0.05)
+      mapInstance.setVerticalFieldOfView(fov)
+  }
+  mapInstance.on('pitch', widenView)
+  widenView()
 
   mapInstance.on('moveend', emitBounds)
   offDoubleTap = onDoubleTap(mapInstance, (e) => {
@@ -148,8 +163,28 @@ function applyStyle(delay: number) {
   styleTimer = setTimeout(() => map.value?.setStyle(MAP_STYLES[styleBase.value]), delay)
 }
 
+/** Затемнение при переходе к шару: стиль меняется в самой тёмной точке, скачка цвета не видно. */
+const STYLE_FADE_MS = 520
+const styleFading = ref(false)
+let fadeTimer: ReturnType<typeof setTimeout> | null = null
+
+function fadeToStyle() {
+  styleFading.value = false
+  if (fadeTimer)
+    clearTimeout(fadeTimer)
+  // Кадр паузы — анимация перезапускается, если порог пересекли снова во время прошлого перехода
+  requestAnimationFrame(() => {
+    styleFading.value = true
+    applyStyle(STYLE_FADE_MS * 0.4)
+    fadeTimer = setTimeout(() => {
+      styleFading.value = false
+    }, STYLE_FADE_MS)
+  })
+}
+
+// Смена темы в настройках — с паузой под анимацию переключателя; переход к шару и обратно — через затемнение
 watch(resolvedTheme, () => applyStyle(550))
-watch(globeView, () => applyStyle(0))
+watch(globeView, fadeToStyle)
 
 onUnmounted(() => {
   if (styleTimer)
@@ -168,6 +203,11 @@ provide('map', map)
     class="map-container"
   >
     <slot v-if="map" />
+    <div
+      v-if="styleFading"
+      class="map-style-fade"
+      aria-hidden="true"
+    />
   </div>
 </template>
 
@@ -175,5 +215,24 @@ provide('map', map)
 .map-container {
   width: 100%;
   height: 100%;
+}
+
+.map-style-fade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: #05070d;
+  animation: map-style-fade 0.52s ease-in-out both;
+}
+
+@keyframes map-style-fade {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 0.85;
+  }
 }
 </style>

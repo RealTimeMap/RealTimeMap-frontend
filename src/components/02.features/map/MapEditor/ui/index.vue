@@ -3,6 +3,7 @@ import type { MapSeasonMode } from '@/components/00.shared/stores/settings/parts
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { matchPreset, VIEW_PRESETS } from '../model/viewPresets'
 
 const { preview = true } = defineProps<{
   preview?: boolean
@@ -30,6 +31,21 @@ const SEASON_OPTIONS: { value: MapSeasonMode, label: string }[] = [
   { value: 'off', label: 'Выкл.' },
 ]
 const { close } = useDialogStore()
+
+const activePreset = computed(() => matchPreset({
+  buildings: showBuildings3D.value,
+  trees: showTrees.value,
+  water: animateWater.value,
+}))
+
+function applyPreset(effects: (typeof VIEW_PRESETS)[number]['effects']) {
+  showBuildings3D.value = effects.buildings
+  showTrees.value = effects.trees
+  animateWater.value = effects.water
+}
+
+/** Тонкая настройка свёрнута; если пресет не совпал — раскрыта, чтобы было видно, что включено. */
+const showDetails = ref(activePreset.value === null)
 </script>
 
 <template>
@@ -150,42 +166,80 @@ const { close } = useDialogStore()
       Вид карты
     </p>
 
+    <div
+      class="view-presets"
+      role="radiogroup"
+      aria-label="Вид карты"
+    >
+      <button
+        v-for="preset in VIEW_PRESETS"
+        :key="preset.id"
+        class="view-presets__option"
+        :class="{ 'view-presets__option--active': activePreset === preset.id }"
+        type="button"
+        role="radio"
+        :aria-checked="activePreset === preset.id"
+        @click="applyPreset(preset.effects)"
+      >
+        <span class="view-presets__label">{{ preset.label }}</span>
+        <span class="view-presets__hint">{{ preset.hint }}</span>
+      </button>
+    </div>
+
+    <button
+      class="view-details"
+      type="button"
+      :aria-expanded="showDetails"
+      @click="showDetails = !showDetails"
+    >
+      {{ activePreset ? 'Настроить по отдельности' : 'Своя настройка' }}
+      <u-icon
+        class="view-details__chevron"
+        :class="{ 'view-details__chevron--open': showDetails }"
+        icon="app:arrow-filled"
+        width="9"
+      />
+    </button>
+
     <div class="map-editor__rows">
-      <div class="me-row">
-        <span class="me-row__icon"><u-icon
-          icon="app:city"
-          width="18"
-        /></span>
-        <div class="me-row__text">
-          <span class="me-row__label">3D-здания</span>
-          <span class="me-row__hint">Объёмные дома на крупном масштабе — лучше видно с наклоном</span>
+      <template v-if="showDetails">
+        <div class="me-row">
+          <span class="me-row__icon"><u-icon
+            icon="app:city"
+            width="18"
+          /></span>
+          <div class="me-row__text">
+            <span class="me-row__label">3D-здания</span>
+            <span class="me-row__hint">Объёмные дома с тенями на крупном масштабе</span>
+          </div>
+          <u-switch v-model="showBuildings3D" />
         </div>
-        <u-switch v-model="showBuildings3D" />
-      </div>
 
-      <div class="me-row">
-        <span class="me-row__icon"><u-icon
-          icon="app:tree"
-          width="18"
-        /></span>
-        <div class="me-row__text">
-          <span class="me-row__label">Деревья</span>
-          <span class="me-row__hint">Кроны в парках и лесах, меняют цвет вместе с сезоном</span>
+        <div class="me-row">
+          <span class="me-row__icon"><u-icon
+            icon="app:tree"
+            width="18"
+          /></span>
+          <div class="me-row__text">
+            <span class="me-row__label">Деревья</span>
+            <span class="me-row__hint">Кроны в парках и лесах, меняют цвет вместе с сезоном</span>
+          </div>
+          <u-switch v-model="showTrees" />
         </div>
-        <u-switch v-model="showTrees" />
-      </div>
 
-      <div class="me-row">
-        <span class="me-row__icon"><u-icon
-          icon="app:map-loop"
-          width="18"
-        /></span>
-        <div class="me-row__text">
-          <span class="me-row__label">Живая вода</span>
-          <span class="me-row__hint">Блики на реках и прудах, зимой — лёд</span>
+        <div class="me-row">
+          <span class="me-row__icon"><u-icon
+            icon="app:map-loop"
+            width="18"
+          /></span>
+          <div class="me-row__text">
+            <span class="me-row__label">Живая вода</span>
+            <span class="me-row__hint">Блики на реках и прудах, зимой — лёд</span>
+          </div>
+          <u-switch v-model="animateWater" />
         </div>
-        <u-switch v-model="animateWater" />
-      </div>
+      </template>
+
       <div class="me-row">
         <span class="me-row__icon"><u-icon
           icon="app:arrow-right"
@@ -392,6 +446,67 @@ const { close } = useDialogStore()
     display: flex;
     align-items: center;
     gap: 12px;
+  }
+}
+
+.view-presets {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  &__option {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 10px;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    background: var(--surface-subtle);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color 0.15s ease,
+      background 0.15s ease;
+
+    &--active {
+      border-color: var(--primary-color);
+      background: color-mix(in srgb, var(--primary-color) 10%, var(--surface-subtle));
+    }
+  }
+
+  &__label {
+    @include value-text(14px, var(--text-color), 700);
+  }
+
+  &__option--active &__label {
+    color: var(--primary-color);
+  }
+
+  &__hint {
+    @include label-text(11px, none);
+    line-height: 1.3;
+  }
+}
+
+.view-details {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin: -6px 0 -6px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  @include value-text(13px, var(--primary-color), 600);
+  cursor: pointer;
+
+  &__chevron {
+    transform: rotate(90deg);
+    transition: transform 0.2s ease;
+
+    &--open {
+      transform: rotate(-90deg);
+    }
   }
 }
 

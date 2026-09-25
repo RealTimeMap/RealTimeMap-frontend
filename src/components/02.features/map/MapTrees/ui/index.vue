@@ -4,11 +4,13 @@ import type { ShallowRef } from 'vue'
 import type { ViewBounds } from '../model/trees'
 import type { Foliage, SeasonBlend } from '@/components/00.shared/lib/season'
 import { storeToRefs } from 'pinia'
+import { latestWorker, plainFeatures } from '@/components/00.shared/lib/latestWorker'
+import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
 import { fixedFoliage, fixedSeason, foliageAt, seasonAt } from '@/components/00.shared/lib/season'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useWeatherStore } from '@/components/02.features/map/Weather'
-import { litterColor, litterFilter, litterOpacity, plantTrees, treeColor, treeFilter } from '../model/trees'
+import { litterColor, litterFilter, litterOpacity, treeColor, treeFilter } from '../model/trees'
 
 const SOURCE_ID = 'map-trees'
 const LAYER_ID = 'map-trees'
@@ -114,6 +116,14 @@ function plantingArea(instance: maplibregl.Map): ViewBounds {
 
 let plantedKey = ''
 
+let disposed = false
+let stopSettled: (() => void) | null = null
+
+/** Расстановка — в отдельном потоке: сотни многоугольников и проверки «внутри парка» не тормозят карту. */
+const planter = latestWorker<{ features: GeoJSON.Feature[], area: ViewBounds }, GeoJSON.FeatureCollection>(
+  () => new Worker(new URL('../model/trees.worker.ts', import.meta.url), { type: 'module' }),
+)
+
 function replant() {
   const instance = map?.value
   const source = instance?.getSource<maplibregl.GeoJSONSource>(SOURCE_ID)
@@ -134,7 +144,10 @@ function replant() {
   if (key === plantedKey)
     return
   plantedKey = key
-  source.setData(plantTrees(features, area))
+  planter.request({ features: plainFeatures(features), area }, (trees) => {
+    if (!disposed)
+      source.setData(trees)
+  })
 }
 
 // --- Стиль: слой возвращается после смены темы, цвет — по сезону и теме ---
@@ -181,19 +194,21 @@ const timer = setInterval(recolor, 60 * 60_000)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)
-  previous?.off('idle', replant)
+  stopSettled?.()
   instance?.on('styledata', sync)
-  instance?.on('idle', replant)
+  stopSettled = instance ? onMapSettled(instance, replant) : null
   sync()
 }, { immediate: true })
 
 onUnmounted(() => {
+  disposed = true
   clearInterval(timer)
   const instance = map?.value
   if (!instance)
     return
   instance.off('styledata', sync)
-  instance.off('idle', replant)
+  stopSettled?.()
+  planter.dispose()
   for (const id of [LAYER_ID, LITTER_LAYER_ID]) {
     if (instance.getLayer(id))
       instance.removeLayer(id)
