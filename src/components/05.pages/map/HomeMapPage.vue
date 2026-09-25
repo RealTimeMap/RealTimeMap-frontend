@@ -13,6 +13,7 @@ import { useGeolocation } from '@/components/02.features/map/Geolocation/model/u
 import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
 import { LandmarksLayer } from '@/components/02.features/map/LandmarksLayer'
 import { BaseMapView } from '@/components/02.features/map/MapCore'
+import { MapNight } from '@/components/02.features/map/MapNight'
 import { MapSeasons } from '@/components/02.features/map/MapSeasons'
 import { MapSky } from '@/components/02.features/map/MapSky'
 import { MapTrees } from '@/components/02.features/map/MapTrees'
@@ -226,6 +227,7 @@ watch(userPosition, (pos) => {
       <map-trees v-if="showTrees" />
       <map-sky />
       <map-seasons />
+      <map-night />
       <map-water v-if="animateWater" />
       <landmarks-layer />
       <heading-cone

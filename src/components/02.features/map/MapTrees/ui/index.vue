@@ -4,11 +4,14 @@ import type { ShallowRef } from 'vue'
 import type { ViewBounds } from '../model/trees'
 import type { Foliage, SeasonBlend } from '@/components/00.shared/lib/season'
 import { storeToRefs } from 'pinia'
+import { latestWorker, plainFeatures } from '@/components/00.shared/lib/latestWorker'
+import { mapNow } from '@/components/00.shared/lib/mapClock'
+import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
+import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { fixedFoliage, fixedSeason, foliageAt, seasonAt } from '@/components/00.shared/lib/season'
-import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useWeatherStore } from '@/components/02.features/map/Weather'
-import { litterColor, litterFilter, litterOpacity, plantTrees, treeColor, treeFilter } from '../model/trees'
+import { litterColor, litterFilter, litterOpacity, treeColor, treeFilter } from '../model/trees'
 
 const SOURCE_ID = 'map-trees'
 const LAYER_ID = 'map-trees'
@@ -30,24 +33,25 @@ const PLANT_RADIUS_SCREENS = 0.9
 const PLANT_SNAP = 0.25
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
-const { mapSeason, resolvedTheme } = storeToRefs(useSettingsStore())
+const { mapSeason } = storeToRefs(useSettingsStore())
+const styleBase = useMapStyleBase()
 const weatherStore = useWeatherStore()
 
 function season(instance: maplibregl.Map): SeasonBlend {
   if (mapSeason.value === 'auto')
-    return seasonAt(new Date(), instance.getCenter().lat)
+    return seasonAt(mapNow(), instance.getCenter().lat)
   return fixedSeason(mapSeason.value === 'off' ? 'summer' : mapSeason.value)
 }
 
 /** Листопад и снег: в «Авто» — по дате и настоящему снегу из прогноза. */
 function foliage(instance: maplibregl.Map): Foliage {
   if (mapSeason.value === 'auto')
-    return foliageAt(new Date(), instance.getCenter().lat, weatherStore.snowDepth)
+    return foliageAt(mapNow(), instance.getCenter().lat, weatherStore.snowDepth)
   return fixedFoliage(mapSeason.value === 'off' ? 'summer' : mapSeason.value)
 }
 
 function color(instance: maplibregl.Map) {
-  return treeColor(themeBase(resolvedTheme.value), season(instance), foliage(instance))
+  return treeColor(styleBase.value, season(instance), foliage(instance))
 }
 
 function beforeId(instance: maplibregl.Map): string | undefined {
@@ -69,7 +73,7 @@ function ensureLayer(instance: maplibregl.Map) {
     minzoom: MIN_ZOOM,
     filter: litterFilter(state),
     paint: {
-      'fill-color': litterColor(themeBase(resolvedTheme.value)),
+      'fill-color': litterColor(styleBase.value),
       'fill-opacity': litterOpacity(state),
     },
   }, beforeId(instance))
@@ -114,6 +118,14 @@ function plantingArea(instance: maplibregl.Map): ViewBounds {
 
 let plantedKey = ''
 
+let disposed = false
+let stopSettled: (() => void) | null = null
+
+/** Расстановка — в отдельном потоке: сотни многоугольников и проверки «внутри парка» не тормозят карту. */
+const planter = latestWorker<{ features: GeoJSON.Feature[], area: ViewBounds }, GeoJSON.FeatureCollection>(
+  () => new Worker(new URL('../model/trees.worker.ts', import.meta.url), { type: 'module' }),
+)
+
 function replant() {
   const instance = map?.value
   const source = instance?.getSource<maplibregl.GeoJSONSource>(SOURCE_ID)
@@ -134,7 +146,10 @@ function replant() {
   if (key === plantedKey)
     return
   plantedKey = key
-  source.setData(plantTrees(features, area))
+  planter.request({ features: plainFeatures(features), area }, (trees) => {
+    if (!disposed)
+      source.setData(trees)
+  })
 }
 
 // --- Стиль: слой возвращается после смены темы, цвет — по сезону и теме ---
@@ -171,29 +186,31 @@ function recolor() {
   instance.setPaintProperty(LAYER_ID, 'fill-extrusion-color', color(instance))
   instance.setFilter(LAYER_ID, treeFilter(state))
   instance.setFilter(LITTER_LAYER_ID, litterFilter(state))
-  instance.setPaintProperty(LITTER_LAYER_ID, 'fill-color', litterColor(themeBase(resolvedTheme.value)))
+  instance.setPaintProperty(LITTER_LAYER_ID, 'fill-color', litterColor(styleBase.value))
   instance.setPaintProperty(LITTER_LAYER_ID, 'fill-opacity', litterOpacity(state))
 }
 
-watch([mapSeason, resolvedTheme, () => weatherStore.snowDepth], recolor)
+watch([mapSeason, styleBase, () => weatherStore.snowDepth], recolor)
 // Сезон в режиме «Авто» меняется медленно — раз в час достаточно
 const timer = setInterval(recolor, 60 * 60_000)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)
-  previous?.off('idle', replant)
+  stopSettled?.()
   instance?.on('styledata', sync)
-  instance?.on('idle', replant)
+  stopSettled = instance ? onMapSettled(instance, replant) : null
   sync()
 }, { immediate: true })
 
 onUnmounted(() => {
+  disposed = true
   clearInterval(timer)
   const instance = map?.value
   if (!instance)
     return
   instance.off('styledata', sync)
-  instance.off('idle', replant)
+  stopSettled?.()
+  planter.dispose()
   for (const id of [LAYER_ID, LITTER_LAYER_ID]) {
     if (instance.getLayer(id))
       instance.removeLayer(id)

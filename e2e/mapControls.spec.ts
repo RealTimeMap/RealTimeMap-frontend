@@ -54,6 +54,7 @@ test('3D-здания включаются и выключаются в реда
   await page.waitForTimeout(2000)
 
   await page.getByRole('button', { name: 'Редактор карты' }).click()
+  await page.getByRole('button', { name: 'Настроить по отдельности' }).click()
   const row = page.locator('.me-row', { hasText: '3D-здания' })
   await expect(row).toBeVisible()
 
@@ -62,4 +63,16 @@ test('3D-здания включаются и выключаются в реда
   await page.waitForTimeout(2000)
   await toggle.click()
   await page.waitForTimeout(500)
+})
+
+test('пресет вида карты включает нужные эффекты', async ({ page }) => {
+  await openApp(page)
+  await page.getByRole('button', { name: 'Редактор карты' }).click()
+  const presets = page.getByRole('radiogroup', { name: 'Вид карты' })
+  await expect(presets.getByRole('radio', { name: /Экономно/ })).toHaveAttribute('aria-checked', 'true')
+
+  await presets.getByRole('radio', { name: /Красиво/ }).click()
+  await expect(presets.getByRole('radio', { name: /Красиво/ })).toHaveAttribute('aria-checked', 'true')
+  await page.getByRole('button', { name: 'Настроить по отдельности' }).click()
+  await expect(page.locator('.me-row', { hasText: 'Деревья' }).getByRole('switch')).toHaveAttribute('aria-checked', 'true')
 })
