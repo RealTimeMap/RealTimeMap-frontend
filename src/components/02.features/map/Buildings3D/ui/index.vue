@@ -5,10 +5,11 @@ import type { ShadowArea } from '../model/useBuildingsLayer'
 import type { SunPosition } from '@/components/00.shared/lib/sun'
 import { storeToRefs } from 'pinia'
 import { latestWorker, plainFeatures } from '@/components/00.shared/lib/latestWorker'
+import { mapNow } from '@/components/00.shared/lib/mapClock'
 import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
+import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { fixedFoliage, foliageAt } from '@/components/00.shared/lib/season'
 import { isSplashVisible } from '@/components/00.shared/lib/splash'
-import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { sunStrength, useWeatherStore } from '@/components/02.features/map/Weather'
 import {
@@ -20,7 +21,6 @@ import {
   createSnowLayer,
   createSunlitLayer,
   DEFAULT_LIGHT,
-  isNight,
   ROOF_SNOW_MIN,
   SHADOW_LAYER_ID,
   SHADOW_MIN_HEIGHT,
@@ -46,7 +46,8 @@ const WAVE_DURATION = 700
 const SUN_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
-const { resolvedTheme, mapSeason } = storeToRefs(useSettingsStore())
+const { mapSeason } = storeToRefs(useSettingsStore())
+const styleBase = useMapStyleBase()
 const weatherStore = useWeatherStore()
 
 let riseFrame = 0
@@ -154,7 +155,7 @@ function revealNewLayer(instance: maplibregl.Map) {
     const buildings = buildingsInView(instance)
     for (const building of buildings)
       instance.setFeatureState({ ...STATE_TARGET, id: building.id }, { rise: 0 })
-    instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value), isNight(currentSun(instance).position)), buildingsBeforeId(instance.getStyle().layers))
+    instance.addLayer(createBuildingsLayer(styleBase.value), buildingsBeforeId(instance.getStyle().layers))
     addShadowLayer(instance)
     addSnowLayer(instance)
     instance.once('idle', () => {
@@ -180,7 +181,7 @@ let sun: { position: SunPosition, lat: number } | null = null
 function currentSun(instance: maplibregl.Map) {
   if (!sun) {
     const { lng, lat } = instance.getCenter()
-    sun = { position: sunPosition(new Date(), lng, lat), lat }
+    sun = { position: sunPosition(mapNow(), lng, lat), lat }
   }
   return sun
 }
@@ -191,13 +192,13 @@ const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: 
 function currentSnow(instance: maplibregl.Map): number {
   const mode = mapSeason.value
   if (mode === 'auto')
-    return foliageAt(new Date(), instance.getCenter().lat, weatherStore.snowDepth).snow
+    return foliageAt(mapNow(), instance.getCenter().lat, weatherStore.snowDepth).snow
   return mode === 'off' ? 0 : fixedFoliage(mode).snow
 }
 
 function addSnowLayer(instance: maplibregl.Map) {
   if (!instance.getLayer(SNOW_LAYER_ID) && instance.getLayer(BUILDINGS_LAYER_ID))
-    instance.addLayer(createSnowLayer(themeBase(resolvedTheme.value), currentSnow(instance)), buildingsBeforeId(instance.getStyle().layers))
+    instance.addLayer(createSnowLayer(styleBase.value, currentSnow(instance)), buildingsBeforeId(instance.getStyle().layers))
 }
 
 function applySnow(instance: maplibregl.Map) {
@@ -206,14 +207,14 @@ function applySnow(instance: maplibregl.Map) {
   const snow = currentSnow(instance)
   instance.setLayoutProperty(SNOW_LAYER_ID, 'visibility', snow >= ROOF_SNOW_MIN ? 'visible' : 'none')
   instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-opacity', snowOpacity(snow))
-  instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-color', snowColor(themeBase(resolvedTheme.value)))
+  instance.setPaintProperty(SNOW_LAYER_ID, 'fill-extrusion-color', snowColor(styleBase.value))
 }
 
 function addShadowLayer(instance: maplibregl.Map) {
   if (!instance.getSource(SHADOW_SOURCE_ID))
     instance.addSource(SHADOW_SOURCE_ID, { type: 'geojson', data: EMPTY })
   if (!instance.getLayer(SHADOW_LAYER_ID))
-    instance.addLayer(createShadowLayer(themeBase(resolvedTheme.value)), BUILDINGS_LAYER_ID)
+    instance.addLayer(createShadowLayer(styleBase.value), BUILDINGS_LAYER_ID)
   if (!instance.getSource(SUNLIT_SOURCE_ID))
     instance.addSource(SUNLIT_SOURCE_ID, { type: 'geojson', data: SUNLIT_AREA })
   if (!instance.getLayer(SUNLIT_LAYER_ID))
@@ -297,7 +298,7 @@ function onMoveEnd() {
 function applyShadowOpacity(instance: maplibregl.Map, fadeMs = GROW_DURATION + WAVE_DURATION) {
   if (!instance.getLayer(SHADOW_LAYER_ID) || !instance.getLayer(SUNLIT_LAYER_ID))
     return
-  const base = themeBase(resolvedTheme.value)
+  const base = styleBase.value
   const { position } = currentSun(instance)
   const transition = { duration: fadeMs, delay: 0 }
   const strength = sunStrength(weatherStore.weather)
@@ -320,11 +321,8 @@ const sunTimer = setInterval(() => {
   const instance = map?.value
   if (!instance || disposed || !instance.getLayer(BUILDINGS_LAYER_ID))
     return
-  const wasNight = isNight(currentSun(instance).position)
   sun = null
   const { position } = currentSun(instance)
-  if (isNight(position) !== wasNight)
-    instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(themeBase(resolvedTheme.value), isNight(position)))
   applyLight(instance, sunLight(position))
   updateShadows(instance)
   applyShadowOpacity(instance)
@@ -402,12 +400,11 @@ watch(
 )
 
 // Цвет зданий зависит от темы, а setStyle с diff может слой и сохранить
-watch(resolvedTheme, (theme) => {
+watch(styleBase, (base) => {
   const instance = map?.value
   if (!instance?.getLayer(BUILDINGS_LAYER_ID))
     return
-  const base = themeBase(theme)
-  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base, isNight(currentSun(instance).position)))
+  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base))
   if (instance.getLayer(SHADOW_LAYER_ID))
     instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-color', shadowColor(base))
   applyShadowOpacity(instance)

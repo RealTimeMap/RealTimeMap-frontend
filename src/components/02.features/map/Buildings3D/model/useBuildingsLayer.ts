@@ -359,43 +359,23 @@ const OWN_LAYER_TYPES = new Set(['symbol', 'custom', 'heatmap'])
 export function buildingsBeforeId(layers: LayerSpecification[]): string | undefined {
   let lastGeometry = -1
   layers.forEach((layer, index) => {
-    if (!isBuildingsLayer(layer.id) && !OWN_LAYER_TYPES.has(layer.type))
+    // Ночные слои (сумрак, фонари) лежат поверх домов — это не «земля» стиля
+    if (!isBuildingsLayer(layer.id) && !layer.id.startsWith('night-') && !OWN_LAYER_TYPES.has(layer.type))
       lastGeometry = index
   })
   return layers.slice(lastGeometry + 1).find(layer => !isBuildingsLayer(layer.id))?.id
 }
 
-/** Ночью в части домов «горит свет»: [приглушённый, яркий] тёплый оттенок. */
-const NIGHT_LIT: Record<ThemeBase, [dim: string, bright: string]> = {
-  dark: ['#3a3a36', '#54492f'],
-  light: ['#eee6d6', '#f0dfbd'],
-}
-
-/** Солнце ниже этой высоты — сумерки кончились, в городе зажигается свет. */
-const NIGHT_ALTITUDE = -3
-
-export function isNight(sun: SunPosition): boolean {
-  return sun.altitude < NIGHT_ALTITUDE
-}
-
-/**
- * Цвет по высоте, ночью часть домов светится. Какие — решает остаток от id: рисунок одинаковый
- * при каждой загрузке, без мигания. Смена выражения перезагружает тайлы, поэтому меняется только на закате и рассвете.
- */
-export function buildingsColor(base: ThemeBase, night = false): ExpressionSpecification {
+export function buildingsColor(base: ThemeBase): ExpressionSpecification {
   const [low, high] = COLORS[base]
-  const byHeight: ExpressionSpecification = ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
-  if (!night)
-    return byHeight
-  const [dim, bright] = NIGHT_LIT[base]
-  return ['match', ['%', ['to-number', ['id'], 0], 20], [0, 7], bright, [3, 11, 15], dim, byHeight]
+  return ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
 }
 
 /**
  * Слой 3D-зданий. Непрозрачный: fill-extrusion-opacity < 1 применяется ко всему слою,
  * и сквозь здания становятся видны задние грани и соседние дома.
  */
-export function createBuildingsLayer(base: ThemeBase, night = false): FillExtrusionLayerSpecification {
+export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecification {
   return {
     'id': BUILDINGS_LAYER_ID,
     'type': 'fill-extrusion',
@@ -404,7 +384,7 @@ export function createBuildingsLayer(base: ThemeBase, night = false): FillExtrus
     'minzoom': MIN_ZOOM,
     'filter': SOLID_BUILDING,
     'paint': {
-      'fill-extrusion-color': buildingsColor(base, night),
+      'fill-extrusion-color': buildingsColor(base),
       'fill-extrusion-height': HEIGHT,
       'fill-extrusion-base': BASE,
       'fill-extrusion-opacity': 1,

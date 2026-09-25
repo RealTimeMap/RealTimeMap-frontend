@@ -4,6 +4,7 @@ import type { ShallowRef } from 'vue'
 import type { SeasonPalette, SeasonProperty } from '../model/seasonPalette'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { storeToRefs } from 'pinia'
+import { mapNow } from '@/components/00.shared/lib/mapClock'
 import { fixedSeason, foliageAt, seasonAt } from '@/components/00.shared/lib/season'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useWeatherStore } from '@/components/02.features/map/Weather'
@@ -44,7 +45,7 @@ function palette(base: ThemeBase, instance: maplibregl.Map): SeasonPalette | nul
   if (mapSeason.value === 'off')
     return null
   if (mapSeason.value === 'auto') {
-    const date = new Date()
+    const date = mapNow()
     const { lat } = instance.getCenter()
     const { snow } = foliageAt(date, lat, weatherStore.snowDepth)
     return paletteWithSnow(base, seasonAt(date, lat), snow)

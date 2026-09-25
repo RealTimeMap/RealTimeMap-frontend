@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
-import { storeToRefs } from 'pinia'
+import { mapNow } from '@/components/00.shared/lib/mapClock'
+import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { moonPosition, sunPosition } from '@/components/00.shared/lib/sun'
-import { themeBase } from '@/components/00.shared/lib/theme'
-import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { overcast, useWeatherStore } from '@/components/02.features/map/Weather'
 import { drawMoon } from '../model/moonDisc'
 import { skyFor } from '../model/skyColors'
@@ -13,7 +12,7 @@ import { starfield } from '../model/space'
 const SKY_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
-const { resolvedTheme } = storeToRefs(useSettingsStore())
+const styleBase = useMapStyleBase()
 const weatherStore = useWeatherStore()
 
 // Небо считается по таймеру и теме, а на styledata только возвращается: setSky сам вызывает styledata
@@ -23,10 +22,10 @@ let applied = ''
 
 function compute(instance: maplibregl.Map) {
   const { lng, lat } = instance.getCenter()
-  const date = new Date()
+  const date = mapNow()
   const sun = sunPosition(date, lng, lat)
   const clouds = overcast(weatherStore.weather)
-  sky = skyFor(themeBase(resolvedTheme.value), sun, clouds)
+  sky = skyFor(styleBase.value, sun, clouds)
   computeNight(date, lng, lat, sun.altitude, clouds)
   updateHaze()
 }
@@ -178,7 +177,7 @@ function refresh() {
 }
 
 const timer = setInterval(refresh, SKY_UPDATE_MS)
-watch([resolvedTheme, () => weatherStore.weather], refresh)
+watch([styleBase, () => weatherStore.weather], refresh)
 
 // Смена темы (setStyle с diff) может сбросить небо стиля — возвращаем своё
 watch(() => map?.value, (instance, previous) => {

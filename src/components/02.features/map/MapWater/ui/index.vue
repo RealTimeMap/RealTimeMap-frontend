@@ -4,10 +4,11 @@ import type { ShallowRef } from 'vue'
 import type { Season } from '@/components/00.shared/lib/season'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { storeToRefs } from 'pinia'
+import { mapNow } from '@/components/00.shared/lib/mapClock'
 import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
+import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { seasonAt } from '@/components/00.shared/lib/season'
 import { sunPosition } from '@/components/00.shared/lib/sun'
-import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { isWetNow, sunStrength, useWeatherStore } from '@/components/02.features/map/Weather'
 import { drawFlow, drawIce, drawStill, PIXEL_RATIO } from '../model/waterPattern'
@@ -47,7 +48,8 @@ const FLOW_WIDTH_BY_ZOOM: maplibregl.ExpressionSpecification = [
 ]
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
-const { mapSeason, resolvedTheme } = storeToRefs(useSettingsStore())
+const { mapSeason } = storeToRefs(useSettingsStore())
+const styleBase = useMapStyleBase()
 const weatherStore = useWeatherStore()
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
 
@@ -56,14 +58,14 @@ function currentSeason(instance: maplibregl.Map): Season {
     return 'summer'
   if (mapSeason.value !== 'auto')
     return mapSeason.value
-  const { from, to, t } = seasonAt(new Date(), instance.getCenter().lat)
+  const { from, to, t } = seasonAt(mapNow(), instance.getCenter().lat)
   return t < 0.5 ? from : to
 }
 
 /** Ночью блики почти гаснут: остаётся тёмная гладь. */
 function nightFactor(instance: maplibregl.Map): number {
   const { lng, lat } = instance.getCenter()
-  const { altitude } = sunPosition(new Date(), lng, lat)
+  const { altitude } = sunPosition(mapNow(), lng, lat)
   return Math.min(1, Math.max(0.25, 0.25 + (altitude + 6) / 12 * 0.75))
 }
 
@@ -74,7 +76,7 @@ function weatherFactor(): number {
 }
 
 function opacity(instance: maplibregl.Map): number {
-  const value = BASE_OPACITY[themeBase(resolvedTheme.value)] * SEASON_OPACITY[currentSeason(instance)] * nightFactor(instance) * weatherFactor()
+  const value = BASE_OPACITY[styleBase.value] * SEASON_OPACITY[currentSeason(instance)] * nightFactor(instance) * weatherFactor()
   return Math.round(value * 100) / 100
 }
 
@@ -213,7 +215,7 @@ function sync() {
   }
 }
 
-watch([mapSeason, resolvedTheme, () => weatherStore.weather], refresh)
+watch([mapSeason, styleBase, () => weatherStore.weather], refresh)
 // Время суток и сезон в режиме «Авто» меняются медленно
 const slowTimer = setInterval(refresh, 10 * 60_000)
 
