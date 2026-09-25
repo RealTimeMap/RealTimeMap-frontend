@@ -168,10 +168,11 @@ function sunFade(sun: SunPosition): number {
   return Math.min(0.5 + sun.altitude / SHADOW_FULL_ALTITUDE / 2, 1)
 }
 
-export function sunlitOpacity(base: ThemeBase, sun: SunPosition): ExpressionSpecification | number {
+/** sunStrength — сколько солнца пробивается сквозь облака: 1 — ясно, около 0 — пасмурно или дождь. */
+export function sunlitOpacity(base: ThemeBase, sun: SunPosition, sunStrength = 1): ExpressionSpecification | number {
   if (sun.altitude < SHADOW_MIN_ALTITUDE || !SUNLIT_OPACITY[base])
     return 0
-  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SUNLIT_OPACITY[base] * sunFade(sun) * 100) / 100]
+  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SUNLIT_OPACITY[base] * sunFade(sun) * sunStrength * 100) / 100]
 }
 
 export function createSunlitLayer(): FillLayerSpecification {
@@ -188,10 +189,11 @@ export function shadowColor(base: ThemeBase): string {
   return SHADOW_STYLE[base].color
 }
 
-export function shadowOpacity(base: ThemeBase, sun: SunPosition): ExpressionSpecification | number {
+/** В пасмурную погоду тени почти пропадают — как и в жизни. */
+export function shadowOpacity(base: ThemeBase, sun: SunPosition, sunStrength = 1): ExpressionSpecification | number {
   if (sun.altitude < SHADOW_MIN_ALTITUDE)
     return 0
-  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SHADOW_STYLE[base].opacity * sunFade(sun) * 100) / 100]
+  return ['interpolate', ['linear'], ['zoom'], SHADOW_MIN_ZOOM, 0, 15, Math.round(SHADOW_STYLE[base].opacity * sunFade(sun) * sunStrength * 100) / 100]
 }
 
 export function createShadowLayer(base: ThemeBase): FillExtrusionLayerSpecification {

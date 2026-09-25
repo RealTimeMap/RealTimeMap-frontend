@@ -42,15 +42,30 @@ function paletteAt(stops: PaletteStop[], altitude: number): SkyPalette {
   return { sky: mixHex(a.sky, b.sky, t), horizon: mixHex(a.horizon, b.horizon, t), fog: mixHex(a.fog, b.fog, t) }
 }
 
-export function skyFor(base: ThemeBase, sun: SunPosition): SkySpecification {
-  const { sky, horizon, fog } = paletteAt(PALETTES[base], sun.altitude)
+/** Серое небо в сплошной облачности: днём светлее, ночью почти не отличается от обычного. */
+const OVERCAST: Record<ThemeBase, { sky: string, horizon: string }> = {
+  light: { sky: '#a9b1bb', horizon: '#d3d7dc' },
+  dark: { sky: '#1f2329', horizon: '#2e333a' },
+}
+
+/** overcast 0..1 — насколько небо затянуто облаками. */
+export function skyFor(base: ThemeBase, sun: SunPosition, overcast = 0): SkySpecification {
+  const clear = paletteAt(PALETTES[base], sun.altitude)
+  // Ночью облака на небе почти не видны — серость проявляется только в светлое время
+  const amount = overcast * 0.75 * Math.min(1, Math.max(0, (sun.altitude + 6) / 12))
+  const sky = mixHex(clear.sky, OVERCAST[base].sky, amount)
+  const horizon = mixHex(clear.horizon, OVERCAST[base].horizon, amount)
+  // Дымка — между цветом земли и горизонта: дальние кварталы растворяются в небе, без резкой черты
+  const fog = mixHex(clear.fog, horizon, 0.55)
   return {
     'sky-color': sky,
     'horizon-color': horizon,
     'fog-color': fog,
-    'sky-horizon-blend': 0.6,
-    'horizon-fog-blend': 0.7,
-    'fog-ground-blend': 0.85,
+    'sky-horizon-blend': 0.9,
+    // Дымка поднимается над горизонтом и перетекает в небо
+    'horizon-fog-blend': 1,
+    // Дымка ложится на землю с середины пути до горизонта — даль уходит в туман постепенно
+    'fog-ground-blend': 0.45,
     'atmosphere-blend': 0,
   }
 }

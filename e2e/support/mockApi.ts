@@ -124,8 +124,25 @@ export class MockApi {
     this.down = down
   }
 
+  /** Осадки на ближайшие 3 часа по 15 минут, мм. По умолчанию сухо. */
+  precipitation: number[] = Array.from<number>({ length: 12 }).fill(0)
+
   async install(context: BrowserContext) {
     await context.route(`${API_ORIGIN}/**`, route => this.handle(route))
+    // Погода не зависит от реального неба и сети
+    await context.route(/api\.open-meteo\.com/, (route) => {
+      const start = Math.floor(Date.now() / 900_000) * 900
+      route.fulfill({
+        json: {
+          current: { temperature_2m: 14.2, weather_code: this.precipitation.some(Boolean) ? 3 : 1, cloud_cover: 60, is_day: 1 },
+          minutely_15: {
+            time: this.precipitation.map((_, i) => start + i * 900),
+            precipitation: this.precipitation,
+            snowfall: this.precipitation.map(() => 0),
+          },
+        },
+      })
+    })
     // Сокеты ходят по wss://, поэтому сопоставляем по хосту, без протокола
     const origin = new URL(API_ORIGIN).host.replace(/\./g, '\\.')
     await context.routeWebSocket(new RegExp(origin), ws => ws.close())

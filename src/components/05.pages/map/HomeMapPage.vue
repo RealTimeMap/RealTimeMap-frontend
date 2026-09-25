@@ -18,6 +18,7 @@ import { MapSky } from '@/components/02.features/map/MapSky'
 import { MapTrees } from '@/components/02.features/map/MapTrees'
 import { MapWater } from '@/components/02.features/map/MapWater'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
+import { WeatherChip } from '@/components/02.features/map/Weather'
 import MarkCreateMenu from '@/components/02.features/mark/MarkCreateMenu'
 import MarkForm from '@/components/02.features/mark/MarkForm'
 import { useShareStore } from '@/components/02.features/mark/Share/model'
@@ -45,7 +46,7 @@ const settingsStore = useSettingsStore()
 const { heading } = useCompass()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D, showTrees, animateWater } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D, showTrees, animateWater, showWeather } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -240,6 +241,10 @@ watch(userPosition, (pos) => {
       />
     </base-map-view>
     <search-users v-if="mapInitialCenter" />
+    <weather-chip
+      v-if="showWeather"
+      :user-coordinates="userPosition"
+    />
     <nearby-marks
       v-if="showPublicMarks"
       :user-coordinates="userPosition"

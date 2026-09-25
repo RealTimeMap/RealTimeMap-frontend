@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia'
 import { isSplashVisible } from '@/components/00.shared/lib/splash'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { sunStrength, useWeatherStore } from '@/components/02.features/map/Weather'
 import {
   BUILDINGS_LAYER_ID,
   buildingsBeforeId,
@@ -37,6 +38,7 @@ const SUN_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const { resolvedTheme } = storeToRefs(useSettingsStore())
+const weatherStore = useWeatherStore()
 
 let riseFrame = 0
 let disposed = false
@@ -216,10 +218,18 @@ function applyShadowOpacity(instance: maplibregl.Map) {
   const { position } = currentSun(instance)
   const transition = { duration: GROW_DURATION + WAVE_DURATION, delay: 0 }
   instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity-transition', transition)
-  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position))
+  const strength = sunStrength(weatherStore.weather)
+  instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-opacity', shadowOpacity(base, position, strength))
   instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity-transition', transition)
-  instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity', sunlitOpacity(base, position))
+  instance.setPaintProperty(SUNLIT_LAYER_ID, 'fill-opacity', sunlitOpacity(base, position, strength))
 }
+
+// Облака набежали или разошлись — тени бледнеют или проступают
+watch(() => weatherStore.weather, () => {
+  const instance = map?.value
+  if (instance)
+    applyShadowOpacity(instance)
+})
 
 const sunTimer = setInterval(() => {
   const instance = map?.value
