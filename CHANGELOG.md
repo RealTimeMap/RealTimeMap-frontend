@@ -1,6 +1,19 @@
 # Changelog
 
 
+## v0.1.64
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.63...v0.1.64)
+
+### 🚀 Функциональность
+
+- **map:** Деревья и тени в воркерах, планировщик, пресеты вида, луна и звёзды ([8b7159e](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/8b7159e))
+- **map:** Фонари на улицах ночью, наклон вблизи ограничен; ?map-time для тестов ([b1a2cee](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b1a2cee))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.63
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.62...v0.1.63)
