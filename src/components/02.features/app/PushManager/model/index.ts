@@ -2,10 +2,11 @@ import { Capacitor } from '@capacitor/core'
 import { PushNotifications } from '@capacitor/push-notifications'
 import { getToken, onMessage } from 'firebase/messaging'
 import { getFirebaseMessaging } from '@/components/00.shared/lib/firebase'
+import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions'
 import { notificationApi } from '@/components/00.shared/services/notification'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
-async function registerDeviceOnBackend(token: string, platform: 'web' | 'android') {
+async function registerDeviceOnBackend(token: string, platform: 'web' | 'android' | 'ios') {
   try {
     const deviceId = localStorage.getItem('device_id') || crypto.randomUUID()
     localStorage.setItem('device_id', deviceId)
@@ -23,25 +24,36 @@ async function registerDeviceOnBackend(token: string, platform: 'web' | 'android
   }
 }
 
-// === ANDROID ЛОГИКА ===
-async function initAndroidPush(store: ReturnType<typeof useNotificationStore>) {
-  const permStatus = await PushNotifications.requestPermissions()
+// === НАТИВНАЯ ЛОГИКА (Android и iOS) ===
+let nativeListeners = false
+
+async function initNativePush(store: ReturnType<typeof useNotificationStore>) {
+  // Через общую очередь: при запуске одновременно спрашивается геолокация, а iOS при двух
+  // системных запросах сразу может так и не показать второе окно
+  const permStatus = await requestPermissionInQueue(() => PushNotifications.requestPermissions())
   if (permStatus.receive !== 'granted')
     return
 
-  await PushNotifications.register()
-
-  PushNotifications.addListener('registration', (token) => {
-    registerDeviceOnBackend(token.value, 'android')
-  })
-
-  PushNotifications.addListener('pushNotificationReceived', (notification) => {
-    store.add({
-      title: notification.title || 'Новое уведомление',
-      description: notification.body,
-      type: 'default',
+  // Слушатели — до register(), иначе токен может прийти раньше подписки и потеряться
+  if (!nativeListeners) {
+    nativeListeners = true
+    const platform = Capacitor.getPlatform() === 'ios' ? 'ios' : 'android'
+    PushNotifications.addListener('registration', (token) => {
+      registerDeviceOnBackend(token.value, platform)
     })
-  })
+    PushNotifications.addListener('registrationError', (error) => {
+      console.warn('Push: не удалось получить токен устройства', error.error)
+    })
+    PushNotifications.addListener('pushNotificationReceived', (notification) => {
+      store.add({
+        title: notification.title || 'Новое уведомление',
+        description: notification.body,
+        type: 'default',
+      })
+    })
+  }
+
+  await PushNotifications.register()
 }
 
 // === WEB ЛОГИКА ===
@@ -77,14 +89,75 @@ async function initWebPush(store: ReturnType<typeof useNotificationStore>) {
   }
 }
 
+// === ПРЕДЛОЖЕНИЕ ВКЛЮЧИТЬ В БРАУЗЕРЕ ===
+// Браузер показывает окно разрешения, только если запрос вызван нажатием пользователя: Safari и Firefox
+// без нажатия молча отказывают, Chrome прячет запрос в значок адресной строки. Поэтому сначала
+// своё ненавязчивое предложение, а системное окно — по кнопке в нём
+
+const OFFER_KEY = 'rtm_push_offer_at'
+/** Отказались или закрыли — не предлагаем снова неделю. */
+const OFFER_PAUSE_MS = 7 * 24 * 60 * 60_000
+/** После входа и заставки — не с порога. */
+const OFFER_DELAY_MS = 4000
+
+function offeredRecently(): boolean {
+  try {
+    return Date.now() - Number(localStorage.getItem(OFFER_KEY) ?? 0) < OFFER_PAUSE_MS
+  }
+  catch {
+    return false
+  }
+}
+
+function rememberOffer() {
+  try {
+    localStorage.setItem(OFFER_KEY, String(Date.now()))
+  }
+  catch {}
+}
+
+async function offerWebPush(store: ReturnType<typeof useNotificationStore>) {
+  if (offeredRecently())
+    return
+  // iOS Safari без установки на экран «Домой» и режим инкогнито пуши не поддерживают — нечего предлагать
+  if (!await getFirebaseMessaging())
+    return
+  setTimeout(() => {
+    if (Notification.permission !== 'default')
+      return
+    rememberOffer()
+    store.add({
+      title: 'Включить уведомления?',
+      description: 'Сообщения, комментарии и новые подписчики',
+      type: 'info',
+      duration: 12_000,
+      action: {
+        text: 'Включить',
+        // Запрос — первым действием в обработчике нажатия, иначе браузер не покажет окно
+        callback: () => {
+          Notification.requestPermission().then((result) => {
+            if (result === 'granted')
+              initWebPush(store)
+          })
+        },
+      },
+    })
+  }, OFFER_DELAY_MS)
+}
+
 // === ЕДИНАЯ ТОЧКА ВХОДА ===
 export async function initPushManager() {
   const notificationStore = useNotificationStore()
 
   if (Capacitor.isNativePlatform()) {
-    await initAndroidPush(notificationStore)
+    await initNativePush(notificationStore)
+    return
   }
-  else {
+  if (typeof Notification === 'undefined')
+    return
+  // Уже разрешили — подключаемся тихо; уже запретили — не беспокоим
+  if (Notification.permission === 'granted')
     await initWebPush(notificationStore)
-  }
+  else if (Notification.permission === 'default')
+    await offerWebPush(notificationStore)
 }

@@ -50,14 +50,15 @@ onMounted(async () => {
   initBugReport()
   initPlacesSync()
 
-  if (authStore.isAuthenticated) {
-    await initPushManager()
-  }
-
   appReady.value = true
   prefetchNavPages()
   prefetchNavData(authStore.isAuthenticated)
 })
+
+watch(() => authStore.isAuthenticated, (authenticated) => {
+  if (authenticated)
+    initPushManager()
+}, { immediate: true })
 
 const isWarmingProfile = ref(false)
 let prefetchedProfileId: number | null = null
