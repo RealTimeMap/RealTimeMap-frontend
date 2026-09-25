@@ -56,6 +56,8 @@ onMounted(() => {
     fadeDuration: 0,
     refreshExpiredTiles: false,
     trackResize: false,
+    // Выше 60° становится виден горизонт и небо — MapLibre вдали берёт тайлы помельче, поэтому это недорого
+    maxPitch: 75,
   })
 
   map.value = mapInstance

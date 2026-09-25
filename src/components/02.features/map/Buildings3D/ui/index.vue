@@ -15,6 +15,7 @@ import {
   createShadowLayer,
   createSunlitLayer,
   DEFAULT_LIGHT,
+  isNight,
   SHADOW_LAYER_ID,
   SHADOW_SOURCE_ID,
   shadowColor,
@@ -142,7 +143,7 @@ function revealNewLayer(instance: maplibregl.Map) {
     const buildings = buildingsInView(instance)
     for (const building of buildings)
       instance.setFeatureState({ ...STATE_TARGET, id: building.id }, { rise: 0 })
-    instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value)), buildingsBeforeId(instance.getStyle().layers))
+    instance.addLayer(createBuildingsLayer(themeBase(resolvedTheme.value), isNight(currentSun(instance).position)), buildingsBeforeId(instance.getStyle().layers))
     addShadowLayer(instance)
     instance.once('idle', () => {
       if (disposed)
@@ -224,8 +225,12 @@ const sunTimer = setInterval(() => {
   const instance = map?.value
   if (!instance || disposed || !instance.getLayer(BUILDINGS_LAYER_ID))
     return
+  const wasNight = isNight(currentSun(instance).position)
   sun = null
-  applyLight(instance, sunLight(currentSun(instance).position))
+  const { position } = currentSun(instance)
+  if (isNight(position) !== wasNight)
+    instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(themeBase(resolvedTheme.value), isNight(position)))
+  applyLight(instance, sunLight(position))
   updateShadows(instance)
   applyShadowOpacity(instance)
 }, SUN_UPDATE_MS)
@@ -302,7 +307,7 @@ watch(resolvedTheme, (theme) => {
   if (!instance?.getLayer(BUILDINGS_LAYER_ID))
     return
   const base = themeBase(theme)
-  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base))
+  instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base, isNight(currentSun(instance).position)))
   if (instance.getLayer(SHADOW_LAYER_ID))
     instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-color', shadowColor(base))
   applyShadowOpacity(instance)

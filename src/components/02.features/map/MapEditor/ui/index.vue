@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { MapSeasonMode } from '@/components/00.shared/stores/settings/parts/useMapLayers'
 import { storeToRefs } from 'pinia'
 import { useDialogStore } from '@/components/00.shared/stores/dialog'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
@@ -14,8 +15,19 @@ const {
   showMapSettings,
   showMapZoomLevel,
   showBuildings3D,
+  showTrees,
   markPreviewSwipe,
+  mapSeason,
 } = storeToRefs(settings)
+
+const SEASON_OPTIONS: { value: MapSeasonMode, label: string }[] = [
+  { value: 'auto', label: 'Авто' },
+  { value: 'spring', label: 'Весна' },
+  { value: 'summer', label: 'Лето' },
+  { value: 'autumn', label: 'Осень' },
+  { value: 'winter', label: 'Зима' },
+  { value: 'off', label: 'Выкл.' },
+]
 const { close } = useDialogStore()
 </script>
 
@@ -152,6 +164,18 @@ const { close } = useDialogStore()
 
       <div class="me-row">
         <span class="me-row__icon"><u-icon
+          icon="app:tree"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">Деревья</span>
+          <span class="me-row__hint">Кроны в парках и лесах, меняют цвет вместе с сезоном</span>
+        </div>
+        <u-switch v-model="showTrees" />
+      </div>
+
+      <div class="me-row">
+        <span class="me-row__icon"><u-icon
           icon="app:arrow-right"
           width="18"
         /></span>
@@ -160,6 +184,37 @@ const { close } = useDialogStore()
           <span class="me-row__hint">Свайп по карточке метки переключает на соседние</span>
         </div>
         <u-switch v-model="markPreviewSwipe" />
+      </div>
+
+      <div class="me-row me-row--stacked">
+        <div class="me-row__head">
+          <span class="me-row__icon"><u-icon
+            icon="app:map-loop"
+            width="18"
+          /></span>
+          <div class="me-row__text">
+            <span class="me-row__label">Сезон карты</span>
+            <span class="me-row__hint">Осенью парки желтеют, зимой город в снегу. «Авто» — по дате и вашей широте</span>
+          </div>
+        </div>
+        <div
+          class="season-picker"
+          role="radiogroup"
+          aria-label="Сезон карты"
+        >
+          <button
+            v-for="option in SEASON_OPTIONS"
+            :key="option.value"
+            class="season-picker__option"
+            :class="{ 'season-picker__option--active': mapSeason === option.value }"
+            type="button"
+            role="radio"
+            :aria-checked="mapSeason === option.value"
+            @click="mapSeason = option.value"
+          >
+            {{ option.label }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -314,6 +369,42 @@ const { close } = useDialogStore()
 
   &__hint {
     @include label-text(11px, none);
+  }
+
+  &--stacked {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  &__head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.season-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-left: 46px;
+
+  &__option {
+    padding: 6px 12px;
+    border: 0.5px solid var(--border-subtle);
+    border-radius: 999px;
+    background: var(--surface-subtle);
+    @include value-text(13px, var(--text-color), 600);
+    cursor: pointer;
+    transition:
+      background 0.15s ease,
+      color 0.15s ease;
+
+    &--active {
+      border-color: var(--primary-color);
+      background: var(--primary-color);
+      color: #fff;
+    }
   }
 }
 </style>

@@ -13,6 +13,9 @@ import { useGeolocation } from '@/components/02.features/map/Geolocation/model/u
 import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
 import { LandmarksLayer } from '@/components/02.features/map/LandmarksLayer'
 import { BaseMapView } from '@/components/02.features/map/MapCore'
+import { MapSeasons } from '@/components/02.features/map/MapSeasons'
+import { MapSky } from '@/components/02.features/map/MapSky'
+import { MapTrees } from '@/components/02.features/map/MapTrees'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
 import MarkCreateMenu from '@/components/02.features/mark/MarkCreateMenu'
 import MarkForm from '@/components/02.features/mark/MarkForm'
@@ -41,7 +44,7 @@ const settingsStore = useSettingsStore()
 const { heading } = useCompass()
 const router = useRouter()
 const { user, isAuthenticated } = storeToRefs(authStore)
-const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D } = storeToRefs(settingsStore)
+const { markMenuStyle, showPublicMarks, showPersonalMarks, showBuildings3D, showTrees } = storeToRefs(settingsStore)
 const menuVariant = computed(() =>
   (markMenuStyle.value === 'off')
     ? 'popover'
@@ -217,6 +220,9 @@ watch(userPosition, (pos) => {
       />
       <personal-marks-layer v-if="showPersonalMarks" />
       <buildings3-d v-if="showBuildings3D" />
+      <map-trees v-if="showTrees" />
+      <map-sky />
+      <map-seasons />
       <landmarks-layer />
       <heading-cone
         v-if="userPosition && heading !== null"

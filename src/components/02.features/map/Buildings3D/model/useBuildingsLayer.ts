@@ -297,16 +297,37 @@ export function buildingsBeforeId(layers: LayerSpecification[]): string | undefi
   return layers.slice(lastGeometry + 1).find(layer => !isBuildingsLayer(layer.id))?.id
 }
 
-export function buildingsColor(base: ThemeBase): ExpressionSpecification {
+/** Ночью в части домов «горит свет»: [приглушённый, яркий] тёплый оттенок. */
+const NIGHT_LIT: Record<ThemeBase, [dim: string, bright: string]> = {
+  dark: ['#3a3a36', '#54492f'],
+  light: ['#eee6d6', '#f0dfbd'],
+}
+
+/** Солнце ниже этой высоты — сумерки кончились, в городе зажигается свет. */
+const NIGHT_ALTITUDE = -3
+
+export function isNight(sun: SunPosition): boolean {
+  return sun.altitude < NIGHT_ALTITUDE
+}
+
+/**
+ * Цвет по высоте, ночью часть домов светится. Какие — решает остаток от id: рисунок одинаковый
+ * при каждой загрузке, без мигания. Смена выражения перезагружает тайлы, поэтому меняется только на закате и рассвете.
+ */
+export function buildingsColor(base: ThemeBase, night = false): ExpressionSpecification {
   const [low, high] = COLORS[base]
-  return ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
+  const byHeight: ExpressionSpecification = ['interpolate', ['linear'], RAW_HEIGHT, 0, low, 80, high]
+  if (!night)
+    return byHeight
+  const [dim, bright] = NIGHT_LIT[base]
+  return ['match', ['%', ['to-number', ['id'], 0], 20], [0, 7], bright, [3, 11, 15], dim, byHeight]
 }
 
 /**
  * Слой 3D-зданий. Непрозрачный: fill-extrusion-opacity < 1 применяется ко всему слою,
  * и сквозь здания становятся видны задние грани и соседние дома.
  */
-export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecification {
+export function createBuildingsLayer(base: ThemeBase, night = false): FillExtrusionLayerSpecification {
   return {
     'id': BUILDINGS_LAYER_ID,
     'type': 'fill-extrusion',
@@ -314,7 +335,7 @@ export function createBuildingsLayer(base: ThemeBase): FillExtrusionLayerSpecifi
     'source-layer': SOURCE_LAYER,
     'minzoom': MIN_ZOOM,
     'paint': {
-      'fill-extrusion-color': buildingsColor(base),
+      'fill-extrusion-color': buildingsColor(base, night),
       'fill-extrusion-height': HEIGHT,
       'fill-extrusion-base': BASE,
       'fill-extrusion-opacity': 1,
