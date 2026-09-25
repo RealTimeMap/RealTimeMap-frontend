@@ -1,6 +1,24 @@
 # Changelog
 
 
+## v0.1.67
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.66...v0.1.67)
+
+### 🚀 Функциональность
+
+- **map:** Здания под достопримечательностями убраны, модели стоят по точным координатам OSM ([f073074](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/f073074))
+- **map:** Деревья гранёными формами на three.js (шар, тополь, ёлка), без деревьев внутри зданий ([dc44004](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/dc44004))
+- **map:** Анимация деревьев ([6ddcbb3](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/6ddcbb3))
+
+### 🩹 Исправления
+
+- **ui:** Globe zoom ([bcd7a85](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/bcd7a85))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.66
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.65...v0.1.66)
