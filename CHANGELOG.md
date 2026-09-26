@@ -1,6 +1,21 @@
 # Changelog
 
 
+## v0.1.68
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.67...v0.1.68)
+
+### 🚀 Функциональность
+
+- **map:** «Удиви меня» — встряхивание или кнопка открывают случайную метку рядом ([b3683c8](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/b3683c8))
+- **landmarks:** Истории о месте — главы со сменой ракурса, факты, метки рядом и карточка ([0dbbe26](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/0dbbe26))
+- **map:** Все кнопки карты можно скрыть ([d693582](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d693582))
+- **surprise:** Случайная метка со всего мира — облёт глобуса ([787c65f](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/787c65f))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.67
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.66...v0.1.67)
