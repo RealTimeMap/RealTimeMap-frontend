@@ -48,12 +48,12 @@ test('режим следования держит пользователя в �
   await expect(page.getByRole('button', { name: 'Следовать за мной' })).toHaveAttribute('aria-pressed', 'false')
 })
 
-test('3D-здания включаются и выключаются в редакторе карты без ошибок', async ({ page }) => {
+test('3D-здания включаются и выключаются в слоях карты без ошибок', async ({ page }) => {
   await openApp(page)
   await expect(page.locator('.maplibregl-canvas')).toBeVisible()
   await page.waitForTimeout(2000)
 
-  await page.getByRole('button', { name: 'Редактор карты' }).click()
+  await page.getByRole('button', { name: 'Слои' }).click()
   await page.getByRole('button', { name: 'Настроить по отдельности' }).click()
   const row = page.locator('.me-row', { hasText: '3D-здания' })
   await expect(row).toBeVisible()
@@ -67,7 +67,7 @@ test('3D-здания включаются и выключаются в реда
 
 test('пресет вида карты включает нужные эффекты', async ({ page }) => {
   await openApp(page)
-  await page.getByRole('button', { name: 'Редактор карты' }).click()
+  await page.getByRole('button', { name: 'Слои' }).click()
   const presets = page.getByRole('radiogroup', { name: 'Вид карты' })
   await expect(presets.getByRole('radio', { name: /Экономно/ })).toHaveAttribute('aria-checked', 'true')
 
@@ -75,4 +75,20 @@ test('пресет вида карты включает нужные эффек�
   await expect(presets.getByRole('radio', { name: /Красиво/ })).toHaveAttribute('aria-checked', 'true')
   await page.getByRole('button', { name: 'Настроить по отдельности' }).click()
   await expect(page.locator('.me-row', { hasText: 'Деревья' }).getByRole('switch')).toHaveAttribute('aria-checked', 'true')
+})
+
+test('кнопки на карте скрываются и возвращаются в «Кнопках на карте»', async ({ page }) => {
+  await openApp(page)
+  await page.getByRole('button', { name: 'Кнопки на карте' }).click()
+  const tile = page.locator('.control-tile', { hasText: 'Слои' })
+  await tile.click()
+  await expect(tile).toHaveAttribute('aria-pressed', 'false')
+  await page.locator('.map-editor .button-back').click()
+  const layersButton = page.locator('.map-controls').getByRole('button', { name: 'Слои' })
+  await expect(layersButton).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Кнопки на карте' }).click()
+  await tile.click()
+  await page.locator('.map-editor .button-back').click()
+  await expect(layersButton).toBeVisible()
 })

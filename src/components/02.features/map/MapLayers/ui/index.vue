@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import MapViewSection from './MapViewSection.vue'
 
 const settings = useSettingsStore()
 const {
@@ -17,7 +18,7 @@ const {
     </div>
 
     <p class="map-layers__hint">
-      Выберите, какие метки показывать на карте
+      Что показывать на карте
     </p>
 
     <div class="map-layers__rows">
@@ -69,6 +70,8 @@ const {
         <u-switch v-model="showWeather" />
       </div>
     </div>
+
+    <map-view-section />
   </div>
 </template>
 

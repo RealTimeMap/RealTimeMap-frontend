@@ -19,7 +19,17 @@ const { mapApi, userPosition, zoom } = defineProps<{
 }>()
 
 const { open } = useDialogStore()
-const { showMapZoom, showMapLocate, showMapSettings, showMapZoomLevel, showPublicMarks } = storeToRefs(useSettingsStore())
+const {
+  showMapZoom,
+  showMapLocate,
+  showMapSettings,
+  showMapZoomLevel,
+  showMapPitch,
+  showMapSurprise,
+  showMapLayers,
+  showMapEditor,
+  showPublicMarks,
+} = storeToRefs(useSettingsStore())
 const surprise = useSurpriseStore()
 
 // Разрешение на датчик движения (iOS) спрашиваем здесь, в нажатии: потом хватит встряхнуть телефон
@@ -97,6 +107,7 @@ function openSettings() {
     </div>
 
     <button
+      v-if="showMapPitch"
       class="map-controls__group map-controls__btn"
       :class="{ 'map-controls__btn--active': isTilted }"
       type="button"
@@ -143,7 +154,7 @@ function openSettings() {
     </button>
 
     <button
-      v-if="showPublicMarks"
+      v-if="showMapSurprise && showPublicMarks"
       class="map-controls__group map-controls__btn"
       type="button"
       aria-label="Удиви меня: случайная метка рядом"
@@ -170,6 +181,7 @@ function openSettings() {
     </button>
 
     <button
+      v-if="showMapLayers"
       class="map-controls__group map-controls__btn"
       type="button"
       aria-label="Слои"
@@ -183,9 +195,10 @@ function openSettings() {
     </button>
 
     <button
+      v-if="showMapEditor"
       class="map-controls__group map-controls__btn"
       type="button"
-      aria-label="Редактор карты"
+      aria-label="Кнопки на карте"
       @click="openMapEditor('sheet')"
     >
       <u-icon

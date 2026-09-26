@@ -32,8 +32,8 @@ const showHaptics = false
 
     <settings-row
       link
-      label="Редактор карты"
-      hint="Какие кнопки показывать на карте"
+      label="Кнопки на карте"
+      hint="Какие показывать, какие скрыть"
       chevron="app:edit"
       @click="openMapEditor('panel')"
     />
