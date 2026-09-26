@@ -4,6 +4,7 @@ import type { ShallowRef } from 'vue'
 import { mapNow } from '@/components/00.shared/lib/mapClock'
 import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { sunPosition } from '@/components/00.shared/lib/sun'
+import { useWeatherStore } from '@/components/02.features/map/Weather'
 import {
   createLightsLayer,
   darknessAt,
@@ -14,12 +15,20 @@ import {
 /** Сумерки идут минут сорок — раз в минуту хватает, чтобы темнело плавно. */
 const UPDATE_MS = 60_000
 
+/** С такой тяжести неба фонари начинают включаться и днём; в грозу горят почти как ночью. */
+const GLOOM_LIGHTS_FROM = 0.3
+const GLOOM_LIGHTS_MAX = 0.8
+
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
 const styleBase = useMapStyleBase()
+const weatherStore = useWeatherStore()
 
+/** Темнота для фонарей: ночь или тяжёлое небо — в грозу и ливень город включает свет и днём. */
 function darkness(instance: maplibregl.Map): number {
   const { lng, lat } = instance.getCenter()
-  return darknessAt(sunPosition(mapNow(), lng, lat).altitude)
+  const night = darknessAt(sunPosition(mapNow(), lng, lat).altitude)
+  const gloom = Math.max(0, (weatherStore.look.gloom - GLOOM_LIGHTS_FROM) / (1 - GLOOM_LIGHTS_FROM)) * GLOOM_LIGHTS_MAX
+  return Math.max(night, gloom)
 }
 
 const OWN = new Set([LIGHTS_LAYER_ID])
@@ -102,6 +111,7 @@ watch(styleBase, () => {
 })
 
 const timer = setInterval(apply, UPDATE_MS)
+watch(() => weatherStore.look, apply)
 
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)

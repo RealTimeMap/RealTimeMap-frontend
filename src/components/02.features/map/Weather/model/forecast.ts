@@ -25,12 +25,27 @@ export interface Weather {
   cloudCover: number
   /** Высота снежного покрова, м. */
   snowDepth: number
+  /** Ветер у земли, м/с. */
+  windSpeed: number
+  /** Откуда дует ветер, градусы от севера по часовой. */
+  windDirection: number
+  /** Видимость, м; null — источник её не дал. */
+  visibility: number | null
   slots: Slot[]
   fetchedAt: number
 }
 
 interface Response {
-  current: { temperature_2m: number, weather_code: number, cloud_cover: number, is_day: number, snow_depth?: number }
+  current: {
+    temperature_2m: number
+    weather_code: number
+    cloud_cover: number
+    is_day: number
+    snow_depth?: number
+    wind_speed_10m?: number
+    wind_direction_10m?: number
+    visibility?: number
+  }
   minutely_15: { time: number[], precipitation: number[], snowfall: number[] }
 }
 
@@ -55,7 +70,8 @@ export async function fetchWeather([lng, lat]: MapPoint, signal?: AbortSignal): 
   const params = new URLSearchParams({
     latitude: lat.toFixed(3),
     longitude: lng.toFixed(3),
-    current: 'temperature_2m,weather_code,cloud_cover,is_day,snow_depth',
+    current: 'temperature_2m,weather_code,cloud_cover,is_day,snow_depth,wind_speed_10m,wind_direction_10m,visibility',
+    wind_speed_unit: 'ms',
     minutely_15: 'precipitation,snowfall',
     forecast_minutely_15: String(SLOTS),
     timeformat: 'unixtime',
@@ -71,6 +87,9 @@ export async function fetchWeather([lng, lat]: MapPoint, signal?: AbortSignal): 
     isDay: current.is_day === 1,
     cloudCover: current.cloud_cover / 100,
     snowDepth: current.snow_depth ?? 0,
+    windSpeed: current.wind_speed_10m ?? 0,
+    windDirection: current.wind_direction_10m ?? 0,
+    visibility: current.visibility ?? null,
     slots: minutely.time.map((time, i) => ({
       time: time * 1000,
       mm: minutely.precipitation[i] ?? 0,

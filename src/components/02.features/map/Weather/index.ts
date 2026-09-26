@@ -1,4 +1,6 @@
 export { isWetNow, overcast, sunStrength } from './model/forecast'
+export type { WeatherLook } from './model/look'
+export { CALM_LOOK } from './model/look'
 export { useWeatherStore } from './model/store'
 export { useWeatherTracking } from './model/useWeatherTracking'
 export { default as WeatherChip } from './ui/index.vue'

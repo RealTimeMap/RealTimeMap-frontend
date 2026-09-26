@@ -8,6 +8,7 @@ const {
   showPersonalMarks,
   showHeatmap,
   showWeather,
+  showWeatherEffects,
 } = storeToRefs(settings)
 </script>
 
@@ -68,6 +69,21 @@ const {
           <span class="me-row__hint">Температура и когда начнётся дождь или снег</span>
         </div>
         <u-switch v-model="showWeather" />
+      </div>
+
+      <div
+        v-if="showWeather"
+        class="me-row"
+      >
+        <span class="me-row__icon"><u-icon
+          icon="app:weather-rain"
+          width="18"
+        /></span>
+        <div class="me-row__text">
+          <span class="me-row__label">Погода на карте</span>
+          <span class="me-row__hint">Туман, мокрый асфальт, снег на дорогах, капли, молнии и ветер в деревьях</span>
+        </div>
+        <u-switch v-model="showWeatherEffects" />
       </div>
     </div>
 

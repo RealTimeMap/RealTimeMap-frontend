@@ -12,6 +12,7 @@ const COOKIE = {
   trees: 'map_layer_trees',
   water: 'map_water_motion',
   weather: 'map_weather',
+  weatherEffects: 'map_weather_fx',
 } as const
 
 /** auto — по дате и широте, off — исходные цвета стиля, иначе — выбранный сезон. */
@@ -30,6 +31,7 @@ export function useMapLayers() {
   const showTrees = ref(readOptIn(COOKIE.trees))
   const animateWater = ref(readOptIn(COOKIE.water))
   const showWeather = ref(read(COOKIE.weather))
+  const showWeatherEffects = ref(read(COOKIE.weatherEffects))
   const markPreviewSwipe = ref(read(COOKIE.previewSwipe))
   const showNearbyStrip = ref(read(COOKIE.nearbyStrip))
   const storedSeason = getCookie(COOKIE.season) as MapSeasonMode | null
@@ -42,6 +44,7 @@ export function useMapLayers() {
   watch(showTrees, v => setCookie(COOKIE.trees, String(v), 365))
   watch(animateWater, v => setCookie(COOKIE.water, String(v), 365))
   watch(showWeather, v => setCookie(COOKIE.weather, String(v), 365))
+  watch(showWeatherEffects, v => setCookie(COOKIE.weatherEffects, String(v), 365))
   watch(markPreviewSwipe, v => setCookie(COOKIE.previewSwipe, String(v), 365))
   watch(showNearbyStrip, v => setCookie(COOKIE.nearbyStrip, String(v), 365))
   watch(mapSeason, v => setCookie(COOKIE.season, v, 365))
@@ -54,6 +57,7 @@ export function useMapLayers() {
     showTrees,
     animateWater,
     showWeather,
+    showWeatherEffects,
     markPreviewSwipe,
     showNearbyStrip,
     mapSeason,

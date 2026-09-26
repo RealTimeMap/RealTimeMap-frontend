@@ -71,8 +71,9 @@ void import('../model/treesLayer').then(({ createTreesLayer }) => {
   if (disposed)
     return
   treesLayer = createTreesLayer(LAYER_ID)
+  treesLayer.setWind(weatherStore.look.wind, weatherStore.look.windTowards)
   if (lastPlanting)
-    treesLayer.setTrees(lastPlanting.trees)
+    treesLayer.setTrees(lastPlanting.trees, lastPlanting.props)
   sync()
 })
 
@@ -163,7 +164,7 @@ function replant() {
       return
     lastPlanting = planting
     source.setData(planting.litter)
-    treesLayer?.setTrees(planting.trees)
+    treesLayer?.setTrees(planting.trees, planting.props)
   })
 }
 
@@ -207,6 +208,7 @@ function recolor() {
 }
 
 watch([mapSeason, styleBase, () => weatherStore.snowDepth], recolor)
+watch(() => weatherStore.look, look => treesLayer?.setWind(look.wind, look.windTowards))
 // Сезон меняется медленно, солнце для света на гранях — заметнее: раз в 10 минут достаточно
 const timer = setInterval(recolor, 10 * 60_000)
 

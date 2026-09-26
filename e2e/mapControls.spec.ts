@@ -74,7 +74,8 @@ test('пресет вида карты включает нужные эффек�
   await presets.getByRole('radio', { name: /Красиво/ }).click()
   await expect(presets.getByRole('radio', { name: /Красиво/ })).toHaveAttribute('aria-checked', 'true')
   await page.getByRole('button', { name: 'Настроить по отдельности' }).click()
-  await expect(page.locator('.me-row', { hasText: 'Деревья' }).getByRole('switch')).toHaveAttribute('aria-checked', 'true')
+  const trees = page.locator('.me-row', { has: page.locator('.me-row__label', { hasText: /^Деревья$/ }) })
+  await expect(trees.getByRole('switch')).toHaveAttribute('aria-checked', 'true')
 })
 
 test('кнопки на карте скрываются и возвращаются в «Кнопках на карте»', async ({ page }) => {
