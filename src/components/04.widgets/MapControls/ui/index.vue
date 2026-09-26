@@ -157,7 +157,7 @@ function openSettings() {
       v-if="showMapSurprise && showPublicMarks"
       class="map-controls__group map-controls__btn"
       type="button"
-      aria-label="Удиви меня: случайная метка рядом"
+      aria-label="Удиви меня: случайная метка со всего мира"
       @click="onSurpriseClick"
     >
       <u-icon

@@ -20,8 +20,8 @@ test('без ответа сервера «Удиви меня» открыва�
   await expect(page.locator('.mark-preview__card')).toContainText(/Метка [123]/)
 })
 
-test('метка от сервера: карта перелетает к ней и открывает карточку', async ({ page, api }) => {
-  const far = mark(99, 37.64, 55.765)
+test('метка от сервера на другом конце света: карта перелетает к ней и открывает карточку', async ({ page, api }) => {
+  const far = mark(99, 7.746, 48.583)
   api.mapMarks = [mark(1, 37.6175, 55.756), far]
   const queries: URLSearchParams[] = []
   api.respond(/^\/marks\/random$/, (url: URL) => {
@@ -33,17 +33,19 @@ test('метка от сервера: карта перелетает к ней 
 
   await surpriseButton(page).click()
 
-  await expect(page.locator('.mark-preview__card')).toContainText('Метка 99')
-  expect(queries[0]?.get('radius')).toBe('3000')
-  expect(Number(queries[0]?.get('lat'))).toBeCloseTo(55.7558, 1)
+  const status = page.getByRole('status')
+  await expect(status).toContainText('Летим к «Метка 99»')
+  await expect(page.locator('.mark-preview__card')).toContainText('Метка 99', { timeout: 15_000 })
+  await expect(status).toHaveCount(0)
+  expect(queries[0]?.has('radius')).toBe(false)
 })
 
-test('рядом пусто — подсказка отдалить карту', async ({ page }) => {
+test('сервер не ответил и меток нет — подсказка попробовать ещё раз', async ({ page }) => {
   await openApp(page)
 
   await surpriseButton(page).click()
 
-  await expect(page.getByText('Рядом пока пусто')).toBeVisible()
+  await expect(page.getByText('Не получилось найти метку')).toBeVisible()
 })
 
 test('встряхивание телефона работает как кнопка, одиночный рывок — нет', async ({ page, api }) => {
@@ -51,6 +53,14 @@ test('встряхивание телефона работает как кноп
   await openApp(page)
   await marksLoaded(page)
   const jolt = () => page.evaluate(() => window.dispatchEvent(new DeviceMotionEvent('devicemotion', { acceleration: { x: 20, y: 4, z: 2 } })))
+  // Покачивание длится полсекунды — запоминаем, что класс появлялся, а не ловим момент
+  await page.evaluate(() => {
+    const map = document.querySelector('.maplibregl-map')!
+    new MutationObserver(() => {
+      if (map.classList.contains('map-shaken'))
+        (window as unknown as { shaken: boolean }).shaken = true
+    }).observe(map, { attributes: true, attributeFilter: ['class'] })
+  })
 
   await jolt()
   await page.waitForTimeout(500)
@@ -60,5 +70,7 @@ test('встряхивание телефона работает как кноп
     await jolt()
     await page.waitForTimeout(180)
   }
+  // Карта качнулась в ответ на встряхивание
+  await expect.poll(() => page.evaluate(() => (window as unknown as { shaken?: boolean }).shaken)).toBe(true)
   await expect(page.locator('.mark-preview__card')).toContainText(/Метка [12]/)
 })
