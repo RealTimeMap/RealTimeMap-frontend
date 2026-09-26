@@ -43,23 +43,45 @@ export interface Landmark {
 
 // ! ПРОМТ для генерации 3д
 //
-// Стиль:
-//   low-poly 3D model of {ОБЪЕКТ}, isometric game asset style,
-//   flat shading, soft ambient occlusion, muted blue-grey palette
-//   with orange accents, no textures just vertex colors
+// Здание должно выглядеть частью города, а не выпрыгивать из карты: тёплый серый камень
+// как у 3D-домов и одна сдержанная деталь, по которой место узнают. Образцы — isaacCathedral.glb, pisaTower.glb, eiffelTower.glb.
 //
-// Геометрия (важно для FPS на карте — модель рендерится каждый кадр):
-//   single merged watertight mesh (not separate parts), low triangle count
-//   5k-15k faces, minimal number of materials, clean topology,
-//   flat closed bottom base (стоит на земле, низ замкнут),
-//   single centered object on transparent background
+// Общая часть — добавлять к промпту каждого места:
+//   style: clean isometric city-builder asset, flat shading, matte, soft ambient occlusion,
+//   no textures, vertex colors only, no outlines, no glow, no specular highlights,
+//   palette: calm warm light-grey stone as the main color (#e4e1da, shadows #cfcbc2),
+//   exactly one restrained accent as described, everything else neutral,
+//   windows and doors as subtle slightly darker grey insets, not black,
+//   geometry: single merged watertight mesh, 3k–8k triangles,
+//   flat closed bottom at ground level, no base plate, no ground, no trees, no people, no vehicles,
+//   real-world size in meters, centered at origin, Y-up, main facade facing −Z,
+//   single object on transparent background
 //
-// НЕ добавлять «highly detailed / intricate» — конфликтует с low-poly и
-// даёт кашу из тысяч мелких мешей, которую потом не спасти.
+// Негативный промпт:
+//   realistic, photorealistic, highly detailed, intricate ornaments, PBR materials, shiny, glossy,
+//   saturated colors, bright orange roofs, neon, outlines, text, signs, base platform, ground plane,
+//   surrounding buildings, trees, people, separate floating parts, thousands of small meshes
 //
-// После генерации всё равно прогнать через `bun run models:optimize`:
-// LLM/генератор часто отдаёт модель раздробленной на сотни-тысячи мешей
-// (каждый = отдельный draw call), скрипт схлопывает их в один по материалу.
+// Исаакиевский собор:
+//   low-poly 3D model of Saint Isaac's Cathedral, Saint Petersburg, central dome with colonnade
+//   and four porticoes, about 101 m tall, footprint about 111 × 97 m,
+//   accent: muted gold main dome and small domes (#c9a55a)
+//
+// Пизанская башня:
+//   low-poly 3D model of the Leaning Tower of Pisa, cylindrical bell tower with stacked arcaded galleries,
+//   about 56 m tall, footprint about 16 × 16 m, tilted about 4 degrees,
+//   main color soft warm white marble (#ebe7de) instead of grey stone, no accent
+//
+// Эйфелева башня:
+//   low-poly 3D model of the Eiffel Tower, Paris, lattice simplified into solid tapered legs and arches,
+//   about 330 m tall, footprint about 125 × 125 m,
+//   main color muted bronze-brown iron (#8a7560) instead of grey stone, no accent
+//
+// Модель в метрах — в конфиге scale: 1. Поворот rotationY (радианы) — по контуру здания в OSM:
+// главная ось модели идёт по Z (север — юг), контур повёрнут на столько же.
+// НЕ добавлять «highly detailed / intricate» — конфликтует с low-poly и даёт кашу из тысяч мелких мешей.
+// После генерации прогнать через `bun run models:optimize`: генератор часто отдаёт модель
+// раздробленной на сотни мешей (каждый — отдельный вызов отрисовки), скрипт схлопывает их в один.
 
 export const DEMO_LANDMARKS: Landmark[] = [
   {
@@ -75,8 +97,8 @@ export const DEMO_LANDMARKS: Landmark[] = [
       { title: 'Интересное', text: 'В жару металл расширяется, и вершина становится выше до 15 сантиметров. А при строительстве парижские художники и писатели подписывали протест против «бесполезной башни».' },
     ],
     modelUrl: '/models/eiffelTower.glb',
-    scale: 3.15,
-    rotationY: 2.4,
+    scale: 1,
+    rotationY: -0.77,
     doubleSide: false,
     clearRadius: 90,
   },
@@ -93,8 +115,8 @@ export const DEMO_LANDMARKS: Landmark[] = [
       { title: 'Интересное', text: 'В 1990 году башню закрыли на 11 лет и выпрямили больше чем на 40 сантиметров. Теперь она стабильна на столетия — но наклон оставили, иначе это была бы просто башня.' },
     ],
     modelUrl: '/models/pisaTower.glb',
-    scale: 0.9,
-    rotationY: 0,
+    scale: 1,
+    rotationY: -1.57,
     doubleSide: false,
     clearRadius: 18,
   },
@@ -111,8 +133,8 @@ export const DEMO_LANDMARKS: Landmark[] = [
       { title: 'Интересное', text: 'Монферран работал над собором почти всю жизнь и умер вскоре после освящения. С колоннады на высоте 43 метров виден весь центр Петербурга.' },
     ],
     modelUrl: '/models/isaacCathedral.glb',
-    scale: 2,
-    rotationY: 10,
+    scale: 1,
+    rotationY: -0.52,
     doubleSide: false,
     clearRadius: 80,
   },
