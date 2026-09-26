@@ -1,4 +1,4 @@
-import type { Mark } from '@/components/00.shared/services/mark/index.type'
+import type { Cluster, Mark } from '@/components/00.shared/services/mark/index.type'
 
 /**
  * Общее состояние меток в кадре: его читают слой меток, карточка быстрого просмотра
@@ -6,6 +6,8 @@ import type { Mark } from '@/components/00.shared/services/mark/index.type'
  */
 export const useMarksViewStore = defineStore('marksView', () => {
   const marks = shallowRef<Mark[]>([])
+  /** Кластеры в кадре — когда карта отдалена и меток по отдельности нет. */
+  const clusters = shallowRef<Cluster[]>([])
   const previewId = ref<number | null>(null)
   /** Метка, к которой слою нужно перелететь (из списка «Что рядом»). */
   const flyToId = ref<number | null>(null)
@@ -20,5 +22,5 @@ export const useMarksViewStore = defineStore('marksView', () => {
     previewId.value = null
   }
 
-  return { marks, previewId, flyToId, preview, closePreview }
+  return { marks, clusters, previewId, flyToId, preview, closePreview }
 })

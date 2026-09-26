@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
-import type { Mark } from '@/components/00.shared/services/mark/index.type'
+import type { Cluster, Mark } from '@/components/00.shared/services/mark/index.type'
 import type { MapBounds, MapPoint } from '@/types/shared/map'
 import { useDebounceFn } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
@@ -171,6 +171,9 @@ const { previewId, flyToId } = storeToRefs(view)
 
 watch(displayMarks, (list) => {
   view.marks = list
+}, { immediate: true })
+watch(clusters, (list) => {
+  view.clusters = [...list] as Cluster[]
 }, { immediate: true })
 
 // --- Срок меток: кольцо вокруг пина обновляется раз в минуту ---

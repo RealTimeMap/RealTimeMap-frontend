@@ -67,6 +67,19 @@ export interface MarkAddPayload extends Omit<
   photo?: string[]
 }
 
+/**
+ * Запрос случайной метки для «Удиви меня»: GET /marks/random.
+ * Ответ — Mark; 204 или 404, если в радиусе ничего нет.
+ */
+export interface RandomMarkQuery {
+  lat: number
+  lon: number
+  /** Радиус поиска, м. */
+  radius: number
+  /** Уже показанные id через запятую — чтобы не повторяться. */
+  exclude?: string
+}
+
 export interface Cluster {
   center: Geometry
   count: number
