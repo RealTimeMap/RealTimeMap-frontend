@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.69
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.68...v0.1.69)
+
+### 🚀 Функциональность
+
+- **map:** Погода на карте с общим переключателем, сезонные мелочи в парках ([1e3c96c](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1e3c96c))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.68
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.67...v0.1.68)
