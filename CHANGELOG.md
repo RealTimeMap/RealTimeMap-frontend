@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.70
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.69...v0.1.70)
+
+### 🚀 Функциональность
+
+- **landmarks:** Новые модели Исаакиевского собора, Пизанской и Эйфелевой башен в метрах ([ca3fc03](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ca3fc03))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.69
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.68...v0.1.69)
