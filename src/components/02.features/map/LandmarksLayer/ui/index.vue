@@ -259,13 +259,6 @@ function exit(restore = true) {
   saved = null
 }
 
-function step(delta: 1 | -1) {
-  if (!current.value)
-    return
-  const index = LANDMARKS.indexOf(current.value)
-  enter(LANDMARKS[(index + delta + LANDMARKS.length) % LANDMARKS.length]!)
-}
-
 function routeHere() {
   const landmark = current.value
   if (!landmark)
@@ -388,8 +381,6 @@ onUnmounted(() => {
     @exit="exit()"
     @chapter="onChapter"
     @open-mark="openMark"
-    @next="step(1)"
-    @prev="step(-1)"
     @route="routeHere"
   />
 </template>

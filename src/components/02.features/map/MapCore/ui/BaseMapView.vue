@@ -104,13 +104,22 @@ onMounted(() => {
     mapInstance.setProjection({
       type: 'globe',
     })
-    mapInstance.setMinZoom(2)
+    mapInstance.setMinZoom(1.5)
   })
 
   const emitBounds = () => {
     const bounds = mapInstance.getBounds().toArray() as [[number, number], [number, number]]
     emit('update:bounds', bounds)
   }
+
+  // Для полюсов и открытого океана у CARTO тайлов нет: сервер отвечает ошибкой без CORS,
+  // браузер видит «Failed to fetch (0)». Это не поломка — карта там просто пустая. Остальные ошибки — в лог
+  mapInstance.on('error', (event) => {
+    const error = event.error as { status?: number, url?: string } | undefined
+    if (error?.url?.includes('basemaps.cartocdn.com') && (error.status === 0 || error.status === 404))
+      return
+    console.error(event.error)
+  })
 
   mapInstance.on('load', () => {
     emit('mapReady', mapInstance)

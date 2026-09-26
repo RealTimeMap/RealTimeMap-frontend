@@ -18,6 +18,7 @@ import { MapSeasons } from '@/components/02.features/map/MapSeasons'
 import { MapSky } from '@/components/02.features/map/MapSky'
 import { MapTrees } from '@/components/02.features/map/MapTrees'
 import { MapWater } from '@/components/02.features/map/MapWater'
+import { MapWeather } from '@/components/02.features/map/MapWeather'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
 import { SurpriseMe } from '@/components/02.features/map/SurpriseMe'
 import { useWeatherTracking, WeatherChip } from '@/components/02.features/map/Weather'
@@ -230,6 +231,7 @@ watch(userPosition, (pos) => {
       <map-sky />
       <map-seasons />
       <map-night />
+      <map-weather v-if="showWeather" />
       <map-water v-if="animateWater" />
       <landmarks-layer :user-position="userPosition" />
       <heading-cone

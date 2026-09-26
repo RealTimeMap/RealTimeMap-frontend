@@ -103,6 +103,9 @@ const FAR_METERS = 2_000_000
 /** Насколько глубоко дымка заходит на землю — доля расстояния от горизонта до низа экрана. */
 const HAZE_DEPTH = 0.3
 const HAZE_ABOVE_PX = 24
+/** В тумане дымка глубже и выше: дальние кварталы растворяются, небо над горизонтом молочное. */
+const FOG_DEPTH = 0.45
+const FOG_ABOVE_PX = 90
 
 const haze = document.createElement('div')
 haze.className = 'map-haze'
@@ -134,11 +137,13 @@ function updateHaze() {
     return
   }
   updateNight(instance, y)
-  const depth = (height - y) * HAZE_DEPTH
+  const fog = weatherStore.look.fog
+  const above = HAZE_ABOVE_PX + FOG_ABOVE_PX * fog
+  const depth = (height - y) * (HAZE_DEPTH + FOG_DEPTH * fog)
   haze.style.opacity = '1'
-  haze.style.top = `${y - HAZE_ABOVE_PX}px`
-  haze.style.height = `${HAZE_ABOVE_PX + depth}px`
-  haze.style.background = `linear-gradient(to bottom, transparent 0%, ${color} ${Math.round(HAZE_ABOVE_PX / (HAZE_ABOVE_PX + depth) * 100)}%, transparent 100%)`
+  haze.style.top = `${y - above}px`
+  haze.style.height = `${above + depth}px`
+  haze.style.background = `linear-gradient(to bottom, transparent 0%, ${color} ${Math.round(above / (above + depth) * 100)}%, transparent 100%)`
 }
 
 function scheduleHaze() {

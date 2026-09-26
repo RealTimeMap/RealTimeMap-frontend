@@ -25,6 +25,12 @@ export function registerOfflineMapProtocol(): void {
     let buffer = await read(original)
     if (!buffer) {
       const response = await fetch(original)
+      if (!response.ok) {
+        // Тайла нет — полюса, открытый океан: пустой тайл вместо ошибки, и в кеш ничего не пишем
+        if (response.status === 404 && params.type === 'arrayBuffer')
+          return { data: new ArrayBuffer(0) }
+        throw new Error(`Карта: ${response.status} ${original}`)
+      }
       buffer = await response.arrayBuffer()
       // Сохраняем в фоне, не задерживая отрисовку.
       write(original, buffer).catch(() => {})

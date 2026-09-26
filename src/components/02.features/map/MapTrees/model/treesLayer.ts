@@ -1,7 +1,9 @@
 import type { CustomLayerInterface, CustomRenderMethodInput, Map as MapLibreMap } from 'maplibre-gl'
+import type { PropSpot } from './props'
 import type { TreeLook, TreeSpot } from './trees'
 import { MercatorCoordinate } from 'maplibre-gl'
 import * as THREE from 'three'
+import { MAX_PROP_PARTS, MAX_PROPS, propKind, propParts } from './props'
 import { crownPainter, isBare, MAX_TREE_COUNT, treeShape, trunkColor } from './trees'
 
 // Деревья — настоящие гранёные формы: шар кроны, конусы ёлки, столбик ствола.
@@ -22,17 +24,27 @@ const GROW_SCATTER = 0.35
  * Рост в вершинном шейдере: доля роста — от времени рождения экземпляра, дерево растёт от своего основания.
  * В кадре на процессоре ничего не пересчитывается — меняется одно число uTime.
  */
-function withGrowth(material: THREE.Material, time: { value: number }) {
+/** Наклон кроны в шторм: смещение вершины на метр высоты, около 12°. Десятиметровое дерево — до 2 м у макушки. */
+const MAX_LEAN = 0.22
+
+/**
+ * Ветер там же: сдвиг растёт с высотой — ствол стоит, крона уходит по ветру и покачивается порывами.
+ * Порыв считается по времени кадра, отдельной перерисовки ради ветра нет: на стоящей карте деревья просто наклонены.
+ */
+function withGrowth(material: THREE.Material, time: { value: number }, wind: { value: THREE.Vector2 }) {
   material.onBeforeCompile = (shader) => {
     shader.uniforms.uTime = time
+    shader.uniforms.uWind = wind
     shader.vertexShader = shader.vertexShader
-      .replace('#include <common>', '#include <common>\nattribute float aBorn;\nuniform float uTime;')
+      .replace('#include <common>', '#include <common>\nattribute float aBorn;\nuniform float uTime;\nuniform vec2 uWind;')
       .replace('#include <project_vertex>', `
         float growT = clamp((uTime - aBorn) / ${GROW_SECONDS.toFixed(2)}, 0.0, 1.0);
         float grow = 1.0 - pow(1.0 - growT, 3.0);
         vec4 mvPosition = instanceMatrix * vec4(transformed, 1.0);
         mvPosition.xz = mix(instanceMatrix[3].xz, mvPosition.xz, grow);
         mvPosition.y *= grow;
+        float gust = 0.75 + 0.25 * sin(uTime * 1.6 + instanceMatrix[3].x * 0.35 + instanceMatrix[3].z * 0.23);
+        mvPosition.xz += uWind * max(mvPosition.y, 0.0) * gust;
         mvPosition = modelViewMatrix * mvPosition;
         gl_Position = projectionMatrix * mvPosition;
       `)
@@ -43,8 +55,10 @@ function withGrowth(material: THREE.Material, time: { value: number }) {
 const LIGHT_ALTITUDE = 50 * Math.PI / 180
 
 export interface TreesLayer extends CustomLayerInterface {
-  setTrees: (trees: TreeSpot[]) => void
+  setTrees: (trees: TreeSpot[], props?: PropSpot[]) => void
   setLook: (look: TreeLook, sunAzimuth: number) => void
+  /** Ветер 0..1 и куда он дует, градусы от севера. */
+  setWind: (strength: number, towards: number) => void
 }
 
 /** Единичные формы: основание на земле (y = 0), высота и ширина 1 — размер задаёт матрица экземпляра. */
@@ -61,7 +75,14 @@ interface Placed {
   born: number
 }
 
-const treeKey = (spot: TreeSpot) => `${spot.lng.toFixed(6)},${spot.lat.toFixed(6)}`
+const treeKey = (spot: { lng: number, lat: number }) => `${spot.lng.toFixed(6)},${spot.lat.toFixed(6)}`
+
+interface PlacedProp {
+  spot: PropSpot
+  x: number
+  z: number
+  born: number
+}
 
 interface Meshes {
   trunk: THREE.InstancedMesh
@@ -83,6 +104,7 @@ const _rotationX = new THREE.Matrix4().makeRotationX(Math.PI / 2)
 
 export function createTreesLayer(id: string): TreesLayer {
   let placed: Placed[] = []
+  let placedProps: PlacedProp[] = []
   let look: TreeLook | null = null
   let origin = new MercatorCoordinate(0, 0, 0)
   let originScale = 1
@@ -90,6 +112,7 @@ export function createTreesLayer(id: string): TreesLayer {
   const epoch = performance.now()
   const seconds = () => (performance.now() - epoch) / 1000
   const time = { value: 0 }
+  const wind = { value: new THREE.Vector2() }
   /** Пока кто-то растёт, карта перерисовывается каждый кадр; потом — только когда двигается. */
   let growUntil = 0
   let lastAzimuth = 180
@@ -101,10 +124,12 @@ export function createTreesLayer(id: string): TreesLayer {
   let sun: THREE.DirectionalLight | null = null
   let meshes: Meshes | null = null
 
-  function instanced(geometry: THREE.BufferGeometry, material: THREE.Material, perTree = 1): THREE.InstancedMesh {
-    const mesh = new THREE.InstancedMesh(geometry, material, MAX_TREE_COUNT * perTree)
+  /** extra — запас под сезонные мелочи, они собраны из тех же форм. */
+  function instanced(geometry: THREE.BufferGeometry, material: THREE.Material, perTree = 1, extra = 0): THREE.InstancedMesh {
+    const capacity = MAX_TREE_COUNT * perTree + extra
+    const mesh = new THREE.InstancedMesh(geometry, material, capacity)
     mesh.count = 0
-    mesh.geometry.setAttribute('aBorn', new THREE.InstancedBufferAttribute(new Float32Array(MAX_TREE_COUNT * perTree), 1))
+    mesh.geometry.setAttribute('aBorn', new THREE.InstancedBufferAttribute(new Float32Array(capacity), 1))
     // Экземпляры разбросаны по всему участку — границы единичной формы для отсечения не годятся
     mesh.frustumCulled = false
     mesh.setColorAt(0, _color)
@@ -112,6 +137,8 @@ export function createTreesLayer(id: string): TreesLayer {
   }
 
   function put(mesh: THREE.InstancedMesh, x: number, z: number, base: number, height: number, width: number, turn: number, color: THREE.Color, born: number) {
+    if (mesh.count >= mesh.instanceMatrix.count)
+      return
     const index = mesh.count++
     ;(mesh.geometry.getAttribute('aBorn') as THREE.InstancedBufferAttribute).setX(index, born)
     _position.set(x, base, z)
@@ -141,6 +168,16 @@ export function createTreesLayer(id: string): TreesLayer {
       }
     }
 
+    const kind = propKind(look)
+    if (kind) {
+      for (const { spot, x, z, born } of placedProps) {
+        for (const part of propParts(kind, spot, look.base)) {
+          _color.set(part.color)
+          put(meshes[part.shape], x + part.dx, z + part.dz, part.base, part.height, part.width, spot.turn, _color, born)
+        }
+      }
+    }
+
     for (const mesh of Object.values(meshes)) {
       mesh.geometry.getAttribute('aBorn').needsUpdate = true
       mesh.instanceMatrix.needsUpdate = true
@@ -149,7 +186,7 @@ export function createTreesLayer(id: string): TreesLayer {
     }
   }
 
-  function setTrees(trees: TreeSpot[]) {
+  function setTrees(trees: TreeSpot[], props: PropSpot[] = []) {
     if (trees.length) {
       // Начало координат — в центре участка: метры от него точны во float32 видеокарты
       const lng = trees.reduce((sum, tree) => sum + tree.lng, 0) / trees.length
@@ -163,6 +200,12 @@ export function createTreesLayer(id: string): TreesLayer {
     placed = trees.map((spot) => {
       const point = MercatorCoordinate.fromLngLat([spot.lng, spot.lat], 0)
       const born = previous.get(treeKey(spot)) ?? now + spot.phase * GROW_SCATTER
+      return { spot, x: (point.x - origin.x) / originScale, z: (point.y - origin.y) / originScale, born }
+    })
+    const previousProps = new Map(placedProps.map(item => [treeKey(item.spot), item.born]))
+    placedProps = props.map((spot) => {
+      const point = MercatorCoordinate.fromLngLat([spot.lng, spot.lat], 0)
+      const born = previousProps.get(treeKey(spot)) ?? now + spot.variant * GROW_SCATTER
       return { spot, x: (point.x - origin.x) / originScale, z: (point.y - origin.y) / originScale, born }
     })
     growUntil = Math.max(growUntil, now + GROW_SCATTER + GROW_SECONDS)
@@ -191,6 +234,13 @@ export function createTreesLayer(id: string): TreesLayer {
     setTrees,
     setLook,
 
+    setWind(strength, towards) {
+      const angle = towards * Math.PI / 180
+      // Оси слоя: x — восток, z — юг
+      wind.value.set(Math.sin(angle), -Math.cos(angle)).multiplyScalar(strength * MAX_LEAN)
+      map?.triggerRepaint()
+    },
+
     onAdd(instance: MapLibreMap, gl: WebGLRenderingContext | WebGL2RenderingContext) {
       map = instance
       scene = new THREE.Scene()
@@ -202,10 +252,10 @@ export function createTreesLayer(id: string): TreesLayer {
       // Плоские грани — узнаваемый low-poly: каждая грань своего оттенка от света.
       // Формы минимальные: додекаэдр — 36 треугольников, у ствола и конусов нет невидимых донышек
       const material = new THREE.MeshLambertMaterial({ flatShading: true })
-      withGrowth(material, time)
+      withGrowth(material, time, wind)
       meshes = {
-        trunk: instanced(unit(new THREE.CylinderGeometry(0.4, 0.5, 1, 5, 1, true)), material),
-        blob: instanced(unit(new THREE.DodecahedronGeometry(0.5)), material),
+        trunk: instanced(unit(new THREE.CylinderGeometry(0.4, 0.5, 1, 5, 1, true)), material, 1, MAX_PROPS * 3),
+        blob: instanced(unit(new THREE.DodecahedronGeometry(0.5)), material, 1, MAX_PROPS * MAX_PROP_PARTS),
         cone: instanced(unit(new THREE.ConeGeometry(0.5, 1, 7, 1, true)), material, 2),
       }
       scene.add(meshes.trunk, meshes.blob, meshes.cone)

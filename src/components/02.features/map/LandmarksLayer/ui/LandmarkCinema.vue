@@ -24,8 +24,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   exit: []
-  next: []
-  prev: []
   route: []
   chapter: [chapter: StoryChapter]
   openMark: [id: number]
@@ -36,7 +34,6 @@ const CHAPTER_MS = 7000
 /** Короче — нажатие, дольше — удержание (пауза). */
 const HOLD_MS = 250
 const TAP_PX = 12
-const SWIPE_PX = 50
 /** Левая часть экрана листает назад, остальное — вперёд. */
 const BACK_ZONE = 0.3
 const NEARBY_RADIUS = 300
@@ -96,7 +93,7 @@ const facts = computed(() => {
   })
 })
 
-// --- Жесты: нажатие листает главы, удержание — пауза, свайп — другое место ---
+// --- Жесты: нажатие листает главы, удержание — пауза ---
 let press: { x: number, y: number, held: boolean } | null = null
 let holdTimer: ReturnType<typeof setTimeout> | undefined
 
@@ -119,13 +116,6 @@ function onUp(event: PointerEvent) {
   const dy = event.clientY - press.y
   press = null
   paused.value = false
-  if (Math.abs(dx) > SWIPE_PX && Math.abs(dx) > Math.abs(dy) && props.total > 1) {
-    if (dx < 0)
-      emit('next')
-    else
-      emit('prev')
-    return
-  }
   if (held || Math.hypot(dx, dy) > TAP_PX)
     return
   goTo(event.clientX < window.innerWidth * BACK_ZONE ? index.value - 1 : index.value + 1)
@@ -298,7 +288,7 @@ onUnmounted(() => {
             />
           </section>
         </transition>
-        <span class="cinema__hint">Нажмите справа — дальше<template v-if="total > 1"> · свайп — другое место</template></span>
+        <span class="cinema__hint">Нажмите справа — дальше, слева — назад</span>
       </div>
     </div>
   </teleport>

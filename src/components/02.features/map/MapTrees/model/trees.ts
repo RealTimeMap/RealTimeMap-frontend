@@ -1,7 +1,9 @@
 import type { ExpressionSpecification, FilterSpecification } from 'maplibre-gl'
+import type { PropSpot } from './props'
 import type { Foliage, Season, SeasonBlend } from '@/components/00.shared/lib/season'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
 import { mixHex } from '@/components/00.shared/lib/colorMix'
+import { MAX_PROPS, PROP_SHARE, PROP_SPACING } from './props'
 
 // --- Расстановка ---
 // Отдельных деревьев в тайлах нет — только контуры лесов и газонов. Сажаем деревья сами:
@@ -200,8 +202,38 @@ function ringArea(ring: Ring, mx: number, my: number): number {
 
 export interface Planting {
   trees: TreeSpot[]
+  /** Места для сезонных мелочей в парках и на газонах. */
+  props: PropSpot[]
   /** Ковёр листвы под лиственными — рисуется плоским слоем карты. */
   litter: GeoJSON.FeatureCollection
+}
+
+/** Сезонные мелочи — на редкой сетке в парках и на газонах; в лесу их не видно за деревьями. */
+function plantProps(plots: Plot[], mx: number, my: number, inBuilding: (point: number[]) => boolean): PropSpot[] {
+  const props: PropSpot[] = []
+  const placed = new Set<string>()
+  for (const { kind, rings, west, south, east, north } of plots) {
+    if (kind === 'wood')
+      continue
+    const outer = rings[0]!
+    for (let iy = Math.floor(south * my / PROP_SPACING); iy * PROP_SPACING / my <= north; iy++) {
+      for (let ix = Math.floor(west * mx / PROP_SPACING); ix * PROP_SPACING / mx <= east; ix++) {
+        const key = `${ix}:${iy}`
+        if (placed.has(key) || hash(ix, iy, 21) > PROP_SHARE)
+          continue
+        const lng = (ix + 0.2 + hash(ix, iy, 22) * 0.6) * PROP_SPACING / mx
+        const lat = (iy + 0.2 + hash(ix, iy, 23) * 0.6) * PROP_SPACING / my
+        const point = [lng, lat]
+        if (!insideRing(point, outer) || rings.slice(1).some(hole => insideRing(point, hole)) || inBuilding(point))
+          continue
+        placed.add(key)
+        props.push({ lng, lat, turn: hash(ix, iy, 24) * Math.PI * 2, variant: hash(ix, iy, 25) })
+        if (props.length >= MAX_PROPS)
+          return props
+      }
+    }
+  }
+  return props
 }
 
 export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds, buildings: GeoJSON.Feature[] = []): Planting {
@@ -247,7 +279,11 @@ export function plantTrees(features: GeoJSON.Feature[], view: ViewBounds, buildi
   const planted = new Set<string>()
   const trees: TreeSpot[] = []
   const litters: GeoJSON.Feature[] = []
-  const result = (): Planting => ({ trees, litter: { type: 'FeatureCollection', features: litters } })
+  const result = (): Planting => ({
+    trees,
+    props: plantProps(plots, mx, my, inBuilding),
+    litter: { type: 'FeatureCollection', features: litters },
+  })
 
   for (const { kind, rings, west, south, east, north } of plots) {
     const step = SPACING[kind]
