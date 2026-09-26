@@ -34,6 +34,9 @@ function routeLineColor(): string {
   return value || 'rgb(169, 140, 255)'
 }
 
+/** id маршрута к точке без метки — отрицательный, с id меток не совпадает. */
+const POINT_ROUTE_ID = -1
+
 export const useRouteStore = defineStore('routeToMark', () => {
   const share = useShareStore()
   const notify = useNotificationStore()
@@ -222,6 +225,14 @@ export const useRouteStore = defineStore('routeToMark', () => {
       pinnedMark.value = null
   }
 
+  /** Маршрут к точке без метки (достопримечательность): на карту ничего не прикалывается. */
+  async function buildRouteToPoint(point: MapPoint) {
+    pinnedMark.value = null
+    await run(POINT_ROUTE_ID, point, true)
+    if (activeMarkId.value !== null)
+      startWatching()
+  }
+
   function setProfile(next: RouteProfile) {
     if (profile.value === next)
       return
@@ -255,6 +266,7 @@ export const useRouteStore = defineStore('routeToMark', () => {
     formattedDistance,
     formattedDuration,
     buildRoute,
+    buildRouteToPoint,
     setProfile,
     clearRoute,
   }

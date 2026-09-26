@@ -231,7 +231,7 @@ watch(userPosition, (pos) => {
       <map-seasons />
       <map-night />
       <map-water v-if="animateWater" />
-      <landmarks-layer />
+      <landmarks-layer :user-position="userPosition" />
       <heading-cone
         v-if="userPosition && heading !== null"
         :coordinates="userPosition"
