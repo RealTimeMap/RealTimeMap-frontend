@@ -19,6 +19,7 @@ import { MapSky } from '@/components/02.features/map/MapSky'
 import { MapTrees } from '@/components/02.features/map/MapTrees'
 import { MapWater } from '@/components/02.features/map/MapWater'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
+import { SurpriseMe } from '@/components/02.features/map/SurpriseMe'
 import { useWeatherTracking, WeatherChip } from '@/components/02.features/map/Weather'
 import MarkCreateMenu from '@/components/02.features/mark/MarkCreateMenu'
 import MarkForm from '@/components/02.features/mark/MarkForm'
@@ -222,6 +223,7 @@ watch(userPosition, (pos) => {
         @update:mark-count="handleMarkCount"
         @update:cluster-count="handleClusterCount"
       />
+      <surprise-me v-if="showPublicMarks" />
       <personal-marks-layer v-if="showPersonalMarks" />
       <buildings3-d v-if="showBuildings3D" />
       <map-trees v-if="showTrees" />
@@ -229,7 +231,7 @@ watch(userPosition, (pos) => {
       <map-seasons />
       <map-night />
       <map-water v-if="animateWater" />
-      <landmarks-layer />
+      <landmarks-layer :user-position="userPosition" />
       <heading-cone
         v-if="userPosition && heading !== null"
         :coordinates="userPosition"

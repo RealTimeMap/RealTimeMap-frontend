@@ -7,7 +7,7 @@ export function openMapEditor(placement: 'sheet' | 'panel' = 'panel') {
   const { open } = useDialogStore()
 
   if (placement === 'sheet') {
-    open(MapEditor, { preview: false }, {
+    open(MapEditor, {}, {
       position: 'end center',
       headerModal: false,
     })

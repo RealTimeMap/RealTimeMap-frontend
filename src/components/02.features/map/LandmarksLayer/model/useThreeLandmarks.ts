@@ -38,6 +38,14 @@ const _rotationXMatrix = new THREE.Matrix4().makeRotationX(Math.PI / 2)
 const _scaleVector = new THREE.Vector3()
 
 const _groundPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0)
+const _raycaster = new THREE.Raycaster()
+const _near = new THREE.Vector3()
+const _far = new THREE.Vector3()
+
+export interface LandmarksLayer extends CustomLayerInterface {
+  /** Какая модель под точкой экрана (px от угла карты) — по последнему нарисованному кадру. */
+  pick: (x: number, y: number) => Landmark | null
+}
 
 function disposeHierarchy(obj: THREE.Object3D) {
   obj.traverse((child) => {
@@ -59,7 +67,7 @@ function disposeHierarchy(obj: THREE.Object3D) {
   })
 }
 
-export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterface {
+export function createLandmarksLayer(landmarks: Landmark[]): LandmarksLayer {
   const refs: Partial<SceneRefs> = {}
 
   const loadedQueue: LandmarkItem[] = []
@@ -207,10 +215,38 @@ export function createLandmarksLayer(landmarks: Landmark[]): CustomLayerInterfac
     }
   }
 
+  /**
+   * Луч из точки нажатия в сцену: обратная матрица камеры переводит точку экрана в пространство моделей.
+   * Попадание по самой модели — можно нажать и на шпиль, а не только на точку у основания.
+   */
+  function pick(x: number, y: number): Landmark | null {
+    const { camera, items, map } = refs
+    if (!camera || !items || !map)
+      return null
+    const canvas = map.getCanvas()
+    const ndcX = x / canvas.clientWidth * 2 - 1
+    const ndcY = 1 - y / canvas.clientHeight * 2
+    _near.set(ndcX, ndcY, -1).applyMatrix4(camera.projectionMatrixInverse)
+    _far.set(ndcX, ndcY, 0).applyMatrix4(camera.projectionMatrixInverse)
+    _raycaster.ray.origin.copy(_near)
+    _raycaster.ray.direction.copy(_far.sub(_near).normalize())
+    const visible = items.filter(item => item.object?.visible)
+    const hit = _raycaster.intersectObjects(visible.map(item => item.object!), true)[0]
+    if (!hit)
+      return null
+    return visible.find((item) => {
+      let node: THREE.Object3D | null = hit.object
+      while (node && node !== item.object)
+        node = node.parent
+      return node === item.object
+    })?.landmark ?? null
+  }
+
   return {
     id: LAYER_ID,
     type: 'custom',
     renderingMode: '3d',
+    pick,
 
     onAdd(map: Map, gl: WebGLRenderingContext | WebGL2RenderingContext) {
       const camera = new THREE.Camera()

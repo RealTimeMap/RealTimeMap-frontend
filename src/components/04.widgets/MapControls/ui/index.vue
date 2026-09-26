@@ -7,6 +7,7 @@ import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useCompass } from '@/components/02.features/map/Geolocation'
 import { openMapEditor } from '@/components/02.features/map/MapEditor'
 import { openMapLayers } from '@/components/02.features/map/MapLayers'
+import { allowShake, useSurpriseStore } from '@/components/02.features/map/SurpriseMe'
 import AppSettings from '@/components/04.widgets/Settings'
 import { useFollowUser } from '../model/useFollowUser'
 import { useMapBearing } from '../model/useMapBearing'
@@ -18,7 +19,24 @@ const { mapApi, userPosition, zoom } = defineProps<{
 }>()
 
 const { open } = useDialogStore()
-const { showMapZoom, showMapLocate, showMapSettings, showMapZoomLevel } = storeToRefs(useSettingsStore())
+const {
+  showMapZoom,
+  showMapLocate,
+  showMapSettings,
+  showMapZoomLevel,
+  showMapPitch,
+  showMapSurprise,
+  showMapLayers,
+  showMapEditor,
+  showPublicMarks,
+} = storeToRefs(useSettingsStore())
+const surprise = useSurpriseStore()
+
+// Разрешение на датчик движения (iOS) спрашиваем здесь, в нажатии: потом хватит встряхнуть телефон
+function onSurpriseClick() {
+  void allowShake()
+  surprise.request('button')
+}
 
 function zoomIn() {
   mapApi?.zoomIn()
@@ -89,6 +107,7 @@ function openSettings() {
     </div>
 
     <button
+      v-if="showMapPitch"
       class="map-controls__group map-controls__btn"
       :class="{ 'map-controls__btn--active': isTilted }"
       type="button"
@@ -135,6 +154,20 @@ function openSettings() {
     </button>
 
     <button
+      v-if="showMapSurprise && showPublicMarks"
+      class="map-controls__group map-controls__btn"
+      type="button"
+      aria-label="Удиви меня: случайная метка со всего мира"
+      @click="onSurpriseClick"
+    >
+      <u-icon
+        icon="app:magic"
+        :loop="false"
+        width="18"
+      />
+    </button>
+
+    <button
       v-if="showMapSettings"
       class="map-controls__group map-controls__btn"
       type="button"
@@ -148,6 +181,7 @@ function openSettings() {
     </button>
 
     <button
+      v-if="showMapLayers"
       class="map-controls__group map-controls__btn"
       type="button"
       aria-label="Слои"
@@ -161,9 +195,10 @@ function openSettings() {
     </button>
 
     <button
+      v-if="showMapEditor"
       class="map-controls__group map-controls__btn"
       type="button"
-      aria-label="Редактор карты"
+      aria-label="Кнопки на карте"
       @click="openMapEditor('sheet')"
     >
       <u-icon

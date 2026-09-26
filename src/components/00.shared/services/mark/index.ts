@@ -12,6 +12,7 @@ import type {
   MarkLike,
   MarkShare,
   MarkStat,
+  RandomMarkQuery,
   RepliesQuery,
 } from './index.type'
 import { getAuthToken } from '@/components/00.shared/lib/authToken'
@@ -82,6 +83,9 @@ export const markApi = {
       token ? { headers: { Authorization: `Bearer ${token}` } } : undefined,
     )
   },
+
+  getRandomMark: (params: RandomMarkQuery) =>
+    apiService.get<Mark | ''>('/marks/random', { params, suppressErrorNotify: { strategy: 'none' }, offlineCache: false }),
 
   getAllMarks: ({ userid, ...params }: AllMarksPayload) =>
     apiService.get<AllMarksResponse>(`/marks/${userid}/list`, { params }),

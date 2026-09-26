@@ -67,6 +67,12 @@ export interface MarkAddPayload extends Omit<
   photo?: string[]
 }
 
+/** Запрос случайной метки со всего мира для «Удиви меня»: GET /marks/random. Ответ — Mark. */
+export interface RandomMarkQuery {
+  /** Уже показанные id через запятую — чтобы не повторяться. */
+  exclude?: string
+}
+
 export interface Cluster {
   center: Geometry
   count: number
