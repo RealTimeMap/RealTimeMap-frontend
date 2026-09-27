@@ -39,3 +39,22 @@ test('вход сохраняется, даже если браузер стёр
   await expect(navItem(page, 'Чаты')).toBeVisible()
   await expect(page).not.toHaveURL(/\/login/)
 })
+
+// На iPhone отдельный запрос отвечал 401 при рабочем токене — и человека выкидывало сразу после входа
+test('401 от одного запроса при рабочем токене не выкидывает из аккаунта', async ({ page }) => {
+  await openApp(page)
+  await expect(navItem(page, 'Чаты')).toBeVisible()
+
+  // Все запросы, кроме профиля, отвечают 401; профиль с тем же токеном — отвечает нормально
+  await page.route(`${API_ORIGIN}/**`, (route) => {
+    if (new URL(route.request().url()).pathname.endsWith('/profile/me'))
+      return route.fallback()
+    return route.fulfill({ status: 401, json: { message: 'Unauthorized' }, headers: { 'access-control-allow-origin': '*' } })
+  })
+  await navItem(page, 'Чаты').dispatchEvent('click')
+  await page.waitForTimeout(1500)
+
+  await expect(page).not.toHaveURL(/\/login/)
+  await expect(navItem(page, 'Чаты')).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem('rtm_auth_token'))).toBe('e2e-token')
+})
