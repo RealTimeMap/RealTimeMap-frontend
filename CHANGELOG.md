@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.72
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.71...v0.1.72)
+
+### 🩹 Исправления
+
+- **pwa:** Только PNG-иконки в манифесте, отсутствующие файлы отвечают 404 вместо index.html ([cddfb9c](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/cddfb9c))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.71
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.70...v0.1.71)
