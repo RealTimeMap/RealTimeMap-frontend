@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.71
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.70...v0.1.71)
+
+### 🩹 Исправления
+
+- **auth:** 401 от отдельного запроса не выкидывает из аккаунта ([418ccbc](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/418ccbc))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.70
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.69...v0.1.70)
