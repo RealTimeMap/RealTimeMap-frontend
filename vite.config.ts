@@ -79,13 +79,12 @@ export default defineConfig(({ command }) => ({
         orientation: 'portrait',
         background_color: '#0f1115',
         theme_color: '#12915a',
+        // Только PNG: iOS не умеет иконки .ico и .svg и при установке может взять первую попавшуюся
         icons: [
-          { src: '/favicon.ico', sizes: '48x48', type: 'image/x-icon' },
-          { src: '/favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
           { src: '/pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
           { src: '/pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
           { src: '/maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
-          { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+          { src: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png', purpose: 'any' },
         ],
       },
       workbox: {
