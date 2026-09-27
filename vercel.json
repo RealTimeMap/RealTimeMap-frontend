@@ -1,14 +1,19 @@
 {
   "rewrites": [
     {
-      "source": "/((?!\\.well-known).*)",
+      "source": "/((?!\\.well-known|assets/)(?!.*\\.(?:js|mjs|css|png|jpe?g|webp|gif|svg|ico|json|webmanifest|glb|woff2?|ttf|map|txt|xml)$).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
       "source": "/.well-known/assetlinks.json",
-      "headers": [{ "key": "Content-Type", "value": "application/json" }]
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ]
     }
   ]
 }
