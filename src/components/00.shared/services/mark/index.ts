@@ -37,7 +37,7 @@ export const markApi = {
     }),
 
   getMarkComments: (id: number) =>
-    apiService.get<MarkCommentResponse>(`/${id}/comments/`, {
+    apiService.get<MarkCommentResponse>(`/${id}/comments`, {
       params: { entity: 'mark' },
     }),
 
