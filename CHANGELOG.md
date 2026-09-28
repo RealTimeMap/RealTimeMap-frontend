@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.1.73
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.72...v0.1.73)
+
+### 🩹 Исправления
+
+- **api:** Запросы без слэша на конце — на iOS редирект терял токен и выкидывал из аккаунта ([3f85859](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3f85859))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.72
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.71...v0.1.72)
