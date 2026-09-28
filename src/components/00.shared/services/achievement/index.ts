@@ -34,5 +34,5 @@ export const achievementApi = {
    * Получить ближайшие к выполнению достижения
    */
   getNearestAchievements: (userId: number) =>
-    apiService.get<NearestAchievementsResponse>(`/achievement/user/${userId}/nearest/`),
+    apiService.get<NearestAchievementsResponse>(`/achievement/user/${userId}/nearest`),
 }

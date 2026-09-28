@@ -3,7 +3,7 @@ import { getAuthToken } from '@/components/00.shared/lib/authToken'
 
 export const chatApi = {
   getAllChats: () =>
-    apiService.get<Chat[]>(`/chats/`, {
+    apiService.get<Chat[]>(`/chats`, {
       headers: {
         Authorization: `Bearer ${getAuthToken()}`,
       },
