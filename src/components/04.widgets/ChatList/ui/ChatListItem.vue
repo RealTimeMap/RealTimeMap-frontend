@@ -1,6 +1,8 @@
 <script lang="ts" setup>
 import type { Chat } from '@/components/00.shared/services/chats/index.type'
 import { formatChatTimestamp } from '@/components/00.shared/lib/date/FormatDate'
+import { peerReadFrom } from '@/components/00.shared/services/chats/readCursors'
+import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 
 const props = defineProps<{
@@ -9,7 +11,17 @@ const props = defineProps<{
 
 const chatsStore = useChatsStore()
 
+const authStore = useAuthStore()
+
 const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
+
+const ownStatus = computed(() => {
+  const last = props.chat.lastMessage
+  const me = authStore.user
+  if (!last || !me || last.username !== me.username)
+    return null
+  return last.messageId <= peerReadFrom(props.chat.readCursors, me.userId) ? 'read' : 'sent'
+})
 </script>
 
 <template>
@@ -35,32 +47,69 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
       />
     </div>
     <div class="chat-content">
-      <div class="chat-name">
-        <span class="chat-name__text">
-          {{ chat.title }}
+      <!-- Сверху имя и время, снизу вся ширина под текст сообщения -->
+      <div class="chat-row">
+        <div class="chat-name">
+          <span class="chat-name__text">
+            {{ chat.title }}
+          </span>
+          <u-admin-badge
+            v-if="chat.isAdmin"
+            class="chat-name__badge"
+            :size="14"
+          />
+        </div>
+        <span class="time">
+          <span
+            v-if="ownStatus"
+            class="status"
+            :class="`status--${ownStatus}`"
+            role="img"
+            :aria-label="ownStatus === 'read' ? 'Прочитано' : 'Отправлено'"
+          >
+            <u-icon
+              icon="app:check"
+              width="14"
+            />
+            <u-icon
+              v-if="ownStatus === 'read'"
+              class="status__second"
+              icon="app:check"
+              width="14"
+            />
+          </span>
+          {{ formatChatTimestamp(chat.updatedAt) }}
         </span>
-        <u-admin-badge
-          v-if="chat.isAdmin"
-          class="chat-name__badge"
-          :size="14"
-        />
       </div>
-      <span class="content">{{ chat.lastMessage?.content }}</span>
-    </div>
-    <div class="chat-info">
-      <span class="time">{{ formatChatTimestamp(chat.updatedAt) }}</span>
-      <u-badge :count="chat.unreadCount" />
+      <div class="chat-row">
+        <span class="content">{{ chat.lastMessage?.content }}</span>
+        <u-badge :count="chat.unreadCount" />
+      </div>
     </div>
   </router-link>
 </template>
 
 <style lang="scss" scoped>
+// Галочки у времени, как в мессенджерах: одна — отправлено, две внахлёст — прочитано
+.status {
+  display: inline-flex;
+  color: var(--text-color-muted);
+
+  &--read {
+    color: var(--primary-color);
+  }
+
+  &__second {
+    margin-left: -9px;
+  }
+}
+
 .chat {
   display: flex;
   width: 100%;
   align-items: center;
   gap: 12px;
-  padding: 12px 2px;
+  padding: 12px 0;
   cursor: pointer;
   border-bottom: 0.5px solid var(--border-subtle);
   text-decoration: none;
@@ -86,9 +135,17 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
   &-content {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 6px;
     flex: 1;
     min-width: 0;
+
+    .chat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      min-width: 0;
+    }
 
     .chat-name {
       display: flex;
@@ -114,22 +171,19 @@ const isOnline = computed(() => chatsStore.isPeerOnline(props.chat.peerId))
     }
 
     .content {
+      flex: 1;
+      min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       @include label-text(14px, none);
     }
-  }
-
-  &-info {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 5px;
-    margin-left: auto;
-    flex-shrink: 0;
 
     .time {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 3px;
       @include label-text(12px, none);
       white-space: nowrap;
     }

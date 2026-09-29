@@ -153,16 +153,17 @@ export const useChatsStore = defineStore('chats', () => {
     }
   }
 
-  /**
-   * Чат прочитан с другого устройства текущего пользователя —
-   * синхронно гасим счётчик. Чужие прочтения к unread не относятся:
-   * их обрабатывает useChatMessages ради галочек.
-   */
   function applyRead(payload: ChatReadPayload) {
-    if (payload.userId !== useAuthStore().user?.userId)
+    if (payload.userId === useAuthStore().user?.userId) {
+      markAsRead(payload.chatId)
       return
-
-    markAsRead(payload.chatId)
+    }
+    chats.value = chats.value.map((chat) => {
+      if (chat.chatId !== payload.chatId)
+        return chat
+      const cursors = Array.isArray(chat.readCursors) ? chat.readCursors.filter(c => c.userId !== payload.userId) : []
+      return { ...chat, readCursors: [...cursors, { userId: payload.userId, lastReadMessageId: payload.lastReadMessageId }] }
+    })
   }
 
   const { isConnected, onChatMessage, onChatRead } = useChatSocket()

@@ -4,6 +4,7 @@ import { Preferences } from '@capacitor/preferences'
 import { useDocumentVisibility, useThrottleFn } from '@vueuse/core'
 import { useChatSocket } from '@/components/00.shared/composables/useChatSocket'
 import { chatApi } from '@/components/00.shared/services/chats'
+import { peerReadFrom } from '@/components/00.shared/services/chats/readCursors'
 import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useChatsStore } from '@/components/00.shared/stores/chats'
 
@@ -54,11 +55,8 @@ export function useChatMessages(chatId: Ref<number>) {
   const peerReadCacheKey = (id: number) => `${PEER_READ_CACHE_PREFIX}${id}`
 
   /**
-   * Курсор монотонный, назад не откатываем.
-   * Кэшируем локально, потому что сервер отдаёт его только событием `chat.read` —
-   * без кэша при перезаходе в чат все свои сообщения снова выглядели бы
-   * непрочитанными. Когда бэк начнёт возвращать курсор в истории,
-   * кэш останется как фолбэк для офлайна.
+   * Курсор монотонный, назад не откатываем. Приходит в истории и списке чатов (readCursors)
+   * и событием `chat.read`; локальный кэш — чтобы галочки были видны сразу и офлайн.
    */
   const applyPeerRead = (id: number, lastReadMessageId: number) => {
     if (!lastReadMessageId || lastReadMessageId <= peerLastReadId.value)
@@ -129,12 +127,8 @@ export function useChatMessages(chatId: Ref<number>) {
       messages.value = list
       cacheHistory(chatId.value, list)
 
-      // когда бэк начнёт отдавать курсор собеседника в истории, здесь
-      // достаточно будет заменить кэш на ответ:
-      // applyPeerRead(chatId.value, response.peerLastReadMessageId)
-
-      if (messages.value.length)
-        markRead()
+      applyPeerRead(chatId.value, peerReadFrom(response.readCursors, authStore.user?.userId))
+      markRead()
     }
     catch (err) {
       error.value = err instanceof Error ? err : new Error('Не удалось загрузить сообщения')
@@ -345,6 +339,8 @@ export function useChatMessages(chatId: Ref<number>) {
         isLoading.value = false
 
       restorePeerRead(id)
+      const listed = chatsStore.chats.find(chat => chat.chatId === id)
+      applyPeerRead(id, peerReadFrom(listed?.readCursors, authStore.user?.userId))
       fetchMessages(hasCache)
       chatsStore.setActiveChat(id)
     },
