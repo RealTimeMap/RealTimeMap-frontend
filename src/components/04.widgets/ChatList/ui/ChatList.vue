@@ -49,6 +49,10 @@ const { chats } = useChatList()
   height: 100%;
   width: 90%;
   padding-bottom: calc(110px + var(--safe-bottom));
+
+  > * {
+    flex-shrink: 0;
+  }
 }
 
 .chats-header {

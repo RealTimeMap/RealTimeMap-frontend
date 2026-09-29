@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-const { size = 16, withLabel = false } = defineProps<{
+const {
+  size = 16,
+} = defineProps<{
   /** Размер эмблемы в px. */
   size?: number
-  /** Показать текстовую подпись «Админ» рядом с эмблемой. */
-  withLabel?: boolean
 }>()
 </script>
 
@@ -20,12 +20,6 @@ const { size = 16, withLabel = false } = defineProps<{
         :width="size"
         :height="size"
       />
-    </span>
-    <span
-      v-if="withLabel"
-      class="u-admin-badge__label"
-    >
-      Админ
     </span>
   </span>
 </template>
@@ -56,11 +50,6 @@ const { size = 16, withLabel = false } = defineProps<{
       pointer-events: none;
       z-index: -1;
     }
-  }
-
-  &__label {
-    @include label-text(12px, none, var(--primary-color));
-    line-height: 1;
   }
 }
 </style>

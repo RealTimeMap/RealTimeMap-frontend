@@ -25,6 +25,8 @@ export interface Chat {
 
   peerId: number
   isAdmin: boolean
+  /** Докуда дочитал каждый участник */
+  readCursors?: ReadCursors
 }
 
 export interface DirectChat {
@@ -43,6 +45,20 @@ export interface DirectChat {
 export interface HistoryResponse {
   messages: Message[]
   lastMessageId: number
+  /** Докуда дочитал каждый участник */
+  readCursors?: ReadCursors
+}
+
+export interface ReadCursor {
+  userId: number
+  lastReadMessageId: number
+}
+
+/** Список курсоров по участникам; на случай объекта «id участника → id сообщения» разбор терпимый */
+export type ReadCursors = ReadCursor[] | Record<string, number>
+
+export interface ChatDeletedPayload {
+  chatId: number
 }
 
 export interface ChatReadPayload {

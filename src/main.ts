@@ -13,6 +13,9 @@ import './assets/scss/index.scss'
 
 installBugLogger()
 
+for (const type of ['gesturestart', 'gesturechange'])
+  document.addEventListener(type, event => event.preventDefault(), { passive: false })
+
 initTheme()
 
 if (getCookie('app_glass_effect') === 'false')

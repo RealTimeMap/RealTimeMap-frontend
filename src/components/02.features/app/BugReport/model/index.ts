@@ -41,7 +41,11 @@ export async function submitBug(
   try {
     const { device, app } = await collectBugContext()
     await bugApi.create({ ...input, device, app })
-    notify.add({ title: 'Спасибо! Баг отправлен', type: 'success' })
+    notify.add({
+      title: 'Спасибо! Баг отправлен на проверку',
+      description: 'Мы рассмотрим проблему в ближайшее время и постараемся скорее её исправить',
+      type: 'success',
+    })
     dialog.close()
     return true
   }

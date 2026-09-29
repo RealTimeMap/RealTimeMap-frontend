@@ -3,12 +3,12 @@ import { Capacitor } from '@capacitor/core'
 import { Directory, Filesystem } from '@capacitor/filesystem'
 import { compareVersions } from 'compare-versions'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
+import { ANDROID_APK_URL } from './links'
 import { summarizeRelease } from './summarizeRelease'
 
 declare const __APP_VERSION__: string
 const GITHUB_REPO = 'RealTimeMap/RealTimeMap-frontend'
 const API_GITHUB_RELEASES_LATEST = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`
-const GITHUB_RELEASES_PAGE = `https://github.com/${GITHUB_REPO}/releases/latest`
 
 interface UpdateAction {
   text: string
@@ -119,22 +119,22 @@ export async function checkForUpdates() {
 }
 
 export async function downloadAndroidApp() {
-  try {
-    const response = await fetch(API_GITHUB_RELEASES_LATEST)
-    if (!response.ok) {
-      window.open(GITHUB_RELEASES_PAGE, '_blank')
-      return
-    }
-    const latestRelease = await response.json()
-    const apkAsset = latestRelease.assets?.find(
-      (asset: any) => asset.name.endsWith('.apk'),
-    )
-    window.open(apkAsset?.browser_download_url ?? GITHUB_RELEASES_PAGE, '_blank', 'noopener,noreferrer')
+  if (matchMedia('(pointer: fine)').matches) {
+    const [{ useDialogStore }, { default: AndroidQr }] = await Promise.all([
+      import('@/components/00.shared/stores/dialog'),
+      import('../ui/AndroidQr.vue'),
+    ])
+    useDialogStore().open(AndroidQr, {}, {
+      position: 'end center',
+      headerModal: false,
+    })
+    return
   }
-  catch (error) {
-    console.error('Не удалось получить ссылку на APK:', error)
-    window.open(GITHUB_RELEASES_PAGE, '_blank')
-  }
+  window.open(
+    ANDROID_APK_URL,
+    '_blank',
+    'noopener,noreferrer',
+  )
 }
 
 async function downloadAndInstall(url: string) {

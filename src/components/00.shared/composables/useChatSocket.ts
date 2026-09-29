@@ -1,4 +1,5 @@
 import type {
+  ChatDeletedPayload,
   ChatReadPayload,
   ChatTypingPayload,
   Message,
@@ -39,6 +40,9 @@ export function useChatSocket() {
   const onChatRead = (handler: (payload: ChatReadPayload) => void) =>
     on(CHATS_NAMESPACE, 'chat.read', handler)
 
+  const onChatDeleted = (handler: (payload: ChatDeletedPayload) => void) =>
+    on(CHATS_NAMESPACE, 'chat.deleted', handler)
+
   const onPresenceSnapshot = (handler: (payload: PresenceSnapshotPayload) => void) =>
     on(CHATS_NAMESPACE, 'presence.snapshot', handler)
 
@@ -65,6 +69,7 @@ export function useChatSocket() {
 
     onChatMessage,
     onChatRead,
+    onChatDeleted,
     onPresenceSnapshot,
     onPresenceOnline,
     onPresenceOffline,

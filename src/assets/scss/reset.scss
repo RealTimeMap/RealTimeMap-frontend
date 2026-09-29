@@ -122,3 +122,16 @@ button {
   //   scroll-behavior: auto !important;
   // }
 }
+
+// --- Без зума страницы ---
+html {
+  touch-action: pan-x pan-y;
+}
+
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1em) !important;
+  }
+}

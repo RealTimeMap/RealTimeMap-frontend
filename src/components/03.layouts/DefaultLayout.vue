@@ -55,10 +55,12 @@ onMounted(() => {
     overflow: hidden;
     z-index: 1;
     box-sizing: border-box;
-    padding-top: var(--safe-top);
+    // Отступ под «чёлку»: и для обычного потока, и для страниц во время перехода (там они absolute)
+    --page-top: var(--safe-top);
+    padding-top: var(--page-top);
 
     &--full-bleed {
-      padding-top: 0;
+      --page-top: 0px;
     }
   }
 
