@@ -113,7 +113,11 @@ function handleKeydown(event: KeyboardEvent) {
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  padding: 10px 16px calc(20px + var(--safe-bottom));
+  padding: 10px 16px max(12px, calc(4px + var(--safe-bottom)));
+
+  :global(.keyboard-open) & {
+    padding-bottom: 10px;
+  }
 
   &__attach {
     flex-shrink: 0;
@@ -144,7 +148,7 @@ function handleKeydown(event: KeyboardEvent) {
     resize: none;
     max-height: 120px;
     font-family: inherit;
-    font-size: 15px;
+    font-size: 16px;
     line-height: 1.35;
     color: var(--text-color);
     background: transparent;
