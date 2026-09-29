@@ -1,4 +1,5 @@
 import type {
+  ChatDeletedPayload,
   Message as ChatMessage,
   ChatReadPayload,
   ChatTypingPayload,
@@ -105,6 +106,7 @@ export interface ServerToClientEvents {
   'message.new': (payload: ChatMessage) => void
 
   'chat.read': (payload: ChatReadPayload) => void
+  'chat.deleted': (payload: ChatDeletedPayload) => void
 
   /** Снимок онлайн-собеседников, приходит один раз при подключении к /chats */
   'presence.snapshot': (payload: PresenceSnapshotPayload) => void

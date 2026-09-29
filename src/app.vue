@@ -134,8 +134,10 @@ $page-transition-easing: cubic-bezier(0.36, 0.66, 0.04, 1);
 .slide-left-leave-active,
 .slide-right-enter-active,
 .slide-right-leave-active {
+  // absolute не учитывает padding контейнера: без top страница на время перехода
+  // подпрыгивала под «чёлку» и растягивалась, а после — возвращалась на место
   position: absolute;
-  inset: 0;
+  inset: var(--page-top, 0px) 0 0;
   transition:
     transform $page-transition-duration $page-transition-easing,
     filter $page-transition-duration $page-transition-easing;
@@ -183,7 +185,7 @@ $page-transition-easing: cubic-bezier(0.36, 0.66, 0.04, 1);
 .fade-leave-active {
   transition: opacity 0.25s ease;
   position: absolute;
-  inset: 0;
+  inset: var(--page-top, 0px) 0 0;
 }
 .fade-enter-from,
 .fade-leave-to {

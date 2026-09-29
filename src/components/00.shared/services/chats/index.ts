@@ -44,4 +44,20 @@ export const chatApi = {
         Authorization: `Bearer ${getAuthToken()}`,
       },
     }),
+
+  /** Direct: без forEveryone — только у себя, с ним — у обоих. Групповой удаляет только владелец */
+  deleteChat: (chatId: number, forEveryone = false) =>
+    apiService.delete<void>(`/chats/${chatId}`, {
+      params: forEveryone ? { forEveryone: true } : undefined,
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    }),
+
+  leaveChat: (chatId: number) =>
+    apiService.post<void>(`/chats/${chatId}/leave`, {}, {
+      headers: {
+        Authorization: `Bearer ${getAuthToken()}`,
+      },
+    }),
 }

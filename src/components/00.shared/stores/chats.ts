@@ -166,7 +166,55 @@ export const useChatsStore = defineStore('chats', () => {
     })
   }
 
-  const { isConnected, onChatMessage, onChatRead } = useChatSocket()
+  // --- Действия из списка: прочитать и удалить ---
+
+  /** Отметить чат прочитанным, не открывая его */
+  async function readChat(chatId: number) {
+    markAsRead(chatId)
+    try {
+      await chatApi.postReadChat(chatId)
+    }
+    catch (err) {
+      console.error('[Chats] Ошибка отметки прочтения:', err)
+    }
+  }
+
+  function removeLocally(chatId: number) {
+    chats.value = chats.value.filter(chat => chat.chatId !== chatId)
+    // Удалили открытый чат (например, с другого устройства) — возвращаемся к списку
+    if (activeChatId.value === chatId)
+      void router.replace({ name: 'chats' })
+  }
+
+  /**
+   * Удалить чат. Direct — у себя или у обоих; групповой удаляет только владелец,
+   * остальным сервер отвечает 403 — тогда просто выходим из группы, итог для пользователя тот же.
+   * Из списка убираем сразу; не получилось — возвращаем как было.
+   */
+  async function deleteChat(chatId: number, forEveryone = false): Promise<boolean> {
+    const before = chats.value
+    const chat = before.find(item => item.chatId === chatId)
+    removeLocally(chatId)
+    try {
+      try {
+        await chatApi.deleteChat(chatId, forEveryone)
+      }
+      catch (err) {
+        if (chat?.type !== 'direct' && (err as { status?: number })?.status === 403)
+          await chatApi.leaveChat(chatId)
+        else
+          throw err
+      }
+      return true
+    }
+    catch (err) {
+      chats.value = before
+      console.error('[Chats] Ошибка удаления чата:', err)
+      return false
+    }
+  }
+
+  const { isConnected, onChatMessage, onChatRead, onChatDeleted } = useChatSocket()
   let unsubscribers: (() => void)[] = []
 
   const unsubscribeAll = () => {
@@ -183,6 +231,7 @@ export const useChatsStore = defineStore('chats', () => {
     unsubscribers = [
       onChatMessage(applyIncoming),
       onChatRead(applyRead),
+      onChatDeleted(payload => removeLocally(payload.chatId)),
     ]
 
     fetchChats()
@@ -225,6 +274,8 @@ export const useChatsStore = defineStore('chats', () => {
   }
 
   return {
+    readChat,
+    deleteChat,
     chats,
     isLoading,
     error,

@@ -57,6 +57,10 @@ export interface ReadCursor {
 /** Список курсоров по участникам; на случай объекта «id участника → id сообщения» разбор терпимый */
 export type ReadCursors = ReadCursor[] | Record<string, number>
 
+export interface ChatDeletedPayload {
+  chatId: number
+}
+
 export interface ChatReadPayload {
   chatId: number
   userId: number
