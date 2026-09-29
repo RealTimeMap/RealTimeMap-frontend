@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.1.74
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.73...v0.1.74)
+
+### 🚀 Функциональность
+
+- **app:** QR-код для установки Android-приложения с компьютера ([e114711](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e114711))
+- **chats:** Галочки прочтения из readCursors в чате и списке, отметка прочтения при каждом открытии ([ddd461b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/ddd461b))
+- **chats:** Свайп и контекстное меню у чата — прочитать и удалить (у себя или у обоих) ([1d016a6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/1d016a6))
+
+### 🩹 Исправления
+
+- **bug-report:** После отправки сообщаем, что рассмотрим проблему в ближайшее время ([c859866](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/c859866))
+- **ios:** Без зума страниц, поля ввода не мельче 16px, отступ под полем чата с учётом клавиатуры ([109f8c5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/109f8c5))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.73
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.72...v0.1.73)
