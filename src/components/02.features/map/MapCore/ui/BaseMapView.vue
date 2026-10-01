@@ -6,6 +6,7 @@ import { storeToRefs } from 'pinia'
 import { MAP_STYLE_BASE } from '@/components/00.shared/lib/mapStyleBase'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
+import { styleCity } from '@/components/02.features/map/CityDetails'
 import { buildTransformRequest, registerOfflineMapProtocol } from '@/components/02.features/map/OfflineMap'
 import { styleRoads } from '@/components/02.features/map/RoadDetails'
 import { useShareStore } from '@/components/02.features/mark/Share/model'
@@ -63,9 +64,9 @@ const { resolvedTheme } = storeToRefs(useSettingsStore())
 const globeView = ref(props.zoomLevel < GLOBE_ZOOM)
 const styleBase = computed<ThemeBase>(() => globeView.value ? 'dark' : themeBase(resolvedTheme.value))
 
-/** Дороги CARTO перекрашиваются и расширяются до загрузки стиля — см. RoadDetails. */
+/** Дороги и номера домов CARTO правятся до загрузки стиля — см. RoadDetails и CityDetails. */
 function prepareStyle(_previous: maplibregl.StyleSpecification | undefined, next: maplibregl.StyleSpecification) {
-  return styleRoads(next, styleBase.value)
+  return styleCity(styleRoads(next, styleBase.value), styleBase.value)
 }
 
 provide(MAP_STYLE_BASE, styleBase)

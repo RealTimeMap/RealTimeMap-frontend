@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import type * as maplibregl from 'maplibre-gl'
 import type { ShallowRef } from 'vue'
+import type { MarkingsRequest } from '../model/markings'
 import { storeToRefs } from 'pinia'
+import { latestWorker, plainFeatures } from '@/components/00.shared/lib/latestWorker'
 import { mapNow } from '@/components/00.shared/lib/mapClock'
+import { onMapSettled } from '@/components/00.shared/lib/mapIdle'
 import { useMapStyleBase } from '@/components/00.shared/lib/mapStyleBase'
 import { fixedFoliage, foliageAt } from '@/components/00.shared/lib/season'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
@@ -12,7 +15,9 @@ import {
   createLayers,
   detailsBeforeId,
   MARKING_LAYERS,
+  MARKING_ZOOM,
   markingOpacity,
+  MARKINGS_SOURCE,
   OWN_LAYERS,
   paintColors,
 } from '../model/roadDetails'
@@ -37,9 +42,49 @@ function applySnow(instance: maplibregl.Map) {
   }
 }
 
+// --- Разметка проезжей части считается в воркере по дорогам вокруг экрана ---
+const EMPTY: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] }
+/** Стилевые слои, по которым берём дороги и тротуары: заливки дорог и мостов, дорожки. */
+const QUERY_LAYERS = /^(?:road|bridge)_(?:.*fill.*|path)$/
+
+let markings = EMPTY
+const markingsWorker = latestWorker<MarkingsRequest, GeoJSON.FeatureCollection>(
+  () => new Worker(new URL('../model/markings.worker.ts', import.meta.url), { type: 'module' }),
+)
+
+function setMarkings(instance: maplibregl.Map, data: GeoJSON.FeatureCollection) {
+  markings = data
+  const source = instance.getSource(MARKINGS_SOURCE) as maplibregl.GeoJSONSource | undefined
+  source?.setData(data)
+}
+
+function updateMarkings() {
+  const instance = map?.value
+  if (!instance?.getSource(MARKINGS_SOURCE))
+    return
+  const zoom = instance.getZoom()
+  if (zoom < MARKING_ZOOM) {
+    if (markings.features.length)
+      setMarkings(instance, EMPTY)
+    return
+  }
+  const layers = instance.getStyle().layers.map(layer => layer.id).filter(id => QUERY_LAYERS.test(id))
+  const canvas = instance.getCanvas()
+  const w = canvas.clientWidth
+  const h = canvas.clientHeight
+  // С запасом в полэкрана: при сдвиге карты разметка уже посчитана
+  const features = instance.queryRenderedFeatures([[-w / 2, -h / 2], [w * 1.5, h * 1.5]], { layers })
+  markingsWorker.request(
+    { features: plainFeatures(features), zoom, lat: instance.getCenter().lat },
+    data => setMarkings(instance, data),
+  )
+}
+
 function ensureLayers(instance: maplibregl.Map) {
   if (!instance.getSource(CARTO_SOURCE))
     return
+  if (!instance.getSource(MARKINGS_SOURCE))
+    instance.addSource(MARKINGS_SOURCE, { type: 'geojson', data: markings })
   if (OWN_LAYERS.every(id => instance.getLayer(id)))
     return
   const before = detailsBeforeId(instance.getStyle().layers)
@@ -48,6 +93,7 @@ function ensureLayers(instance: maplibregl.Map) {
       instance.addLayer(layer, before)
   }
   applySnow(instance)
+  updateMarkings()
 }
 
 function removeLayers(instance: maplibregl.Map) {
@@ -55,6 +101,8 @@ function removeLayers(instance: maplibregl.Map) {
     if (instance.getLayer(id))
       instance.removeLayer(id)
   }
+  if (instance.getSource(MARKINGS_SOURCE))
+    instance.removeSource(MARKINGS_SOURCE)
 }
 
 let waitingForIdle = false
@@ -93,17 +141,23 @@ watch([mapSeason, () => weatherStore.snowDepth], () => {
     applySnow(instance)
 })
 
+let stopSettled: (() => void) | null = null
+
 watch(() => map?.value, (instance, previous) => {
   previous?.off('styledata', sync)
+  stopSettled?.()
   instance?.on('styledata', sync)
+  stopSettled = instance ? onMapSettled(instance, updateMarkings) : null
   sync()
 }, { immediate: true })
 
 onUnmounted(() => {
+  markingsWorker.dispose()
   const instance = map?.value
   if (!instance)
     return
   instance.off('styledata', sync)
+  stopSettled?.()
   removeLayers(instance)
 })
 </script>

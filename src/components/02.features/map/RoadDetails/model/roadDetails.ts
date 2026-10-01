@@ -14,6 +14,8 @@ import type { ThemeBase } from '@/components/00.shared/lib/theme'
 
 export const CARTO_SOURCE = 'carto'
 const SOURCE_LAYER = 'transportation'
+/** Разметка проезжей части: считается в воркере — с обрывом у перекрёстков, стоп-линиями и зебрами. */
+export const MARKINGS_SOURCE = 'road-details'
 
 const CENTER_LAYER = 'road-details-center'
 const LANE_LEFT_LAYER = 'road-details-lane-left'
@@ -23,6 +25,8 @@ const EDGE_RIGHT_LAYER = 'road-details-edge-right'
 const STEPS_LAYER = 'road-details-steps'
 const CYCLE_LAYER = 'road-details-cycleway'
 const TRAM_LAYER = 'road-details-tram'
+const STOP_LAYER = 'road-details-stop'
+const ZEBRA_LAYER = 'road-details-zebra'
 
 export const OWN_LAYERS = [
   TRAM_LAYER,
@@ -33,12 +37,14 @@ export const OWN_LAYERS = [
   LANE_LEFT_LAYER,
   LANE_RIGHT_LAYER,
   CENTER_LAYER,
+  STOP_LAYER,
+  ZEBRA_LAYER,
 ]
 
 /** Слои линий, прозрачность которых гасит снег. */
-export const MARKING_LAYERS = [CENTER_LAYER, LANE_LEFT_LAYER, LANE_RIGHT_LAYER, EDGE_LEFT_LAYER, EDGE_RIGHT_LAYER]
+export const MARKING_LAYERS = [CENTER_LAYER, LANE_LEFT_LAYER, LANE_RIGHT_LAYER, EDGE_LEFT_LAYER, EDGE_RIGHT_LAYER, STOP_LAYER, ZEBRA_LAYER]
 
-const MARKING_ZOOM = 16
+export const MARKING_ZOOM = 16
 const EDGE_ZOOM = 17
 
 // --- Ширина дорог ---
@@ -140,10 +146,20 @@ export function styleRoads(style: StyleSpecification, base: ThemeBase): StyleSpe
 }
 
 /** Ширина заливки по классу в стилях CARTO (Positron и Dark Matter совпадают). */
-const STYLE_FILL: Record<'major' | 'motorway' | 'other', Stop[]> = {
+const STYLE_FILL: Record<'major' | 'motorway' | 'other' | 'minor' | 'service', Stop[]> = {
   major: [[13, 2], [14, 4], [15, 6], [16, 8], [17, 12], [18, 16]],
   motorway: [[13, 3], [14, 5], [15, 7], [16, 9], [17, 11], [18, 20]],
   other: [[13, 2], [14, 3], [15, 4], [16, 6], [17, 10], [18, 14]],
+  minor: [[15, 3], [16, 4], [17, 8], [18, 12]],
+  service: [[15, 2], [16, 2], [17, 4], [18, 6]],
+}
+
+/** Ширина дороги класса в пикселях на зуме — та же, что рисует стиль после styleRoads. */
+export function roadWidthPx(roadClass: string, zoom: number): number {
+  const kind = roadClass === 'primary' || roadClass === 'trunk'
+    ? 'major'
+    : roadClass === 'motorway' || roadClass === 'minor' || roadClass === 'service' ? roadClass : 'other'
+  return roadFill(STYLE_FILL[kind], zoom)
 }
 
 /** Доля ширины дороги этого класса — по ней от оси откладываются полосы и края. */
@@ -162,8 +178,6 @@ const CENTER_WIDTH: ExpressionSpecification = ['interpolate', ['linear'], ['zoom
 const MAJOR: ExpressionSpecification = ['match', ['get', 'class'], ['primary', 'secondary', 'tertiary', 'trunk', 'motorway'], true, false]
 const WIDE: ExpressionSpecification = ['match', ['get', 'class'], ['primary', 'trunk', 'motorway'], true, false]
 const ONEWAY: ExpressionSpecification = ['==', ['get', 'oneway'], 1]
-const NOT_TUNNEL: ExpressionSpecification = ['!=', ['get', 'brunnel'], 'tunnel']
-const NOT_RAMP: ExpressionSpecification = ['!=', ['get', 'ramp'], 1]
 
 interface Palette {
   center: string
@@ -214,11 +228,18 @@ function line(
   }
 }
 
-const ROADWAY: ExpressionSpecification[] = [MAJOR, NOT_TUNNEL, NOT_RAMP]
+/** Слой посчитанной разметки: тот же line, но из GeoJSON-источника воркера. */
+function marking(...args: Parameters<typeof line>): LineLayerSpecification {
+  const { 'source-layer': _, ...layer } = line(...args)
+  return { ...layer, source: MARKINGS_SOURCE }
+}
+
+const kind = (value: string): ExpressionSpecification => ['==', ['get', 'kind'], value]
+const ROADWAY: ExpressionSpecification[] = [kind('road'), MAJOR]
 
 /** Край проезжей части — сплошная чуть внутри обочины. */
 function edge(id: string, side: 1 | -1, color: string): LineLayerSpecification {
-  return line(id, ['all', ...ROADWAY], EDGE_ZOOM, color, MARKING_WIDTH, { 'line-offset': acrossRoad(side * 0.42) })
+  return marking(id, ['all', ...ROADWAY], EDGE_ZOOM, color, MARKING_WIDTH, { 'line-offset': acrossRoad(side * 0.42) })
 }
 
 /**
@@ -227,7 +248,7 @@ function edge(id: string, side: 1 | -1, color: string): LineLayerSpecification {
  */
 function lane(id: string, side: 1 | -1, color: string): LineLayerSpecification {
   const share: ExpressionSpecification = ['case', ONEWAY, side / 6, side / 4]
-  return line(id, ['all', ...ROADWAY, ['any', ONEWAY, WIDE]], MARKING_ZOOM, color, MARKING_WIDTH, {
+  return marking(id, ['all', ...ROADWAY, ['any', ONEWAY, WIDE]], MARKING_ZOOM, color, MARKING_WIDTH, {
     'line-offset': acrossRoad(share),
     'line-dasharray': [4, 3],
   })
@@ -251,7 +272,13 @@ export function createLayers(base: ThemeBase): LayerSpecification[] {
     lane(LANE_LEFT_LAYER, -1, colors.lane),
     lane(LANE_RIGHT_LAYER, 1, colors.lane),
     // Двустороннее движение — сплошная по оси
-    line(CENTER_LAYER, ['all', ...ROADWAY, ['!', ONEWAY]], MARKING_ZOOM, colors.center, CENTER_WIDTH),
+    marking(CENTER_LAYER, ['all', ...ROADWAY, ['!', ONEWAY]], MARKING_ZOOM, colors.center, CENTER_WIDTH),
+    // Стоп-линия перед перекрёстком — толще осевой
+    marking(STOP_LAYER, kind('stop'), MARKING_ZOOM, colors.center, ['interpolate', ['linear'], ['zoom'], MARKING_ZOOM, 1.6, 18, 3, 20, 6, 22, 12]),
+    // Зебра: поперёк дороги, ширина линии — глубина перехода, штрихи пунктиром
+    marking(ZEBRA_LAYER, kind('zebra'), MARKING_ZOOM, colors.lane, acrossRoad(0.3), {
+      'line-dasharray': [0.22, 0.22],
+    }),
   ]
 }
 
@@ -266,6 +293,8 @@ export function paintColors(base: ThemeBase): Array<[id: string, property: 'line
     [LANE_LEFT_LAYER, 'line-color', colors.lane],
     [LANE_RIGHT_LAYER, 'line-color', colors.lane],
     [CENTER_LAYER, 'line-color', colors.center],
+    [STOP_LAYER, 'line-color', colors.center],
+    [ZEBRA_LAYER, 'line-color', colors.lane],
   ]
 }
 

@@ -8,6 +8,7 @@ import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { useMapCoach } from '@/components/02.features/app/Onboarding/model/useMapCoach'
 import CoachHint from '@/components/02.features/app/Onboarding/ui/CoachHint.vue'
 import { Buildings3D } from '@/components/02.features/map/Buildings3D'
+import { CityDetails } from '@/components/02.features/map/CityDetails'
 import { GeolocationFeedback, HeadingCone, useCompass } from '@/components/02.features/map/Geolocation'
 import { useGeolocation } from '@/components/02.features/map/Geolocation/model/useGeolocation'
 import { MarksLayer, NearbyMarks } from '@/components/02.features/map/GetMarks'
@@ -227,6 +228,7 @@ watch(userPosition, (pos) => {
       />
       <surprise-me v-if="showPublicMarks" />
       <personal-marks-layer v-if="showPersonalMarks" />
+      <city-details />
       <road-details />
       <buildings3-d v-if="showBuildings3D" />
       <map-trees v-if="showTrees" />
