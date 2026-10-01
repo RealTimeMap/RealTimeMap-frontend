@@ -107,7 +107,8 @@ export default defineConfig(({ command }) => ({
             urlPattern: ({ request, sameOrigin }) => request.destination === 'image' && !sameOrigin,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'remote-images',
+              // Новое имя: в старом кэше CORS-запросы могли получить непрозрачный ответ и не загрузиться
+              cacheName: 'remote-images-v2',
               expiration: {
                 maxEntries: 200,
                 maxAgeSeconds: 60 * 60 * 24 * 30,
@@ -116,6 +117,19 @@ export default defineConfig(({ command }) => ({
               cacheableResponse: {
                 statuses: [0, 200],
               },
+              plugins: [
+                {
+                  // Одна картинка грузится и обычным <img>, и с crossorigin (аватар, из которого берут цвет).
+                  // Непрозрачный ответ на CORS-запрос браузер отбрасывает — храним их под разными ключами
+                  cacheKeyWillBeUsed: async ({ request }) => {
+                    if (request.mode !== 'cors')
+                      return request.url
+                    const url = new URL(request.url)
+                    url.searchParams.set('sw-cors', '1')
+                    return url.href
+                  },
+                },
+              ],
             },
           },
         ],

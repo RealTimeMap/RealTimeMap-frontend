@@ -19,12 +19,28 @@ async function unregisterServiceWorkers() {
   }
 }
 
+/**
+ * Старый кэш картинок: CORS-запросы аватаров получали из него непрозрачные ответы и не загружались.
+ * Новый service worker пишет в remote-images-v2, этот больше не нужен.
+ */
+const OUTDATED_CACHES = ['remote-images']
+
+async function dropOutdatedCaches() {
+  if (!('caches' in window))
+    return
+  try {
+    await Promise.all(OUTDATED_CACHES.map(name => caches.delete(name)))
+  }
+  catch {}
+}
+
 export async function setupPWA() {
   if (Capacitor.isNativePlatform()) {
     await unregisterServiceWorkers()
     return
   }
 
+  void dropOutdatedCaches()
   const { registerSW } = await import('virtual:pwa-register')
 
   const updateSW = registerSW({

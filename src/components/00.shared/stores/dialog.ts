@@ -77,7 +77,11 @@ export const useDialogStore = defineStore('dialog', () => {
     dialogs.value = dialogs.value.slice(0, -1)
   }
 
+  /** Сколько раз модалки сбрасывали разом (выход из аккаунта): «назад» в браузере тогда не трогает историю. */
+  const destroyCount = ref(0)
+
   function destroy() {
+    destroyCount.value++
     dialogs.value = []
   }
 
@@ -87,6 +91,7 @@ export const useDialogStore = defineStore('dialog', () => {
     dialogs,
     hasDialogs,
     isVisible,
+    destroyCount,
     open,
     close,
     destroy,

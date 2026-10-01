@@ -5,6 +5,7 @@ import type {
   FilterSpecification,
   LayerSpecification,
   LightSpecification,
+  LineLayerSpecification,
 } from 'maplibre-gl'
 import type { SunPosition } from '@/components/00.shared/lib/sun'
 import type { ThemeBase } from '@/components/00.shared/lib/theme'
@@ -12,6 +13,7 @@ import { sunPosition } from '@/components/00.shared/lib/sun'
 import { LANDMARK_CLEARINGS } from '@/components/02.features/map/LandmarksLayer/model/landmarks'
 
 export const BUILDINGS_LAYER_ID = '3d-buildings'
+export const CONTACT_LAYER_ID = '3d-buildings-contact'
 
 /** Векторный источник и слой зданий в стилях CARTO (carto.streets). */
 export const SOURCE_ID = 'carto'
@@ -182,7 +184,42 @@ export const SUNLIT_AREA: GeoJSON.Feature = {
 export const SNOW_LAYER_ID = '3d-buildings-snow'
 
 export function isBuildingsLayer(id: string): boolean {
-  return id === BUILDINGS_LAYER_ID || id === SHADOW_LAYER_ID || id === SUNLIT_LAYER_ID || id === SNOW_LAYER_ID
+  return id === BUILDINGS_LAYER_ID || id === SHADOW_LAYER_ID || id === SUNLIT_LAYER_ID || id === SNOW_LAYER_ID || id === CONTACT_LAYER_ID
+}
+
+// --- Контактная тень ---
+// Мягкое затемнение по земле вплотную к стенам: дом «садится» на землю, а не висит над картой.
+// Размытая линия по контуру под слоем зданий — внутреннюю половину закрывает сам дом
+
+const CONTACT_MIN_ZOOM = 15
+
+const CONTACT_COLOR: Record<ThemeBase, string> = {
+  light: 'rgba(38, 46, 60, 0.3)',
+  dark: 'rgba(0, 0, 0, 0.6)',
+}
+
+/** Ширина около 5 м на земле: с каждым зумом вдвое в пикселях. */
+const CONTACT_WIDTH: ExpressionSpecification = ['interpolate', ['exponential', 2], ['zoom'], CONTACT_MIN_ZOOM, 3, 16, 6, 17, 10, 18, 18, 20, 60, 22, 220]
+
+export const contactColor = (base: ThemeBase) => CONTACT_COLOR[base]
+
+export function createContactLayer(base: ThemeBase): LineLayerSpecification {
+  return {
+    'id': CONTACT_LAYER_ID,
+    'type': 'line',
+    'source': SOURCE_ID,
+    'source-layer': SOURCE_LAYER,
+    'minzoom': CONTACT_MIN_ZOOM,
+    'filter': BUILDING_FILTER,
+    'layout': { 'line-join': 'round' },
+    'paint': {
+      'line-color': contactColor(base),
+      'line-width': CONTACT_WIDTH,
+      'line-blur': ['interpolate', ['exponential', 2], ['zoom'], CONTACT_MIN_ZOOM, 2.5, 18, 14, 22, 180],
+      // Проявляется вместе с подъёмом домов, на обзорных зумах её нет
+      'line-opacity': ['interpolate', ['linear'], ['zoom'], CONTACT_MIN_ZOOM, 0, 16, 1],
+    },
+  }
 }
 
 // --- Снег на крышах ---

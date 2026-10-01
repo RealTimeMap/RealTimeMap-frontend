@@ -24,6 +24,19 @@ const emit = defineEmits<{
 
 const avatarSrc = useCachedImage(() => src)
 
+/**
+ * Цвет берётся только из картинки, загруженной с CORS. Если такая загрузка не удалась
+ * (хост без CORS, старый кэш service worker), грузим картинку обычным способом — без цвета, зато видно.
+ */
+const corsFailed = ref(false)
+watch(() => src, () => corsFailed.value = false)
+const useCors = computed(() => extractColor && !corsFailed.value)
+
+function handleImageError() {
+  if (useCors.value)
+    corsFailed.value = true
+}
+
 const fontSize = computed(() => {
   return `${Math.round(size * 0.38)}px`
 })
@@ -53,7 +66,7 @@ async function sampleColor(img: HTMLImageElement): Promise<string | null> {
 }
 
 async function handleImageLoad(event: Event) {
-  if (!extractColor)
+  if (!useCors.value)
     return
   try {
     const color = await sampleColor(event.target as HTMLImageElement)
@@ -76,10 +89,12 @@ async function handleImageLoad(event: Event) {
   >
     <img
       v-if="src"
+      :key="useCors ? 'cors' : 'plain'"
       :src="avatarSrc"
       :alt="altText.slice(0, 2)"
-      :crossorigin="extractColor ? 'anonymous' : undefined"
+      :crossorigin="useCors ? 'anonymous' : undefined"
       @load="handleImageLoad"
+      @error="handleImageError"
     >
     <span
       v-else

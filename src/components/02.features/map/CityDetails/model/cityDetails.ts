@@ -150,16 +150,20 @@ export function sleepersBeforeId(layers: LayerSpecification[]): string | undefin
   return layers.find(layer => layer.id === 'rail')?.id
 }
 
-/** Номера домов в стиле есть, но прозрачные — проявляем до загрузки стиля. */
+/**
+ * Правки стиля до загрузки: проявляем прозрачные номера домов.
+ * Погода и смена темы берут эти значения за исходные.
+ */
 export function styleCity(style: StyleSpecification, base: ThemeBase): StyleSpecification {
   const colors = PALETTE[base]
   const layers = style.layers.map((layer) => {
-    if (layer.id !== 'housenumber' || layer.type !== 'symbol')
-      return layer
-    return {
-      ...layer,
-      paint: { ...layer.paint, 'text-color': colors.housenumber, 'text-halo-color': colors.halo, 'text-halo-width': 1 },
+    if (layer.id === 'housenumber' && layer.type === 'symbol') {
+      return {
+        ...layer,
+        paint: { ...layer.paint, 'text-color': colors.housenumber, 'text-halo-color': colors.halo, 'text-halo-width': 1 },
+      }
     }
+    return layer
   })
   return { ...style, layers }
 }
