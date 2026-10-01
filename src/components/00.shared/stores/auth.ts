@@ -100,6 +100,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
+  /** Необратимо: после успеха аккаунта больше нет — чистим всё локально и ведём на вход */
+  const deleteAccount = async (password: string) => {
+    await authApi.deleteAccount(password)
+    await clearSession()
+    await router.push('/login')
+  }
+
   const fetchUser = async () => {
     try {
       const userData = await userApi.getProfile({
@@ -182,6 +189,7 @@ export const useAuthStore = defineStore('auth', () => {
     registration,
     fetchUser,
     logout,
+    deleteAccount,
     clearSession,
     initAuth,
   }

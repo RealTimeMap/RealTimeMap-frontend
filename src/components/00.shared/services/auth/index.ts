@@ -40,4 +40,8 @@ export const authApi = {
       },
     })
   },
+
+  deleteAccount(password: string): Promise<void> {
+    return apiService.delete<void>('/auth/me', { data: { password } })
+  },
 }
