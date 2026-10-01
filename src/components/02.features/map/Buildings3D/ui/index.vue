@@ -17,7 +17,10 @@ import {
   BUILDINGS_LAYER_ID,
   buildingsBeforeId,
   buildingsColor,
+  CONTACT_LAYER_ID,
+  contactColor,
   createBuildingsLayer,
+  createContactLayer,
   createShadowLayer,
   createSnowLayer,
   createSunlitLayer,
@@ -282,6 +285,8 @@ function addShadowLayer(instance: maplibregl.Map) {
     instance.addSource(SUNLIT_SOURCE_ID, { type: 'geojson', data: SUNLIT_AREA })
   if (!instance.getLayer(SUNLIT_LAYER_ID))
     instance.addLayer(createSunlitLayer(), SHADOW_LAYER_ID)
+  if (!instance.getLayer(CONTACT_LAYER_ID))
+    instance.addLayer(createContactLayer(styleBase.value), SHADOW_LAYER_ID)
 }
 
 // Тени пересчитываются, когда карта остановилась и тайлы догрузились, — и только если что-то поменялось
@@ -393,7 +398,7 @@ const sunTimer = setInterval(() => {
 }, SUN_UPDATE_MS)
 
 /** Порядок: подсветка земли, тени, здания — сразу перед beforeId. */
-const OWN_ORDER = [SUNLIT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID, SNOW_LAYER_ID]
+const OWN_ORDER = [SUNLIT_LAYER_ID, CONTACT_LAYER_ID, SHADOW_LAYER_ID, BUILDINGS_LAYER_ID, SNOW_LAYER_ID]
 
 function addLayer(instance: maplibregl.Map) {
   applyLight(instance, sunLight(currentSun(instance).position))
@@ -475,6 +480,8 @@ watch(styleBase, (base) => {
   instance.setPaintProperty(BUILDINGS_LAYER_ID, 'fill-extrusion-color', buildingsColor(base))
   if (instance.getLayer(SHADOW_LAYER_ID))
     instance.setPaintProperty(SHADOW_LAYER_ID, 'fill-extrusion-color', shadowColor(base))
+  if (instance.getLayer(CONTACT_LAYER_ID))
+    instance.setPaintProperty(CONTACT_LAYER_ID, 'line-color', contactColor(base))
   applyShadowOpacity(instance)
   applySnow(instance)
 })
