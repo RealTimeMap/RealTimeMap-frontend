@@ -7,6 +7,7 @@ import { MAP_STYLE_BASE } from '@/components/00.shared/lib/mapStyleBase'
 import { themeBase } from '@/components/00.shared/lib/theme'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { buildTransformRequest, registerOfflineMapProtocol } from '@/components/02.features/map/OfflineMap'
+import { styleRoads } from '@/components/02.features/map/RoadDetails'
 import { useShareStore } from '@/components/02.features/mark/Share/model'
 import { onDoubleTap } from '../model/useDoubleTap'
 import 'maplibre-gl/dist/maplibre-gl.css'
@@ -61,6 +62,12 @@ const map = shallowRef<maplibregl.Map | null>(null)
 const { resolvedTheme } = storeToRefs(useSettingsStore())
 const globeView = ref(props.zoomLevel < GLOBE_ZOOM)
 const styleBase = computed<ThemeBase>(() => globeView.value ? 'dark' : themeBase(resolvedTheme.value))
+
+/** Дороги CARTO перекрашиваются и расширяются до загрузки стиля — см. RoadDetails. */
+function prepareStyle(_previous: maplibregl.StyleSpecification | undefined, next: maplibregl.StyleSpecification) {
+  return styleRoads(next, styleBase.value)
+}
+
 provide(MAP_STYLE_BASE, styleBase)
 let offDoubleTap: (() => void) | null = null
 let resizeObserver: ResizeObserver | null = null
@@ -70,7 +77,6 @@ onMounted(() => {
 
   const mapInstance = new maplibregl.Map({
     container: mapContainer.value!,
-    style: MAP_STYLES[styleBase.value],
     center: props.centerCoordinates,
     zoom: props.zoomLevel,
     renderWorldCopies: false,
@@ -86,6 +92,8 @@ onMounted(() => {
     maxPitch: MAX_PITCH,
   })
 
+  // Стиль ставится через setStyle: только там можно поправить его до загрузки (дороги)
+  mapInstance.setStyle(MAP_STYLES[styleBase.value], { transformStyle: prepareStyle })
   map.value = mapInstance
 
   const container = mapContainer.value!
@@ -182,7 +190,7 @@ let styleTimer: ReturnType<typeof setTimeout> | null = null
 function applyStyle(delay: number) {
   if (styleTimer)
     clearTimeout(styleTimer)
-  styleTimer = setTimeout(() => map.value?.setStyle(MAP_STYLES[styleBase.value]), delay)
+  styleTimer = setTimeout(() => map.value?.setStyle(MAP_STYLES[styleBase.value], { transformStyle: prepareStyle }), delay)
 }
 
 /** Затемнение при переходе к шару: стиль меняется в самой тёмной точке, скачка цвета не видно. */

@@ -19,6 +19,7 @@ import { MapSky } from '@/components/02.features/map/MapSky'
 import { MapTrees } from '@/components/02.features/map/MapTrees'
 import { MapWater } from '@/components/02.features/map/MapWater'
 import { MapWeather } from '@/components/02.features/map/MapWeather'
+import { RoadDetails } from '@/components/02.features/map/RoadDetails'
 import { RouteBanner, useRouteStore } from '@/components/02.features/map/RouteToMark'
 import { SurpriseMe } from '@/components/02.features/map/SurpriseMe'
 import { useWeatherTracking, WeatherChip } from '@/components/02.features/map/Weather'
@@ -226,6 +227,7 @@ watch(userPosition, (pos) => {
       />
       <surprise-me v-if="showPublicMarks" />
       <personal-marks-layer v-if="showPersonalMarks" />
+      <road-details />
       <buildings3-d v-if="showBuildings3D" />
       <map-trees v-if="showTrees" />
       <map-sky />
