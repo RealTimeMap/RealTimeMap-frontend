@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v0.1.75
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.74...v0.1.75)
+
+### 🚀 Функциональность
+
+- **settings:** Удаление аккаунта с подтверждением паролем ([3a3ddf9](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/3a3ddf9))
+- **map:** Здания подгруженных при перемещении тайлов плавно вырастают ([86223a5](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/86223a5))
+- **map:** Асфальтовые дороги шире, разметка полос, ступени, велодорожки и трамвай ([4a2f27a](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/4a2f27a))
+- **push:** При выходе push-токен удаляется на бэкенде и на устройстве ([d28ff99](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/d28ff99))
+- **map:** Разметка обрывается у перекрёстков, стоп-линии и зебры; края парков ([108540b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/108540b))
+- **profile:** Кликабельный значок админа с подсказкой ([a39be69](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/a39be69))
+
+### 🩹 Исправления
+
+- **app:** Запрет выделения и копирования текста, кроме полей ввода ([976d170](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/976d170))
+- **ios:** После системного свайпа «назад» не проигрываем свою анимацию перехода второй разё ([063d072](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/063d072))
+
+### 🗑 Удаление
+
+- **text:** Кем утверждён документ ([52f793b](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/52f793b))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.74
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.73...v0.1.74)
