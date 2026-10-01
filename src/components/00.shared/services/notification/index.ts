@@ -14,4 +14,8 @@ export const notificationApi = {
   patchTokens(payload: TokenPayloadPatch) {
     return apiService.patch<TokenResponsePatch>('/tokens/me', payload, authConfig())
   },
+
+  deleteToken(deviceId: string) {
+    return apiService.delete<void>(`/tokens/me`, { ...authConfig(), data: { deviceId } })
+  },
 }
