@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.1.76
+
+[compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.75...v0.1.76)
+
+### 🚀 Функциональность
+
+- **map:** Контактная тень у основания 3D-домов ([074a1e0](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/074a1e0))
+
+### 🩹 Исправления
+
+- **pwa:** Аватарки не грузились из-за кэша SW; закрытие модалок свайпом назад ([e0a46b6](https://github.com/RealTimeMap/RealTimeMap-frontend/commit/e0a46b6))
+
+### ❤️ Contributors
+
+- Hell-soon <pmaks2365@gmail.com>
+
 ## v0.1.75
 
 [compare changes](https://github.com/RealTimeMap/RealTimeMap-frontend/compare/v0.1.74...v0.1.75)
