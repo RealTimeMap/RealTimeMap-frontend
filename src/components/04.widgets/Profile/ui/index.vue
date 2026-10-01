@@ -123,6 +123,21 @@ const { activeTip: profileTip, dismiss: dismissProfileTip } = useCoachOnView(
   { enabled: () => !!props.isOwn && authStore.isAuthenticated },
 )
 
+// Подсказка у значка админа: всплывает по нажатию, как в Telegram, и сама гаснет
+const ADMIN_TIP_MS = 4000
+const adminBadge = useTemplateRef<HTMLElement>('adminBadge')
+const adminTip = ref(false)
+let adminTipTimer: ReturnType<typeof setTimeout> | undefined
+
+function toggleAdminTip() {
+  adminTip.value = !adminTip.value
+  clearTimeout(adminTipTimer)
+  if (adminTip.value)
+    adminTipTimer = setTimeout(() => adminTip.value = false, ADMIN_TIP_MS)
+}
+
+onBeforeUnmount(() => clearTimeout(adminTipTimer))
+
 function openMark(markId: number) {
   open(MarkDetailsSheet, { markId, fromProfile: true, onDeleted: getMyMark }, {
     headerModal: false,
@@ -154,15 +169,34 @@ function openMark(markId: number) {
       <div class="user-info">
         <div class="user-info__name-row">
           <h2>{{ user?.username || 'Guest' }}</h2>
-          <u-admin-badge
+          <button
             v-if="user?.isAdmin"
-            :size="18"
-          />
+            ref="adminBadge"
+            class="admin-badge-button"
+            type="button"
+            aria-label="Администратор"
+            @click="toggleAdminTip"
+          >
+            <u-admin-badge :size="18" />
+          </button>
         </div>
         <span class="user-info__tag">
           @{{ user?.tag || '' }}
         </span>
       </div>
+
+      <u-tooltip
+        :show="adminTip"
+        :target="adminBadge"
+        :width="220"
+        variant="bubble"
+        @close="adminTip = false"
+      >
+        <div class="admin-tip">
+          <u-admin-badge :size="16" />
+          <span><b>Администратор</b> RealTimeMap — следит за порядком на карте</span>
+        </div>
+      </u-tooltip>
     </div>
 
     <div
@@ -463,6 +497,33 @@ function openMark(markId: number) {
     // Резерв под тег — иначе появление сдвигает контент ниже
     min-height: 18px;
     line-height: 18px;
+  }
+}
+
+.admin-badge-button {
+  display: inline-flex;
+  padding: 4px;
+  margin: -4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.admin-tip {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  @include value-text(13px, var(--text-color), 500);
+  line-height: 1.35;
+  text-align: left;
+
+  b {
+    font-weight: 700;
   }
 }
 
