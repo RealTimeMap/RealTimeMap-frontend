@@ -4,10 +4,12 @@ withDefaults(defineProps<{
   hint?: string
   link?: boolean
   chevron?: string
+  danger?: boolean
 }>(), {
   hint: undefined,
   link: false,
   chevron: 'app:chevron-right',
+  danger: false,
 })
 
 const emit = defineEmits<{
@@ -19,7 +21,7 @@ const emit = defineEmits<{
   <component
     :is="link ? 'button' : 'div'"
     class="settings-row"
-    :class="{ 'settings-row--link': link }"
+    :class="{ 'settings-row--link': link, 'settings-row--danger': danger }"
     :type="link ? 'button' : undefined"
     @click="link && emit('click')"
   >
@@ -82,6 +84,10 @@ const emit = defineEmits<{
     &:active {
       background: color-mix(in srgb, var(--text-color) 5%, transparent);
     }
+  }
+
+  &--danger &__label {
+    color: var(--red-color);
   }
 
   &__chevron {

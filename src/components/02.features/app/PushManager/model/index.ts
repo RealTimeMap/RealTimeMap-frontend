@@ -3,17 +3,15 @@ import { PushNotifications } from '@capacitor/push-notifications'
 import { getToken, onMessage } from 'firebase/messaging'
 import { getFirebaseMessaging } from '@/components/00.shared/lib/firebase'
 import { requestPermissionInQueue } from '@/components/00.shared/lib/permissions'
+import { deviceId } from '@/components/00.shared/lib/pushDevice'
 import { notificationApi } from '@/components/00.shared/services/notification'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
 async function registerDeviceOnBackend(token: string, platform: 'web' | 'android' | 'ios') {
   try {
-    const deviceId = localStorage.getItem('device_id') || crypto.randomUUID()
-    localStorage.setItem('device_id', deviceId)
-
     await notificationApi.postToken({
       token,
-      deviceId,
+      deviceId: deviceId(),
       platform,
     })
   }

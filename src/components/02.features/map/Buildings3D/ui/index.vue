@@ -22,6 +22,7 @@ import {
   createSnowLayer,
   createSunlitLayer,
   DEFAULT_LIGHT,
+  MIN_ZOOM,
   ROOF_SNOW_MIN,
   SHADOW_LAYER_ID,
   SHADOW_MIN_HEIGHT,
@@ -44,6 +45,11 @@ import {
 /** Сколько растёт одно здание и на сколько растянута волна от центра к краям экрана. */
 const GROW_DURATION = 700
 const WAVE_DURATION = 700
+/** Здания подгруженного при перемещении тайла растут быстрее и вразнобой, а не все разом. */
+const TILE_GROW_DURATION = 450
+const TILE_SCATTER = 200
+/** Сколько id помнить: дальше память дороже, чем повторная анимация давно увиденного дома. */
+const SHOWN_LIMIT = 200_000
 const SUN_UPDATE_MS = 5 * 60_000
 
 const map = inject<ShallowRef<maplibregl.Map | null>>('map')
@@ -52,6 +58,7 @@ const styleBase = useMapStyleBase()
 const weatherStore = useWeatherStore()
 
 let riseFrame = 0
+let revealPending = false
 let disposed = false
 let stopWaitingVisible: (() => void) | null = null
 
@@ -74,10 +81,25 @@ function whenMapVisible(run: () => void) {
 interface RisingBuilding {
   id: string | number
   delay: number
+}
+
+interface Growth {
+  start: number
+  duration: number
   rise: number
 }
 
 const STATE_TARGET = { source: SOURCE_ID, sourceLayer: SOURCE_LAYER }
+
+/** Здания, которые уже стоят на карте: при повторной загрузке тайла (зум, возврат) заново не растут. */
+const shown = new Set<string | number>()
+const growing = new Map<string | number, Growth>()
+
+function markShown(id: string | number) {
+  if (shown.size >= SHOWN_LIMIT)
+    shown.clear()
+  shown.add(id)
+}
 
 function firstCoordinate(geometry: GeoJSON.Geometry): [number, number] | null {
   if (geometry.type === 'Polygon')
@@ -87,7 +109,10 @@ function firstCoordinate(geometry: GeoJSON.Geometry): [number, number] | null {
   return null
 }
 
-/** Здания в кадре с задержкой по расстоянию от центра экрана — волна расходится от центра. */
+/**
+ * Здания в кадре с задержкой по расстоянию от центра экрана — волна расходится от центра.
+ * Все загруженные здания, и вне кадра тоже, считаются показанными.
+ */
 function buildingsInView(instance: maplibregl.Map): RisingBuilding[] {
   const bounds = instance.getBounds()
   const canvas = instance.getCanvas()
@@ -96,50 +121,87 @@ function buildingsInView(instance: maplibregl.Map): RisingBuilding[] {
   const seen = new Map<string | number, RisingBuilding>()
 
   for (const feature of instance.querySourceFeatures(SOURCE_ID, { sourceLayer: SOURCE_LAYER })) {
-    if (feature.id == null || seen.has(feature.id))
+    if (feature.id == null || seen.has(feature.id) || shown.has(feature.id))
       continue
+    markShown(feature.id)
     const coordinate = firstCoordinate(feature.geometry)
     if (!coordinate || !bounds.contains(coordinate))
       continue
     const point = instance.project(coordinate)
     const distance = Math.min(Math.hypot(point.x - center.x, point.y - center.y) / maxDistance, 1)
-    seen.set(feature.id, { id: feature.id, delay: distance * WAVE_DURATION, rise: 0 })
+    seen.set(feature.id, { id: feature.id, delay: distance * WAVE_DURATION })
   }
   return [...seen.values()]
 }
 
 const easeOutCubic = (x: number) => 1 - (1 - x) ** 3
 
-/** Волна: меняется только feature-state — тайлы не перезагружаются, в отличие от setPaintProperty. */
-function runWave(instance: maplibregl.Map, buildings: RisingBuilding[]) {
-  cancelAnimationFrame(riseFrame)
-  const start = performance.now()
-  const step = (now: number) => {
-    if (disposed || !instance.getLayer(BUILDINGS_LAYER_ID))
-      return
-    const elapsed = now - start
-    let done = true
-    for (const building of buildings) {
-      const local = Math.min(Math.max((elapsed - building.delay) / GROW_DURATION, 0), 1)
-      if (local < 1)
-        done = false
-      const rise = easeOutCubic(local)
-      if (rise !== building.rise) {
-        building.rise = rise
-        instance.setFeatureState({ ...STATE_TARGET, id: building.id }, { rise })
-      }
-    }
-    if (done) {
-      // Без состояния действует значение по умолчанию — полная высота
-      instance.removeFeatureState(STATE_TARGET)
-      return
-    }
-    riseFrame = requestAnimationFrame(step)
+/** Рост меняет только feature-state — тайлы не перезагружаются, в отличие от setPaintProperty. */
+function grow(instance: maplibregl.Map, buildings: RisingBuilding[], duration: number) {
+  const now = performance.now()
+  for (const { id, delay } of buildings) {
+    growing.set(id, { start: now + delay, duration, rise: 0 })
+    instance.setFeatureState({ ...STATE_TARGET, id }, { rise: 0 })
   }
-  riseFrame = requestAnimationFrame(step)
+  if (!riseFrame && growing.size)
+    riseFrame = requestAnimationFrame(now => growStep(instance, now))
 }
 
-let revealPending = false
+function growStep(instance: maplibregl.Map, now: number) {
+  riseFrame = 0
+  if (disposed || !instance.getLayer(BUILDINGS_LAYER_ID)) {
+    growing.clear()
+    return
+  }
+  for (const [id, growth] of growing) {
+    const local = Math.min(Math.max((now - growth.start) / growth.duration, 0), 1)
+    if (local === 1) {
+      // Без состояния действует значение по умолчанию — полная высота
+      instance.removeFeatureState({ ...STATE_TARGET, id }, 'rise')
+      growing.delete(id)
+      continue
+    }
+    const rise = easeOutCubic(local)
+    if (rise !== growth.rise) {
+      growth.rise = rise
+      instance.setFeatureState({ ...STATE_TARGET, id }, { rise })
+    }
+  }
+  if (growing.size)
+    riseFrame = requestAnimationFrame(now => growStep(instance, now))
+}
+
+/** Детерминированный разброс: соседние дома тайла поднимаются не одновременно. */
+function scatter(id: string | number): number {
+  const n = typeof id === 'number' ? id : [...id].reduce((h, c) => (h * 31 + c.charCodeAt(0)) | 0, 0)
+  return (Math.abs(n * 2654435761) % 1000) / 1000 * TILE_SCATTER
+}
+
+/**
+ * Тайл загрузился при перемещении карты: его новые здания кладутся плоско и вырастают.
+ * Событие приходит до первой отрисовки тайла, поэтому полная высота не мелькает.
+ */
+function onSourceData(event: maplibregl.MapSourceDataEvent) {
+  const instance = map?.value
+  const tile = event.tile as { querySourceFeatures?: (result: maplibregl.MapGeoJSONFeature[], params: { sourceLayer: string }) => void } | undefined
+  if (event.sourceId !== SOURCE_ID || !tile?.querySourceFeatures || !instance || disposed || revealPending)
+    return
+  if (!instance.getLayer(BUILDINGS_LAYER_ID))
+    return
+  const features: maplibregl.MapGeoJSONFeature[] = []
+  tile.querySourceFeatures(features, { sourceLayer: SOURCE_LAYER })
+  // Ниже MIN_ZOOM здания плоские — расти нечему, только запоминаем
+  const animate = instance.getZoom() >= MIN_ZOOM
+  const fresh: RisingBuilding[] = []
+  for (const { id } of features) {
+    if (id == null || shown.has(id))
+      continue
+    markShown(id)
+    if (animate)
+      fresh.push({ id, delay: scatter(id) })
+  }
+  grow(instance, fresh, TILE_GROW_DURATION)
+}
 
 /**
  * Здания в кадре берутся из уже загруженных тайлов источника и кладутся плоско (rise = 0)
@@ -162,7 +224,7 @@ function revealNewLayer(instance: maplibregl.Map) {
     instance.once('idle', () => {
       if (disposed)
         return
-      runWave(instance, buildings)
+      grow(instance, buildings, GROW_DURATION)
       updateShadows(instance)
       applyShadowOpacity(instance)
     })
@@ -354,6 +416,8 @@ function addLayer(instance: maplibregl.Map) {
 }
 
 function removeLayer(instance: maplibregl.Map) {
+  shown.clear()
+  growing.clear()
   for (const id of OWN_ORDER) {
     if (instance.getLayer(id))
       instance.removeLayer(id)
@@ -392,7 +456,9 @@ watch(
     stopSettled?.()
     previous?.off('movestart', onMoveStart)
     previous?.off('moveend', onMoveEnd)
+    previous?.off('sourcedata', onSourceData)
     instance?.on('styledata', sync)
+    instance?.on('sourcedata', onSourceData)
     stopSettled = instance ? onMapSettled(instance, onIdle) : null
     instance?.on('movestart', onMoveStart)
     instance?.on('moveend', onMoveEnd)
@@ -433,6 +499,7 @@ onUnmounted(() => {
   shadowWorker.dispose()
   instance.off('movestart', onMoveStart)
   instance.off('moveend', onMoveEnd)
+  instance.off('sourcedata', onSourceData)
   removeLayer(instance)
   instance.removeFeatureState(STATE_TARGET)
   applyLight(instance, DEFAULT_LIGHT)

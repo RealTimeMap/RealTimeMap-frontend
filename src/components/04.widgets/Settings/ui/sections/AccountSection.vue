@@ -3,6 +3,7 @@ import { storeToRefs } from 'pinia'
 import { useAuthStore } from '@/components/00.shared/stores/auth'
 import { useSettingsStore } from '@/components/00.shared/stores/settings'
 import { openActiveSessions } from '@/components/02.features/settings/ActiveSessions'
+import { openDeleteAccount } from '@/components/02.features/settings/DeleteAccount'
 import SettingsRow from '../kit/SettingsRow.vue'
 import SettingsSection from '../kit/SettingsSection.vue'
 
@@ -50,6 +51,14 @@ onMounted(() => {
       hint="Устройства, с которых выполнен вход"
       link
       @click="openActiveSessions"
+    />
+
+    <settings-row
+      label="Удалить аккаунт"
+      hint="Навсегда, вместе со всеми данными"
+      link
+      danger
+      @click="openDeleteAccount"
     />
   </settings-section>
 </template>

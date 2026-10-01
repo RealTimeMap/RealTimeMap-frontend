@@ -4,6 +4,7 @@ import { Preferences } from '@capacitor/preferences'
 import { defineStore } from 'pinia'
 import { clearApiCache } from '@/components/00.shared/api/cache'
 import { getAuthToken, removeAuthToken, setAuthToken } from '@/components/00.shared/lib/authToken'
+import { forgetPushDevice } from '@/components/00.shared/lib/pushDevice'
 import router from '@/components/00.shared/lib/router'
 import { authApi } from '@/components/00.shared/services/auth'
 import { userApi } from '@/components/00.shared/services/user'
@@ -89,6 +90,7 @@ export const useAuthStore = defineStore('auth', () => {
 
   const logout = async () => {
     try {
+      await forgetPushDevice()
       await authApi.logout()
       router.push('/login')
     }
@@ -98,6 +100,13 @@ export const useAuthStore = defineStore('auth', () => {
     finally {
       await clearSession()
     }
+  }
+
+  /** Необратимо: после успеха аккаунта больше нет — чистим всё локально и ведём на вход */
+  const deleteAccount = async (password: string) => {
+    await authApi.deleteAccount(password)
+    await clearSession()
+    await router.push('/login')
   }
 
   const fetchUser = async () => {
@@ -182,6 +191,7 @@ export const useAuthStore = defineStore('auth', () => {
     registration,
     fetchUser,
     logout,
+    deleteAccount,
     clearSession,
     initAuth,
   }

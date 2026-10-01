@@ -1,6 +1,7 @@
 import type { NotificationType } from '@/components/00.shared/services/notification/index.type'
 import { useDebounceFn } from '@vueuse/core'
 import { getCookie, setCookie } from '@/components/00.shared/lib/cookie'
+import { deviceId } from '@/components/00.shared/lib/pushDevice'
 import { notificationApi } from '@/components/00.shared/services/notification'
 import { useNotificationStore } from '@/components/00.shared/stores/notification'
 
@@ -18,18 +19,6 @@ function readMuted(): MutedMap {
   catch {
     return base
   }
-}
-
-function deviceId(): string {
-  let id = localStorage.getItem('device_id')
-  if (!id) {
-    id = crypto.randomUUID()
-    try {
-      localStorage.setItem('device_id', id)
-    }
-    catch { }
-  }
-  return id
 }
 
 export function useNotifications() {

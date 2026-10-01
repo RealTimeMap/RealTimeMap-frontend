@@ -18,7 +18,7 @@ export const SOURCE_ID = 'carto'
 export const SOURCE_LAYER = 'building'
 
 /** Здания появляются только на городских зумах и дорастают до полной высоты к FULL_ZOOM. */
-const MIN_ZOOM = 13
+export const MIN_ZOOM = 13
 const FULL_ZOOM = 15.5
 
 // Высота/база берутся из атрибутов тайла, если они есть, иначе — типовое значение.

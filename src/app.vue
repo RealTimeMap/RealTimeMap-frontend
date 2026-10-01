@@ -192,6 +192,10 @@ $page-transition-easing: cubic-bezier(0.36, 0.66, 0.04, 1);
   opacity: 0;
 }
 
+.none-leave-active {
+  display: none;
+}
+
 .suspense-fallback {
   position: absolute;
   inset: 0;
